@@ -21,7 +21,7 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=37">
 </head>
 <body>
 
@@ -56,6 +56,7 @@
   <button class="mode-tab" id="tab-wanted" onclick="switchMode('wanted')">🏴‍☠️ Wanted</button>
   <button class="mode-tab" id="tab-flag" onclick="switchMode('flag')">🏴 Pavillon</button>
   <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')">🍎 Fruit du Démon</button>
+  <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')">🤔 Émoji</button>
   <button class="mode-tab" id="tab-inf" onclick="switchMode('inf')">🔀 Infini</button>
 </div>
 
@@ -193,6 +194,32 @@
     </div>
   </div>
 
+  <!-- MODE EMOJI -->
+  <div id="emoji-section">
+    <div class="emoji-layout">
+
+      <div class="emoji-left">
+        <div class="emoji-card">
+          <div class="emoji-question">Quel personnage se cache derrière ces indices ?</div>
+          <div class="emoji-strip" id="emoji-strip">
+            <!-- Rempli par JS -->
+          </div>
+          <div class="emoji-progress-label" id="emoji-progress-label"></div>
+        </div>
+        <div class="emoji-reveal" id="emoji-reveal" style="display:none">
+          <img id="emoji-reveal-img" src="" alt=""/>
+          <div class="emoji-reveal-name" id="emoji-reveal-name"></div>
+        </div>
+      </div>
+
+      <div class="emoji-right">
+        <div class="emoji-status-box" id="emoji-status">Devine le personnage — un nouvel indice emoji se débloque à chaque mauvaise réponse</div>
+        <div id="emoji-guesses"></div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- MODE INFINI -->
   <div id="inf-section">
     <div class="inf-streak-bar">
@@ -317,7 +344,7 @@
 </div>
 
 <!-- Données chargées en premier, puis la logique du jeu -->
-<script src="js/data.js?v=30"></script>
-<script src="js/app.js?v=30"></script>
+<script src="js/data.js?v=37"></script>
+<script src="js/app.js?v=37"></script>
 </body>
 </html>

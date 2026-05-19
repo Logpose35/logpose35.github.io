@@ -22,13 +22,17 @@ const COUNTER_LABELS = {
   wanted:  'le mode Wanted',
   flag:    'le mode Pavillon',
   fruit:   null, // remplacé par le nom du fruit
+  emoji:   'le mode Émoji',
 };
 
 async function loadDailyCounter(mode) {
   const el = document.getElementById('daily-counter');
   if (!el || !COUNTER_LABELS.hasOwnProperty(mode)) { if (el) el.textContent = ''; return; }
+  el.textContent = '';
+  el.classList.add('loading');
   const dateKey = todayKey();
   const count = await fbGet(`counters/${dateKey}/${mode}`);
+  el.classList.remove('loading');
   if (count === null || count === 0) { el.textContent = ''; return; }
   const label = mode === 'fruit'
     ? `le ${TARGET_FRU.name}`
@@ -135,11 +139,12 @@ function seedForDate(d, salt = 1) {
   return (base * salt) >>> 0;
 }
 const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-const yChar   = CHARACTERS[seedForDate(yesterday, 1)  % CHARACTERS.length];
-const yWanted = WANTED_CHARS[seedForDate(yesterday, 31) % WANTED_CHARS.length];
-const yFlag   = FLAGS[seedForDate(yesterday, 97) % FLAGS.length];
+const yChar   = CHARACTERS[seedForDate(yesterday,  1)   % CHARACTERS.length];
+const yWanted = WANTED_CHARS[seedForDate(yesterday, 31)  % WANTED_CHARS.length];
+const yFlag   = FLAGS[seedForDate(yesterday,        97)  % FLAGS.length];
+const yEmoji  = EMOJI_POOL[seedForDate(yesterday,   137) % EMOJI_POOL.length];
 document.getElementById('yesterday-bar').innerHTML =
-  `Hier — Classique : <strong>${esc(yChar.name)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(yWanted.name)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(yFlag.name)}</strong>`;
+  `Hier — Classique : <strong>${esc(yChar.name)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(yWanted.name)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(yFlag.name)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(yEmoji.name)}</strong>`;
 
 // ===== NAVIGATION PAR ONGLETS =====
 function switchMode(mode) {
@@ -148,37 +153,47 @@ function switchMode(mode) {
   document.getElementById('tab-wanted').classList.toggle('active', mode === 'wanted');
   document.getElementById('tab-flag').classList.toggle('active', mode === 'flag');
   document.getElementById('tab-fruit').classList.toggle('active', mode === 'fruit');
+  document.getElementById('tab-emoji').classList.toggle('active', mode === 'emoji');
   document.getElementById('tab-inf').classList.toggle('active', mode === 'inf');
   document.getElementById('classic-section').classList.toggle('hidden', mode !== 'classic');
   document.getElementById('wanted-section').classList.toggle('active', mode === 'wanted');
   document.getElementById('flag-section').classList.toggle('active', mode === 'flag');
   document.getElementById('fruit-section').classList.toggle('active', mode === 'fruit');
+  document.getElementById('emoji-section').classList.toggle('active', mode === 'emoji');
   document.getElementById('inf-section').classList.toggle('active', mode === 'inf');
 
-  const over = mode === 'classic' ? cOver : mode === 'wanted' ? wOver : mode === 'fruit' ? frOver : mode === 'inf' ? infOver : fOver;
+  const over = mode === 'classic' ? cOver
+             : mode === 'wanted'  ? wOver
+             : mode === 'fruit'   ? frOver
+             : mode === 'emoji'   ? emOver
+             : mode === 'inf'     ? infOver
+             :                      fOver;
   input.placeholder = mode === 'classic' || mode === 'inf'
     ? 'Tape un nom de personnage...'
     : mode === 'wanted'
     ? 'Devine le personnage sur le poster...'
     : mode === 'fruit'
     ? 'Devine le détenteur du fruit...'
+    : mode === 'emoji'
+    ? 'Devine le personnage...'
     : "Devine l'équipage...";
   input.disabled = over;
   document.getElementById('guess-btn').disabled = over;
   syncBanners();
   updateCounter();
   if (mode === 'wanted') initPoster();
-  if (mode === 'flag') initFlagGrid();
-  if (mode === 'fruit') initFruitMode();
-  if (mode === 'inf') initInfMode();
+  if (mode === 'flag')   initFlagGrid();
+  if (mode === 'fruit')  initFruitMode();
+  if (mode === 'emoji')  initEmojiMode();
+  if (mode === 'inf')    initInfMode();
   loadDailyCounter(mode);
 }
 
 // ===== BANNERS =====
 function syncBanners() {
-  const over    = currentMode === 'classic' ? cOver    : currentMode === 'wanted' ? wOver    : currentMode === 'fruit' ? frOver    : currentMode === 'inf' ? infOver  : fOver;
-  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
-  const target  = currentMode === 'classic' ? TARGET_C : currentMode === 'wanted' ? TARGET_W : currentMode === 'fruit' ? { name: TARGET_FRU.holder } : currentMode === 'inf' ? infTarget : TARGET_F;
+  const over    = currentMode === 'classic' ? cOver    : currentMode === 'wanted' ? wOver    : currentMode === 'fruit' ? frOver    : currentMode === 'emoji' ? emOver    : currentMode === 'inf' ? infOver  : fOver;
+  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
+  const target  = currentMode === 'classic' ? TARGET_C : currentMode === 'wanted' ? TARGET_W : currentMode === 'fruit' ? { name: TARGET_FRU.holder } : currentMode === 'emoji' ? emTarget : currentMode === 'inf' ? infTarget : TARGET_F;
 
   if (!over) {
     document.getElementById('win-banner').classList.remove('show');
@@ -198,8 +213,8 @@ function syncBanners() {
 
 // ===== COUNTER =====
 function updateCounter() {
-  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
-  const names   = currentMode === 'classic' ? cNames   : currentMode === 'wanted' ? wNames   : currentMode === 'fruit' ? frNames   : currentMode === 'inf' ? infNames   : fNames;
+  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
+  const names   = currentMode === 'classic' ? cNames   : currentMode === 'wanted' ? wNames   : currentMode === 'fruit' ? frNames   : currentMode === 'emoji' ? emNames   : currentMode === 'inf' ? infNames   : fNames;
   document.getElementById('counter').style.display = 'block';
   document.getElementById('current-try').textContent = guesses.length + 1;
   document.getElementById('already-guessed-label').textContent =
@@ -252,6 +267,7 @@ input.addEventListener('input', () => {
   if (currentMode === 'classic')      { pool = CHARACTERS;   used = cNames; }
   else if (currentMode === 'wanted')  { pool = WANTED_CHARS; used = wNames; }
   else if (currentMode === 'fruit')   { pool = CHARACTERS;   used = frNames; }
+  else if (currentMode === 'emoji')   { pool = EMOJI_POOL;   used = emNames; }
   else if (currentMode === 'inf')     { pool = CHARACTERS;   used = infNames; }
   else                                { pool = FLAGS;        used = fNames; }
   acFilt = pool.filter(c => !used.has(c.name) && charMatchesQuery(c, q)).slice(0, 8);
@@ -290,6 +306,7 @@ function submitGuess() {
   if (currentMode === 'classic')     submitClassic();
   else if (currentMode === 'wanted') submitWanted();
   else if (currentMode === 'fruit')  submitFruit();
+  else if (currentMode === 'emoji')  submitEmoji();
   else if (currentMode === 'inf')    submitInf();
   else                               submitFlag();
 }
@@ -334,6 +351,7 @@ function finClassic(won) {
     document.getElementById('win-char-name').textContent  = TARGET_C.name;
     document.getElementById('win-attempts').textContent   = cGuesses.length;
     document.getElementById('win-banner').classList.add('show');
+    launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_C.name;
     document.getElementById('lose-banner').classList.add('show');
@@ -390,6 +408,11 @@ function buildGuessRow(char, T) {
     <div class="cell ${ac.state}"><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${ARCS[char.arc - 1]}</span>${ac.arrow ? `<span class="cell-arrow">${ac.arrow}</span>` : ''}</div>
     <div class="cell ${bc.state}"><span class="cell-val">${formatBounty(char.bounty)}</span>${bc.arrow ? `<span class="cell-arrow">${bc.arrow}</span>` : ''}</div>
   `;
+  // Flip animé décalé par colonne (style Wordle)
+  row.querySelectorAll('.cell').forEach((cell, i) => {
+    cell.style.setProperty('--delay', `${i * 55}ms`);
+    cell.classList.add('cell-anim');
+  });
   return row;
 }
 
@@ -573,6 +596,7 @@ function finWanted(won) {
     document.getElementById('win-char-name').textContent  = TARGET_W.name;
     document.getElementById('win-attempts').textContent   = wGuesses.length;
     document.getElementById('win-banner').classList.add('show');
+    launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_W.name;
     document.getElementById('lose-banner').classList.add('show');
@@ -663,6 +687,7 @@ function finFlag(won) {
     document.getElementById('win-char-name').textContent  = TARGET_F.name;
     document.getElementById('win-attempts').textContent   = fGuesses.length;
     document.getElementById('win-banner').classList.add('show');
+    launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_F.name;
     document.getElementById('lose-banner').classList.add('show');
@@ -735,6 +760,7 @@ function finInf(won) {
     document.getElementById('win-char-name').textContent = infTarget.name;
     document.getElementById('win-attempts').textContent  = infGuesses.length;
     document.getElementById('win-banner').classList.add('show');
+    launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = infTarget.name;
     document.getElementById('lose-banner').classList.add('show');
@@ -762,7 +788,7 @@ function defaultStats(maxGuesses) {
 
 function loadStats(mode) {
   const key  = `op-stats-${mode}`;
-  const max  = mode === 'flag' ? MAX_DIST_FLAG : MAX_DIST_CLASSIC;
+  const max  = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : MAX_DIST_CLASSIC;
   const raw  = lsGet(key);
   if (!raw) return defaultStats(max);
   try { return JSON.parse(raw); } catch { return defaultStats(max); }
@@ -841,7 +867,7 @@ function switchStatsTab(mode) {
 function renderStatsContent(mode) {
   const stats   = loadStats(mode);
   const winPct  = stats.played === 0 ? 0 : Math.round((stats.won / stats.played) * 100);
-  const maxDist = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : MAX_DIST_CLASSIC;
+  const maxDist = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : MAX_DIST_CLASSIC;
   const maxVal  = Math.max(1, ...Object.values(stats.distribution));
 
   // Dernier essai gagnant pour surligner la barre
@@ -1004,6 +1030,7 @@ function finFruit(won) {
     document.getElementById('win-char-name').textContent = TARGET_FRU.holder;
     document.getElementById('win-attempts').textContent  = frGuesses.length;
     document.getElementById('win-banner').classList.add('show');
+    launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_FRU.holder;
     document.getElementById('lose-banner').classList.add('show');
@@ -1012,6 +1039,204 @@ function finFruit(won) {
   if (won) incrementDailyCounter('fruit');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(() => showStats('fruit'), 1800);
+}
+
+// ===== MODE EMOJI =====
+const MAX_EM_GUESSES = 8; // = nombre d'émojis max par personnage
+
+let emGuesses = [], emOver = false, emNames = new Set();
+let emTarget  = null;   // null → sera initialisé sur TARGET_EM à l'ouverture du mode
+
+function initEmojiMode() {
+  // Premier appel : utiliser la cible quotidienne
+  if (!emTarget) emTarget = TARGET_EM;
+
+  // Réinitialise la section
+  document.getElementById('emoji-guesses').innerHTML = '';
+  document.getElementById('emoji-reveal').style.display = 'none';
+
+  updateEmojiStrip();
+  updateEmojiStatus();
+
+  // Re-rendu des devinettes déjà faites (si on revient sur l'onglet)
+  emGuesses.slice().reverse().forEach(g => renderEmojiGuess(g, g.name === emTarget.name, false));
+}
+
+function updateEmojiStrip(freshIndex = -1) {
+  const strip = document.getElementById('emoji-strip');
+  const emojis = emTarget.emoji;
+  const total  = emojis.length;
+  // Nombre d'émojis révélés = nombre de mauvaises réponses + 1 (min 1 toujours visible)
+  const wrongCount = emGuesses.filter(g => g.name !== emTarget.name).length;
+  const revealed   = Math.min(wrongCount + 1, total);
+
+  strip.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const box = document.createElement('div');
+    if (i < revealed) {
+      box.className = 'emoji-box revealed' + (i === freshIndex ? ' fresh' : '');
+      box.textContent = emojis[i];
+      box.title = `Indice ${i + 1}`;
+      box.dataset.idx = i + 1;
+    } else {
+      box.className = 'emoji-box locked';
+      box.textContent = '🔒';
+    }
+    strip.appendChild(box);
+  }
+
+  const label = document.getElementById('emoji-progress-label');
+  if (emOver) {
+    label.textContent = `${total} / ${total} indices révélés`;
+  } else {
+    label.textContent = `${revealed} / ${total} indice${revealed > 1 ? 's' : ''} révélé${revealed > 1 ? 's' : ''}`;
+  }
+}
+
+function updateEmojiStatus() {
+  const el = document.getElementById('emoji-status');
+  if (emOver) {
+    const won = emGuesses.some(g => g.name === emTarget.name);
+    el.textContent = won
+      ? `🎉 Bravo ! C'était bien ${emTarget.name} !`
+      : `💀 Perdu ! C'était ${emTarget.name}.`;
+    el.style.color = won ? 'var(--green-l)' : 'var(--red)';
+  } else {
+    const left = MAX_EM_GUESSES - emGuesses.length;
+    el.textContent = `${left} essai${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''} — un nouvel indice emoji se débloque à chaque erreur`;
+    el.style.color = '';
+  }
+}
+
+function submitEmoji() {
+  if (emOver) return;
+  const raw  = input.value.trim();
+  const char = EMOJI_POOL.find(c => c.name.toLowerCase() === raw.toLowerCase());
+  if (!char || emNames.has(char.name)) { shake(input); return; }
+  emNames.add(char.name); emGuesses.push(char);
+  input.value = ''; acBox.classList.remove('open');
+  const correct = char.name === emTarget.name;
+  renderEmojiGuess(char, correct, true);
+  updateCounter();
+
+  if (correct) {
+    finEmoji(true);
+  } else {
+    // Révèle le prochain emoji avec animation
+    const wrongCount = emGuesses.filter(g => g.name !== emTarget.name).length;
+    const newIdx = Math.min(wrongCount, emTarget.emoji.length - 1);
+    updateEmojiStrip(newIdx);
+    updateEmojiStatus();
+    if (emGuesses.length >= MAX_EM_GUESSES) finEmoji(false);
+  }
+}
+
+function renderEmojiGuess(char, correct, prepend = true) {
+  const row = document.createElement('div');
+  row.className = 'wanted-guess-row';
+  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+  const container = document.getElementById('emoji-guesses');
+  if (prepend) container.prepend(row);
+  else         container.appendChild(row);
+}
+
+function finEmoji(won) {
+  emOver = true;
+  document.getElementById('guess-btn').disabled = true;
+  input.disabled = true;
+
+  // Révèle tous les émojis
+  updateEmojiStrip();
+
+  // Affiche l'image du personnage
+  const imgFile = getImgFile(emTarget);
+  if (imgFile) {
+    const revEl   = document.getElementById('emoji-reveal');
+    const revImg  = document.getElementById('emoji-reveal-img');
+    const revName = document.getElementById('emoji-reveal-name');
+    revImg.src = `images/${imgFile}.jpg`;
+    revName.textContent = emTarget.name;
+    revEl.style.display = 'block';
+  }
+
+  updateEmojiStatus();
+
+  if (won) {
+    document.getElementById('win-char-name').textContent  = emTarget.name;
+    document.getElementById('win-attempts').textContent   = emGuesses.length;
+    document.getElementById('win-banner').classList.add('show');
+    launchConfetti();
+  } else {
+    document.getElementById('lose-char-name').textContent = emTarget.name;
+    document.getElementById('lose-banner').classList.add('show');
+  }
+
+  recordResult('emoji', won, emGuesses.length);
+  if (won) incrementDailyCounter('emoji');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => showStats('emoji'), 1800);
+}
+
+// ===== CONFETTIS =====
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const COLORS = ['#e8c030','#20b858','#e04040','#4a9ff5','#ff8c42','#c878f0','#ffffff'];
+  const pieces = Array.from({ length: 130 }, () => ({
+    x:         Math.random() * canvas.width,
+    y:         Math.random() * -canvas.height * 0.5,
+    r:         3 + Math.random() * 6,
+    speed:     2.5 + Math.random() * 3.5,
+    color:     COLORS[Math.floor(Math.random() * COLORS.length)],
+    angle:     Math.random() * Math.PI * 2,
+    spin:      (Math.random() - 0.5) * 0.14,
+    drift:     (Math.random() - 0.5) * 1.2,
+    shape:     Math.random() < 0.5 ? 'rect' : 'circle',
+  }));
+
+  const FRAMES = 200;
+  let frame = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const fade = frame < FRAMES * 0.65 ? 1 : 1 - (frame - FRAMES * 0.65) / (FRAMES * 0.35);
+    ctx.globalAlpha = Math.max(0, fade);
+
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') {
+        ctx.fillRect(-p.r, -p.r * 0.5, p.r * 2, p.r);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.r * 0.65, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      p.y     += p.speed;
+      p.x     += p.drift;
+      p.angle += p.spin;
+      if (p.y > canvas.height + 20) {
+        p.y = -10;
+        p.x = Math.random() * canvas.width;
+      }
+    });
+
+    ctx.globalAlpha = 1;
+    frame++;
+    if (frame < FRAMES) requestAnimationFrame(draw);
+    else canvas.remove();
+  }
+  requestAnimationFrame(draw);
 }
 
 // Charge le compteur du mode par défaut au démarrage

@@ -76,6 +76,10 @@
 
 /* ===== RESET ===== */
 * { box-sizing: border-box; margin: 0; padding: 0; }
+button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
 
 /* ===== BODY & FOND ===== */
 body {
@@ -238,7 +242,12 @@ body.size-large  { zoom: 1.22; }
   padding: 14px 20px;
   background: var(--header-bg);
   border-bottom: 2px solid rgba(200, 148, 10, 0.3);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
 }
+.mode-tabs::-webkit-scrollbar { display: none; }
 
 .mode-tab {
   padding: 9px 26px;
@@ -306,36 +315,60 @@ main {
   color: var(--gold);
   font-weight: 600;
   letter-spacing: 0.03em;
-  min-height: 1.2em;
+  min-height: 1.4em;
+  position: relative;
+}
+/* Shimmer pendant le chargement Firebase */
+.daily-counter.loading { color: transparent !important; }
+.daily-counter.loading::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 260px; height: 13px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--bg2) 20%, var(--border2) 50%, var(--bg2) 80%);
+  background-size: 300% 100%;
+  animation: shimmerSlide 1.5s linear infinite;
+}
+@keyframes shimmerSlide {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 /* ===== BANNERS ===== */
 #win-banner, #lose-banner {
   display: none;
   text-align: center;
-  padding: 18px 20px;
-  border-radius: 14px;
+  padding: 20px 24px;
+  border-radius: 16px;
   margin-bottom: 22px;
-  animation: fadeIn 0.5s ease;
+  animation: bannerBounce 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 #win-banner.show {
   display: block;
   background: var(--correct-bg);
   border: 2px solid var(--green);
-  box-shadow: 0 0 24px var(--glow-green);
+  box-shadow: 0 0 32px var(--glow-green), 0 6px 24px var(--shadow);
 }
 #lose-banner.show {
   display: block;
   background: #2a0808;
   border: 2px solid var(--red);
-  box-shadow: 0 0 24px rgba(200,32,32,0.3);
+  box-shadow: 0 0 32px rgba(200,32,32,0.35), 0 6px 24px var(--shadow);
 }
-#win-banner h2  { color: var(--green);  font-size: 1.6rem; margin-bottom: 6px; }
-#lose-banner h2 { color: var(--red);    font-size: 1.6rem; margin-bottom: 6px; }
-#win-banner p, #lose-banner p { color: #e8e8e8; }
+#win-banner h2  { color: var(--green);  font-size: 1.7rem; margin-bottom: 8px; letter-spacing: 0.06em; }
+#lose-banner h2 { color: var(--red);    font-size: 1.7rem; margin-bottom: 8px; letter-spacing: 0.06em; }
+#win-banner p, #lose-banner p { color: #e8e8e8; font-size: 0.96rem; }
 .answer   { font-weight: 700; color: var(--gold-l); }
 .attempts { font-weight: 700; color: var(--correct-t); }
 
+@keyframes bannerBounce {
+  0%   { opacity: 0; transform: translateY(-24px) scale(0.88); }
+  55%  { opacity: 1; transform: translateY(6px)   scale(1.03); }
+  75%  { transform: translateY(-3px) scale(0.99); }
+  100% { opacity: 1; transform: translateY(0)     scale(1); }
+}
 @keyframes fadeIn { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
 
 /* ===== ZONE DE RECHERCHE ===== */
@@ -451,8 +484,23 @@ main {
   padding: 4px 2px;
 }
 
-.guess-row { animation: slideIn 0.35s ease; }
+.guess-row {
+  animation: slideIn 0.3s ease;
+  perspective: 900px;
+}
 @keyframes slideIn { from { opacity:0; transform:translateY(-14px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── Flip Wordle par cellule ── */
+.cell.cell-anim {
+  opacity: 0;
+  animation: cellFlipIn 0.38s ease forwards;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes cellFlipIn {
+  0%   { opacity: 0; transform: rotateX(-90deg) scale(0.85); }
+  60%  { opacity: 1; transform: rotateX(8deg)   scale(1.02); }
+  100% { opacity: 1; transform: rotateX(0deg)   scale(1); }
+}
 
 .cell {
   display: flex;
@@ -1071,6 +1119,134 @@ main {
 }
 .inf-replay-btn:hover { background: var(--gold-l); transform: translateY(-2px); }
 .inf-replay-btn:active { transform: translateY(0); }
+
+/* ===== MODE EMOJI ===== */
+#emoji-section { display: none; }
+#emoji-section.active { display: block; }
+
+.emoji-layout {
+  display: flex; gap: 36px; align-items: flex-start; flex-wrap: wrap;
+}
+.emoji-left  { flex-shrink: 0; width: 360px; display: flex; flex-direction: column; gap: 16px; }
+.emoji-right { flex: 1; min-width: 0; }
+
+.emoji-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px 22px;
+  box-shadow: 0 6px 28px var(--shadow);
+  text-align: center;
+}
+.emoji-question {
+  font-size: 0.76rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text2);
+  margin-bottom: 24px; font-weight: 600;
+}
+
+/* ── Bande d'émojis ── */
+.emoji-strip {
+  display: flex; gap: 8px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 18px;
+}
+.emoji-box {
+  width: 54px; height: 54px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.75rem;
+  border: 2px solid var(--border2);
+  background: var(--bg2);
+  transition: border-color 0.3s, background 0.3s, transform 0.2s;
+  position: relative;
+  cursor: default;
+  user-select: none;
+}
+/* Badge numéro sur chaque émoji révélé */
+.emoji-box.revealed::after {
+  content: attr(data-idx);
+  position: absolute;
+  top: -7px; right: -7px;
+  font-size: 0.5rem; font-weight: 800;
+  background: var(--gold);
+  color: #04090f;
+  border-radius: 50%;
+  width: 15px; height: 15px;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 1px 4px var(--shadow);
+}
+
+/* Émoji visible */
+.emoji-box.revealed {
+  background: var(--card);
+  border-color: var(--gold);
+  box-shadow: 0 0 10px var(--glow-gold);
+}
+/* Emojis cachés */
+.emoji-box.locked {
+  background: var(--wrong);
+  border-color: var(--border2);
+  font-size: 1.1rem; color: var(--text3);
+  opacity: 0.5;
+}
+/* Animation de révélation */
+.emoji-box.fresh {
+  animation: emojipop 0.45s cubic-bezier(0.25, 1.5, 0.5, 1) forwards;
+  border-color: var(--gold-l);
+}
+@keyframes emojipop {
+  0%   { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  60%  { transform: scale(1.25) rotate(5deg);  opacity: 1; }
+  100% { transform: scale(1)    rotate(0deg);  opacity: 1; }
+}
+
+.emoji-progress-label {
+  font-size: 0.7rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text3);
+}
+
+/* ── Révélation du personnage en fin de partie ── */
+.emoji-reveal {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px var(--shadow);
+  position: relative;
+}
+.emoji-reveal img {
+  width: 100%; max-height: 240px;
+  object-fit: cover; object-position: center top;
+  display: block;
+}
+.emoji-reveal-name {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.72));
+  color: #fff; font-weight: 700; font-size: 1.05rem;
+  padding: 24px 12px 10px; letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* ── Panneau status ── */
+.emoji-status-box {
+  background: var(--card);
+  border: 2px solid var(--border2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  font-size: 0.8rem; letter-spacing: 0.08em;
+  color: var(--text2); text-transform: uppercase;
+  text-align: center; line-height: 1.5;
+}
+
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .emoji-layout { flex-direction: column; align-items: center; }
+  .emoji-left  { width: 100%; max-width: 380px; }
+  .emoji-box   { width: 46px; height: 46px; font-size: 1.5rem; }
+}
 
 /* ===== FOOTER ===== */
 footer {
