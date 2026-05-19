@@ -227,6 +227,8 @@ let acSel = -1, acFilt = [];
 // Retourne le label d'alias/épithète qui a matché, ou null si c'est le nom qui matche
 function getMatchHint(c, q) {
   if (c.name.toLowerCase().includes(q)) return null;
+  // Capitaine (mode pavillon)
+  if (c.captain && c.captain.toLowerCase().includes(q)) return c.captain;
   // Épithète
   if (c.epithet && c.epithet.toLowerCase().includes(q)) return c.epithet;
   // Alias explicites
@@ -238,6 +240,7 @@ function getMatchHint(c, q) {
 
 function charMatchesQuery(c, q) {
   if (c.name.toLowerCase().includes(q)) return true;
+  if (c.captain && c.captain.toLowerCase().includes(q)) return true;
   if (c.epithet && c.epithet.toLowerCase().includes(q)) return true;
   return Object.entries(ALIASES).some(([alias, charName]) => charName === c.name && alias.includes(q));
 }
@@ -254,7 +257,7 @@ input.addEventListener('input', () => {
   acFilt = pool.filter(c => !used.has(c.name) && charMatchesQuery(c, q)).slice(0, 8);
   if (!acFilt.length) { acBox.classList.remove('open'); return; }
   acBox.innerHTML = acFilt.map((c, i) => {
-    const hint = getMatchHint(c, q);
+    const hint = getMatchHint(c, q) || (c.captain && currentMode === 'flag' ? c.captain : null);
     const sub  = hint ? ` <span class="ac-hint">${esc(hint)}</span>` : '';
     return `<div class="ac-item" data-i="${i}">${esc(c.name)}${sub}</div>`;
   }).join('');

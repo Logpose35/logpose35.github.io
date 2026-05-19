@@ -189,24 +189,24 @@ const CHARACTERS = [
 
 // ===== PAVILLONS =====
 const FLAGS = [
-  { name:"Chapeau de Paille",    file:"chapeau_de_paille"   },
-  { name:"Barbe Blanche",        file:"barbe_blanche"       },
-  { name:"Pirates de Roger",     file:"roger"               },
-  { name:"Pirates du Cœur",      file:"heart"               },
-  { name:"Baroque Works",        file:"baroque_works"       },
-  { name:"Pirates du Chat Noir", file:"chat_noir"           },
-  { name:"Équipage des Géants",  file:"equipage_des_geants" },
-  { name:"Fire Tank Pirates",    file:"capone"              },
-  { name:"Krieg Pirates",        file:"don_krieg"           },
+  { name:"L'Équipage du Chapeau de Paille", file:"chapeau_de_paille",   captain:"Monkey D. Luffy"        },
+  { name:"L'Équipage de Barbe Blanche",     file:"barbe_blanche",       captain:"Edward Newgate"         },
+  { name:"L'Équipage des Pirates de Roger", file:"roger",               captain:"Gol D. Roger"           },
+  { name:"L'Équipage du Cœur",              file:"heart",               captain:"Trafalgar D. Water Law" },
+  { name:"Baroque Works",                   file:"baroque_works",       captain:"Crocodile"              },
+  { name:"L'Équipage du Chat Noir",         file:"chat_noir",           captain:"Kuro"                   },
+  { name:"L'Équipage des Géants",           file:"equipage_des_geants", captain:"Dorry & Brogy"          },
+  { name:"L'Équipage du Fire Tank",         file:"capone",              captain:"Capone Bege"            },
+  { name:"La Flotte de Don Krieg",          file:"don_krieg",           captain:"Don Krieg"              },
   // --- East Blue ---
-  { name:"Pirates d'Alvida",     file:"alvida"              },
-  { name:"Pirates de Buggy",     file:"buggy"               },
-  { name:"Pirates d'Arlong",     file:"arlong"              },
-  { name:"Pirates Roux",         file:"rouge"               },
+  { name:"L'Équipage d'Alvida",             file:"alvida",              captain:"Alvida"                 },
+  { name:"L'Équipage du Clown",             file:"buggy",               captain:"Baggy"                  },
+  { name:"L'Équipage d'Arlong",             file:"arlong",              captain:"Arlong"                 },
+  { name:"L'Équipage du Roux",              file:"rouge",               captain:"Shanks"                 },
   // --- Alabasta / Drum Island ---
-  { name:"Pirates de Bliking",   file:"bliking"             },
+  { name:"L'Équipage du Bliking",           file:"bliking",             captain:"Wapol"                  },
   // --- Jaya / Skypiea ---
-  { name:"Pirates de Bellamy",   file:"bellamy"             },
+  { name:"L'Équipage de Bellamy",           file:"bellamy",             captain:"Bellamy"                },
 ];
 
 // ===== ALIASES (noms alternatifs pour la recherche) =====
@@ -324,7 +324,7 @@ const MAX_FRU_GUESSES = 10;
 const TARGET_C   = dailyPick(CHARACTERS,   1);   // Classique
 const TARGET_W   = dailyPick(WANTED_CHARS, 31);  // Wanted
 const TARGET_F   = dailyPick(FLAGS,        97);  // Pavillon
-const TARGET_FRU = dailyPick(FRUITS,       53);  // Akuma no Mi
+const TARGET_FRU = dailyPick(FRUITS,       71);  // Fruit du Démon
 
 // Ordre déterministe des cases du pavillon
 const CELL_ORDER = (function () {
