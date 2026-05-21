@@ -1311,7 +1311,7 @@ function buildShareText() {
 
   lines.push('');
   lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 50 000 pts`);
-  lines.push('logpose35.github.io');
+  lines.push('onepiecedle.fr');
   return lines.join('\n');
 }
 
@@ -1345,7 +1345,7 @@ function shareVia(platform) {
   const enc = encodeURIComponent(_shareText);
   const urls = {
     twitter:  `https://twitter.com/intent/tweet?text=${enc}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Flogpose35.github.io%2F&quote=${enc}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fonepiecedle.fr%2F&quote=${enc}`,
     bluesky:  `https://bsky.app/intent/compose?text=${enc}`,
   };
   if (urls[platform]) window.open(urls[platform], '_blank', 'noopener,noreferrer,width=600,height=520');
