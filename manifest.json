@@ -1,0 +1,13 @@
+{
+  "name": "LogPose",
+  "short_name": "LogPose",
+  "description": "5 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon et Émoji",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#04090f",
+  "theme_color": "#c89408",
+  "lang": "fr",
+  "icons": [
+    { "src": "images/jolly_roger.png", "sizes": "any", "type": "image/png" }
+  ]
+}

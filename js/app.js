@@ -187,6 +187,15 @@ function switchMode(mode) {
   if (mode === 'emoji')  initEmojiMode();
   if (mode === 'inf')    initInfMode();
   loadDailyCounter(mode);
+  const TITLES = {
+    classic: 'LogPose · Classique — Devine le personnage One Piece',
+    wanted:  'LogPose · Wanted — Reconnais l\'avis de recherche',
+    flag:    'LogPose · Pavillon — Identifie le Jolly Roger',
+    fruit:   'LogPose · Fruit du Démon — Trouve le détenteur',
+    emoji:   'LogPose · Émoji — Devine le personnage One Piece',
+    inf:     'LogPose · Infini — Entraînement sans limite',
+  };
+  document.title = TITLES[mode] || 'LogPose — 5 défis One Piece quotidiens';
 }
 
 // ===== BANNERS =====
@@ -357,7 +366,9 @@ function finClassic(won) {
     document.getElementById('lose-banner').classList.add('show');
   }
   recordResult('classic', won, cGuesses.length);
-  if (won) incrementDailyCounter('classic');
+  saveModeResult('classic', won, cGuesses.length);
+  if (won) { incrementDailyCounter('classic'); saveModeScore('classic', calcModeScore('classic', cGuesses.length, hintUsed, 0)); }
+  else { updateScoreBar(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(() => showStats('classic'), 1800);
 }
@@ -399,7 +410,7 @@ function buildGuessRow(char, T) {
         : `<span class="char-name-only">${esc(char.name)}</span>`
       }
     </div>
-    <div class="cell ${gs}"><span class="cell-icon">${char.gender === 'M' ? '♂️' : '♀️'}</span><span class="cell-val">${char.gender === 'M' ? 'Homme' : 'Femme'}</span></div>
+    <div class="cell ${gs}"><span class="cell-icon">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu'}</span></div>
     <div class="cell ${as}"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${char.affil}</span></div>
     <div class="cell ${os}"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${char.origin}</span></div>
     <div class="cell ${fs}"><span class="cell-icon">${fl.icon}</span><span class="cell-val">${fl.val}</span></div>
@@ -422,7 +433,7 @@ function renderClassicRow(char) {
 
 // ===== RECAP =====
 const RECAP_COLS = [
-  { key:'gender', label:'Genre',     fn: c => c.gender === 'M' ? 'Homme' : 'Femme',        check: (g,t) => g.gender === t.gender },
+  { key:'gender', label:'Genre',     fn: c => c.gender === 'M' ? 'Homme' : c.gender === 'F' ? 'Femme' : 'Inconnu', check: (g,t) => g.gender === t.gender },
   { key:'affil',  label:'Affil.',    fn: c => c.affil,                                       check: (g,t) => g.affil  === t.affil  },
   { key:'origin', label:'Origine',   fn: c => c.origin,                                      check: (g,t) => g.origin === t.origin },
   { key:'fruit',  label:'Fruit',     fn: c => c.fruit || 'Aucun',                            check: (g,t) => g.fruit  === t.fruit  },
@@ -457,7 +468,7 @@ function updateRecap() {
 
 // ===== INDICE =====
 const HINT_COLS = [
-  { key:'gender', label:'Genre',          fn: c => c.gender === 'M' ? 'Homme' : 'Femme' },
+  { key:'gender', label:'Genre',          fn: c => c.gender === 'M' ? 'Homme' : c.gender === 'F' ? 'Femme' : 'Inconnu' },
   { key:'affil',  label:'Affiliation',    fn: c => c.affil },
   { key:'origin', label:'Origine',        fn: c => c.origin },
   { key:'fruit',  label:'Fruit du Démon', fn: c => c.fruit || 'Aucun' },
@@ -606,7 +617,9 @@ function finWanted(won) {
     document.getElementById('lose-banner').classList.add('show');
   }
   recordResult('wanted', won, wGuesses.length);
-  if (won) incrementDailyCounter('wanted');
+  saveModeResult('wanted', won, wGuesses.length);
+  if (won) { incrementDailyCounter('wanted'); saveModeScore('wanted', calcModeScore('wanted', wGuesses.length, false, 0)); }
+  else { updateScoreBar(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(() => showStats('wanted'), 1800);
 }
@@ -698,7 +711,9 @@ function finFlag(won) {
     document.getElementById('lose-banner').classList.add('show');
   }
   recordResult('flag', won, fGuesses.length);
-  if (won) incrementDailyCounter('flag');
+  saveModeResult('flag', won, fGuesses.length);
+  if (won) { incrementDailyCounter('flag'); saveModeScore('flag', calcModeScore('flag', fGuesses.length, false, 0)); }
+  else { updateScoreBar(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(() => showStats('flag'), 1800);
 }
@@ -848,7 +863,7 @@ function showStats(mode) {
   document.getElementById('stats-modal').classList.remove('hidden');
   renderStatsContent(_statsMode);
   // Met à jour les onglets
-  ['classic','wanted','flag','fruit'].forEach(m => {
+  ['classic','wanted','flag','fruit','emoji'].forEach(m => {
     document.getElementById(`stab-${m}`).classList.toggle('active', m === _statsMode);
   });
 }
@@ -863,7 +878,7 @@ function handleModalClick(e) {
 
 function switchStatsTab(mode) {
   _statsMode = mode;
-  ['classic','wanted','flag','fruit'].forEach(m => {
+  ['classic','wanted','flag','fruit','emoji'].forEach(m => {
     document.getElementById(`stab-${m}`).classList.toggle('active', m === mode);
   });
   renderStatsContent(mode);
@@ -878,7 +893,25 @@ function renderStatsContent(mode) {
   // Dernier essai gagnant pour surligner la barre
   const lastWinGuess = stats.lastWinGuesses || null;
 
-  let html = `
+  // ── Score du jour ──────────────────────────────────────────────
+  const todayScores = JSON.parse(lsGet('op-score-' + todayKey()) || '{}');
+  const modeScore   = todayScores[mode];
+  const totalScore  = Object.values(todayScores).reduce((a,b) => a+b, 0);
+  const modeLabels  = { classic:'Classique', wanted:'Wanted', flag:'Pavillon', fruit:'Fruit du Démon', emoji:'Émoji' };
+  const scoreHtml   = modeScore !== undefined ? `
+    <div class="stats-score-row">
+      <div class="stats-score-item">
+        <span class="stats-score-label">Score ${modeLabels[mode] || mode}</span>
+        <span class="stats-score-val">${modeScore.toLocaleString('fr-FR')} pts</span>
+      </div>
+      <div class="stats-score-sep">⚓</div>
+      <div class="stats-score-item">
+        <span class="stats-score-label">Total du jour</span>
+        <span class="stats-score-val">${totalScore.toLocaleString('fr-FR')} <span class="stats-score-max">/ 50 000</span></span>
+      </div>
+    </div>` : '';
+
+  let html = scoreHtml + `
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-val">${stats.played}</div><div class="stat-label">Parties jouées</div></div>
       <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-label">Victoires</div></div>
@@ -1041,7 +1074,9 @@ function finFruit(won) {
     document.getElementById('lose-banner').classList.add('show');
   }
   recordResult('fruit', won, frGuesses.length);
-  if (won) incrementDailyCounter('fruit');
+  saveModeResult('fruit', won, frGuesses.length);
+  if (won) { incrementDailyCounter('fruit'); saveModeScore('fruit', calcModeScore('fruit', frGuesses.length, false, frHintsRevealed.size)); }
+  else { updateScoreBar(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(() => showStats('fruit'), 1800);
 }
@@ -1199,11 +1234,155 @@ function finEmoji(won) {
   }
 
   recordResult('emoji', won, emGuesses.length);
-  if (won) incrementDailyCounter('emoji');
+  saveModeResult('emoji', won, emGuesses.length);
+  if (won) { incrementDailyCounter('emoji'); saveModeScore('emoji', calcModeScore('emoji', emGuesses.length, false, 0)); }
+  else { updateScoreBar(); }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(() => showStats('emoji'), 1800);
 }
+
+// ===== SYSTÈME DE SCORE =====
+const SCORE_MAX_TOTAL = 50000;
+const SCORE_PENALTIES = { classic: 1000, wanted: 1250, fruit: 1000, emoji: 1250 };
+
+function round50(n) { return Math.round(n / 50) * 50; }
+
+function calcModeScore(mode, tries, hintUsed, hintsCount) {
+  let base;
+  if (mode === 'flag') {
+    // Pavillon : proportionnel sur 15 essais, pénalité 650/essai
+    base = Math.max(0, round50(10000 - (tries - 1) * 650));
+  } else {
+    base = Math.max(0, 10000 - (tries - 1) * SCORE_PENALTIES[mode]);
+  }
+  if (mode === 'classic' && hintUsed)    base = round50(base / 2);
+  if (mode === 'fruit'   && hintsCount)  base = round50(base / Math.pow(1.5, hintsCount));
+  return base;
+}
+
+function saveModeScore(mode, pts) {
+  const key    = 'op-score-' + todayKey();
+  const scores = JSON.parse(lsGet(key) || '{}');
+  scores[mode] = pts;
+  lsSet(key, JSON.stringify(scores));
+  updateScoreBar();
+}
+
+function saveModeResult(mode, won, tries) {
+  const key     = 'op-result-' + todayKey();
+  const results = JSON.parse(lsGet(key) || '{}');
+  if (results[mode]) return; // déjà enregistré
+  results[mode] = { won: won, tries: tries };
+  lsSet(key, JSON.stringify(results));
+}
+
+let _shareText = '';
+
+function buildShareText() {
+  const dk      = todayKey();
+  const scores  = JSON.parse(lsGet('op-score-'  + dk) || '{}');
+  const results = JSON.parse(lsGet('op-result-' + dk) || '{}');
+  const total   = Object.values(scores).reduce((a, b) => a + b, 0);
+
+  const MODES = [
+    { key: 'classic', icon: '🗺️'  },
+    { key: 'wanted',  icon: '🏴‍☠️' },
+    { key: 'flag',    icon: '🏴'   },
+    { key: 'fruit',   icon: '🍎'  },
+    { key: 'emoji',   icon: '😀'  },
+  ];
+
+  const [y, m, d] = dk.split('-');
+  let lines = [`LogPose · ${d}/${m}`, ''];
+
+  MODES.forEach(({ key, icon }) => {
+    const res = results[key];
+    const pts = scores[key] || 0;
+    if (!res) {
+      lines.push(`${icon} —`);
+    } else if (res.won) {
+      const essai = res.tries > 1 ? 'essais' : 'essai';
+      lines.push(`${icon} ✅ ${res.tries} ${essai} · ${pts.toLocaleString('fr-FR')} pts`);
+    } else {
+      lines.push(`${icon} ❌ · 0 pts`);
+    }
+  });
+
+  lines.push('');
+  lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 50 000 pts`);
+  lines.push('logpose35.github.io');
+  return lines.join('\n');
+}
+
+function shareDaily() {
+  _shareText = buildShareText();
+  document.getElementById('share-popup-preview').textContent = _shareText;
+  document.getElementById('share-popup').classList.remove('hidden');
+}
+
+function closeSharePopup() {
+  document.getElementById('share-popup').classList.add('hidden');
+}
+
+function handleShareOverlayClick(e) {
+  if (e.target === document.getElementById('share-popup')) closeSharePopup();
+}
+
+function shareVia(platform) {
+  if (platform === 'copy') {
+    const btn = document.querySelector('.share-via-copy');
+    const done = () => {
+      if (btn) { btn.textContent = '✅ Copié !'; setTimeout(() => { btn.textContent = '📋 Copier'; }, 2200); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(_shareText).then(done).catch(() => fallbackCopy(_shareText, done));
+    } else {
+      fallbackCopy(_shareText, done);
+    }
+    return;
+  }
+  const enc = encodeURIComponent(_shareText);
+  const urls = {
+    twitter:  `https://twitter.com/intent/tweet?text=${enc}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Flogpose35.github.io%2F&quote=${enc}`,
+    bluesky:  `https://bsky.app/intent/compose?text=${enc}`,
+  };
+  if (urls[platform]) window.open(urls[platform], '_blank', 'noopener,noreferrer,width=600,height=520');
+}
+
+function fallbackCopy(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  if (cb) cb();
+}
+
+function getTotalScore() {
+  const scores = JSON.parse(lsGet('op-score-' + todayKey()) || '{}');
+  return Object.values(scores).reduce((a, b) => a + b, 0);
+}
+
+function updateScoreBar() {
+  const total    = getTotalScore();
+  const pct      = Math.min(100, (total / SCORE_MAX_TOTAL) * 100);
+  const fill     = document.getElementById('score-fill');
+  const label    = document.getElementById('score-total');
+  const shareBtn = document.getElementById('share-daily-btn');
+  if (fill)  fill.style.width = pct + '%';
+  if (label) label.textContent = total.toLocaleString('fr-FR');
+  if (shareBtn) {
+    const results = JSON.parse(lsGet('op-result-' + todayKey()) || '{}');
+    shareBtn.classList.toggle('hidden', Object.keys(results).length === 0);
+  }
+}
+
+// Init au chargement
+updateScoreBar();
 
 // ===== CONFETTIS =====
 function launchConfetti() {

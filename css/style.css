@@ -276,6 +276,225 @@ body.size-large  { zoom: 1.22; }
   font-weight: 700;
 }
 
+/* ===== BARRE DE SCORE ===== */
+.score-bar-section {
+  background: var(--header-bg);
+  padding: 7px 24px 10px;
+  border-bottom: 1px solid rgba(200,148,10,0.18);
+  position: relative;
+  z-index: 8;
+}
+.score-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1020px;
+  margin: 0 auto;
+}
+.score-anchor {
+  font-size: 1rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* Piste */
+.score-track {
+  flex: 1;
+  height: 20px;
+  position: relative;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(200,148,10,0.22);
+  overflow: visible;
+}
+/* Vagues animées dans le fond */
+.score-track::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px, transparent 6px,
+    rgba(200,148,10,0.09) 6px, rgba(200,148,10,0.09) 12px
+  );
+  background-size: 24px 100%;
+  animation: waveFlow 2.5s linear infinite;
+}
+@keyframes waveFlow {
+  from { background-position: 0 0; }
+  to   { background-position: 24px 0; }
+}
+
+/* Remplissage : juste la ligne de vague, pas de fond solide */
+.score-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0%;
+  min-width: 0;
+  background: transparent;
+  border-radius: 10px;
+  transition: width 1.3s cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: visible;
+}
+.score-fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='20'%3E%3Cpath d='M0,10 C15,1 45,19 60,10 C75,1 105,19 120,10 L120,20 L0,20 Z' fill='%23c89408'/%3E%3Cpath d='M0,10 C15,1 45,19 60,10 C75,1 105,19 120,10' stroke='%23ffd84d' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 120px 100%;
+  filter: drop-shadow(0 0 4px rgba(200,148,10,0.8));
+  animation: waveSurface 1.8s linear infinite;
+}
+@keyframes waveSurface {
+  from { background-position: 0 0; }
+  to   { background-position: -120px 0; }
+}
+
+/* Le Vogue Merry ⛵ */
+.score-merry {
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  transform: translateY(-58%);
+  width: auto;
+  height: 38px;
+  object-fit: contain;
+  animation: merryBob 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.6));
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes merryBob {
+  0%,100% { transform: translateY(-58%) rotate(-4deg); }
+  25%      { transform: translateY(-72%) rotate(-1deg); }
+  50%      { transform: translateY(-62%) rotate(4deg); }
+  75%      { transform: translateY(-74%) rotate(1deg); }
+}
+
+/* Texte score */
+.score-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+  min-width: 90px;
+  text-align: right;
+}
+.score-max { color: rgba(200,148,10,0.45); font-weight: 500; }
+
+/* Bouton partage */
+.share-daily-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 13px;
+  background: linear-gradient(135deg, #c89408 0%, #9a7006 100%);
+  color: #04090f;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(200,148,10,0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.share-daily-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(200,148,10,0.55);
+}
+.share-daily-btn:active { transform: translateY(0); }
+.share-daily-btn.hidden { display: none; }
+
+/* ===== POPUP PARTAGE ===== */
+.share-popup-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(4,9,15,0.72);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.share-popup-overlay.hidden { display: none; }
+
+.share-popup-box {
+  position: relative;
+  background: var(--bg2);
+  border: 1.5px solid rgba(200,148,10,0.4);
+  border-radius: 18px;
+  padding: 28px 28px 24px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(200,148,10,0.08);
+  animation: sharePopIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes sharePopIn {
+  from { transform: scale(0.88); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.share-popup-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; color: var(--text3);
+  font-size: 1rem; cursor: pointer; line-height: 1;
+  padding: 4px 6px; border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.share-popup-close:hover { color: var(--gold); background: rgba(200,148,10,0.1); }
+
+.share-popup-title {
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: 1rem; color: var(--gold);
+  text-align: center; margin-bottom: 16px;
+  letter-spacing: 0.04em;
+}
+
+.share-popup-preview {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem; line-height: 1.7;
+  color: var(--text1);
+  background: rgba(200,148,10,0.06);
+  border: 1px solid rgba(200,148,10,0.18);
+  border-radius: 10px;
+  padding: 12px 16px;
+  white-space: pre;
+  margin: 0 0 18px;
+  overflow-x: auto;
+}
+
+.share-popup-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.share-via-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px 12px;
+  border: none; border-radius: 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem; font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 0.14s, box-shadow 0.14s, filter 0.14s;
+}
+.share-via-btn:hover   { transform: translateY(-2px); filter: brightness(1.1); }
+.share-via-btn:active  { transform: translateY(0); }
+
+.share-via-copy     { background: rgba(200,148,10,0.15); color: var(--gold); border: 1.5px solid rgba(200,148,10,0.4); }
+.share-via-twitter  { background: #000; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.share-via-facebook { background: #1877F2; color: #fff; box-shadow: 0 2px 8px rgba(24,119,242,0.35); }
+.share-via-bluesky  { background: #0085FF; color: #fff; box-shadow: 0 2px 8px rgba(0,133,255,0.35); }
+
 /* ===== MAIN ===== */
 main {
   position: relative;
@@ -470,7 +689,7 @@ main {
 
 .grid-cols {
   display: grid;
-  grid-template-columns: 1.7fr 0.75fr 1.05fr 1fr 0.95fr 1.1fr 0.75fr 1.05fr 0.85fr;
+  grid-template-columns: 3.2fr 0.75fr 1.05fr 1fr 0.95fr 1.1fr 0.75fr 1.05fr 0.85fr;
   gap: 5px;
   margin-bottom: 5px;
 }
@@ -507,7 +726,7 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 62px;
+  min-height: 90px;
   padding: 6px 4px;
   border-radius: 10px;
   text-align: center;
@@ -547,7 +766,7 @@ main {
   flex-direction: row;
 }
 .char-thumb {
-  width: 52px; height: 52px;
+  width: 82px; height: 82px;
   object-fit: cover; object-position: top center;
   border-radius: 6px;
   border: 2px solid var(--border2);
@@ -589,7 +808,7 @@ main {
 }
 .recap-grid {
   display: grid;
-  grid-template-columns: 1.7fr 0.75fr 1.05fr 1fr 0.95fr 1.1fr 0.75fr 1.05fr 0.85fr;
+  grid-template-columns: 3.2fr 0.75fr 1.05fr 1fr 0.95fr 1.1fr 0.75fr 1.05fr 0.85fr;
   gap: 5px;
 }
 .recap-item {
@@ -919,6 +1138,19 @@ main {
   cursor: pointer; transition: all 0.2s;
 }
 .modal-mode-tab.active { background: var(--gold); color: #04090f; border-color: var(--gold); }
+
+/* Score du jour */
+.stats-score-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 20px; background: var(--bg2);
+  border: 1.5px solid rgba(200,148,10,0.35); border-radius: 12px;
+  padding: 10px 20px; margin-bottom: 20px;
+}
+.stats-score-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.stats-score-label { font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); }
+.stats-score-val { font-family: 'Cinzel Decorative', cursive; font-size: 1.5rem; color: var(--gold); line-height: 1; }
+.stats-score-max { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; color: var(--gold); font-weight: 700; }
+.stats-score-sep { font-size: 1.3rem; color: rgba(200,148,10,0.3); }
 
 /* Chiffres clés */
 .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 24px; }
