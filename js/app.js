@@ -67,6 +67,7 @@ let wGuesses = [], wOver = false, wNames = new Set();
 let fGuesses  = [], fOver  = false, fNames  = new Set();
 let frGuesses = [], frOver = false, frNames = new Set(), frHintsRevealed = new Set();
 let infGuesses = [], infOver = false, infNames = new Set(), infTarget = null;
+let _restoring = false; // supprime effets secondaires pendant la restauration
 const MAX_INF_GUESSES = 10;
 let colorMode = false;
 let hintUsed = false;
@@ -357,6 +358,7 @@ function submitClassic() {
   const char = CHARACTERS.find(c => c.name.toLowerCase() === name.toLowerCase());
   if (!char || cNames.has(char.name)) { shake(input); return; }
   cNames.add(char.name); cGuesses.push(char);
+  saveState('classic');
   input.value = ''; acBox.classList.remove('open');
   renderClassicRow(char);
   updateCounter();
@@ -384,17 +386,19 @@ function finClassic(won) {
     document.getElementById('win-char-name').textContent  = TARGET_C.name;
     document.getElementById('win-attempts').textContent   = cGuesses.length;
     document.getElementById('win-banner').classList.add('show');
-    launchConfetti();
+    if (!_restoring) launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_C.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  recordResult('classic', won, cGuesses.length);
-  saveModeResult('classic', won, cGuesses.length);
-  if (won) { incrementDailyCounter('classic'); saveModeScore('classic', calcModeScore('classic', cGuesses.length, hintUsed, 0)); }
-  else { updateScoreBar(); }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => showStats('classic'), 1800);
+  if (!_restoring) {
+    recordResult('classic', won, cGuesses.length);
+    saveModeResult('classic', won, cGuesses.length);
+    if (won) { incrementDailyCounter('classic'); saveModeScore('classic', calcModeScore('classic', cGuesses.length, hintUsed, 0)); }
+    else { updateScoreBar(); }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => showStats('classic'), 1800);
+  }
 }
 
 // Comparaisons
@@ -611,6 +615,7 @@ function submitWanted() {
   const char = WANTED_CHARS.find(c => c.name.toLowerCase() === name.toLowerCase());
   if (!char || wNames.has(char.name)) { shake(input); return; }
   wNames.add(char.name); wGuesses.push(char);
+  saveState('wanted');
   input.value = ''; acBox.classList.remove('open');
   const correct = char.name === TARGET_W.name;
   renderWantedRow(char, correct);
@@ -635,17 +640,19 @@ function finWanted(won) {
     document.getElementById('win-char-name').textContent  = TARGET_W.name;
     document.getElementById('win-attempts').textContent   = wGuesses.length;
     document.getElementById('win-banner').classList.add('show');
-    launchConfetti();
+    if (!_restoring) launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_W.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  recordResult('wanted', won, wGuesses.length);
-  saveModeResult('wanted', won, wGuesses.length);
-  if (won) { incrementDailyCounter('wanted'); saveModeScore('wanted', calcModeScore('wanted', wGuesses.length, false, 0)); }
-  else { updateScoreBar(); }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => showStats('wanted'), 1800);
+  if (!_restoring) {
+    recordResult('wanted', won, wGuesses.length);
+    saveModeResult('wanted', won, wGuesses.length);
+    if (won) { incrementDailyCounter('wanted'); saveModeScore('wanted', calcModeScore('wanted', wGuesses.length, false, 0)); }
+    else { updateScoreBar(); }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => showStats('wanted'), 1800);
+  }
 }
 
 // ===== MODE PAVILLON =====
@@ -700,6 +707,7 @@ function submitFlag() {
   const flag = FLAGS.find(f => f.name.toLowerCase() === name.toLowerCase());
   if (!flag || fNames.has(flag.name)) { shake(input); return; }
   fNames.add(flag.name); fGuesses.push(flag);
+  saveState('flag');
   input.value = ''; acBox.classList.remove('open');
   const correct = flag.name === TARGET_F.name;
   renderFlagGuess(flag, correct);
@@ -729,17 +737,19 @@ function finFlag(won) {
     document.getElementById('win-char-name').textContent  = TARGET_F.name;
     document.getElementById('win-attempts').textContent   = fGuesses.length;
     document.getElementById('win-banner').classList.add('show');
-    launchConfetti();
+    if (!_restoring) launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_F.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  recordResult('flag', won, fGuesses.length);
-  saveModeResult('flag', won, fGuesses.length);
-  if (won) { incrementDailyCounter('flag'); saveModeScore('flag', calcModeScore('flag', fGuesses.length, false, 0)); }
-  else { updateScoreBar(); }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => showStats('flag'), 1800);
+  if (!_restoring) {
+    recordResult('flag', won, fGuesses.length);
+    saveModeResult('flag', won, fGuesses.length);
+    if (won) { incrementDailyCounter('flag'); saveModeScore('flag', calcModeScore('flag', fGuesses.length, false, 0)); }
+    else { updateScoreBar(); }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => showStats('flag'), 1800);
+  }
 }
 
 // ===== STATISTIQUES =====
@@ -1053,6 +1063,7 @@ function submitFruit() {
   if (!char || frNames.has(char.name)) { shake(input); return; }
   frNames.add(char.name);
   frGuesses.push(char);
+  saveState('fruit');
   input.value = '';
   acBox.classList.remove('open');
   const correct = char.name === TARGET_FRU.holder;
@@ -1092,17 +1103,19 @@ function finFruit(won) {
     document.getElementById('win-char-name').textContent = TARGET_FRU.holder;
     document.getElementById('win-attempts').textContent  = frGuesses.length;
     document.getElementById('win-banner').classList.add('show');
-    launchConfetti();
+    if (!_restoring) launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_FRU.holder;
     document.getElementById('lose-banner').classList.add('show');
   }
-  recordResult('fruit', won, frGuesses.length);
-  saveModeResult('fruit', won, frGuesses.length);
-  if (won) { incrementDailyCounter('fruit'); saveModeScore('fruit', calcModeScore('fruit', frGuesses.length, false, frHintsRevealed.size)); }
-  else { updateScoreBar(); }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => showStats('fruit'), 1800);
+  if (!_restoring) {
+    recordResult('fruit', won, frGuesses.length);
+    saveModeResult('fruit', won, frGuesses.length);
+    if (won) { incrementDailyCounter('fruit'); saveModeScore('fruit', calcModeScore('fruit', frGuesses.length, false, frHintsRevealed.size)); }
+    else { updateScoreBar(); }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => showStats('fruit'), 1800);
+  }
 }
 
 // ===== MODE EMOJI =====
@@ -1199,6 +1212,7 @@ function submitEmoji() {
   const char = EMOJI_POOL.find(c => c.name.toLowerCase() === raw.toLowerCase());
   if (!char || emNames.has(char.name)) { shake(input); return; }
   emNames.add(char.name); emGuesses.push(char);
+  saveState('emoji');
   input.value = ''; acBox.classList.remove('open');
   const correct = char.name === emTarget.name;
   renderEmojiGuess(char, correct, true);
@@ -1251,19 +1265,19 @@ function finEmoji(won) {
     document.getElementById('win-char-name').textContent  = emTarget.name;
     document.getElementById('win-attempts').textContent   = emGuesses.length;
     document.getElementById('win-banner').classList.add('show');
-    launchConfetti();
+    if (!_restoring) launchConfetti();
   } else {
     document.getElementById('lose-char-name').textContent = emTarget.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-
-  recordResult('emoji', won, emGuesses.length);
-  saveModeResult('emoji', won, emGuesses.length);
-  if (won) { incrementDailyCounter('emoji'); saveModeScore('emoji', calcModeScore('emoji', emGuesses.length, false, 0)); }
-  else { updateScoreBar(); }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => showStats('emoji'), 1800);
+  if (!_restoring) {
+    recordResult('emoji', won, emGuesses.length);
+    saveModeResult('emoji', won, emGuesses.length);
+    if (won) { incrementDailyCounter('emoji'); saveModeScore('emoji', calcModeScore('emoji', emGuesses.length, false, 0)); }
+    else { updateScoreBar(); }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => showStats('emoji'), 1800);
+  }
 }
 
 // ===== SYSTÈME DE SCORE =====
@@ -1283,6 +1297,53 @@ function calcModeScore(mode, tries, hintUsed, hintsCount) {
   if (mode === 'classic' && hintUsed)    base = round50(base / 2);
   if (mode === 'fruit'   && hintsCount)  base = round50(base / Math.pow(1.5, hintsCount));
   return base;
+}
+
+// ===== SAUVEGARDE / RESTAURATION DE L'ÉTAT DE JEU =====
+function saveState(mode) {
+  const dk = todayKey();
+  if (mode === 'classic') lsSet('op-gs-classic-' + dk, JSON.stringify({ guesses: cGuesses.map(c => c.name), hintUsed }));
+  if (mode === 'wanted')  lsSet('op-gs-wanted-'  + dk, JSON.stringify({ guesses: wGuesses.map(c => c.name) }));
+  if (mode === 'flag')    lsSet('op-gs-flag-'    + dk, JSON.stringify({ guesses: fGuesses.map(f => f.name) }));
+  if (mode === 'fruit')   lsSet('op-gs-fruit-'   + dk, JSON.stringify({ guesses: frGuesses.map(f => f.name), hints: [...frHintsRevealed] }));
+  if (mode === 'emoji')   lsSet('op-gs-emoji-'   + dk, JSON.stringify({ guesses: emGuesses.map(c => c.name) }));
+}
+
+function restoreAllStates() {
+  const dk = todayKey();
+  _restoring = true;
+
+  // Classic
+  const sc = JSON.parse(lsGet('op-gs-classic-' + dk) || 'null');
+  if (sc) {
+    hintUsed = sc.hintUsed || false;
+    sc.guesses.forEach(name => { input.value = name; submitClassic(); });
+  }
+
+  // Wanted
+  const sw = JSON.parse(lsGet('op-gs-wanted-' + dk) || 'null');
+  if (sw) { sw.guesses.forEach(name => { input.value = name; submitWanted(); }); }
+
+  // Flag
+  const sf = JSON.parse(lsGet('op-gs-flag-' + dk) || 'null');
+  if (sf) { sf.guesses.forEach(name => { input.value = name; submitFlag(); }); }
+
+  // Fruit
+  const sfr = JSON.parse(lsGet('op-gs-fruit-' + dk) || 'null');
+  if (sfr) {
+    (sfr.hints || []).forEach(i => frHintsRevealed.add(i));
+    sfr.guesses.forEach(name => { input.value = name; submitFruit(); });
+  }
+
+  // Emoji — doit attendre que emTarget soit initialisé
+  const sem = JSON.parse(lsGet('op-gs-emoji-' + dk) || 'null');
+  if (sem) {
+    if (!emTarget) emTarget = TARGET_EM;
+    sem.guesses.forEach(name => { input.value = name; submitEmoji(); });
+  }
+
+  _restoring = false;
+  input.value = '';
 }
 
 function saveModeScore(mode, pts) {
@@ -1407,6 +1468,7 @@ function updateScoreBar() {
 
 // Init au chargement
 updateScoreBar();
+restoreAllStates();
 
 // ===== CONFETTIS =====
 function launchConfetti() {
