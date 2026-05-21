@@ -152,14 +152,21 @@ function saveTodayTargets() {
 }
 saveTodayTargets();
 
-// Affiche la barre "hier" depuis localStorage (précis) ou la masque si absent
+// Affiche la barre "hier" — localStorage en priorité, seed en fallback
 function buildYesterdayBar() {
   const d = new Date(); d.setDate(d.getDate() - 1);
   const yKey = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
   const stored = JSON.parse(lsGet('op-daily-' + yKey) || 'null');
   const el = document.getElementById('yesterday-bar');
-  if (!stored) { el.style.display = 'none'; return; }
-  el.innerHTML = `Hier — Classique : <strong>${esc(stored.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(stored.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(stored.flag)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(stored.emoji)}</strong>`;
+
+  const data = stored || {
+    classic: CHARACTERS[seedForDate(d,  1)   % CHARACTERS.length].name,
+    wanted:  WANTED_CHARS[seedForDate(d, 31)  % WANTED_CHARS.length].name,
+    flag:    FLAGS[seedForDate(d,       97)   % FLAGS.length].name,
+    emoji:   EMOJI_POOL[seedForDate(d,  137)  % EMOJI_POOL.length].name,
+  };
+
+  el.innerHTML = `Hier — Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>`;
 }
 buildYesterdayBar();
 
