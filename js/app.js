@@ -165,10 +165,11 @@ function buildYesterdayBar() {
     classic: CHARACTERS[seedForDate(d,  1)   % CHARACTERS.length].name,
     wanted:  WANTED_CHARS[seedForDate(d, 31)  % WANTED_CHARS.length].name,
     flag:    FLAGS[seedForDate(d,       97)   % FLAGS.length].name,
+    fruit:   FRUITS[seedForDate(d,      71)   % FRUITS.length].holder,
     emoji:   EMOJI_POOL[seedForDate(d,  137)  % EMOJI_POOL.length].name,
   };
 
-  el.innerHTML = `Hier — Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>`;
+  el.innerHTML = `Hier — Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>`;
 }
 buildYesterdayBar();
 
@@ -1469,6 +1470,82 @@ function updateScoreBar() {
     const results = JSON.parse(lsGet('op-result-' + todayKey()) || '{}');
     shareBtn.classList.toggle('hidden', Object.keys(results).length === 0);
   }
+  // Célébration 50 000 pts
+  if (total >= SCORE_MAX_TOTAL && !lsGet('op-perfect-' + todayKey())) {
+    lsSet('op-perfect-' + todayKey(), '1');
+    setTimeout(launchPerfectDay, 800);
+  }
+}
+
+function launchPerfectDay() {
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'perfect-overlay';
+  overlay.innerHTML = `
+    <canvas class="perfect-canvas" id="perfect-canvas"></canvas>
+    <div class="perfect-content">
+      <div class="perfect-emoji">🏴‍☠️</div>
+      <div class="perfect-sub">50 000 / 50 000 pts</div>
+      <div class="perfect-sub2">Tu as réussi tous les défis du jour !</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Particules dorées sur canvas
+  const canvas = document.getElementById('perfect-canvas');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+
+  const COLORS = ['#ffd84d','#c89408','#fff','#f5a623','#ffe066','#ffb300'];
+  const pieces = Array.from({ length: 200 }, () => ({
+    x:     Math.random() * canvas.width,
+    y:     Math.random() * -canvas.height * 0.6,
+    r:     2 + Math.random() * 7,
+    speed: 2 + Math.random() * 4,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    angle: Math.random() * Math.PI * 2,
+    spin:  (Math.random() - 0.5) * 0.18,
+    drift: (Math.random() - 0.5) * 1.5,
+    shape: Math.random() < 0.6 ? 'rect' : 'circle',
+    glow:  Math.random() < 0.3,
+  }));
+
+  const FRAMES = 280;
+  let frame = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const fade = frame < FRAMES * 0.6 ? 1 : 1 - (frame - FRAMES * 0.6) / (FRAMES * 0.4);
+    ctx.globalAlpha = Math.max(0, fade);
+    pieces.forEach(p => {
+      p.y     += p.speed;
+      p.x     += p.drift;
+      p.angle += p.spin;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      if (p.glow) ctx.shadowColor = p.color, ctx.shadowBlur = 10;
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') ctx.fillRect(-p.r, -p.r * 0.45, p.r * 2, p.r * 0.9);
+      else { ctx.beginPath(); ctx.arc(0, 0, p.r * 0.6, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+      if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
+    });
+    frame++;
+    if (frame < FRAMES) requestAnimationFrame(draw);
+    else {
+      overlay.classList.add('perfect-fade-out');
+      setTimeout(() => overlay.remove(), 600);
+    }
+  }
+  draw();
+
+  // Clic pour fermer
+  overlay.addEventListener('click', () => {
+    overlay.classList.add('perfect-fade-out');
+    setTimeout(() => overlay.remove(), 600);
+  });
 }
 
 // Init au chargement

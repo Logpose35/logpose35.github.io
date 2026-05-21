@@ -1533,6 +1533,68 @@ main {
   .ad-728x90 { width: 320px; height: 50px; } /* Mobile Banner */
 }
 
+/* ===== PERFECT DAY 50 000 ===== */
+.perfect-overlay {
+  position: fixed; inset: 0; z-index: 9998;
+  background: rgba(4,9,15,0.88);
+  display: flex; align-items: center; justify-content: center;
+  animation: perfectIn 0.4s ease;
+  cursor: pointer;
+}
+.perfect-overlay.perfect-fade-out {
+  animation: perfectOut 0.6s ease forwards;
+}
+@keyframes perfectIn  { from { opacity:0; } to { opacity:1; } }
+@keyframes perfectOut { from { opacity:1; } to { opacity:0; } }
+
+.perfect-canvas {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.perfect-content {
+  position: relative; z-index: 1;
+  text-align: center;
+  animation: perfectPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+}
+@keyframes perfectPop {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.perfect-emoji {
+  font-size: 5rem;
+  line-height: 1;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 20px rgba(200,148,8,0.8));
+  animation: perfectBob 1.8s ease-in-out infinite;
+}
+@keyframes perfectBob {
+  0%,100% { transform: translateY(0);    }
+  50%      { transform: translateY(-12px); }
+}
+.perfect-title {
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  color: #ffd84d;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 30px rgba(200,148,8,0.9), 0 0 60px rgba(200,148,8,0.5);
+  margin-bottom: 12px;
+}
+.perfect-sub {
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.perfect-sub2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 16px;
+}
+
 /* ===== COMPTE À REBOURS ===== */
 .next-puzzle {
   text-align: center;
