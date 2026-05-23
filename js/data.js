@@ -358,7 +358,7 @@ const OPENINGS = [
   { id:3,  name:"Hikari e",             artist:"The Babystars",                          yt:"yGpP2IHI4Zc" },
   { id:4,  name:"BON VOYAGE!",          artist:"Bon-Bon Blanco",                         yt:"TApFCt9m0ug" },
   { id:5,  name:"Kokoro no Chizu",      artist:"BOYSTYLE",                               yt:"ZihqCaurrx4" },
-  { id:6,  name:"Brand New World",      artist:"D-51",                                   yt:"B4ZQvniSX4M" },
+  { id:6,  name:"Brand New World",      artist:"D-51",                                   yt:"Tyr7Ymbtl2Y" },
   { id:7,  name:"We Are! (2007)",       artist:"Straw Hat Cast",                         yt:"PUZsGe4rtbg" },
   { id:8,  name:"Crazy Rainbow",        artist:"Tackey & Tsubasa",                       yt:"ZVWt9FbE_Is" },
   { id:9,  name:"Jungle P",             artist:"5050",                                   yt:"SK1fIt6ccDM" },
