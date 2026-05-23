@@ -10,10 +10,13 @@ async function fbGet(path) {
 
 async function fbIncrement(path) {
   try {
-    const url = `${FB_URL}/${path}.json`;
-    const current = (await (await fetch(url)).json()) || 0;
-    await fetch(url, { method: 'PUT', body: JSON.stringify(current + 1) });
-    return current + 1;
+    const url  = `${FB_URL}/${path}.json`;
+    const raw  = await (await fetch(url)).json();
+    const current = (Number.isFinite(Number(raw)) && Number(raw) >= 0)
+      ? Math.floor(Number(raw)) : 0;
+    const next = current + 1;
+    await fetch(url, { method: 'PUT', body: JSON.stringify(next) });
+    return next;
   } catch { return null; }
 }
 
@@ -23,6 +26,7 @@ const COUNTER_LABELS = {
   flag:    'le mode Pavillon',
   fruit:   null, // remplacé par le nom du fruit
   emoji:   'le mode Émoji',
+  audio:   'le mode Opening',
 };
 
 async function loadDailyCounter(mode) {
@@ -37,7 +41,7 @@ async function loadDailyCounter(mode) {
   const label = mode === 'fruit'
     ? `le ${TARGET_FRU.name}`
     : COUNTER_LABELS[mode];
-  el.textContent = `🏴‍☠️ ${count.toLocaleString('fr-FR')} joueur${count > 1 ? 's' : ''} ont complété ${label} aujourd'hui`;
+  el.textContent = `🏴‍☠️ ${count.toLocaleString('fr-FR')} pirate${count > 1 ? 's' : ''} ont navigué sur ${label} aujourd'hui`;
 }
 
 async function incrementDailyCounter(mode) {
@@ -49,13 +53,39 @@ async function incrementDailyCounter(mode) {
   const label = mode === 'fruit'
     ? `le ${TARGET_FRU.name}`
     : COUNTER_LABELS[mode];
-  el.textContent = `🏴‍☠️ ${count.toLocaleString('fr-FR')} joueur${count > 1 ? 's' : ''} ont complété ${label} aujourd'hui`;
+  el.textContent = `🏴‍☠️ ${count.toLocaleString('fr-FR')} pirate${count > 1 ? 's' : ''} ont navigué sur ${label} aujourd'hui`;
 }
 
 // ===== UTILS =====
 function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#x27;');
 }
+
+// JSON.parse sécurisé — jamais d'exception non gérée sur du localStorage corrompu
+function safeParseJSON(str, fallback) {
+  if (!str) return fallback;
+  try {
+    const v = JSON.parse(str);
+    return (v !== null && v !== undefined) ? v : fallback;
+  } catch { return fallback; }
+}
+
+// Sanitise une valeur numérique lue depuis le localStorage
+function sanitizeNum(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
+}
+
+// Valide qu'un ID YouTube ne contient que des caractères autorisés ([\w-]{11})
+function validateYTId(id) {
+  return /^[\w-]{11}$/.test(String(id)) ? String(id) : '';
+}
+
 function lsGet(key)      { try { return localStorage.getItem(key); }    catch { return null; } }
 function lsSet(key, val) { try { localStorage.setItem(key, val); }      catch {} }
 function lsRemove(key)   { try { localStorage.removeItem(key); }        catch {} }
@@ -67,6 +97,7 @@ let wGuesses = [], wOver = false, wNames = new Set();
 let fGuesses  = [], fOver  = false, fNames  = new Set();
 let frGuesses = [], frOver = false, frNames = new Set(), frHintsRevealed = new Set();
 let infGuesses = [], infOver = false, infNames = new Set(), infTarget = null;
+let auGuesses = [], auOver = false, auNames = new Set();
 let _restoring = false; // supprime effets secondaires pendant la restauration
 const MAX_INF_GUESSES = 10;
 let colorMode = false;
@@ -102,18 +133,32 @@ document.addEventListener('click', e => {
 
 // ===== THÈME =====
 function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  document.getElementById('theme-btn').textContent = isDark ? '🌙' : '☀️';
-  lsSet('op-theme', isDark ? 'light' : 'dark');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  applyTheme(next);
+  lsSet('op-theme', next);
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 (function () {
   const saved = lsGet('op-theme');
   if (saved) {
-    document.documentElement.setAttribute('data-theme', saved);
-    document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    applyTheme(saved);
+  } else {
+    // Aucune préférence sauvegardée → suivre le système
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+    // Écouter les changements de préférence système (seulement si pas de choix manuel)
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (!lsGet('op-theme')) applyTheme(e.matches ? 'dark' : 'light');
+      });
+    }
   }
 })();
 
@@ -137,8 +182,13 @@ document.getElementById('date-label').textContent =
 
 function seedForDate(d, salt = 1) {
   // d doit être une date Paris (depuis parisNow())
+  // Même hash que dailyPick pour cohérence du fallback "hier"
   const base = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  return (base * salt) >>> 0;
+  let h = Math.imul(base + salt, 2654435761) >>> 0;
+  h = (h ^ (h >>> 16)) >>> 0;
+  h = Math.imul(h, 0x45d9f3b) >>> 0;
+  h = (h ^ (h >>> 16)) >>> 0;
+  return h;
 }
 // Sauvegarde les cibles du jour (une seule fois par jour, pour le "hier" de demain)
 function saveTodayTargets() {
@@ -150,6 +200,7 @@ function saveTodayTargets() {
     flag:    TARGET_F.name,
     fruit:   TARGET_FRU.holder,
     emoji:   TARGET_EM.name,
+    audio:   TARGET_AU.name,
   }));
 }
 saveTodayTargets();
@@ -158,8 +209,12 @@ saveTodayTargets();
 function buildYesterdayBar() {
   const d = parisNow(); d.setDate(d.getDate() - 1);
   const yKey = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-  const stored = JSON.parse(lsGet('op-daily-' + yKey) || 'null');
+  const stored = safeParseJSON(lsGet('op-daily-' + yKey), null);
   const el = document.getElementById('yesterday-bar');
+
+  const audioOp = stored?.audio
+    ? OPENINGS.find(o => o.name === stored.audio) || OPENINGS[seedForDate(d, 53) % OPENINGS.length]
+    : OPENINGS[seedForDate(d, 53) % OPENINGS.length];
 
   const data = stored || {
     classic: CHARACTERS[seedForDate(d,  1)   % CHARACTERS.length].name,
@@ -169,7 +224,9 @@ function buildYesterdayBar() {
     emoji:   EMOJI_POOL[seedForDate(d,  137)  % EMOJI_POOL.length].name,
   };
 
-  el.innerHTML = `Hier — Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>`;
+  el.innerHTML =
+    `Hier &nbsp;—&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
+    `<br><span class="yesterday-op">🎵 Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em></span>`;
 }
 buildYesterdayBar();
 
@@ -181,18 +238,21 @@ function switchMode(mode) {
   document.getElementById('tab-flag').classList.toggle('active', mode === 'flag');
   document.getElementById('tab-fruit').classList.toggle('active', mode === 'fruit');
   document.getElementById('tab-emoji').classList.toggle('active', mode === 'emoji');
+  document.getElementById('tab-audio').classList.toggle('active', mode === 'audio');
   document.getElementById('tab-inf').classList.toggle('active', mode === 'inf');
   document.getElementById('classic-section').classList.toggle('hidden', mode !== 'classic');
   document.getElementById('wanted-section').classList.toggle('active', mode === 'wanted');
   document.getElementById('flag-section').classList.toggle('active', mode === 'flag');
   document.getElementById('fruit-section').classList.toggle('active', mode === 'fruit');
   document.getElementById('emoji-section').classList.toggle('active', mode === 'emoji');
+  document.getElementById('audio-section').classList.toggle('active', mode === 'audio');
   document.getElementById('inf-section').classList.toggle('active', mode === 'inf');
 
   const over = mode === 'classic' ? cOver
              : mode === 'wanted'  ? wOver
              : mode === 'fruit'   ? frOver
              : mode === 'emoji'   ? emOver
+             : mode === 'audio'   ? auOver
              : mode === 'inf'     ? infOver
              :                      fOver;
   input.placeholder = mode === 'classic' || mode === 'inf'
@@ -203,6 +263,8 @@ function switchMode(mode) {
     ? 'Devine le détenteur du fruit...'
     : mode === 'emoji'
     ? 'Devine le personnage...'
+    : mode === 'audio'
+    ? "Devine le nom de l'opening..."
     : "Devine l'équipage...";
   input.disabled = over;
   document.getElementById('guess-btn').disabled = over;
@@ -212,24 +274,28 @@ function switchMode(mode) {
   if (mode === 'flag')   initFlagGrid();
   if (mode === 'fruit')  initFruitMode();
   if (mode === 'emoji')  initEmojiMode();
+  if (mode === 'audio')  initAudioMode();
   if (mode === 'inf')    initInfMode();
   loadDailyCounter(mode);
+  // Auto-focus du champ de saisie si le mode n'est pas terminé
+  if (!over) setTimeout(() => { input.focus(); }, 80);
   const TITLES = {
     classic: 'LogPose · Classique — Devine le personnage One Piece',
     wanted:  'LogPose · Wanted — Reconnais l\'avis de recherche',
     flag:    'LogPose · Pavillon — Identifie le Jolly Roger',
     fruit:   'LogPose · Fruit du Démon — Trouve le détenteur',
     emoji:   'LogPose · Émoji — Devine le personnage One Piece',
-    inf:     'LogPose · Infini — Entraînement sans limite',
+    audio:   'LogPose · Opening — Devine l\'opening One Piece',
+    inf:     'LogPose · Classique Infini — Entraînement sans limite',
   };
-  document.title = TITLES[mode] || 'LogPose — 5 défis One Piece quotidiens';
+  document.title = TITLES[mode] || 'LogPose — 6 défis One Piece quotidiens';
 }
 
 // ===== BANNERS =====
 function syncBanners() {
-  const over    = currentMode === 'classic' ? cOver    : currentMode === 'wanted' ? wOver    : currentMode === 'fruit' ? frOver    : currentMode === 'emoji' ? emOver    : currentMode === 'inf' ? infOver  : fOver;
-  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
-  const target  = currentMode === 'classic' ? TARGET_C : currentMode === 'wanted' ? TARGET_W : currentMode === 'fruit' ? { name: TARGET_FRU.holder } : currentMode === 'emoji' ? emTarget : currentMode === 'inf' ? infTarget : TARGET_F;
+  const over    = currentMode === 'classic' ? cOver    : currentMode === 'wanted' ? wOver    : currentMode === 'fruit' ? frOver    : currentMode === 'emoji' ? emOver    : currentMode === 'audio' ? auOver  : currentMode === 'inf' ? infOver  : fOver;
+  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'audio' ? auGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
+  const target  = currentMode === 'classic' ? TARGET_C : currentMode === 'wanted' ? TARGET_W : currentMode === 'fruit' ? { name: TARGET_FRU.holder } : currentMode === 'emoji' ? emTarget : currentMode === 'audio' ? TARGET_AU : currentMode === 'inf' ? infTarget : TARGET_F;
 
   if (!over) {
     document.getElementById('win-banner').classList.remove('show');
@@ -249,8 +315,8 @@ function syncBanners() {
 
 // ===== COUNTER =====
 function updateCounter() {
-  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
-  const names   = currentMode === 'classic' ? cNames   : currentMode === 'wanted' ? wNames   : currentMode === 'fruit' ? frNames   : currentMode === 'emoji' ? emNames   : currentMode === 'inf' ? infNames   : fNames;
+  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'audio' ? auGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
+  const names   = currentMode === 'classic' ? cNames   : currentMode === 'wanted' ? wNames   : currentMode === 'fruit' ? frNames   : currentMode === 'emoji' ? emNames   : currentMode === 'audio' ? auNames   : currentMode === 'inf' ? infNames   : fNames;
   document.getElementById('counter').style.display = 'block';
   document.getElementById('current-try').textContent = guesses.length + 1;
   document.getElementById('already-guessed-label').textContent =
@@ -286,6 +352,13 @@ function getMatchHint(c, q) {
   for (const [alias, charName] of Object.entries(ALIASES)) {
     if (charName === c.name && alias.includes(q)) return alias;
   }
+  // Mode audio : numéro ou artiste
+  if (c.id !== undefined) {
+    if (/^(?:op|opening)\s*$/.test(q)) return `Opening ${c.id}`;
+    const numMatch = q.match(/^(?:opening\s+|op\s*)?(\d+)$/);
+    if (numMatch && parseInt(numMatch[1]) === c.id) return `Opening ${c.id}`;
+    if (q.length >= 2 && c.artist && c.artist.toLowerCase().includes(q)) return c.artist;
+  }
   return null;
 }
 
@@ -293,7 +366,15 @@ function charMatchesQuery(c, q) {
   if (c.name.toLowerCase().includes(q)) return true;
   if (c.captain && c.captain.toLowerCase().includes(q)) return true;
   if (c.epithet && c.epithet.toLowerCase().includes(q)) return true;
-  return Object.entries(ALIASES).some(([alias, charName]) => charName === c.name && alias.includes(q));
+  if (Object.entries(ALIASES).some(([alias, charName]) => charName === c.name && alias.includes(q))) return true;
+  // Mode audio : recherche par numéro, mot-clé "op"/"opening", ou artiste
+  if (c.id !== undefined) {
+    if (/^(?:op|opening)\s*$/.test(q)) return true;
+    const numMatch = q.match(/^(?:opening\s+|op\s*)?(\d+)$/);
+    if (numMatch && parseInt(numMatch[1]) === c.id) return true;
+    if (q.length >= 2 && c.artist && c.artist.toLowerCase().includes(q)) return true;
+  }
+  return false;
 }
 
 input.addEventListener('input', () => {
@@ -304,6 +385,7 @@ input.addEventListener('input', () => {
   else if (currentMode === 'wanted')  { pool = WANTED_CHARS; used = wNames; }
   else if (currentMode === 'fruit')   { pool = CHARACTERS;   used = frNames; }
   else if (currentMode === 'emoji')   { pool = EMOJI_POOL;   used = emNames; }
+  else if (currentMode === 'audio')   { pool = OPENINGS;     used = auNames; }
   else if (currentMode === 'inf')     { pool = CHARACTERS;   used = infNames; }
   else                                { pool = FLAGS;        used = fNames; }
   acFilt = pool.filter(c => !used.has(c.name) && charMatchesQuery(c, q)).slice(0, 8);
@@ -343,6 +425,7 @@ function submitGuess() {
   else if (currentMode === 'wanted') submitWanted();
   else if (currentMode === 'fruit')  submitFruit();
   else if (currentMode === 'emoji')  submitEmoji();
+  else if (currentMode === 'audio')  submitAudio();
   else if (currentMode === 'inf')    submitInf();
   else                               submitFlag();
 }
@@ -436,18 +519,18 @@ function buildGuessRow(char, T) {
   row.innerHTML = `
     <div class="cell cell-char">
       ${getImgFile(char)
-        ? `<img class="char-thumb" src="images/${esc(getImgFile(char))}.jpg" alt="${esc(char.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(char.name)}</span>`
+        ? `<img class="char-thumb" src="images/${esc(getImgFile(char))}.jpg" alt="${esc(char.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(char.name)}</span>`
         : `<span class="char-name-only">${esc(char.name)}</span>`
       }
     </div>
     <div class="cell ${gs}"><span class="cell-icon">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu'}</span></div>
-    <div class="cell ${as}"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${char.affil}</span></div>
-    <div class="cell ${os}"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${char.origin}</span></div>
-    <div class="cell ${fs}"><span class="cell-icon">${fl.icon}</span><span class="cell-val">${fl.val}</span></div>
-    <div class="cell ${hs}"><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${char.haki.length ? char.haki.join(', ') : 'Aucun'}</span></div>
-    <div class="cell ${ss}"><span class="cell-icon">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${char.status}</span></div>
-    <div class="cell ${ac.state}"><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${ARCS[char.arc - 1]}</span>${ac.arrow ? `<span class="cell-arrow">${ac.arrow}</span>` : ''}</div>
-    <div class="cell ${bc.state}"><span class="cell-val">${formatBounty(char.bounty)}</span>${bc.arrow ? `<span class="cell-arrow">${bc.arrow}</span>` : ''}</div>
+    <div class="cell ${as}"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.affil)}</span></div>
+    <div class="cell ${os}"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.origin)}</span></div>
+    <div class="cell ${fs}"><span class="cell-icon">${esc(fl.icon)}</span><span class="cell-val">${esc(fl.val)}</span></div>
+    <div class="cell ${hs}"><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(Array.isArray(char.haki) ? char.haki.join(', ') : 'Aucun')}</span></div>
+    <div class="cell ${ss}"><span class="cell-icon">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(char.status)}</span></div>
+    <div class="cell ${ac.state}"><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(ARCS[char.arc - 1] || '?')}</span>${ac.arrow ? `<span class="cell-arrow">${esc(ac.arrow)}</span>` : ''}</div>
+    <div class="cell ${bc.state}"><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${bc.arrow ? `<span class="cell-arrow">${esc(bc.arrow)}</span>` : ''}</div>
   `;
   // Flip animé décalé par colonne (style Wordle)
   row.querySelectorAll('.cell').forEach((cell, i) => {
@@ -489,8 +572,8 @@ function updateRecap() {
     const hintedThis   = hintUsed && document.getElementById('hint-display').innerHTML.includes(col.label);
     item.className = 'recap-item' + (correctGuess ? ' known' : hintedThis ? ' hinted' : '');
     item.innerHTML = `
-      <span class="ri-label">${col.label}</span>
-      <span class="ri-val">${correctGuess || hintedThis ? col.fn(TARGET_C) : '???'}</span>
+      <span class="ri-label">${esc(col.label)}</span>
+      <span class="ri-val">${correctGuess || hintedThis ? esc(String(col.fn(TARGET_C))) : '???'}</span>
     `;
     grid.appendChild(item);
   });
@@ -537,7 +620,7 @@ function useHint() {
   }
 
   const pick = unsolvedCols[cGuesses.length % unsolvedCols.length];
-  display.innerHTML = `💡 <strong>${pick.label}</strong> : ${pick.fn(TARGET_C)}`;
+  display.innerHTML = `💡 <strong>${esc(pick.label)}</strong> : ${esc(String(pick.fn(TARGET_C)))}`;
   display.classList.add('show');
   document.getElementById('hint-btn').disabled = true;
   hintUsed = true;
@@ -763,8 +846,8 @@ const MAX_DIST_FRUIT   = 10;
 // ===== MODE INFINI =====
 function loadInfStats() {
   return {
-    streak: parseInt(lsGet('op-inf-streak') || '0'),
-    record: parseInt(lsGet('op-inf-record') || '0'),
+    streak: sanitizeNum(lsGet('op-inf-streak')),
+    record: sanitizeNum(lsGet('op-inf-record')),
   };
 }
 function saveInfStats(streak, record) {
@@ -844,10 +927,10 @@ function defaultStats(maxGuesses) {
 
 function loadStats(mode) {
   const key  = `op-stats-${mode}`;
-  const max  = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : MAX_DIST_CLASSIC;
+  const max  = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : MAX_DIST_CLASSIC;
   const raw  = lsGet(key);
   if (!raw) return defaultStats(max);
-  try { return JSON.parse(raw); } catch { return defaultStats(max); }
+  return safeParseJSON(raw, defaultStats(max));
 }
 
 function saveStats(mode, stats) {
@@ -900,10 +983,11 @@ let _statsMode = 'classic';
 
 function showStats(mode) {
   _statsMode = mode || currentMode;
+  if (_statsMode === 'inf') _statsMode = 'classic'; // inf n'a pas de stats
   document.getElementById('stats-modal').classList.remove('hidden');
   renderStatsContent(_statsMode);
   // Met à jour les onglets
-  ['classic','wanted','flag','fruit','emoji'].forEach(m => {
+  ['classic','wanted','flag','fruit','emoji','audio'].forEach(m => {
     document.getElementById(`stab-${m}`).classList.toggle('active', m === _statsMode);
   });
 }
@@ -918,7 +1002,7 @@ function handleModalClick(e) {
 
 function switchStatsTab(mode) {
   _statsMode = mode;
-  ['classic','wanted','flag','fruit','emoji'].forEach(m => {
+  ['classic','wanted','flag','fruit','emoji','audio'].forEach(m => {
     document.getElementById(`stab-${m}`).classList.toggle('active', m === mode);
   });
   renderStatsContent(mode);
@@ -926,46 +1010,50 @@ function switchStatsTab(mode) {
 
 function renderStatsContent(mode) {
   const stats   = loadStats(mode);
-  const winPct  = stats.played === 0 ? 0 : Math.round((stats.won / stats.played) * 100);
-  const maxDist = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : MAX_DIST_CLASSIC;
-  const maxVal  = Math.max(1, ...Object.values(stats.distribution));
+  const played  = sanitizeNum(stats.played);
+  const won     = sanitizeNum(stats.won);
+  const winPct  = played === 0 ? 0 : Math.round((won / played) * 100);
+  const streak  = sanitizeNum(stats.currentStreak);
+  const maxStr  = sanitizeNum(stats.maxStreak);
+  const maxDist = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : MAX_DIST_CLASSIC;
+  const maxVal  = Math.max(1, ...Object.values(stats.distribution).map(v => sanitizeNum(v)));
 
   // Dernier essai gagnant pour surligner la barre
   const lastWinGuess = stats.lastWinGuesses || null;
 
   // ── Score du jour ──────────────────────────────────────────────
-  const todayScores = JSON.parse(lsGet('op-score-' + todayKey()) || '{}');
-  const modeScore   = todayScores[mode];
-  const totalScore  = Object.values(todayScores).reduce((a,b) => a+b, 0);
+  const todayScores = safeParseJSON(lsGet('op-score-' + todayKey()), {});
+  const rawMode     = Object.hasOwn(todayScores, mode) ? sanitizeNum(todayScores[mode]) : undefined;
+  const totalScore  = Object.values(todayScores).reduce((a, b) => a + sanitizeNum(b), 0);
   const modeLabels  = { classic:'Classique', wanted:'Wanted', flag:'Pavillon', fruit:'Fruit du Démon', emoji:'Émoji' };
-  const scoreHtml   = modeScore !== undefined ? `
+  const scoreHtml   = rawMode !== undefined ? `
     <div class="stats-score-row">
       <div class="stats-score-item">
         <span class="stats-score-label">Score ${modeLabels[mode] || mode}</span>
-        <span class="stats-score-val">${modeScore.toLocaleString('fr-FR')} pts</span>
+        <span class="stats-score-val">${rawMode.toLocaleString('fr-FR')} pts</span>
       </div>
       <div class="stats-score-sep">⚓</div>
       <div class="stats-score-item">
         <span class="stats-score-label">Total du jour</span>
-        <span class="stats-score-val">${totalScore.toLocaleString('fr-FR')} <span class="stats-score-max">/ 50 000</span></span>
+        <span class="stats-score-val">${totalScore.toLocaleString('fr-FR')} <span class="stats-score-max">/ 60 000</span></span>
       </div>
     </div>` : '';
 
   let html = scoreHtml + `
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-val">${stats.played}</div><div class="stat-label">Parties jouées</div></div>
+      <div class="stat-card"><div class="stat-val">${played}</div><div class="stat-label">Parties jouées</div></div>
       <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-label">Victoires</div></div>
-      <div class="stat-card"><div class="stat-val">${stats.currentStreak}</div><div class="stat-label">Série actuelle</div></div>
-      <div class="stat-card"><div class="stat-val">${stats.maxStreak}</div><div class="stat-label">Meilleure série</div></div>
+      <div class="stat-card"><div class="stat-val">${streak}</div><div class="stat-label">Série actuelle</div></div>
+      <div class="stat-card"><div class="stat-val">${maxStr}</div><div class="stat-label">Meilleure série</div></div>
     </div>
     <div class="dist-title">Distribution des essais</div>
   `;
 
-  if (stats.played === 0) {
+  if (played === 0) {
     html += `<div class="stats-empty">Aucune partie jouée pour ce mode.</div>`;
   } else {
     for (let i = 1; i <= maxDist; i++) {
-      const count   = stats.distribution[i] || 0;
+      const count   = sanitizeNum(stats.distribution[i]);
       const pct     = Math.round((count / maxVal) * 100);
       const hl      = (lastWinGuess === i) ? 'highlight' : '';
       const hasVal  = count > 0 ? 'has-value' : '';
@@ -1129,6 +1217,25 @@ const MAX_EM_GUESSES = 8; // = nombre d'émojis max par personnage
 
 let emGuesses = [], emOver = false, emNames = new Set();
 let emTarget  = null;   // null → sera initialisé sur TARGET_EM à l'ouverture du mode
+let emShuffledEmoji = []; // ordre mélangé (seed du jour)
+
+// Mélange déterministe d'un tableau via une seed (Fisher-Yates + LCG)
+function seededShuffle(arr, seed) {
+  const a = [...arr];
+  let s = seed >>> 0;
+  for (let i = a.length - 1; i > 0; i--) {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    const j = s % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildEmojiSeed() {
+  const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
+  const base = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  return (base * 137 * 11) >>> 0; // salt distinct des autres modes
+}
 
 function showEmojiReveal() {
   const revEl   = document.getElementById('emoji-reveal');
@@ -1146,8 +1253,11 @@ function showEmojiReveal() {
 }
 
 function initEmojiMode() {
-  // Premier appel : utiliser la cible quotidienne
-  if (!emTarget) emTarget = TARGET_EM;
+  // Premier appel : utiliser la cible quotidienne + mélanger les emojis
+  if (!emTarget) {
+    emTarget = TARGET_EM;
+    emShuffledEmoji = seededShuffle(emTarget.emoji, buildEmojiSeed());
+  }
 
   // Réinitialise la section
   document.getElementById('emoji-guesses').innerHTML = '';
@@ -1168,7 +1278,7 @@ function initEmojiMode() {
 
 function updateEmojiStrip(freshIndex = -1) {
   const strip = document.getElementById('emoji-strip');
-  const emojis = emTarget.emoji;
+  const emojis = emShuffledEmoji;
   const total  = emojis.length;
   // Quand la partie est finie on révèle tout, sinon wrongCount + 1
   const wrongCount = emGuesses.filter(g => g.name !== emTarget.name).length;
@@ -1229,7 +1339,7 @@ function submitEmoji() {
   } else {
     // Révèle le prochain emoji avec animation
     const wrongCount = emGuesses.filter(g => g.name !== emTarget.name).length;
-    const newIdx = Math.min(wrongCount, emTarget.emoji.length - 1);
+    const newIdx = Math.min(wrongCount, emShuffledEmoji.length - 1);
     updateEmojiStrip(newIdx);
     updateEmojiStatus();
     if (emGuesses.length >= MAX_EM_GUESSES) finEmoji(false);
@@ -1286,8 +1396,232 @@ function finEmoji(won) {
   }
 }
 
+// ===== MODE AUDIO (OPENING) =====
+const AUDIO_DURATIONS = [1, 2, 4, 7, 11, 16]; // secondes par essai
+const MAX_AU_GUESSES  = AUDIO_DURATIONS.length; // 6
+const SCORE_PENALTY_AUDIO = 1500;
+
+let _auPlaying = false;
+let _auTimer   = null;
+
+function initAudioMode() {
+  document.getElementById('audio-guesses').innerHTML = '';
+  auGuesses.slice().reverse().forEach(g => renderAudioGuess(g, g.name === TARGET_AU.name, false));
+  updateAudioDots();
+  updateAudioStatus();
+  updateAudioBarLabel();
+  if (auOver) {
+    document.getElementById('au-reveal').classList.remove('hidden');
+    showAudioReveal();
+  } else {
+    document.getElementById('au-reveal').classList.add('hidden');
+  }
+  // Sync volume
+  const audio = document.getElementById('au-audio');
+  if (audio) audio.volume = parseFloat(document.getElementById('au-volume').value);
+  // Reset barre
+  const fill = document.getElementById('au-bar-fill');
+  if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; }
+  const btn = document.getElementById('au-play-btn');
+  if (btn) btn.textContent = auOver ? '▶ Réécouter' : '▶ Écouter';
+}
+
+function updateAudioBarLabel() {
+  const snippetIdx = auOver ? AUDIO_DURATIONS.length - 1 : Math.min(auGuesses.length, AUDIO_DURATIONS.length - 1);
+  const el = document.getElementById('au-bar-label');
+  if (el) el.textContent = AUDIO_DURATIONS[snippetIdx] + 's';
+}
+
+function playSnippet() {
+  const audio = document.getElementById('au-audio');
+  if (!audio) return;
+
+  // Si en cours de lecture → stop
+  if (_auPlaying) {
+    audio.pause(); audio.currentTime = 0;
+    clearTimeout(_auTimer); _auTimer = null;
+    _auPlaying = false;
+    const fill = document.getElementById('au-bar-fill');
+    if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '0%'; }
+    document.getElementById('au-play-btn').textContent = '▶ Réécouter';
+    return;
+  }
+
+  const snippetIdx = auOver ? AUDIO_DURATIONS.length - 1 : Math.min(auGuesses.length, AUDIO_DURATIONS.length - 1);
+  const duration   = AUDIO_DURATIONS[snippetIdx];
+
+  audio.src     = `audio/Opening${TARGET_AU.id}.mp3`;
+  audio.currentTime = 0;
+  audio.volume  = parseFloat(document.getElementById('au-volume').value);
+
+  const btn  = document.getElementById('au-play-btn');
+  const fill = document.getElementById('au-bar-fill');
+
+  audio.play().then(() => {
+    _auPlaying = true;
+    if (btn)  btn.textContent = '⏹ Stop';
+    if (fill) {
+      fill.style.transition = 'none';
+      fill.style.width = '0%';
+      requestAnimationFrame(() => {
+        fill.style.transition = `width ${duration}s linear`;
+        fill.style.width = '100%';
+      });
+    }
+    _auTimer = setTimeout(() => {
+      audio.pause(); audio.currentTime = 0;
+      _auPlaying = false; _auTimer = null;
+      if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '0%'; }
+      if (btn)  btn.textContent = '▶ Réécouter';
+    }, duration * 1000);
+  }).catch(() => {
+    if (btn) btn.textContent = '▶ Écouter';
+  });
+}
+
+function setAudioVolume(val) {
+  const audio = document.getElementById('au-audio');
+  if (audio) audio.volume = parseFloat(val);
+  const icon = document.getElementById('au-vol-icon');
+  if (icon) icon.textContent = val == 0 ? '🔇' : parseFloat(val) < 0.5 ? '🔉' : '🔊';
+}
+
+function updateAudioDots() {
+  const dots = document.getElementById('au-dots');
+  if (!dots) return;
+  dots.innerHTML = '';
+  for (let i = 0; i < MAX_AU_GUESSES; i++) {
+    const d = document.createElement('div');
+    const g = auGuesses[i];
+    d.className = 'au-dot ' + (!g ? 'au-dot-empty' : g.name === TARGET_AU.name ? 'au-dot-correct' : 'au-dot-wrong');
+    dots.appendChild(d);
+  }
+}
+
+function updateAudioStatus() {
+  const el = document.getElementById('au-status');
+  if (!el) return;
+  if (auOver) {
+    const won = auGuesses.some(g => g.name === TARGET_AU.name);
+    el.textContent = won
+      ? `🎉 Bravo ! C'était bien "${TARGET_AU.name}" — Opening ${TARGET_AU.id} !`
+      : `💀 Perdu ! C'était "${TARGET_AU.name}" — Opening ${TARGET_AU.id} par ${TARGET_AU.artist}`;
+    el.style.color = won ? 'var(--green-l)' : 'var(--red)';
+  } else {
+    const snippetIdx = Math.min(auGuesses.length, AUDIO_DURATIONS.length - 1);
+    const dur  = AUDIO_DURATIONS[snippetIdx];
+    const left = MAX_AU_GUESSES - auGuesses.length;
+    el.textContent = `Essai ${auGuesses.length + 1}/${MAX_AU_GUESSES} — ${dur} seconde${dur > 1 ? 's' : ''} révélée${dur > 1 ? 's' : ''}`;
+    el.style.color = '';
+  }
+}
+
+function showAudioReveal() {
+  document.getElementById('au-reveal-num').textContent    = TARGET_AU.id;
+  document.getElementById('au-reveal-name').textContent   = TARGET_AU.name;
+  document.getElementById('au-reveal-artist').textContent = 'par ' + TARGET_AU.artist;
+
+  const wrap = document.getElementById('au-yt-wrap');
+  wrap.innerHTML = '';
+
+  const ytQuery = encodeURIComponent(`One Piece Opening ${TARGET_AU.id} ${TARGET_AU.name} ${TARGET_AU.artist}`);
+  const ytSearchUrl = `https://www.youtube.com/results?search_query=${ytQuery}`;
+
+  const safeYTId = validateYTId(TARGET_AU.yt || '');
+  if (safeYTId) {
+    // Iframe YouTube nocookie
+    const iframe = document.createElement('iframe');
+    iframe.className       = 'au-yt-iframe';
+    iframe.src             = `https://www.youtube-nocookie.com/embed/${safeYTId}?rel=0&modestbranding=1`;
+    iframe.allow           = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.loading         = 'lazy';
+    iframe.title           = `${TARGET_AU.name} — One Piece Opening ${TARGET_AU.id}`;
+    wrap.appendChild(iframe);
+
+    // Lien de secours sous l'iframe (si erreur 153 ou autre)
+    const link = document.createElement('a');
+    link.className  = 'au-yt-link';
+    link.href       = `https://www.youtube.com/watch?v=${safeYTId}`;
+    link.target     = '_blank';
+    link.rel        = 'noopener noreferrer';
+    link.textContent = '▶ Regarder sur YouTube';
+    wrap.appendChild(link);
+  } else {
+    // Pas d'ID connu → bouton recherche
+    const btn = document.createElement('a');
+    btn.className   = 'au-yt-btn';
+    btn.href        = ytSearchUrl;
+    btn.target      = '_blank';
+    btn.rel         = 'noopener noreferrer';
+    btn.textContent = '▶ Écouter sur YouTube';
+    wrap.appendChild(btn);
+  }
+}
+
+function submitAudio() {
+  if (auOver) return;
+  const raw = input.value.trim();
+  const op  = OPENINGS.find(o => o.name.toLowerCase() === raw.toLowerCase());
+  if (!op || auNames.has(op.name)) { shake(input); return; }
+  auNames.add(op.name);
+  auGuesses.push(op);
+  saveState('audio');
+  input.value = ''; acBox.classList.remove('open');
+  const correct = op.name === TARGET_AU.name;
+  renderAudioGuess(op, correct, true);
+  updateCounter();
+  updateAudioDots();
+  updateAudioBarLabel();
+  updateAudioStatus();
+  if (correct) finAudio(true);
+  else if (auGuesses.length >= MAX_AU_GUESSES) finAudio(false);
+}
+
+function renderAudioGuess(op, correct, prepend = true) {
+  const row = document.createElement('div');
+  row.className = 'wanted-guess-row';
+  row.innerHTML = `<span class="wg-name">${esc(op.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+  const container = document.getElementById('audio-guesses');
+  if (prepend) container.prepend(row); else container.appendChild(row);
+}
+
+function finAudio(won) {
+  auOver = true;
+  document.getElementById('guess-btn').disabled = true;
+  input.disabled = true;
+  updateAudioDots();
+  updateAudioStatus();
+  document.getElementById('au-reveal').classList.remove('hidden');
+  showAudioReveal();
+  updateAudioBarLabel();
+  const btn = document.getElementById('au-play-btn');
+  if (btn) btn.textContent = '▶ Réécouter';
+  if (won) {
+    document.getElementById('win-char-name').textContent = TARGET_AU.name;
+    document.getElementById('win-attempts').textContent  = auGuesses.length;
+    document.getElementById('win-banner').classList.add('show');
+    if (!_restoring) launchConfetti();
+  } else {
+    document.getElementById('lose-char-name').textContent = TARGET_AU.name;
+    document.getElementById('lose-banner').classList.add('show');
+  }
+  if (!_restoring) {
+    recordResult('audio', won, auGuesses.length);
+    saveModeResult('audio', won, auGuesses.length, { opening: TARGET_AU.name, artist: TARGET_AU.artist });
+    if (won) {
+      incrementDailyCounter('audio');
+      saveModeScore('audio', Math.max(0, 10000 - (auGuesses.length - 1) * SCORE_PENALTY_AUDIO));
+    } else {
+      updateScoreBar();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => showStats('audio'), 1800);
+  }
+}
+
 // ===== SYSTÈME DE SCORE =====
-const SCORE_MAX_TOTAL = 50000;
+const SCORE_MAX_TOTAL = 60000;
 const SCORE_PENALTIES = { classic: 1000, wanted: 1250, fruit: 1000, emoji: 1250 };
 
 function round50(n) { return Math.round(n / 50) * 50; }
@@ -1308,44 +1642,62 @@ function calcModeScore(mode, tries, hintUsed, hintsCount) {
 // ===== SAUVEGARDE / RESTAURATION DE L'ÉTAT DE JEU =====
 function saveState(mode) {
   const dk = todayKey();
-  if (mode === 'classic') lsSet('op-gs-classic-' + dk, JSON.stringify({ guesses: cGuesses.map(c => c.name), hintUsed }));
-  if (mode === 'wanted')  lsSet('op-gs-wanted-'  + dk, JSON.stringify({ guesses: wGuesses.map(c => c.name) }));
-  if (mode === 'flag')    lsSet('op-gs-flag-'    + dk, JSON.stringify({ guesses: fGuesses.map(f => f.name) }));
-  if (mode === 'fruit')   lsSet('op-gs-fruit-'   + dk, JSON.stringify({ guesses: frGuesses.map(f => f.name), hints: [...frHintsRevealed] }));
-  if (mode === 'emoji')   lsSet('op-gs-emoji-'   + dk, JSON.stringify({ guesses: emGuesses.map(c => c.name) }));
+  // Le nom de la cible est inclus pour détecter un changement de hash en cours de journée
+  if (mode === 'classic') lsSet('op-gs-classic-' + dk, JSON.stringify({ guesses: cGuesses.map(c => c.name), hintUsed, target: TARGET_C.name }));
+  if (mode === 'wanted')  lsSet('op-gs-wanted-'  + dk, JSON.stringify({ guesses: wGuesses.map(c => c.name), target: TARGET_W.name }));
+  if (mode === 'flag')    lsSet('op-gs-flag-'    + dk, JSON.stringify({ guesses: fGuesses.map(f => f.name), target: TARGET_F.name }));
+  if (mode === 'fruit')   lsSet('op-gs-fruit-'   + dk, JSON.stringify({ guesses: frGuesses.map(f => f.name), hints: [...frHintsRevealed], target: TARGET_FRU.name }));
+  if (mode === 'emoji')   lsSet('op-gs-emoji-'   + dk, JSON.stringify({ guesses: emGuesses.map(c => c.name), target: TARGET_EM.name }));
+  if (mode === 'audio')   lsSet('op-gs-audio-'   + dk, JSON.stringify({ guesses: auGuesses.map(o => o.name), target: TARGET_AU.name }));
 }
+
+// Valide qu'un nom restauré depuis le localStorage est une chaîne de taille raisonnable
+function validName(n) { return typeof n === 'string' && n.length > 0 && n.length <= 120; }
 
 function restoreAllStates() {
   const dk = todayKey();
   _restoring = true;
 
   // Classic
-  const sc = JSON.parse(lsGet('op-gs-classic-' + dk) || 'null');
-  if (sc) {
-    hintUsed = sc.hintUsed || false;
-    sc.guesses.forEach(name => { input.value = name; submitClassic(); });
+  const sc = safeParseJSON(lsGet('op-gs-classic-' + dk), null);
+  if (sc && Array.isArray(sc.guesses) && (!sc.target || sc.target === TARGET_C.name)) {
+    hintUsed = !!sc.hintUsed;
+    sc.guesses.filter(validName).forEach(name => { input.value = name; submitClassic(); });
   }
 
   // Wanted
-  const sw = JSON.parse(lsGet('op-gs-wanted-' + dk) || 'null');
-  if (sw) { sw.guesses.forEach(name => { input.value = name; submitWanted(); }); }
+  const sw = safeParseJSON(lsGet('op-gs-wanted-' + dk), null);
+  if (sw && Array.isArray(sw.guesses) && (!sw.target || sw.target === TARGET_W.name)) {
+    sw.guesses.filter(validName).forEach(name => { input.value = name; submitWanted(); });
+  }
 
   // Flag
-  const sf = JSON.parse(lsGet('op-gs-flag-' + dk) || 'null');
-  if (sf) { sf.guesses.forEach(name => { input.value = name; submitFlag(); }); }
+  const sf = safeParseJSON(lsGet('op-gs-flag-' + dk), null);
+  if (sf && Array.isArray(sf.guesses) && (!sf.target || sf.target === TARGET_F.name)) {
+    sf.guesses.filter(validName).forEach(name => { input.value = name; submitFlag(); });
+  }
 
   // Fruit
-  const sfr = JSON.parse(lsGet('op-gs-fruit-' + dk) || 'null');
-  if (sfr) {
-    (sfr.hints || []).forEach(i => frHintsRevealed.add(i));
-    sfr.guesses.forEach(name => { input.value = name; submitFruit(); });
+  const sfr = safeParseJSON(lsGet('op-gs-fruit-' + dk), null);
+  if (sfr && Array.isArray(sfr.guesses) && (!sfr.target || sfr.target === TARGET_FRU.name)) {
+    (Array.isArray(sfr.hints) ? sfr.hints : []).forEach(i => frHintsRevealed.add(i));
+    sfr.guesses.filter(validName).forEach(name => { input.value = name; submitFruit(); });
   }
 
   // Emoji — doit attendre que emTarget soit initialisé
-  const sem = JSON.parse(lsGet('op-gs-emoji-' + dk) || 'null');
-  if (sem) {
-    if (!emTarget) emTarget = TARGET_EM;
-    sem.guesses.forEach(name => { input.value = name; submitEmoji(); });
+  const sem = safeParseJSON(lsGet('op-gs-emoji-' + dk), null);
+  if (sem && Array.isArray(sem.guesses) && (!sem.target || sem.target === TARGET_EM.name)) {
+    if (!emTarget) {
+      emTarget = TARGET_EM;
+      emShuffledEmoji = seededShuffle(emTarget.emoji, buildEmojiSeed());
+    }
+    sem.guesses.filter(validName).forEach(name => { input.value = name; submitEmoji(); });
+  }
+
+  // Audio
+  const sau = safeParseJSON(lsGet('op-gs-audio-' + dk), null);
+  if (sau && Array.isArray(sau.guesses) && (!sau.target || sau.target === TARGET_AU.name)) {
+    sau.guesses.filter(validName).forEach(name => { input.value = name; submitAudio(); });
   }
 
   _restoring = false;
@@ -1354,17 +1706,17 @@ function restoreAllStates() {
 
 function saveModeScore(mode, pts) {
   const key    = 'op-score-' + todayKey();
-  const scores = JSON.parse(lsGet(key) || '{}');
+  const scores = safeParseJSON(lsGet(key), {});
   scores[mode] = pts;
   lsSet(key, JSON.stringify(scores));
   updateScoreBar();
 }
 
-function saveModeResult(mode, won, tries) {
+function saveModeResult(mode, won, tries, extra) {
   const key     = 'op-result-' + todayKey();
-  const results = JSON.parse(lsGet(key) || '{}');
+  const results = safeParseJSON(lsGet(key), {});
   if (results[mode]) return; // déjà enregistré
-  results[mode] = { won: won, tries: tries };
+  results[mode] = { won: won, tries: tries, ...extra };
   lsSet(key, JSON.stringify(results));
 }
 
@@ -1372,9 +1724,9 @@ let _shareText = '';
 
 function buildShareText() {
   const dk      = todayKey();
-  const scores  = JSON.parse(lsGet('op-score-'  + dk) || '{}');
-  const results = JSON.parse(lsGet('op-result-' + dk) || '{}');
-  const total   = Object.values(scores).reduce((a, b) => a + b, 0);
+  const scores  = safeParseJSON(lsGet('op-score-'  + dk), {});
+  const results = safeParseJSON(lsGet('op-result-' + dk), {});
+  const total   = Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
 
   const MODES = [
     { key: 'classic', icon: '🗺️'  },
@@ -1382,6 +1734,7 @@ function buildShareText() {
     { key: 'flag',    icon: '🏴'   },
     { key: 'fruit',   icon: '🍎'  },
     { key: 'emoji',   icon: '😀'  },
+    { key: 'audio',   icon: '🎵'  },
   ];
 
   const [y, m, d] = dk.split('-');
@@ -1389,19 +1742,27 @@ function buildShareText() {
 
   MODES.forEach(({ key, icon }) => {
     const res = results[key];
-    const pts = scores[key] || 0;
+    const pts = sanitizeNum(scores[key]);
     if (!res) {
       lines.push(`${icon} —`);
     } else if (res.won) {
       const essai = res.tries > 1 ? 'essais' : 'essai';
-      lines.push(`${icon} ✅ ${res.tries} ${essai} · ${pts.toLocaleString('fr-FR')} pts`);
+      if (key === 'audio' && res.opening) {
+        lines.push(`${icon} ✅ ${res.tries} ${essai} · ${pts.toLocaleString('fr-FR')} pts · ${res.opening} — ${res.artist}`);
+      } else {
+        lines.push(`${icon} ✅ ${res.tries} ${essai} · ${pts.toLocaleString('fr-FR')} pts`);
+      }
     } else {
-      lines.push(`${icon} ❌ · 0 pts`);
+      if (key === 'audio' && res.opening) {
+        lines.push(`${icon} ❌ · 0 pts · ${res.opening} — ${res.artist}`);
+      } else {
+        lines.push(`${icon} ❌ · 0 pts`);
+      }
     }
   });
 
   lines.push('');
-  lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 50 000 pts`);
+  lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 60 000 pts`);
   lines.push('https://onepiecedle.fr');
   return lines.join('\n');
 }
@@ -1420,6 +1781,17 @@ function handleShareOverlayClick(e) {
   if (e.target === document.getElementById('share-popup')) closeSharePopup();
 }
 
+// ===== À PROPOS =====
+function openAbout() {
+  document.getElementById('about-modal').classList.remove('hidden');
+}
+function closeAbout() {
+  document.getElementById('about-modal').classList.add('hidden');
+}
+function handleAboutOverlayClick(e) {
+  if (e.target === document.getElementById('about-modal')) closeAbout();
+}
+
 function shareVia(platform) {
   if (platform === 'copy') {
     const btn = document.querySelector('.share-via-copy');
@@ -1433,6 +1805,26 @@ function shareVia(platform) {
     }
     return;
   }
+  if (platform === 'discord') {
+    // Mobile : Web Share API (ouvre Discord natif avec le texte)
+    if (navigator.share) {
+      navigator.share({ text: _shareText }).catch(() => {});
+      return;
+    }
+    // Desktop : copie le texte puis ouvre Discord web — l'utilisateur n'a qu'à coller
+    const btn = document.querySelector('.share-via-discord');
+    const done = () => {
+      if (btn) { btn.textContent = '✅ Copié !'; setTimeout(() => { btn.textContent = '💬 Discord'; }, 2200); }
+      window.open('https://discord.com/channels/@me', '_blank', 'noopener,noreferrer');
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(_shareText).then(done).catch(() => fallbackCopy(_shareText, done));
+    } else {
+      fallbackCopy(_shareText, done);
+    }
+    return;
+  }
+
   const enc = encodeURIComponent(_shareText);
   const urls = {
     twitter:  `https://twitter.com/intent/tweet?text=${enc}`,
@@ -1454,8 +1846,61 @@ function fallbackCopy(text, cb) {
 }
 
 function getTotalScore() {
-  const scores = JSON.parse(lsGet('op-score-' + todayKey()) || '{}');
-  return Object.values(scores).reduce((a, b) => a + b, 0);
+  const scores = safeParseJSON(lsGet('op-score-' + todayKey()), {});
+  return Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
+}
+
+function updateTabDoneStates() {
+  const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
+  ['classic','wanted','flag','fruit','emoji','audio'].forEach(mode => {
+    const tab = document.getElementById('tab-' + mode);
+    if (tab) tab.classList.toggle('tab-done', !!results[mode]);
+  });
+}
+
+function toggleScoreBreakdown(e) {
+  if (e) e.stopPropagation();
+  const el = document.getElementById('score-breakdown');
+  if (!el) return;
+  const isHidden = el.classList.contains('hidden');
+  if (isHidden) {
+    const scores  = safeParseJSON(lsGet('op-score-'  + todayKey()), {});
+    const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
+    const MODES   = [
+      { key:'classic', icon:'🗺️',  label:'Classique' },
+      { key:'wanted',  icon:'🏴‍☠️', label:'Wanted'    },
+      { key:'flag',    icon:'🏴',   label:'Pavillon'  },
+      { key:'fruit',   icon:'🍎',  label:'Fruit'     },
+      { key:'emoji',   icon:'😀',  label:'Émoji'     },
+      { key:'audio',   icon:'🎵',  label:'Opening'   },
+    ];
+    let html = '';
+    MODES.forEach(({ key, icon, label }) => {
+      const pts    = Object.hasOwn(scores, key) ? sanitizeNum(scores[key]) : undefined;
+      const res    = results[key];
+      const status = !res ? 'sb-pending' : res.won ? 'sb-won' : 'sb-lost';
+      const valStr = pts !== undefined ? pts.toLocaleString('fr-FR') + ' pts' : '—';
+      html += `<div class="sb-row ${status}"><span>${icon} ${label}</span><span>${valStr}</span></div>`;
+    });
+    const total = Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
+    html += `<div class="sb-divider"></div><div class="sb-row sb-total"><span>⭐ Total</span><span>${total.toLocaleString('fr-FR')} pts</span></div>`;
+    el.innerHTML = html;
+    // Position fixe sous la barre de score
+    const track = document.getElementById('score-track');
+    const rect  = track.getBoundingClientRect();
+    el.style.top  = (rect.bottom + 10) + 'px';
+    el.style.left = (rect.left + rect.width / 2) + 'px';
+    el.style.transform = 'translateX(-50%)';
+    el.classList.remove('hidden');
+    setTimeout(() => document.addEventListener('click', closeScoreBreakdown, { once: true }), 10);
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+function closeScoreBreakdown() {
+  const el = document.getElementById('score-breakdown');
+  if (el) el.classList.add('hidden');
 }
 
 function updateScoreBar() {
@@ -1467,7 +1912,7 @@ function updateScoreBar() {
   if (fill)  fill.style.width = pct + '%';
   if (label) label.textContent = total.toLocaleString('fr-FR');
   if (shareBtn) {
-    const results = JSON.parse(lsGet('op-result-' + todayKey()) || '{}');
+    const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
     shareBtn.classList.toggle('hidden', Object.keys(results).length === 0);
   }
   // Célébration 50 000 pts
@@ -1475,6 +1920,18 @@ function updateScoreBar() {
     lsSet('op-perfect-' + todayKey(), '1');
     setTimeout(launchPerfectDay, 800);
   }
+  updateStreakDisplay();
+  updateTabDoneStates();
+}
+
+function updateStreakDisplay() {
+  const el = document.getElementById('streak-bar');
+  if (!el) return;
+  const stats = loadStats('classic');
+  const s = stats.currentStreak;
+  if (s <= 1) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.textContent = `🔥 Série Classique · ${s} jours consécutifs · Record : ${stats.maxStreak}`;
 }
 
 function launchPerfectDay() {
@@ -1485,7 +1942,7 @@ function launchPerfectDay() {
     <canvas class="perfect-canvas" id="perfect-canvas"></canvas>
     <div class="perfect-content">
       <div class="perfect-emoji">🏴‍☠️</div>
-      <div class="perfect-sub">50 000 / 50 000 pts</div>
+      <div class="perfect-sub">60 000 / 60 000 pts</div>
       <div class="perfect-sub2">Tu as réussi tous les défis du jour !</div>
     </div>
   `;
@@ -1653,6 +2110,7 @@ loadDailyCounter('classic');
 function openKonami() {
   const audio = document.getElementById('konami-audio');
   const player = document.getElementById('konami-player');
+  audio.volume = 0.6;
   audio.currentTime = 0;
   audio.play();
   document.getElementById('konami-play-btn').textContent = '⏸';
@@ -1677,3 +2135,4 @@ function stopKonamiAudio() {
 // ===== INIT =====
 updateCounter();
 initFlagGrid();
+
