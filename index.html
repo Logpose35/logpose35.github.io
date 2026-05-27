@@ -55,7 +55,7 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=70">
+  <link rel="stylesheet" href="css/style.css?v=72">
 </head>
 <body>
 
@@ -91,7 +91,7 @@
   <button class="mode-tab" id="tab-flag" onclick="switchMode('flag')">🏴 Pavillon</button>
   <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')">🍎 Fruit du Démon</button>
   <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')">🤔 Émoji</button>
-  <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')">🎵 Opening</button>
+  <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')" style="display:none">🎵 Opening</button>
 </div>
 <div class="mode-tabs-inf">
   <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')">🔀 Classique Infini</button>
@@ -117,7 +117,7 @@
     </div>
     <span class="score-text">
       <span id="score-total">0</span>
-      <span class="score-max"> / 60 000</span>
+      <span class="score-max"> / 50 000</span>
     </span>
     <button class="share-daily-btn hidden" id="share-daily-btn" onclick="shareDaily()" title="Partager mon récap du jour">
       📋 Partager
@@ -470,7 +470,7 @@
       <button class="modal-mode-tab" id="stab-flag"    onclick="switchStatsTab('flag')">🏴 Pavillon</button>
       <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')">🍎 Démon</button>
       <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')">😀 Émoji</button>
-      <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')">🎵 Opening</button>
+      <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')" style="display:none">🎵 Opening</button>
     </div>
 
     <div id="stats-content"></div>
@@ -538,7 +538,7 @@
 </script>
 
 <!-- Données chargées en premier, puis la logique du jeu -->
-<script src="js/data.js?v=70"></script>
-<script src="js/app.js?v=70"></script>
+<script src="js/data.js?v=72"></script>
+<script src="js/app.js?v=72"></script>
 </body>
 </html>

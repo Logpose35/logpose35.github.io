@@ -1045,7 +1045,7 @@ function renderStatsContent(mode) {
       <div class="stats-score-sep">⚓</div>
       <div class="stats-score-item">
         <span class="stats-score-label">Total du jour</span>
-        <span class="stats-score-val">${totalScore.toLocaleString('fr-FR')} <span class="stats-score-max">/ 60 000</span></span>
+        <span class="stats-score-val">${totalScore.toLocaleString('fr-FR')} <span class="stats-score-max">/ 50 000</span></span>
       </div>
     </div>` : '';
 
@@ -1631,7 +1631,7 @@ function finAudio(won) {
 }
 
 // ===== SYSTÈME DE SCORE =====
-const SCORE_MAX_TOTAL = 60000;
+const SCORE_MAX_TOTAL = 50000;
 const SCORE_PENALTIES = { classic: 1000, wanted: 1250, fruit: 1000, emoji: 1250 };
 
 function round50(n) { return Math.round(n / 50) * 50; }
@@ -1757,22 +1757,14 @@ function buildShareText() {
       lines.push(`${icon} —`);
     } else if (res.won) {
       const essai = res.tries > 1 ? 'essais' : 'essai';
-      if (key === 'audio' && res.opening) {
-        lines.push(`${icon} ✅ ${res.tries} ${essai} · ${pts.toLocaleString('fr-FR')} pts · ${res.opening} — ${res.artist}`);
-      } else {
-        lines.push(`${icon} ✅ ${res.tries} ${essai} · ${pts.toLocaleString('fr-FR')} pts`);
-      }
+      lines.push(`${icon} ✅ ${res.tries} ${essai} · ${pts.toLocaleString('fr-FR')} pts`);
     } else {
-      if (key === 'audio' && res.opening) {
-        lines.push(`${icon} ❌ · 0 pts · ${res.opening} — ${res.artist}`);
-      } else {
-        lines.push(`${icon} ❌ · 0 pts`);
-      }
+      lines.push(`${icon} ❌ · 0 pts`);
     }
   });
 
   lines.push('');
-  lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 60 000 pts`);
+  lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 50 000 pts`);
   lines.push('https://onepiecedle.fr');
   return lines.join('\n');
 }
@@ -1955,7 +1947,7 @@ function launchPerfectDay() {
     <canvas class="perfect-canvas" id="perfect-canvas"></canvas>
     <div class="perfect-content">
       <div class="perfect-emoji">🏴‍☠️</div>
-      <div class="perfect-sub">60 000 / 60 000 pts</div>
+      <div class="perfect-sub">50 000 / 50 000 pts</div>
       <div class="perfect-sub2">Tu as réussi tous les défis du jour !</div>
     </div>
   `;
