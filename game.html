@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LogPose — 6 défis One Piece quotidiens</title>
+
+  <!-- SEO -->
+  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 6 modes quotidiens : Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening. Devine les personnages mystères en analysant leurs caractéristiques.">
+  <meta name="keywords" content="LogPose, One Piece, Wordle, jeu, devinette, personnage, manga, anime, quotidien">
+  <meta name="author" content="LogPose">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#c89408">
+  <link rel="canonical" href="https://onepiecedle.fr/game.html">
+  <meta name="google-site-verification" content="YGWKm-Ab9ruHCWHgHSzGI0_IHEUi17WAHOMQnelR4sY">
+  <meta name="google-site-verification" content="i0vh5Ns4PHg6NJDlxaqo-uQZ2qaM-HRbuoVM-Gz3BYg">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="LogPose — 6 défis One Piece quotidiens">
+  <meta property="og:description" content="6 défis One Piece par jour — Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening. Un nouveau défi chaque jour !">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://onepiecedle.fr/game.html">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:image" content="https://onepiecedle.fr/images/og_preview.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="LogPose">
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LogPose — 6 défis One Piece quotidiens">
+  <meta name="twitter:description" content="Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening. Un nouveau défi chaque jour !">
+  <meta name="twitter:image" content="https://onepiecedle.fr/images/og_preview.jpg">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- JSON-LD Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "LogPose",
+    "url": "https://onepiecedle.fr/game.html",
+    "description": "6 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening",
+    "applicationCategory": "Game",
+    "genre": "Word Game",
+    "inLanguage": "fr",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "image": "https://onepiecedle.fr/images/og_preview.jpg"
+  }
+  </script>
+
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css?v=92">
+  <link rel="stylesheet" href="css/layout.css?v=92">
+  <link rel="stylesheet" href="css/modals.css?v=92">
+  <link rel="stylesheet" href="css/classic.css?v=92">
+  <link rel="stylesheet" href="css/wanted.css?v=92">
+  <link rel="stylesheet" href="css/flag.css?v=92">
+  <link rel="stylesheet" href="css/fruit.css?v=92">
+  <link rel="stylesheet" href="css/inf.css?v=92">
+  <link rel="stylesheet" href="css/emoji.css?v=92">
+  <link rel="stylesheet" href="css/misc.css?v=92">
+  <link rel="stylesheet" href="css/audio.css?v=92">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="settings-wrap">
+      <button class="theme-btn" id="settings-btn" onclick="toggleSettings()" title="Paramètres">⚙️</button>
+      <div class="settings-panel hidden" id="settings-panel">
+        <div class="sp-section">
+          <div class="sp-label">Taille de l'interface</div>
+          <div class="sp-size-row">
+            <button class="size-btn" id="sz-p" onclick="setSize('small')">Petit</button>
+            <button class="size-btn" id="sz-m" onclick="setSize('medium')">Moyen</button>
+            <button class="size-btn" id="sz-g" onclick="setSize('large')">Grand</button>
+          </div>
+        </div>
+        <div class="sp-divider"></div>
+        <button class="sp-stats-btn" onclick="showStats(); toggleSettings()">📊 Statistiques</button>
+      </div>
+    </div>
+    <div class="header-center">
+      <a href="index.html" title="Retour à l'accueil" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit">
+        <img class="skull-jolly" src="images/jolly_roger.png" alt="Jolly Roger"/>
+        <h1>LogPose</h1>
+      </a>
+      <span class="subtitle">6 défis quotidiens · Teste ta connaissance One Piece</span>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer de thème">🌙</button>
+  </div>
+</header>
+
+<div class="mode-tabs">
+  <button class="mode-tab active" id="tab-classic" onclick="switchMode('classic')">🗺️ Classique</button>
+  <button class="mode-tab" id="tab-wanted" onclick="switchMode('wanted')">🏴‍☠️ Wanted</button>
+  <button class="mode-tab" id="tab-flag" onclick="switchMode('flag')">🏴 Pavillon</button>
+  <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')">🍎 Fruit du Démon</button>
+  <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')">🤔 Émoji</button>
+  <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')">🎵 Opening</button>
+</div>
+<div class="mode-tabs-inf">
+  <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')">🔀 Mode Infini</button>
+</div>
+
+<!-- PUB MOBILE — sous les onglets -->
+<div class="ad-mobile ad-mobile-top">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+</div>
+
+<div class="score-bar-section">
+  <div class="score-bar-inner">
+    <span class="score-anchor">⚓</span>
+    <div class="score-track" id="score-track" onclick="toggleScoreBreakdown(event)" title="Voir le détail par mode" style="cursor:pointer">
+      <div class="score-fill" id="score-fill">
+        <img class="score-merry" src="images/going_merry.png" alt="Vogue Merry">
+      </div>
+    </div>
+    <span class="score-text">
+      <span id="score-total">0</span>
+      <span class="score-max"> / 60 000</span>
+    </span>
+    <button class="share-daily-btn hidden" id="share-daily-btn" onclick="shareDaily()" title="Partager mon récap du jour">
+      📋 Partager
+    </button>
+  </div>
+</div>
+
+<div class="streak-bar hidden" id="streak-bar"></div>
+
+<main>
+  <div class="date-badge"><span id="date-label"></span></div>
+  <div class="yesterday" id="yesterday-bar"></div>
+  <div class="daily-counter" id="daily-counter"></div>
+
+  <div id="win-banner">
+    <h2 id="win-title">🏴‍☠️ Nakama trouvé !</h2>
+    <p>Tu as identifié <span class="answer" id="win-char-name"></span> en <span class="attempts" id="win-attempts"></span> essai(s) !</p>
+  </div>
+  <div id="lose-banner">
+    <h2>☠️ Défaite !</h2>
+    <p>Le personnage était : <span class="answer" id="lose-char-name"></span>. Reviens demain !</p>
+  </div>
+
+  <div class="search-area">
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="Tape un nom de personnage..." autocomplete="off" maxlength="120"/>
+      <div id="autocomplete"></div>
+    </div>
+    <button id="guess-btn">Deviner</button>
+  </div>
+
+  <div class="counter" id="counter" style="display:none">
+    Essai <span id="current-try">1</span> &nbsp;—&nbsp; <span id="already-guessed-label"></span>
+  </div>
+
+  <!-- MODE CLASSIQUE -->
+  <div id="classic-section">
+    <div class="classic-reveal" id="classic-reveal" style="display:none">
+      <img id="classic-reveal-img" src="" alt=""/>
+      <div class="classic-reveal-name" id="classic-reveal-name"></div>
+    </div>
+    <div class="hint-area" id="hint-area" style="display:none">
+      <button id="hint-btn" onclick="useHint()">💡 Indice</button>
+      <div id="hint-display"></div>
+    </div>
+    <div class="table-scroll"><div class="table-inner">
+      <div id="recap-bar" style="display:none">
+        <div class="recap-title">📋 Ce qu'on sait</div>
+        <div class="recap-grid" id="recap-grid"></div>
+      </div>
+      <div class="grid-header grid-cols">
+        <div class="col-label">Personnage</div>
+        <div class="col-label">Genre</div>
+        <div class="col-label">Affiliation</div>
+        <div class="col-label">Origine</div>
+        <div class="col-label">Fruit du Démon</div>
+        <div class="col-label">Haki</div>
+        <div class="col-label">Statut</div>
+        <div class="col-label">1er Arc</div>
+        <div class="col-label">Prime (M)</div>
+      </div>
+      <div id="guesses-container"></div>
+    </div></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot correct"></div> Correct</div>
+      <div class="legend-item"><div class="legend-dot partial"></div> Partiel / Proche</div>
+      <div class="legend-item"><div class="legend-dot wrong"></div> Faux</div>
+      <div class="legend-item">⬆️ Plus haut &nbsp; ⬇️ Plus bas</div>
+    </div>
+  </div>
+
+  <!-- MODE WANTED -->
+  <div id="wanted-section">
+    <div class="wanted-layout">
+
+      <div class="wanted-poster-wrap">
+        <div class="op-poster">
+          <!-- Boîte qui impose le ratio du template (1754x2481) -->
+          <div class="poster-aspect-box">
+
+            <!-- Photo du personnage (derrière le frame) -->
+            <img id="wanted-img" src="" alt="" class="poster-char-img"/>
+            <div class="poster-no-img" id="wanted-no-img" style="display:none">❓</div>
+
+            <!-- Vrai template PNG avec zone photo transparente -->
+            <img class="poster-frame" src="images/wanted_frame.png" alt=""/>
+
+            <!-- Textes dynamiques + séparateurs -->
+            <div class="poster-overlay-texts">
+              <div class="poster-sep" style="top:70.5%"></div>
+              <div class="poster-name-block">
+                <div class="poster-name" id="poster-name">??? ??? ???</div>
+                <div class="poster-epithet" id="poster-epithet">&nbsp;</div>
+              </div>
+              <div class="poster-sep" style="top:81%"></div>
+              <div class="poster-bounty-block">
+                <div class="poster-bounty-row">
+                  <span class="poster-prime-amount" id="poster-amount">???</span><span class="poster-dash">,-</span>
+                </div>
+              </div>
+              <div class="poster-sep" style="top:91%"></div>
+            </div>
+
+          </div><!-- /.poster-aspect-box -->
+        </div>
+
+        <div class="blur-indicator" id="blur-dots"></div>
+        <label class="color-toggle">
+          <input type="checkbox" id="color-toggle-cb" onchange="toggleColor(this.checked)"/>
+          <div class="toggle-track"><div class="toggle-knob"></div></div>
+          Couleur
+        </label>
+      </div>
+
+      <div class="wanted-right">
+        <div class="wanted-hint">
+          <strong id="wanted-blur-level">Flou maximum</strong>
+          Devine le personnage — l'image se déflouttera à chaque mauvaise réponse
+        </div>
+        <div id="wanted-guesses"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODE PAVILLON -->
+  <div id="flag-section">
+    <div class="flag-layout">
+      <div class="flag-left">
+        <div class="flag-grid-wrap">
+          <div class="flag-grid" id="flag-grid"></div>
+        </div>
+        <div class="flag-progress">Cases révélées : <span id="flag-revealed">0</span> / 16</div>
+      </div>
+      <div class="flag-right">
+        <div class="flag-hint">
+          <strong id="flag-hint-title">0 case révélée</strong>
+          Devine l'équipage — une case se dévoile à chaque mauvaise réponse
+        </div>
+        <div id="flag-guesses"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODE EMOJI -->
+  <div id="emoji-section">
+    <div class="emoji-layout">
+
+      <div class="emoji-left">
+        <div class="emoji-card">
+          <div class="emoji-question">Quel personnage se cache derrière ces indices ?</div>
+          <div class="emoji-strip" id="emoji-strip">
+            <!-- Rempli par JS -->
+          </div>
+          <div class="emoji-progress-label" id="emoji-progress-label"></div>
+        </div>
+        <div class="emoji-reveal" id="emoji-reveal" style="display:none">
+          <img id="emoji-reveal-img" src="" alt=""/>
+          <div class="emoji-reveal-name" id="emoji-reveal-name"></div>
+        </div>
+      </div>
+
+      <div class="emoji-right">
+        <div class="emoji-status-box" id="emoji-status">Devine le personnage — un nouvel indice emoji se débloque à chaque mauvaise réponse</div>
+        <div id="emoji-guesses"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODE INFINI -->
+  <div id="inf-section">
+    <div class="inf-streak-bar">
+      <div class="inf-streak-item">
+        <div class="inf-streak-label">🔥 Série en cours</div>
+        <div class="inf-streak-val" id="inf-streak">0</div>
+      </div>
+      <div class="inf-streak-sep"></div>
+      <div class="inf-streak-item">
+        <div class="inf-streak-label">🏆 Record</div>
+        <div class="inf-streak-val" id="inf-record">0</div>
+      </div>
+    </div>
+    <div class="table-scroll"><div class="table-inner">
+      <div class="grid-header grid-cols">
+        <div class="col-label">Personnage</div>
+        <div class="col-label">Genre</div>
+        <div class="col-label">Affiliation</div>
+        <div class="col-label">Origine</div>
+        <div class="col-label">Fruit du Démon</div>
+        <div class="col-label">Haki</div>
+        <div class="col-label">Statut</div>
+        <div class="col-label">1er Arc</div>
+        <div class="col-label">Prime (M)</div>
+      </div>
+      <div id="inf-guesses-container"></div>
+    </div></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot correct"></div> Correct</div>
+      <div class="legend-item"><div class="legend-dot partial"></div> Partiel / Proche</div>
+      <div class="legend-item"><div class="legend-dot wrong"></div> Faux</div>
+      <div class="legend-item">⬆️ Plus haut &nbsp; ⬇️ Plus bas</div>
+    </div>
+    <div class="inf-replay-wrap hidden" id="inf-replay-wrap">
+      <button class="inf-replay-btn" onclick="replayInf()">🔀 Nouvelle partie</button>
+    </div>
+  </div>
+
+  <!-- MODE AUDIO -->
+  <div id="audio-section">
+    <div class="audio-card">
+      <div class="audio-question">🎵 Quel est cet opening One Piece ?</div>
+
+      <div class="audio-player">
+        <button class="audio-play-btn" id="au-play-btn" onclick="playSnippet()">▶ Écouter</button>
+        <div class="audio-bar-wrap">
+          <div class="audio-bar-track">
+            <div class="audio-bar-fill" id="au-bar-fill"></div>
+          </div>
+          <span class="audio-bar-label" id="au-bar-label">1s</span>
+        </div>
+      </div>
+
+      <div class="audio-volume-row">
+        <span class="audio-vol-icon" id="au-vol-icon">🔊</span>
+        <input type="range" class="audio-vol-slider" id="au-volume"
+               min="0" max="1" step="0.05" value="0.7"
+               oninput="setAudioVolume(this.value)">
+      </div>
+
+      <div class="au-dots" id="au-dots"></div>
+      <div class="audio-status" id="au-status">Essai 1/6 — 1 seconde révélée</div>
+    </div>
+
+    <div class="audio-reveal hidden" id="au-reveal">
+      <div class="au-op-badge">Opening <span id="au-reveal-num"></span></div>
+      <div class="au-op-name" id="au-reveal-name"></div>
+      <div class="au-op-artist" id="au-reveal-artist"></div>
+      <div class="au-yt-wrap" id="au-yt-wrap"></div>
+    </div>
+
+    <div id="audio-guesses"></div>
+    <audio id="au-audio" preload="none"></audio>
+  </div>
+
+  <!-- MODE AKUMA NO MI -->
+  <div id="fruit-section">
+    <div class="fruit-layout">
+      <div class="fruit-left">
+        <div class="fruit-card">
+          <div class="fruit-question">Quel personnage détient ce fruit du démon ?</div>
+          <div class="fruit-name-display">" <span id="fr-fruit-name">???</span> "</div>
+          <div class="fruit-reveal" id="fruit-reveal">
+            <img id="fruit-reveal-img" src="" alt=""/>
+            <div class="fruit-reveal-name" id="fruit-reveal-name"></div>
+          </div>
+          <div class="fruit-hints-row">
+            <div class="fruit-hint-box" id="fr-hint1">
+              <div class="fh-icon">⚛️</div>
+              <div class="fh-label">INDICE DE TYPE</div>
+              <div class="fh-sub" id="fr-h1-sub">DANS 3 ESSAIS</div>
+            </div>
+            <div class="fruit-hint-box" id="fr-hint2">
+              <div class="fh-icon">🌐</div>
+              <div class="fh-label">NOM TRADUIT</div>
+              <div class="fh-sub" id="fr-h2-sub">DANS 5 ESSAIS</div>
+            </div>
+            <div class="fruit-hint-box" id="fr-hint3">
+              <div class="fh-icon">❓</div>
+              <div class="fh-label">POUVOIR</div>
+              <div class="fh-sub" id="fr-h3-sub">DANS 8 ESSAIS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fruit-right">
+        <div class="fruit-status" id="fruit-status">Devine le personnage — des indices se débloquent à chaque mauvaise réponse</div>
+        <div id="fruit-guesses"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- PUB MOBILE — avant le timer (fin de partie) -->
+<div class="ad-mobile ad-mobile-bottom">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+</div>
+
+<div class="next-puzzle">
+  <span class="next-puzzle-label">⏳ Prochains défis dans</span>
+  <span class="next-puzzle-timer" id="next-puzzle-timer">--:--:--</span>
+</div>
+
+<footer>
+  LogPose — Classique · Wanted · Pavillon · Fruit · Émoji · Opening &nbsp;|&nbsp; One Piece © Eiichiro Oda
+  <br>
+  <button class="footer-about-btn" onclick="openAbout()">À propos</button>
+  <span class="footer-version">v4.5</span>
+</footer>
+
+<!-- MODAL AVERTISSEMENT SPOILERS -->
+<div class="modal-overlay hidden" id="spoiler-modal">
+  <div class="modal-box spoiler-box">
+    <div class="spoiler-skull">☠️</div>
+    <div class="modal-title">Attention — Spoilers !</div>
+    <p class="spoiler-text">
+      LogPose est mis à jour jusqu'au <strong>dernier chapitre publié</strong> de One Piece.<br><br>
+      Des personnages, affiliations et événements récents sont inclus dans le jeu.<br>
+      En continuant, tu acceptes le risque d'être spoilé.
+    </p>
+    <div class="spoiler-actions">
+      <button class="spoiler-btn-accept" onclick="closeSpoilerModal()">⚓ Je comprends, allons-y !</button>
+      <label class="spoiler-remember">
+        <input type="checkbox" id="spoiler-no-show" checked/> Ne plus afficher
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP PARTAGE -->
+<div class="share-popup-overlay hidden" id="share-popup" onclick="handleShareOverlayClick(event)">
+  <div class="share-popup-box">
+    <button class="share-popup-close" onclick="closeSharePopup()">✕</button>
+    <div class="share-popup-title">⚓ Partager mon récap</div>
+    <pre id="share-popup-preview" class="share-popup-preview"></pre>
+    <div class="share-popup-btns">
+      <button class="share-via-btn share-via-copy"      onclick="shareVia('copy')">📋 Copier</button>
+      <button class="share-via-btn share-via-discord"   onclick="shareVia('discord')">💬 Discord</button>
+      <button class="share-via-btn share-via-twitter"   onclick="shareVia('twitter')">𝕏 Twitter</button>
+      <button class="share-via-btn share-via-facebook"  onclick="shareVia('facebook')">📘 Facebook</button>
+      <button class="share-via-btn share-via-bluesky"   onclick="shareVia('bluesky')">🦋 Bluesky</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL STATISTIQUES -->
+<div class="modal-overlay hidden" id="stats-modal" onclick="handleModalClick(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeStats()">✕</button>
+    <div class="modal-title">📊 Statistiques</div>
+
+    <div class="modal-mode-tabs">
+      <button class="modal-mode-tab active" id="stab-classic" onclick="switchStatsTab('classic')">🗺️ Classique</button>
+      <button class="modal-mode-tab" id="stab-wanted"  onclick="switchStatsTab('wanted')">🏴‍☠️ Wanted</button>
+      <button class="modal-mode-tab" id="stab-flag"    onclick="switchStatsTab('flag')">🏴 Pavillon</button>
+      <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')">🍎 Démon</button>
+      <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')">😀 Émoji</button>
+      <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')">🎵 Opening</button>
+    </div>
+
+    <div id="stats-content"></div>
+  </div>
+</div>
+
+<!-- EASTER EGG KONAMI -->
+<audio id="konami-audio" src="audio/easter_egg.mp3" preload="none"></audio>
+<div class="konami-player hidden" id="konami-player">
+  <span class="konami-player-title">🎵 Dr. Tony Tony Chopper</span>
+  <button class="konami-play-btn" id="konami-play-btn" onclick="toggleKonamiAudio()">⏸</button>
+  <button class="konami-stop-btn" onclick="stopKonamiAudio()">✕</button>
+</div>
+
+<!-- MODAL À PROPOS -->
+<div class="modal-overlay hidden" id="about-modal" onclick="handleAboutOverlayClick(event)">
+  <div class="modal-box about-box">
+    <button class="modal-close" onclick="closeAbout()">✕</button>
+    <div class="modal-title">⚓ À propos</div>
+
+    <div class="about-logo-wrap">
+      <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
+      <div class="about-version-badge">v4.5</div>
+    </div>
+
+    <p class="about-desc">
+      Jeu de devinettes quotidien basé sur l'univers de <strong>One Piece</strong>.
+      Six défis renouvelés chaque jour à minuit (heure de Paris).
+    </p>
+
+    <div class="about-modes-grid">
+      <div class="about-mode-item">🗺️ Classique</div>
+      <div class="about-mode-item">🏴‍☠️ Wanted</div>
+      <div class="about-mode-item">🏴 Pavillon</div>
+      <div class="about-mode-item">🍎 Fruit du Démon</div>
+      <div class="about-mode-item">🤔 Émoji</div>
+      <div class="about-mode-item">🎵 Opening</div>
+    </div>
+    <div class="about-inf-row">🔀 Classique Infini — entraînement sans limite</div>
+
+    <div class="about-stats-row">
+      <span class="about-stat">🎵 29 openings</span>
+      <span class="about-stat">🏴‍☠️ Mis à jour jusqu'à l'arc Elbaf</span>
+    </div>
+
+    <div class="about-divider"></div>
+
+    <p class="about-legal">
+      One Piece © Eiichiro Oda · Shueisha · Toei Animation<br>
+      LogPose est un projet fan non officiel, sans affiliation.
+    </p>
+  </div>
+</div>
+
+<!-- Score breakdown — direct child of body pour éviter les stacking contexts -->
+<div class="score-breakdown hidden" id="score-breakdown"></div>
+
+<!-- Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+</script>
+
+<!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
+<script src="js/data.js?v=92"></script>
+<script src="js/app.js?v=92"></script>
+</body>
+</html>

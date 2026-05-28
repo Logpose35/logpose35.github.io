@@ -541,14 +541,14 @@ function buildGuessRow(char, T) {
         : `<span class="char-name-only">${esc(char.name)}</span>`
       }
     </div>
-    <div class="cell ${gs}"><span class="cell-icon">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu'}</span></div>
-    <div class="cell ${as}"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.affil)}</span></div>
-    <div class="cell ${os}"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.origin)}</span></div>
-    <div class="cell ${fs}"><span class="cell-icon">${esc(fl.icon)}</span><span class="cell-val">${esc(fl.val)}</span></div>
-    <div class="cell ${hs}"><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun')}</span></div>
-    <div class="cell ${ss}"><span class="cell-icon">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(char.status)}</span></div>
-    <div class="cell ${ac.state}"><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(ARCS[char.arc - 1] || '?')}</span>${ac.arrow ? `<span class="cell-arrow">${esc(ac.arrow)}</span>` : ''}</div>
-    <div class="cell ${bc.state}"><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${bc.arrow ? `<span class="cell-arrow">${esc(bc.arrow)}</span>` : ''}</div>
+    <div class="cell ${gs}" data-label="Genre"><span class="cell-icon">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu'}</span></div>
+    <div class="cell ${as}" data-label="Affiliation"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.affil)}</span></div>
+    <div class="cell ${os}" data-label="Origine"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.origin)}</span></div>
+    <div class="cell ${fs}" data-label="Fruit du Démon"><span class="cell-icon">${esc(fl.icon)}</span><span class="cell-val">${esc(fl.val)}</span></div>
+    <div class="cell ${hs}" data-label="Haki"><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun')}</span></div>
+    <div class="cell ${ss}" data-label="Statut"><span class="cell-icon">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(char.status)}</span></div>
+    <div class="cell ${ac.state}" data-label="1er Arc"><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(ARCS[char.arc - 1] || '?')}</span>${ac.arrow ? `<span class="cell-arrow">${esc(ac.arrow)}</span>` : ''}</div>
+    <div class="cell ${bc.state}" data-label="Prime"><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${bc.arrow ? `<span class="cell-arrow">${esc(bc.arrow)}</span>` : ''}</div>
   `;
   // Flip animé décalé par colonne (style Wordle)
   row.querySelectorAll('.cell').forEach((cell, i) => {

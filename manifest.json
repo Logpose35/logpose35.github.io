@@ -2,7 +2,7 @@
   "name": "LogPose",
   "short_name": "LogPose",
   "description": "6 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening",
-  "start_url": "/",
+  "start_url": "/game.html",
   "display": "standalone",
   "background_color": "#04090f",
   "theme_color": "#c89408",

@@ -135,12 +135,14 @@
 /* ===== FOOTER ===== */
 footer {
   position: relative; z-index: 1;
-  text-align: center; padding: 22px;
-  border-top: 2px solid rgba(200,148,10,0.2);
-  font-size: 0.76rem; color: var(--text3); letter-spacing: 0.12em;
-  background: var(--header-bg);
-  color: rgba(200,148,10,0.5);
-  line-height: 2;
+  text-align: center; padding: var(--sp-4) var(--sp-5);
+  margin-top: var(--sp-4);
+  border-top: 3px solid var(--gold);
+  box-shadow: 0 -6px 24px rgba(2,8,16,0.45);
+  font-size: var(--fs-xs); letter-spacing: 0.12em;
+  background: linear-gradient(180deg, var(--ocean-2) 0%, var(--ocean-1) 100%);
+  color: var(--on-ocean-3);
+  line-height: 1.7;
 }
 .footer-about-btn {
   background: none; border: 1px solid rgba(200,148,10,0.35);
