@@ -27,7 +27,7 @@ const CHARACTERS = [
   { name:"Trafalgar D. Water Law", img:"law",      emoji:["🌊","⚕️","🫀","🔵","✂️","🗡️","💙","☠️"], epithet:"Chirurgien de la Mort",      gender:"M", affil:"Pirates du Cœur",         origin:"North Blue", fruit:"Paramecia", haki:["Armement","Observation"],              status:"Vivant", arc:19, bounty:3000 },
   { name:"Eustass Kid",            img:"kid",      emoji:["🧲","⚙️","💢","🔩","🦾","🔴","⚡","🩸"], epithet:"",                  gender:"M", affil:"Kid Pirates",           origin:"South Blue", fruit:"Paramecia", haki:["Armement","Conquérant"],               status:"Vivant", arc:19, bounty:3000 },
   { name:"Portgas D. Ace",         img:"ace",     emoji:["🔥","😊","🌊","🧡","✊","🕊️","🧢","☠️"], epithet:"",                gender:"M", affil:"Barbe Blanche",         origin:"East Blue",  fruit:"Logia",     haki:["Armement","Observation","Conquérant"], status:"Mort",   arc:11, bounty:550  },
-  { name:"Edward Newgate",         img:"whitebeard",emoji:["💥","🌍","👨‍👧","🔱","🤍","💪","🧔","☠️"], epithet:"Barbe Blanche",             gender:"M", affil:"Barbe Blanche",         origin:"Grand Line", fruit:"Paramecia", haki:["Armement","Observation","Conquérant"], status:"Mort",   arc:22, bounty:5046 },
+  { name:"Edward Newgate",         img:"whitebeard",emoji:["💥","🌍","👨‍👧","🗡️","🤍","💪","🧔","☠️"], epithet:"Barbe Blanche",             gender:"M", affil:"Barbe Blanche",         origin:"Grand Line", fruit:"Paramecia", haki:["Armement","Observation","Conquérant"], status:"Mort",   arc:22, bounty:5046 },
   { name:"Sabo",                   img:"sabo",    emoji:["✊","🎩","🐲","🌍","🔥","🔵","👦","⚓"], epithet:"",             gender:"M", affil:"Armée Révolutionnaire", origin:"East Blue",  fruit:"Logia",     haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:21, bounty:602  },
   { name:"Boa Hancock",            img:"hancock", emoji:["🐍","❤️","👑","💅","💕","🏹","👸","💎"], epithet:"Impératrice Pirate",      gender:"F", affil:"Sept Grands Corsaires", origin:"Grand Line", fruit:"Paramecia", haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:20, bounty:1659 },
   { name:"Dracule Mihawk",         img:"mihawk",      emoji:["🦅","🌑","🏰","🍷","⚔️","🟡","👁️","🗡️"], epithet:"Oeil de Faucon",           gender:"M", affil:"Croix Noire",           origin:"West Blue",  fruit:null,        haki:["Armement","Observation"],              status:"Vivant", arc:4,  bounty:3590 },
@@ -201,6 +201,12 @@ const CHARACTERS = [
   { name:"Ulti",                   img:"ulti",         emoji:["🦕","💥","👊","🩷","😤","🏯","🐉","💢"], epithet:"",                        gender:"F", affil:"Beast Pirates",          origin:"New World",  fruit:"Zoan",      haki:["Armement"],                            status:"Vivant", arc:29, bounty:0    },
   { name:"Who's Who",              img:"whos_who",     emoji:["🐱","🔫","💙","🌊","🏴‍☠️","⚔️","😤","🔵"], epithet:"",                        gender:"M", affil:"Beast Pirates",          origin:"Grand Line", fruit:"Zoan",      haki:["Armement"],                            status:"Vivant", arc:29, bounty:0    },
   { name:"Black Maria",            img:"black_maria",  emoji:["🕷️","🌸","🏯","😈","💜","🎭","🔴","🕸️"], epithet:"",                        gender:"F", affil:"Beast Pirates",          origin:"New World",  fruit:"Zoan",      haki:["Armement"],                            status:"Vivant", arc:29, bounty:0    },
+  // --- Germa 66 / Famille Vinsmoke ---
+  { name:"Vinsmoke Judge",   img:"judge",  emoji:["⚡","🧬","🛡️","🔬","👑","💥","🏰","🧪"], epithet:"Roi de la Science",  gender:"M", affil:"Germa 66",  origin:"North Blue", fruit:null,      haki:[],                   status:"Vivant", arc:28, bounty:0   },
+  { name:"Vinsmoke Reiju",   img:"reiju",  emoji:["💜","🦋","💋","☠️","🌸","🧬","💅","🐝"], epithet:"Poison Rose",        gender:"F", affil:"Germa 66",  origin:"North Blue", fruit:null,      haki:["Armement"],         status:"Vivant", arc:28, bounty:0   },
+  { name:"Vinsmoke Ichiji",  img:"ichiji", emoji:["🔴","⭐","💥","🧬","🥊","🎖️","💪","🔥"], epithet:"Sparking Red",       gender:"M", affil:"Germa 66",  origin:"North Blue", fruit:null,      haki:["Armement"],         status:"Vivant", arc:28, bounty:0   },
+  { name:"Vinsmoke Niji",    img:"niji",   emoji:["🔵","⚡","🧬","💙","🥊","🎖️","🌩️","🔹"], epithet:"Electric Blue",      gender:"M", affil:"Germa 66",  origin:"North Blue", fruit:null,      haki:["Armement"],         status:"Vivant", arc:28, bounty:0   },
+  { name:"Vinsmoke Yonji",   img:"yonji",  emoji:["🟢","💪","🧬","🥊","🎖️","🟩","🌿","🔋"], epithet:"Winch Green",        gender:"M", affil:"Germa 66",  origin:"North Blue", fruit:null,      haki:["Armement"],         status:"Vivant", arc:28, bounty:0   },
   // --- Big Mom Pirates ---
   { name:"Perospero",              img:"perospero",    emoji:["🍭","🍬","🟡","🧡","🏰","🎂","🍰","🍡"], epithet:"Ministre des Bonbons",     gender:"M", affil:"Big Mom Pirates",        origin:"New World",  fruit:"Paramecia", haki:["Armement"],                            status:"Vivant", arc:28, bounty:700  },
   // --- Indépendant ---
@@ -304,6 +310,16 @@ const ALIASES = {
   "jaguar saul":      "Jaguar D. Sauro",
   "jaguar sauro":     "Jaguar D. Sauro",
   "hadjrudin":        "Hajrudin",
+  // Famille Vinsmoke / Germa 66
+  "judge":            "Vinsmoke Judge",
+  "reiju":            "Vinsmoke Reiju",
+  "ichiji":           "Vinsmoke Ichiji",
+  "niji":             "Vinsmoke Niji",
+  "yonji":            "Vinsmoke Yonji",
+  "poison rose":      "Vinsmoke Reiju",
+  "sparking red":     "Vinsmoke Ichiji",
+  "electric blue":    "Vinsmoke Niji",
+  "winch green":      "Vinsmoke Yonji",
 };
 
 // ===== CONSTANTES =====
