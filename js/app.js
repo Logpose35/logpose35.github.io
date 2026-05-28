@@ -29,6 +29,16 @@ const COUNTER_LABELS = {
   audio:   'le mode Opening',
 };
 
+const WIN_TITLES = {
+  classic: '🏴‍☠️ Nakama trouvé !',
+  wanted:  '🎯 Avis de recherche résolu !',
+  flag:    '🏴 Pavillon reconnu !',
+  fruit:   '🍎 Fruit du Démon identifié !',
+  emoji:   '😄 Nakama identifié !',
+  audio:   '🎵 Opening trouvé !',
+  inf:     '🏴‍☠️ Nakama trouvé !',
+};
+
 async function loadDailyCounter(mode) {
   const el = document.getElementById('daily-counter');
   if (!el || !COUNTER_LABELS.hasOwnProperty(mode)) { if (el) el.textContent = ''; return; }
@@ -306,6 +316,7 @@ function syncBanners() {
   document.getElementById('win-banner').classList.toggle('show', won);
   document.getElementById('lose-banner').classList.toggle('show', !won);
   if (won) {
+    document.getElementById('win-title').textContent = WIN_TITLES[currentMode] || '🏴‍☠️ Nakama trouvé !';
     document.getElementById('win-char-name').textContent = target.name;
     document.getElementById('win-attempts').textContent = guesses.length;
   } else {
@@ -468,6 +479,7 @@ function finClassic(won) {
     revealEl.style.display = 'block';
   }
   if (won) {
+    document.getElementById('win-title').textContent      = WIN_TITLES['classic'];
     document.getElementById('win-char-name').textContent  = TARGET_C.name;
     document.getElementById('win-attempts').textContent   = cGuesses.length;
     document.getElementById('win-banner').classList.add('show');
@@ -732,6 +744,7 @@ function finWanted(won) {
   input.disabled = true;
   revealFull();
   if (won) {
+    document.getElementById('win-title').textContent      = WIN_TITLES['wanted'];
     document.getElementById('win-char-name').textContent  = TARGET_W.name;
     document.getElementById('win-attempts').textContent   = wGuesses.length;
     document.getElementById('win-banner').classList.add('show');
@@ -829,6 +842,7 @@ function finFlag(won) {
   revealAllFlag();
   updateFlagHint();
   if (won) {
+    document.getElementById('win-title').textContent      = WIN_TITLES['flag'];
     document.getElementById('win-char-name').textContent  = TARGET_F.name;
     document.getElementById('win-attempts').textContent   = fGuesses.length;
     document.getElementById('win-banner').classList.add('show');
@@ -906,6 +920,7 @@ function finInf(won) {
   document.getElementById('inf-streak').textContent = newStreak;
   document.getElementById('inf-record').textContent = newRecord;
   if (won) {
+    document.getElementById('win-title').textContent     = WIN_TITLES['inf'];
     document.getElementById('win-char-name').textContent = infTarget.name;
     document.getElementById('win-attempts').textContent  = infGuesses.length;
     document.getElementById('win-banner').classList.add('show');
@@ -1018,6 +1033,19 @@ function switchStatsTab(mode) {
   renderStatsContent(mode);
 }
 
+const MODES_ORDER = ['classic', 'wanted', 'flag', 'fruit', 'emoji', 'audio'];
+
+function getNextUnplayedMode(currentMode) {
+  const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
+  const startIdx = MODES_ORDER.indexOf(currentMode);
+  // Cherche d'abord après le mode actuel, puis depuis le début
+  const ordered = [
+    ...MODES_ORDER.slice(startIdx + 1),
+    ...MODES_ORDER.slice(0, startIdx),
+  ];
+  return ordered.find(m => !results[m]) || null;
+}
+
 function renderStatsContent(mode) {
   const stats   = loadStats(mode);
   const played  = sanitizeNum(stats.played);
@@ -1080,6 +1108,20 @@ function renderStatsContent(mode) {
   }
 
   html += `<button class="stats-share-btn" onclick="closeStats(); shareDaily()">📋 Partager mon récap</button>`;
+
+  // Bouton "mode suivant" — uniquement si un mode non joué existe
+  const nextMode = getNextUnplayedMode(mode);
+  if (nextMode) {
+    const NEXT_LABELS = {
+      classic: '🗺️ Classique',
+      wanted:  '🏴‍☠️ Wanted',
+      flag:    '🏴 Pavillon',
+      fruit:   '🍎 Fruit du Démon',
+      emoji:   '😀 Émoji',
+      audio:   '🎵 Opening',
+    };
+    html += `<button class="stats-next-btn" onclick="closeStats(); switchMode('${nextMode}')">Jouer : ${NEXT_LABELS[nextMode]} →</button>`;
+  }
 
   document.getElementById('stats-content').innerHTML = html;
 
@@ -1204,6 +1246,7 @@ function finFruit(won) {
     }
   }
   if (won) {
+    document.getElementById('win-title').textContent     = WIN_TITLES['fruit'];
     document.getElementById('win-char-name').textContent = TARGET_FRU.holder;
     document.getElementById('win-attempts').textContent  = frGuesses.length;
     document.getElementById('win-banner').classList.add('show');
@@ -1388,6 +1431,7 @@ function finEmoji(won) {
   showEmojiReveal();
 
   if (won) {
+    document.getElementById('win-title').textContent      = WIN_TITLES['emoji'];
     document.getElementById('win-char-name').textContent  = emTarget.name;
     document.getElementById('win-attempts').textContent   = emGuesses.length;
     document.getElementById('win-banner').classList.add('show');
@@ -1608,6 +1652,7 @@ function finAudio(won) {
   const btn = document.getElementById('au-play-btn');
   if (btn) btn.textContent = '▶ Réécouter';
   if (won) {
+    document.getElementById('win-title').textContent     = WIN_TITLES['audio'];
     document.getElementById('win-char-name').textContent = TARGET_AU.name;
     document.getElementById('win-attempts').textContent  = auGuesses.length;
     document.getElementById('win-banner').classList.add('show');

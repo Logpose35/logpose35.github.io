@@ -401,8 +401,8 @@ body.size-large  { zoom: 1.22; }
 }
 .score-breakdown.hidden { display: none; }
 @keyframes sbFadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 /* Petite flèche vers le haut */
 .score-breakdown::before {
@@ -1319,6 +1319,22 @@ main {
 }
 .stats-share-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(200,148,10,0.5); }
 .stats-share-btn:active { transform: translateY(0); }
+
+.stats-next-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin: 10px auto 0;
+  background: transparent;
+  color: var(--gold, #c89408); border: 1.5px solid var(--gold, #c89408); border-radius: 20px;
+  padding: 8px 22px; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem; font-weight: 700; letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: transform 0.14s, background 0.14s, color 0.14s;
+}
+.stats-next-btn:hover {
+  background: var(--gold, #c89408); color: #04090f;
+  transform: translateY(-2px);
+}
+.stats-next-btn:active { transform: translateY(0); }
 
 /* ===== MODE FRUIT DU DÉMON ===== */
 #fruit-section { display: none; }
