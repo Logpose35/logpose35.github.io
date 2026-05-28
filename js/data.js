@@ -61,6 +61,10 @@ const CHARACTERS = [
   { name:"Inazuma",                img:"inazuma",      emoji:["✂️","⚡","💚","🌊","🏛️","✊","🔱","💙"], epithet:"",                        gender:"M", affil:"Armée Révolutionnaire", origin:"Grand Line", fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:21, bounty:0    },
   { name:"Monkey D. Dragon",       img:"dragon",  emoji:["🌪️","⚡","🌍","✊","👤","🐉","🎭","🔰"], epithet:"Pire Criminel du Monde",       gender:"M", affil:"Armée Révolutionnaire", origin:"East Blue",  fruit:null,        haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:6,  bounty:0    },
   { name:"Koala",                  img:"koala",   emoji:["🐨","💪","✊","🌊","🌍","💙","🐟","🦺"], epithet:"",                             gender:"F", affil:"Armée Révolutionnaire", origin:"South Blue", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:23, bounty:0    },
+  { name:"Belo Betty",             img:"belo_betty", emoji:["🔥","🚩","💪","✊","🌍","🔴","💄","⚡"], epithet:"Femme Incendiaire",             gender:"F", affil:"Armée Révolutionnaire", origin:"Grand Line", fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:29, bounty:457  },
+  { name:"Morley",                 img:"morley",     emoji:["🌍","💪","🏳️","✊","🟢","🌿","🏔️","🐊"], epithet:"Green Demon",                  gender:"M", affil:"Armée Révolutionnaire", origin:"West Blue",  fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:29, bounty:293  },
+  { name:"Lindbergh",              img:"lindbergh",  emoji:["🔧","🐭","⚙️","✊","🌍","🔵","🤖","🛸"], epithet:"Flancs d'Acier",               gender:"M", affil:"Armée Révolutionnaire", origin:"South Blue", fruit:null,        haki:[],                                      status:"Vivant", arc:29, bounty:316  },
+  { name:"Karasu",                 img:"karasu",     emoji:["🐦‍⬛","💨","🌑","✊","🌍","⚫","🌪️","🪶"], epithet:"Corbeau Noir",                 gender:"M", affil:"Armée Révolutionnaire", origin:"North Blue", fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:29, bounty:281  },
   { name:"Basil Hawkins",          img:"hawkins",      emoji:["🃏","🌾","🔮","🩸","♟️","🎭","🎯","🪆"], epithet:"Magicien",                gender:"M", affil:"Hawkins Pirates",       origin:"North Blue", fruit:"Paramecia", haki:["Armement"],                            status:"Vivant", arc:19, bounty:320  },
   { name:"Shakky",                 img:"shakky",  emoji:["🚬","🍺","😏","💙","🌊","⚓","🌟","👒"],  epithet:"Shakuyaku",                    gender:"F", affil:"Indépendant",           origin:"Grand Line", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:19, bounty:0    },
   { name:"Bepo",                   img:"bepo",    emoji:["🐻","🗺️","😰","💙","⚕️","🌊","🏔️","🐾"],  epithet:"Navigateur",                   gender:"M", affil:"Pirates du Cœur",       origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:19, bounty:500  },
@@ -206,6 +210,7 @@ const CHARACTERS = [
   { name:"Magellan",               img:"magellan",     emoji:["☠️","🐍","🟣","💀","🏛️","🔐","🐉","🧪"], epithet:"Geôlier Venimeux",         gender:"M", affil:"Gouvernement Mondial",   origin:"Grand Line", fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:21, bounty:0    },
   // --- Wano — Méchants & Alliés ---
   { name:"Kurozumi Orochi",        img:"orochi",       emoji:["🐍","👑","🏯","😈","🌸","🗡️","⛩️","🐉"], epithet:"Shogun",                  gender:"M", affil:"Wano",                   origin:"New World",  fruit:"Mythique",  haki:[],                                      status:"Mort",   arc:29, bounty:0    },
+  { name:"Shinobu",                img:"shinobu",      emoji:["🥷","🌸","💦","🏯","🌙","💜","🍎","🗡️"],  epithet:"Kunoichi",                     gender:"F", affil:"Wano",                   origin:"New World",  fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:29, bounty:0    },
   { name:"Kozuki Hiyori",          img:"hiyori",       emoji:["🌸","👘","💙","🎵","🎭","👑","💔","🏯"],  epithet:"Komurasaki",                   gender:"F", affil:"Wano",                   origin:"New World",  fruit:null,        haki:[],                                      status:"Vivant", arc:29, bounty:0    },
   { name:"Kawamatsu",              img:"kawamatsu",    emoji:["🦦","🌊","🤼","🌸","🎌","🐟","⛩️","🔱"], epithet:"Le Kappa",                gender:"M", affil:"Wano",                   origin:"New World",  fruit:null,        haki:["Armement"],                            status:"Vivant", arc:29, bounty:0    },
   { name:"Ashura Doji",            img:"ashura_doji",  emoji:["⚔️","🏯","😤","🔥","💢","🌊","🐉","🗡️"], epithet:"Roi de la Montagne",       gender:"M", affil:"Wano",                   origin:"New World",  fruit:null,        haki:["Armement"],                            status:"Mort",   arc:29, bounty:0    },
@@ -323,6 +328,14 @@ const ALIASES = {
   "jaguar saul":      "Jaguar D. Sauro",
   "jaguar sauro":     "Jaguar D. Sauro",
   "hadjrudin":        "Hajrudin",
+  // Armée Révolutionnaire
+  "belo betty":       "Belo Betty",
+  "betty":            "Belo Betty",
+  "morley":           "Morley",
+  "lindbergh":        "Lindbergh",
+  "karasu":           "Karasu",
+  // Wano
+  "shinobu":          "Shinobu",
   // East Blue
   "gin le demon":     "Gin",
   // Alabasta
