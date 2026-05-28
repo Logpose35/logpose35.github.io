@@ -30,6 +30,8 @@ const CHARACTERS = [
   { name:"Edward Newgate",         img:"whitebeard",emoji:["💥","🌍","👨‍👧","🗡️","🤍","💪","🧔","☠️"], epithet:"Barbe Blanche",             gender:"M", affil:"Barbe Blanche",         origin:"Grand Line", fruit:"Paramecia", haki:["Armement","Observation","Conquérant"], status:"Mort",   arc:22, bounty:5046 },
   { name:"Sabo",                   img:"sabo",    emoji:["✊","🎩","🐲","🌍","🔥","🔵","👦","⚓"], epithet:"",             gender:"M", affil:"Armée Révolutionnaire", origin:"East Blue",  fruit:"Logia",     haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:21, bounty:602  },
   { name:"Boa Hancock",            img:"hancock", emoji:["🐍","❤️","👑","💅","💕","🏹","👸","💎"], epithet:"Impératrice Pirate",      gender:"F", affil:"Sept Grands Corsaires", origin:"Grand Line", fruit:"Paramecia", haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:20, bounty:1659 },
+  { name:"Boa Sandersonia",        img:"sandersonia", emoji:["🐍","💚","🌿","💪","🏹","🌊","🐉","🌸"], epithet:"",                       gender:"F", affil:"Amazon Lily",           origin:"Grand Line", fruit:"Zoan",      haki:["Armement"],                            status:"Vivant", arc:20, bounty:0    },
+  { name:"Boa Marigold",           img:"marigold",    emoji:["🐍","🟡","💛","💪","🏹","🌊","🐉","🌻"], epithet:"",                       gender:"F", affil:"Amazon Lily",           origin:"Grand Line", fruit:"Zoan",      haki:["Armement"],                            status:"Vivant", arc:20, bounty:0    },
   { name:"Dracule Mihawk",         img:"mihawk",      emoji:["🦅","🌑","🏰","🍷","⚔️","🟡","👁️","🗡️"], epithet:"Oeil de Faucon",           gender:"M", affil:"Croix Noire",           origin:"West Blue",  fruit:null,        haki:["Armement","Observation"],              status:"Vivant", arc:4,  bounty:3590 },
   { name:"Donquixote Doflamingo",  img:"doflamingo",      emoji:["🦩","🧵","😏","👓","🌸","👑","🎪","🩷"], epithet:"Démon Céleste",        gender:"M", affil:"Donquixote Pirates",    origin:"North Blue", fruit:"Paramecia", haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:12, bounty:340  },
   { name:"Crocodile",              img:"crocodile",emoji:["🏜️","💨","🚬","🪝","🐊","⚫","💎","🌵"], epithet:"Roi du Désert",               gender:"M", affil:"Baroque Works",         origin:"Grand Line", fruit:"Logia",     haki:["Armement"],                            status:"Vivant", arc:8,  bounty:1965 },
@@ -46,6 +48,7 @@ const CHARACTERS = [
   { name:"Baggy",                  img:"buggy",   emoji:["🤡","🔵","✂️","🎪","🎊","💙","👃","🔴"], epithet:"",                     gender:"M", affil:"Pirates de Buggy",      origin:"Grand Line", fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:2,  bounty:3189 },
   { name:"Koby",                   img:"coby",    emoji:["😢","💪","⚓","🌊","🩷","🔵","🌟","👮"], epithet:"Héros des Marines",             gender:"M", affil:"Marine",                origin:"East Blue",  fruit:null,        haki:["Armement","Observation"],              status:"Vivant", arc:1,  bounty:0    },
   { name:"Nefertari Vivi",         img:"vivi",    emoji:["🏜️","👸","🦆","💙","🌊","🌺","🔵","👑"], epithet:"Princesse",                    gender:"F", affil:"Alabasta",              origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:8,  bounty:0    },
+  { name:"Nefertari Cobra",        img:"cobra",   emoji:["👑","🏜️","🌊","👴","🌺","🕊️","🏛️","💛"],  epithet:"Roi d'Alabasta",               gender:"M", affil:"Alabasta",              origin:"Grand Line", fruit:null,        haki:[],                                      status:"Mort",   arc:8,  bounty:0    },
   { name:"Bartolomeo",             img:"bartolomeo",      emoji:["😭","🌀","🛡️","💚","⭐","🧱","🟢","🏴‍☠️"], epithet:"Cannibale",            gender:"M", affil:"Barto Club",            origin:"East Blue",  fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:26, bounty:200  },
   { name:"Rob Lucci",              img:"lucci",   emoji:["🐆","🕊️","👤","🩸","⚫","👁️","🥋","🐱"], epithet:"CP0",                          gender:"M", affil:"CP0",                   origin:"Grand Line", fruit:"Zoan",      haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:15, bounty:0    },
   { name:"Killer",                 img:"killer",      emoji:["🎭","🔇","🌀","⚔️","😂","🔴","🌙","🪖"], epithet:"Soldat du Massacre",       gender:"M", affil:"Kid Pirates",           origin:"South Blue", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:19, bounty:200  },
@@ -59,6 +62,8 @@ const CHARACTERS = [
   { name:"Monkey D. Dragon",       img:"dragon",  emoji:["🌪️","⚡","🌍","✊","👤","🐉","🎭","🔰"], epithet:"Pire Criminel du Monde",       gender:"M", affil:"Armée Révolutionnaire", origin:"East Blue",  fruit:null,        haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:6,  bounty:0    },
   { name:"Koala",                  img:"koala",   emoji:["🐨","💪","✊","🌊","🌍","💙","🐟","🦺"], epithet:"",                             gender:"F", affil:"Armée Révolutionnaire", origin:"South Blue", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:23, bounty:0    },
   { name:"Basil Hawkins",          img:"hawkins",      emoji:["🃏","🌾","🔮","🩸","♟️","🎭","🎯","🪆"], epithet:"Magicien",                gender:"M", affil:"Hawkins Pirates",       origin:"North Blue", fruit:"Paramecia", haki:["Armement"],                            status:"Vivant", arc:19, bounty:320  },
+  { name:"Shakky",                 img:"shakky",  emoji:["🚬","🍺","😏","💙","🌊","⚓","🌟","👒"],  epithet:"Shakuyaku",                    gender:"F", affil:"Indépendant",           origin:"Grand Line", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:19, bounty:0    },
+  { name:"Bepo",                   img:"bepo",    emoji:["🐻","🗺️","😰","💙","⚕️","🌊","🏔️","🐾"],  epithet:"Navigateur",                   gender:"M", affil:"Pirates du Cœur",       origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:19, bounty:500  },
   { name:"X Drake",                img:"drake",      emoji:["🦕","🔵","🕵️","⚔️","🔴","🌊","🦖","🐉"], epithet:"Drapeau Rouge",             gender:"M", affil:"Marine",                origin:"North Blue", fruit:"Zoan",      haki:["Armement","Observation"],              status:"Vivant", arc:19, bounty:222  },
   { name:"Scratchmen Apoo",        img:"apoo",      emoji:["🎵","🎹","🌊","👂","💥","🎶","🎺","🔊"], epithet:"Rugissement des Mers",       gender:"M", affil:"On Air Pirates",        origin:"Grand Line", fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:19, bounty:350  },
   { name:"Urouge",                 img:"urouge",      emoji:["😈","⚡","💀","🏴‍☠️","🌩️","💪","🌑","🔱"], epithet:"Moine Fou",                gender:"M", affil:"Fallen Monk Pirates",   origin:"Skypiea",    fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:19, bounty:108  },
@@ -71,6 +76,7 @@ const CHARACTERS = [
   { name:"Hachi",                  img:"hatchan",      emoji:["🐙","🌊","🎣","💙","🍣","🐟","🦑","⚓"], epithet:"",               gender:"M", affil:"Pirates d'Arlong",      origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:5,  bounty:0    },
   { name:"Arlong",                 img:"arlong",  emoji:["🦈","🔵","😠","💀","🌊","🪚","🐟","🌙"], epithet:"Dents de Scie",                gender:"M", affil:"Pirates d'Arlong",        origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:5,  bounty:20   },
   { name:"Don Krieg",              img:"krieg",      emoji:["⚔️","🛡️","💥","🌊","😈","🧱","🔴","💣"], epithet:"Coup Déloyal",              gender:"M", affil:"Krieg Pirates",         origin:"East Blue",  fruit:null,        haki:[],                                      status:"Vivant", arc:4,  bounty:17   },
+  { name:"Gin",                    img:"gin",        emoji:["🌀","🔗","💙","😔","🌊","⚔️","💢","🏴‍☠️"],  epithet:"Le Démon",              gender:"M", affil:"Krieg Pirates",         origin:"East Blue",  fruit:null,        haki:[],                                      status:"Vivant", arc:4,  bounty:0    },
   { name:"Zeff",                   img:"zeff",        emoji:["🦵","🍽️","👨‍🍳","🍷","🌊","⚓","🔴","🦿"],  epithet:"Patte Rouge",                  gender:"M", affil:"Baratie",               origin:"North Blue", fruit:null,        haki:[],                                      status:"Vivant", arc:4,  bounty:0    },
   { name:"Alvida",                 img:"alvida",      emoji:["🪨","🌊","💋","⚫","💄","💅","🪩","🫧"], epithet:"Masse de Fer",             gender:"F", affil:"Pirates d'Alvida",      origin:"East Blue",  fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:1,  bounty:6    },
   { name:"Helmeppo",               img:"helmeppo",      emoji:["😰","💪","⚓","🌊","🟡","👮","🌟","🎖️"], epithet:"",                       gender:"M", affil:"Marine",                origin:"East Blue",  fruit:null,        haki:["Armement","Observation"],              status:"Vivant", arc:1,  bounty:0    },
@@ -92,6 +98,7 @@ const CHARACTERS = [
   { name:"Viola",                  img:"viola",      emoji:["👁️","💃","🌹","❤️","🎭","🏰","💀","🩷"], epithet:"Violet",                    gender:"F", affil:"Dressrosa",             origin:"Grand Line", fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:26, bounty:0    },
   { name:"Pedro",                  img:"pedro",      emoji:["🐆","💥","🌙","🕯️","🌿","💀","🌺","⚡"], epithet:"Seigneur de la Nuit",       gender:"M", affil:"Mink Tribe",            origin:"New World",  fruit:null,        haki:["Armement","Observation"],              status:"Mort",   arc:28, bounty:382  },
   { name:"Carrot",                 img:"carrot",  emoji:["🐰","⚡","🌕","🦁","🌙","💛","🤸","🌊"], epithet:"",                             gender:"F", affil:"Mink Tribe",            origin:"New World",  fruit:null,        haki:["Observation"],                         status:"Vivant", arc:27, bounty:0    },
+  { name:"Wanda",                  img:"wanda",   emoji:["🐕","⚡","🌕","🌿","💛","🌊","🏔️","🌙"],  epithet:"",                             gender:"F", affil:"Mink Tribe",            origin:"New World",  fruit:null,        haki:["Armement"],                            status:"Vivant", arc:27, bounty:0    },
   { name:"Nekomamushi",            img:"neko",      emoji:["🌙","🐱","🦁","🌕","🐾","💪","🗡️","🌃"], epithet:"Seigneur de la Nuit",        gender:"M", affil:"Mink Tribe",            origin:"New World",  fruit:null,        haki:["Armement","Observation"],              status:"Vivant", arc:27, bounty:0    },
   { name:"Inuarashi",              img:"inuarashi",      emoji:["🌞","🐕","🦁","🌅","🦴","💪","⚔️","🏔️"], epithet:"",      gender:"M", affil:"Mink Tribe",            origin:"New World",  fruit:null,        haki:["Armement","Observation"],              status:"Vivant", arc:27, bounty:0    },
   { name:"Kozuki Momonosuke",      img:"momonosuke",      emoji:["🐲","👦","🏯","😭","🌸","🍱","👑","⛩️"], epithet:"Shogun",               gender:"M", affil:"Wano",                  origin:"New World",  fruit:"Zoan",      haki:["Armement","Observation","Conquérant"], status:"Vivant", arc:25, bounty:0    },
@@ -101,6 +108,7 @@ const CHARACTERS = [
   { name:"Jack",                   img:"jack",    emoji:["🐘","🌵","💀","🔱","💥","🌊","🔩","⚡"], epithet:"La Sécheresse",                gender:"M", affil:"Beast Pirates",          origin:"Grand Line", fruit:"Zoan",      haki:["Armement"],                            status:"Vivant", arc:27, bounty:1000 },
   { name:"Queen",                  img:"queen",   emoji:["🎵","💉","🦕","🤖","🟡","🐛","🦠","🎸"], epithet:"La Peste",                     gender:"M", affil:"Beast Pirates",          origin:"Grand Line", fruit:"Zoan",      haki:["Armement"],                            status:"Vivant", arc:29, bounty:1320 },
   { name:"King",                   img:"king",    emoji:["🦕","🔥","🦅","⚫","🌋","🦴","🖤","🐲"], epithet:"Feu Sauvage",                  gender:"M", affil:"Beast Pirates",          origin:"Grand Line", fruit:"Zoan",      haki:["Armement","Conquérant"],               status:"Vivant", arc:29, bounty:1390 },
+  { name:"Stussy",                 img:"stussy",   emoji:["💋","🦇","🩸","💄","🌸","😏","🖤","🕵️"],  epithet:"Reine des Araignées",          gender:"F", affil:"CP0",                   origin:"Grand Line", fruit:"Zoan",      haki:["Armement"],                            status:"Vivant", arc:30, bounty:0    },
   { name:"Vegapunk",               img:"vegapunk",      emoji:["🧠","🔬","🤖","🌐","💡","⚗️","🧬","🌟"], epithet:"Le Génie",               gender:"M", affil:"Gouvernement Mondial",  origin:"Grand Line", fruit:"Paramecia", haki:[],                                      status:"Mort",   arc:30, bounty:0    },
   { name:"Shaka",                  img:"shaka",      emoji:["💛","🔬","🤖","🏛️","⚖️","📡","🦸","🌟"], epithet:"Vegapunk 01",               gender:"M", affil:"Gouvernement Mondial",  origin:"Grand Line", fruit:null,        haki:[],                                      status:"Mort",   arc:30, bounty:0    },
   { name:"Lilith",                 img:"lilith",  emoji:["⚠️","💛","🔬","🤖","🏛️","🦹","💥","🔴"], epithet:"Vegapunk 02",                  gender:"F", affil:"Gouvernement Mondial",  origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:30, bounty:0    },
@@ -120,6 +128,7 @@ const CHARACTERS = [
   // --- Personnages liés aux pavillons ---
   { name:"Kuro",                   img:"kuro",      emoji:["🐱","🕵️","🧤","💙","🔪","👔","🌙","⚫"], epithet:"Klahadore",                  gender:"M", affil:"Pirates du Chat Noir",   origin:"East Blue",  fruit:null,        haki:[],                                      status:"Vivant", arc:3,  bounty:16   },
   { name:"Wapol",                  img:"wapol",      emoji:["🍽️","🔫","❄️","🏔️","👑","😈","🤴","🦷"], epithet:"",             gender:"M", affil:"Pirates de Bliking",     origin:"Grand Line", fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:10, bounty:0    },
+  { name:"Dr. Kureha",             img:"kureha",  emoji:["🍷","👵","❄️","🏔️","🩺","💊","💜","🌡️"],  epithet:"La Sorcière",                  gender:"F", affil:"Drum Island",           origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:10, bounty:0    },
   { name:"Dorry",                  img:"dorry",      emoji:["🔵","⚔️","💪","🏝️","⏳","🤝","🦁","⚓"], epithet:"Ogre Bleu",                  gender:"M", affil:"Équipage des Géants",    origin:"Grand Line", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:9,  bounty:100  },
   { name:"Brogy",                  img:"brogy",      emoji:["⚔️","🪖","💪","🌿","🏝️","🍖","🥁","🌲"], epithet:"Ogre Rouge",                 gender:"M", affil:"Équipage des Géants",    origin:"Grand Line", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:9,  bounty:100  },
   // --- Personnages majeurs additionnels ---
@@ -144,9 +153,13 @@ const CHARACTERS = [
   { name:"Fisher Tiger",           img:"fisher_tiger",  emoji:["🐯","🌊","⚓","☀️","🐠","💙","🌅","🗡️"],  epithet:"Capitaine Tiger",              gender:"M", affil:"Pirates du Soleil",     origin:"Grand Line", fruit:null,        haki:[],                                      status:"Mort",   arc:24, bounty:230  },
   { name:"Hody Jones",             img:"hody",         emoji:["💊","🦈","🌊","😤","⚪","🐟","💀","🌙"],  epithet:"",                           gender:"M", affil:"New Fish-Man Pirates",  origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:24, bounty:0    },
   { name:"Neptune",                img:"neptune",      emoji:["👑","🔱","🌊","🐠","💙","🏰","🐋","🧜"],  epithet:"Roi des Mers",               gender:"M", affil:"Royaume de Ryugu",      origin:"Grand Line", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:24, bounty:0    },
+  { name:"Otohime",               img:"otohime",  emoji:["🕊️","🌊","🐠","💛","👑","❤️","🌸","📜"],   epithet:"Reine des Mers",               gender:"F", affil:"Royaume de Ryugu",      origin:"Grand Line", fruit:null,        haki:[],                                      status:"Mort",   arc:24, bounty:0    },
+  { name:"Fukaboshi",             img:"fukaboshi",emoji:["🐟","💙","👑","🌊","⚔️","🏰","🔱","🦈"],   epithet:"Prince des Mers",              gender:"M", affil:"Royaume de Ryugu",      origin:"Grand Line", fruit:null,        haki:["Armement"],                            status:"Vivant", arc:24, bounty:0    },
   { name:"Shirahoshi",             img:"shirahoshi",   emoji:["🐠","💙","👑","🌊","🐋","😢","🏰","🌸"],  epithet:"Poséidon",                   gender:"F", affil:"Royaume de Ryugu",      origin:"Grand Line", fruit:null,        haki:[],                                      status:"Vivant", arc:24, bounty:0    },
   { name:"Corazon",                img:"corazon",      emoji:["🤫","🚬","💙","❤️","🙈","🩺","💔","🕯️"], epithet:"Rosinante",               gender:"M", affil:"Marine",                origin:"North Blue", fruit:"Paramecia", haki:[],                                      status:"Mort",   arc:26, bounty:0    },
   { name:"Charlotte Pudding",      img:"pudding",      emoji:["👁️","🍫","😭","🎭","💕","🍮","🌸","👓"], epithet:"",              gender:"F", affil:"Big Mom Pirates",       origin:"New World",  fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:28, bounty:0    },
+  { name:"Charlotte Chiffon",      img:"chiffon",  emoji:["🎂","🍰","💕","🌸","🏰","💛","🤝","🐷"],  epithet:"",                             gender:"F", affil:"Fire Tank Pirates",     origin:"New World",  fruit:null,        haki:[],                                      status:"Vivant", arc:28, bounty:0    },
+  { name:"Charlotte Brulee",       img:"brulee",   emoji:["🪞","😈","🌸","💜","🏰","🎭","🌑","👁️"],  epithet:"",                             gender:"F", affil:"Big Mom Pirates",       origin:"New World",  fruit:"Paramecia", haki:[],                                      status:"Vivant", arc:28, bounty:0    },
   { name:"Charlotte Oven",          img:"oven",      emoji:["🔥","♨️","💥","🍰","🟠","😤","🏰","🧨"],   epithet:"",                             gender:"M", affil:"Big Mom Pirates",       origin:"New World",  fruit:"Paramecia", haki:["Armement"],                            status:"Vivant", arc:28, bounty:300  },
   { name:"Charlotte Daifuku",      img:"daifuku",   emoji:["🧞","💨","🍡","💛","🏰","😤","💫","🔮"],   epithet:"",                             gender:"M", affil:"Big Mom Pirates",       origin:"New World",  fruit:"Paramecia", haki:["Armement"],                            status:"Vivant", arc:28, bounty:300  },
   { name:"Charlotte Cracker",      img:"cracker",      emoji:["🍪","🛡️","💪","🍰","💛","🏰","🍞","🧁"], epithet:"Mille Bras",              gender:"M", affil:"Big Mom Pirates",       origin:"New World",  fruit:"Paramecia", haki:["Armement"],                            status:"Vivant", arc:28, bounty:860  },
@@ -310,6 +323,32 @@ const ALIASES = {
   "jaguar saul":      "Jaguar D. Sauro",
   "jaguar sauro":     "Jaguar D. Sauro",
   "hadjrudin":        "Hajrudin",
+  // East Blue
+  "gin le demon":     "Gin",
+  // Alabasta
+  "cobra":            "Nefertari Cobra",
+  "roi alabasta":     "Nefertari Cobra",
+  // Drum Island
+  "kureha":           "Dr. Kureha",
+  "docteur kureha":   "Dr. Kureha",
+  // Sabaody
+  "shakuyaku":        "Shakky",
+  // Amazon Lily
+  "sandersonia":      "Boa Sandersonia",
+  "marigold":         "Boa Marigold",
+  // Fish-Man Island
+  "otohime":          "Otohime",
+  "reine otohime":    "Otohime",
+  // Heart Pirates
+  "bepo":             "Bepo",
+  // Zou
+  "wanda":            "Wanda",
+  // Whole Cake Island
+  "chiffon":          "Charlotte Chiffon",
+  "brulee":           "Charlotte Brulee",
+  "brûlée":           "Charlotte Brulee",
+  // Egghead
+  "stussy":           "Stussy",
   // Famille Vinsmoke / Germa 66
   "judge":            "Vinsmoke Judge",
   "reiju":            "Vinsmoke Reiju",
