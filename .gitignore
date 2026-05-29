@@ -1,1 +1,12 @@
+# Roadmap interne (ne pas publier)
 V5_ROADMAP.md
+
+# Réglages outil local
+.claude/
+
+# Doublons d'images (les vrais assets sont en .png ; og_preview.jpg reste suivi)
+images/favicon.jpg
+images/going_merry.jpg
+images/jolly_roger.jpg
+images/wanted_frame.jpg
+images/wanted_template.jpg

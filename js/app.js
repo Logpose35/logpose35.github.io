@@ -39,6 +39,43 @@ const WIN_TITLES = {
   inf:     '🏴‍☠️ Nakama trouvé !',
 };
 
+// ===== REGISTRE DES MODES (source unique, ordre canonique) =====
+// id : identifiant interne · icon : emoji (share/landing) · label : nom affiché
+const MODES = [
+  { id: 'classic', icon: '🗺️',  label: 'Classique' },
+  { id: 'wanted',  icon: '🖼️', label: 'Wanted' },
+  { id: 'flag',    icon: '🏴‍☠️',   label: 'Pavillon' },
+  { id: 'fruit',   icon: '🍎',  label: 'Fruit du Démon' },
+  { id: 'emoji',   icon: '😀',  label: 'Émoji' },
+  { id: 'audio',   icon: '🎵',  label: 'Opening' },
+];
+const MODE_IDS = MODES.map(m => m.id);
+
+// ===== CLÉS localStorage (source unique) =====
+// Statiques = constantes · paramétrées = fonctions produisant la clé exacte.
+const LS = {
+  // Préférences
+  size:      'op-size',
+  cb:        'op-cb',
+  sfx:       'op-sfx',
+  theme:     'op-theme',
+  spoilerOk: 'op-spoiler-ok',
+  // Mode Infini
+  infStreak: 'op-inf-streak',
+  infRecord: 'op-inf-record',
+  // Paramétrées (mode et/ou jour)
+  stats:   m       => `op-stats-${m}`,
+  gs:      (m, dk) => `op-gs-${m}-${dk}`,
+  daily:   dk      => `op-daily-${dk}`,
+  score:   dk      => `op-score-${dk}`,
+  result:  dk      => `op-result-${dk}`,
+  perfect: dk      => `op-perfect-${dk}`,
+  // Réservé v5 (non utilisé pour l'instant) : rang pirate, carte
+  cumulativeScore: 'op-cumulative-score',
+  pirateRank:      'op-pirate-rank',
+  mapUnlocked:     'op-map-unlocked',
+};
+
 async function loadDailyCounter(mode) {
   const el = document.getElementById('daily-counter');
   if (!el || !COUNTER_LABELS.hasOwnProperty(mode)) { if (el) el.textContent = ''; return; }
@@ -118,7 +155,7 @@ const MAX_CLASSIC_GUESSES = 10;
 function setSize(size) {
   document.body.classList.remove('size-small', 'size-large');
   if (size !== 'medium') document.body.classList.add('size-' + size);
-  lsSet('op-size', size);
+  lsSet(LS.size, size);
   const map = { small: 'sz-p', medium: 'sz-m', large: 'sz-g' };
   Object.entries(map).forEach(([s, id]) => {
     const btn = document.getElementById(id);
@@ -138,7 +175,7 @@ document.addEventListener('click', e => {
 });
 
 (function () {
-  setSize(lsGet('op-size') || 'medium');
+  setSize(lsGet(LS.size) || 'medium');
 })();
 
 // ===== ACCESSIBILITÉ : MODE DALTONIEN =====
@@ -146,7 +183,7 @@ let cbMode = false;
 function setCbMode(on) {
   cbMode = !!on;
   document.body.classList.toggle('cb-mode', cbMode);
-  lsSet('op-cb', cbMode ? '1' : '0');
+  lsSet(LS.cb, cbMode ? '1' : '0');
   const t = document.getElementById('cb-toggle');
   if (t) t.checked = cbMode;
 }
@@ -156,7 +193,7 @@ let sfxOn = false;
 let _actx = null;
 function setSfx(on) {
   sfxOn = !!on;
-  lsSet('op-sfx', sfxOn ? '1' : '0');
+  lsSet(LS.sfx, sfxOn ? '1' : '0');
   const t = document.getElementById('sfx-toggle');
   if (t) t.checked = sfxOn;
   if (sfxOn) { try { _ensureAudio(); sfx('tick'); } catch {} }
@@ -255,8 +292,8 @@ function sfx(kind) {
 }
 
 (function () {
-  setCbMode(lsGet('op-cb') === '1');
-  sfxOn = lsGet('op-sfx') === '1';
+  setCbMode(lsGet(LS.cb) === '1');
+  sfxOn = lsGet(LS.sfx) === '1';
   const st = document.getElementById('sfx-toggle');
   if (st) st.checked = sfxOn;
 })();
@@ -266,7 +303,7 @@ function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const next = isDark ? 'light' : 'dark';
   applyTheme(next);
-  lsSet('op-theme', next);
+  lsSet(LS.theme, next);
 }
 
 function applyTheme(theme) {
@@ -276,7 +313,7 @@ function applyTheme(theme) {
 }
 
 (function () {
-  const saved = lsGet('op-theme');
+  const saved = lsGet(LS.theme);
   if (saved) {
     applyTheme(saved);
   } else {
@@ -286,7 +323,7 @@ function applyTheme(theme) {
     // Écouter les changements de préférence système (seulement si pas de choix manuel)
     if (window.matchMedia) {
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        if (!lsGet('op-theme')) applyTheme(e.matches ? 'dark' : 'light');
+        if (!lsGet(LS.theme)) applyTheme(e.matches ? 'dark' : 'light');
       });
     }
   }
@@ -295,13 +332,13 @@ function applyTheme(theme) {
 // ===== MODAL SPOILER =====
 function closeSpoilerModal() {
   if (document.getElementById('spoiler-no-show').checked) {
-    lsSet('op-spoiler-ok', '1');
+    lsSet(LS.spoilerOk, '1');
   }
   document.getElementById('spoiler-modal').classList.add('hidden');
 }
 
 (function () {
-  if (!lsGet('op-spoiler-ok')) {
+  if (!lsGet(LS.spoilerOk)) {
     document.getElementById('spoiler-modal').classList.remove('hidden');
   }
 })();
@@ -322,7 +359,7 @@ function seedForDate(d, salt = 1) {
 }
 // Sauvegarde les cibles du jour (une seule fois par jour, pour le "hier" de demain)
 function saveTodayTargets() {
-  const key = 'op-daily-' + todayKey();
+  const key = LS.daily(todayKey());
   if (lsGet(key)) return;
   lsSet(key, JSON.stringify({
     classic: TARGET_C.name,
@@ -337,7 +374,7 @@ function saveTodayTargets() {
 function buildYesterdayBar() {
   const d = parisNow(); d.setDate(d.getDate() - 1);
   const yKey = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-  const stored = safeParseJSON(lsGet('op-daily-' + yKey), null);
+  const stored = safeParseJSON(lsGet(LS.daily(yKey)), null);
   const el = document.getElementById('yesterday-bar');
 
   const audioOp = stored?.audio
@@ -610,14 +647,7 @@ function finClassic(won) {
     document.getElementById('lose-char-name').textContent = TARGET_C.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  if (!_restoring) {
-    recordResult('classic', won, cGuesses.length);
-    saveModeResult('classic', won, cGuesses.length);
-    if (won) { incrementDailyCounter('classic'); saveModeScore('classic', calcModeScore('classic', cGuesses.length, hintUsed, 0)); }
-    else { updateScoreBar(); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => showStats('classic'), 1800);
-  }
+  onGameEnd('classic', won, cGuesses.length, won ? calcModeScore('classic', cGuesses.length, hintUsed, 0) : 0);
 }
 
 // Comparaisons
@@ -883,14 +913,7 @@ function finWanted(won) {
     document.getElementById('lose-char-name').textContent = TARGET_W.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  if (!_restoring) {
-    recordResult('wanted', won, wGuesses.length);
-    saveModeResult('wanted', won, wGuesses.length);
-    if (won) { incrementDailyCounter('wanted'); saveModeScore('wanted', calcModeScore('wanted', wGuesses.length, false, 0)); }
-    else { updateScoreBar(); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => showStats('wanted'), 1800);
-  }
+  onGameEnd('wanted', won, wGuesses.length, won ? calcModeScore('wanted', wGuesses.length, false, 0) : 0);
 }
 
 // ===== MODE PAVILLON =====
@@ -982,14 +1005,7 @@ function finFlag(won) {
     document.getElementById('lose-char-name').textContent = TARGET_F.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  if (!_restoring) {
-    recordResult('flag', won, fGuesses.length);
-    saveModeResult('flag', won, fGuesses.length);
-    if (won) { incrementDailyCounter('flag'); saveModeScore('flag', calcModeScore('flag', fGuesses.length, false, 0)); }
-    else { updateScoreBar(); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => showStats('flag'), 1800);
-  }
+  onGameEnd('flag', won, fGuesses.length, won ? calcModeScore('flag', fGuesses.length, false, 0) : 0);
 }
 
 // ===== STATISTIQUES =====
@@ -1001,13 +1017,13 @@ const MAX_DIST_FRUIT   = 10;
 // ===== MODE INFINI =====
 function loadInfStats() {
   return {
-    streak: sanitizeNum(lsGet('op-inf-streak')),
-    record: sanitizeNum(lsGet('op-inf-record')),
+    streak: sanitizeNum(lsGet(LS.infStreak)),
+    record: sanitizeNum(lsGet(LS.infRecord)),
   };
 }
 function saveInfStats(streak, record) {
-  lsSet('op-inf-streak', String(streak));
-  lsSet('op-inf-record', String(record));
+  lsSet(LS.infStreak, String(streak));
+  lsSet(LS.infRecord, String(record));
 }
 
 function pickInfTarget() {
@@ -1083,7 +1099,7 @@ function defaultStats(maxGuesses) {
 }
 
 function loadStats(mode) {
-  const key  = `op-stats-${mode}`;
+  const key  = LS.stats(mode);
   const max  = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : MAX_DIST_CLASSIC;
   const raw  = lsGet(key);
   if (!raw) return defaultStats(max);
@@ -1091,7 +1107,7 @@ function loadStats(mode) {
 }
 
 function saveStats(mode, stats) {
-  lsSet(`op-stats-${mode}`, JSON.stringify(stats));
+  lsSet(LS.stats(mode), JSON.stringify(stats));
 }
 
 function parisNow() {
@@ -1144,7 +1160,7 @@ function showStats(mode) {
   document.getElementById('stats-modal').classList.remove('hidden');
   renderStatsContent(_statsMode);
   // Met à jour les onglets
-  ['classic','wanted','flag','fruit','emoji','audio'].forEach(m => {
+  MODE_IDS.forEach(m => {
     document.getElementById(`stab-${m}`).classList.toggle('active', m === _statsMode);
   });
 }
@@ -1159,16 +1175,16 @@ function handleModalClick(e) {
 
 function switchStatsTab(mode) {
   _statsMode = mode;
-  ['classic','wanted','flag','fruit','emoji','audio'].forEach(m => {
+  MODE_IDS.forEach(m => {
     document.getElementById(`stab-${m}`).classList.toggle('active', m === mode);
   });
   renderStatsContent(mode);
 }
 
-const MODES_ORDER = ['classic', 'wanted', 'flag', 'fruit', 'emoji', 'audio'];
+const MODES_ORDER = MODE_IDS;
 
 function getNextUnplayedMode(currentMode) {
-  const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
+  const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
   const startIdx = MODES_ORDER.indexOf(currentMode);
   // Cherche d'abord après le mode actuel, puis depuis le début
   const ordered = [
@@ -1192,7 +1208,7 @@ function renderStatsContent(mode) {
   const lastWinGuess = stats.lastWinGuesses || null;
 
   // ── Score du jour ──────────────────────────────────────────────
-  const todayScores = safeParseJSON(lsGet('op-score-' + todayKey()), {});
+  const todayScores = safeParseJSON(lsGet(LS.score(todayKey())), {});
   const rawMode     = Object.prototype.hasOwnProperty.call(todayScores, mode) ? sanitizeNum(todayScores[mode]) : undefined;
   const totalScore  = Object.values(todayScores).reduce((a, b) => a + sanitizeNum(b), 0);
   const modeLabels  = { classic:'Classique', wanted:'Wanted', flag:'Pavillon', fruit:'Fruit du Démon', emoji:'Émoji' };
@@ -1267,7 +1283,7 @@ function renderStatsContent(mode) {
 
 function resetStats(mode) {
   if (!confirm(`Réinitialiser les statistiques du mode "${mode}" ?`)) return;
-  lsRemove(`op-stats-${mode}`);
+  lsRemove(LS.stats(mode));
   renderStatsContent(mode);
 }
 
@@ -1388,14 +1404,7 @@ function finFruit(won) {
     document.getElementById('lose-char-name').textContent = TARGET_FRU.holder;
     document.getElementById('lose-banner').classList.add('show');
   }
-  if (!_restoring) {
-    recordResult('fruit', won, frGuesses.length);
-    saveModeResult('fruit', won, frGuesses.length);
-    if (won) { incrementDailyCounter('fruit'); saveModeScore('fruit', calcModeScore('fruit', frGuesses.length, false, frHintsRevealed.size)); }
-    else { updateScoreBar(); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => showStats('fruit'), 1800);
-  }
+  onGameEnd('fruit', won, frGuesses.length, won ? calcModeScore('fruit', frGuesses.length, false, frHintsRevealed.size) : 0);
 }
 
 // ===== MODE EMOJI =====
@@ -1577,14 +1586,7 @@ function finEmoji(won) {
     document.getElementById('lose-char-name').textContent = emTarget.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  if (!_restoring) {
-    recordResult('emoji', won, emGuesses.length);
-    saveModeResult('emoji', won, emGuesses.length);
-    if (won) { incrementDailyCounter('emoji'); saveModeScore('emoji', calcModeScore('emoji', emGuesses.length, false, 0)); }
-    else { updateScoreBar(); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => showStats('emoji'), 1800);
-  }
+  onGameEnd('emoji', won, emGuesses.length, won ? calcModeScore('emoji', emGuesses.length, false, 0) : 0);
 }
 
 // ===== MODE AUDIO (OPENING) =====
@@ -1799,18 +1801,9 @@ function finAudio(won) {
     document.getElementById('lose-char-name').textContent = TARGET_AU.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  if (!_restoring) {
-    recordResult('audio', won, auGuesses.length);
-    saveModeResult('audio', won, auGuesses.length, { opening: TARGET_AU.name, artist: TARGET_AU.artist });
-    if (won) {
-      incrementDailyCounter('audio');
-      saveModeScore('audio', Math.max(0, 10000 - (auGuesses.length - 1) * SCORE_PENALTY_AUDIO));
-    } else {
-      updateScoreBar();
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => showStats('audio'), 1800);
-  }
+  onGameEnd('audio', won, auGuesses.length,
+    won ? Math.max(0, 10000 - (auGuesses.length - 1) * SCORE_PENALTY_AUDIO) : 0,
+    { opening: TARGET_AU.name, artist: TARGET_AU.artist });
 }
 
 // ===== SYSTÈME DE SCORE =====
@@ -1836,12 +1829,12 @@ function calcModeScore(mode, tries, hintUsed, hintsCount) {
 function saveState(mode) {
   const dk = todayKey();
   // Le nom de la cible est inclus pour détecter un changement de hash en cours de journée
-  if (mode === 'classic') lsSet('op-gs-classic-' + dk, JSON.stringify({ guesses: cGuesses.map(c => c.name), hintUsed, target: TARGET_C.name }));
-  if (mode === 'wanted')  lsSet('op-gs-wanted-'  + dk, JSON.stringify({ guesses: wGuesses.map(c => c.name), target: TARGET_W.name }));
-  if (mode === 'flag')    lsSet('op-gs-flag-'    + dk, JSON.stringify({ guesses: fGuesses.map(f => f.name), target: TARGET_F.name }));
-  if (mode === 'fruit')   lsSet('op-gs-fruit-'   + dk, JSON.stringify({ guesses: frGuesses.map(f => f.name), hints: [...frHintsRevealed], target: TARGET_FRU.name }));
-  if (mode === 'emoji')   lsSet('op-gs-emoji-'   + dk, JSON.stringify({ guesses: emGuesses.map(c => c.name), target: TARGET_EM.name }));
-  if (mode === 'audio')   lsSet('op-gs-audio-'   + dk, JSON.stringify({ guesses: auGuesses.map(o => o.name), target: TARGET_AU.name }));
+  if (mode === 'classic') lsSet(LS.gs('classic', dk), JSON.stringify({ guesses: cGuesses.map(c => c.name), hintUsed, target: TARGET_C.name }));
+  if (mode === 'wanted')  lsSet(LS.gs('wanted',  dk), JSON.stringify({ guesses: wGuesses.map(c => c.name), target: TARGET_W.name }));
+  if (mode === 'flag')    lsSet(LS.gs('flag',    dk), JSON.stringify({ guesses: fGuesses.map(f => f.name), target: TARGET_F.name }));
+  if (mode === 'fruit')   lsSet(LS.gs('fruit',   dk), JSON.stringify({ guesses: frGuesses.map(f => f.name), hints: [...frHintsRevealed], target: TARGET_FRU.name }));
+  if (mode === 'emoji')   lsSet(LS.gs('emoji',   dk), JSON.stringify({ guesses: emGuesses.map(c => c.name), target: TARGET_EM.name }));
+  if (mode === 'audio')   lsSet(LS.gs('audio',   dk), JSON.stringify({ guesses: auGuesses.map(o => o.name), target: TARGET_AU.name }));
 }
 
 // Valide qu'un nom restauré depuis le localStorage est une chaîne de taille raisonnable
@@ -1852,33 +1845,33 @@ function restoreAllStates() {
   _restoring = true;
 
   // Classic
-  const sc = safeParseJSON(lsGet('op-gs-classic-' + dk), null);
+  const sc = safeParseJSON(lsGet(LS.gs('classic', dk)), null);
   if (sc && Array.isArray(sc.guesses) && (!sc.target || sc.target === TARGET_C.name)) {
     hintUsed = !!sc.hintUsed;
     sc.guesses.filter(validName).forEach(name => { input.value = name; submitClassic(); });
   }
 
   // Wanted
-  const sw = safeParseJSON(lsGet('op-gs-wanted-' + dk), null);
+  const sw = safeParseJSON(lsGet(LS.gs('wanted', dk)), null);
   if (sw && Array.isArray(sw.guesses) && (!sw.target || sw.target === TARGET_W.name)) {
     sw.guesses.filter(validName).forEach(name => { input.value = name; submitWanted(); });
   }
 
   // Flag
-  const sf = safeParseJSON(lsGet('op-gs-flag-' + dk), null);
+  const sf = safeParseJSON(lsGet(LS.gs('flag', dk)), null);
   if (sf && Array.isArray(sf.guesses) && (!sf.target || sf.target === TARGET_F.name)) {
     sf.guesses.filter(validName).forEach(name => { input.value = name; submitFlag(); });
   }
 
   // Fruit
-  const sfr = safeParseJSON(lsGet('op-gs-fruit-' + dk), null);
+  const sfr = safeParseJSON(lsGet(LS.gs('fruit', dk)), null);
   if (sfr && Array.isArray(sfr.guesses) && (!sfr.target || sfr.target === TARGET_FRU.name)) {
     (Array.isArray(sfr.hints) ? sfr.hints : []).forEach(i => frHintsRevealed.add(i));
     sfr.guesses.filter(validName).forEach(name => { input.value = name; submitFruit(); });
   }
 
   // Emoji — doit attendre que emTarget soit initialisé
-  const sem = safeParseJSON(lsGet('op-gs-emoji-' + dk), null);
+  const sem = safeParseJSON(lsGet(LS.gs('emoji', dk)), null);
   if (sem && Array.isArray(sem.guesses) && (!sem.target || sem.target === TARGET_EM.name)) {
     if (!emTarget) {
       emTarget = TARGET_EM;
@@ -1888,7 +1881,7 @@ function restoreAllStates() {
   }
 
   // Audio
-  const sau = safeParseJSON(lsGet('op-gs-audio-' + dk), null);
+  const sau = safeParseJSON(lsGet(LS.gs('audio', dk)), null);
   if (sau && Array.isArray(sau.guesses) && (!sau.target || sau.target === TARGET_AU.name)) {
     sau.guesses.filter(validName).forEach(name => { input.value = name; submitAudio(); });
   }
@@ -1898,7 +1891,7 @@ function restoreAllStates() {
 }
 
 function saveModeScore(mode, pts) {
-  const key    = 'op-score-' + todayKey();
+  const key    = LS.score(todayKey());
   const scores = safeParseJSON(lsGet(key), {});
   scores[mode] = pts;
   lsSet(key, JSON.stringify(scores));
@@ -1906,36 +1899,44 @@ function saveModeScore(mode, pts) {
 }
 
 function saveModeResult(mode, won, tries, extra) {
-  const key     = 'op-result-' + todayKey();
+  const key     = LS.result(todayKey());
   const results = safeParseJSON(lsGet(key), {});
   if (results[mode]) return; // déjà enregistré
   results[mode] = { won: won, tries: tries, ...extra };
   lsSet(key, JSON.stringify(results));
 }
 
+// Fin de partie des 6 modes quotidiens — point d'ancrage unique.
+// Toute nouvelle réaction à "partie terminée" (rang pirate, animation de
+// victoire, stats communauté…) se branche ICI plutôt que dans chaque finXxx().
+function onGameEnd(mode, won, tries, score, extra) {
+  if (_restoring) return;
+  recordResult(mode, won, tries);
+  saveModeResult(mode, won, tries, extra);
+  if (won) {
+    incrementDailyCounter(mode);
+    saveModeScore(mode, score);
+  } else {
+    updateScoreBar();
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => showStats(mode), 900);
+}
+
 let _shareText = '';
 
 function buildShareText() {
   const dk      = todayKey();
-  const scores  = safeParseJSON(lsGet('op-score-'  + dk), {});
-  const results = safeParseJSON(lsGet('op-result-' + dk), {});
+  const scores  = safeParseJSON(lsGet(LS.score(dk)),  {});
+  const results = safeParseJSON(lsGet(LS.result(dk)), {});
   const total   = Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
-
-  const MODES = [
-    { key: 'classic', icon: '🗺️'  },
-    { key: 'wanted',  icon: '🖼️' },
-    { key: 'flag',    icon: '🏴‍☠️'   },
-    { key: 'fruit',   icon: '🍎'  },
-    { key: 'emoji',   icon: '😀'  },
-    { key: 'audio',   icon: '🎵'  },
-  ];
 
   const [y, m, d] = dk.split('-');
   let lines = [`LogPose · ${d}/${m}`, ''];
 
-  MODES.forEach(({ key, icon }) => {
-    const res = results[key];
-    const pts = sanitizeNum(scores[key]);
+  MODES.forEach(({ id, icon }) => {
+    const res = results[id];
+    const pts = sanitizeNum(scores[id]);
     if (!res) {
       lines.push(`${icon} —`);
     } else if (res.won) {
@@ -2031,13 +2032,13 @@ function fallbackCopy(text, cb) {
 }
 
 function getTotalScore() {
-  const scores = safeParseJSON(lsGet('op-score-' + todayKey()), {});
+  const scores = safeParseJSON(lsGet(LS.score(todayKey())), {});
   return Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
 }
 
 function updateTabDoneStates() {
-  const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
-  ['classic','wanted','flag','fruit','emoji','audio'].forEach(mode => {
+  const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
+  MODE_IDS.forEach(mode => {
     const tab = document.getElementById('tab-' + mode);
     if (!tab) return;
     const res = results[mode];
@@ -2052,9 +2053,10 @@ function toggleScoreBreakdown(e) {
   if (!el) return;
   const isHidden = el.classList.contains('hidden');
   if (isHidden) {
-    const scores  = safeParseJSON(lsGet('op-score-'  + todayKey()), {});
-    const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
-    const MODES   = [
+    const scores  = safeParseJSON(lsGet(LS.score(todayKey())),  {});
+    const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
+    // Libellés courts spécifiques à la pastille compacte (≠ registre global).
+    const rows = [
       { key:'classic', icon:'🗺️',  label:'Classique' },
       { key:'wanted',  icon:'🖼️', label:'Wanted'    },
       { key:'flag',    icon:'🏴‍☠️',   label:'Pavillon'  },
@@ -2063,7 +2065,7 @@ function toggleScoreBreakdown(e) {
       { key:'audio',   icon:'🎵',  label:'Opening'   },
     ];
     let html = '';
-    MODES.forEach(({ key, icon, label }) => {
+    rows.forEach(({ key, icon, label }) => {
       const pts    = Object.prototype.hasOwnProperty.call(scores, key) ? sanitizeNum(scores[key]) : undefined;
       const res    = results[key];
       const status = !res ? 'sb-pending' : res.won ? 'sb-won' : 'sb-lost';
@@ -2100,12 +2102,12 @@ function updateScoreBar() {
   if (fill)  fill.style.width = pct + '%';
   if (label) label.textContent = total.toLocaleString('fr-FR');
   if (shareBtn) {
-    const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
+    const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
     shareBtn.classList.toggle('hidden', Object.keys(results).length === 0);
   }
   // Célébration 50 000 pts
-  if (total >= SCORE_MAX_TOTAL && !lsGet('op-perfect-' + todayKey())) {
-    lsSet('op-perfect-' + todayKey(), '1');
+  if (total >= SCORE_MAX_TOTAL && !lsGet(LS.perfect(todayKey()))) {
+    lsSet(LS.perfect(todayKey()), '1');
     setTimeout(launchPerfectDay, 800);
   }
   updateStreakDisplay();
