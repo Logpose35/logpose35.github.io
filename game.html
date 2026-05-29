@@ -55,32 +55,46 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=92">
-  <link rel="stylesheet" href="css/layout.css?v=92">
-  <link rel="stylesheet" href="css/modals.css?v=92">
-  <link rel="stylesheet" href="css/classic.css?v=92">
-  <link rel="stylesheet" href="css/wanted.css?v=92">
-  <link rel="stylesheet" href="css/flag.css?v=92">
-  <link rel="stylesheet" href="css/fruit.css?v=92">
-  <link rel="stylesheet" href="css/inf.css?v=92">
-  <link rel="stylesheet" href="css/emoji.css?v=92">
-  <link rel="stylesheet" href="css/misc.css?v=92">
-  <link rel="stylesheet" href="css/audio.css?v=92">
+  <link rel="stylesheet" href="css/base.css?v=99">
+  <link rel="stylesheet" href="css/layout.css?v=99">
+  <link rel="stylesheet" href="css/modals.css?v=99">
+  <link rel="stylesheet" href="css/classic.css?v=99">
+  <link rel="stylesheet" href="css/wanted.css?v=99">
+  <link rel="stylesheet" href="css/flag.css?v=99">
+  <link rel="stylesheet" href="css/fruit.css?v=99">
+  <link rel="stylesheet" href="css/inf.css?v=99">
+  <link rel="stylesheet" href="css/emoji.css?v=99">
+  <link rel="stylesheet" href="css/misc.css?v=99">
+  <link rel="stylesheet" href="css/audio.css?v=99">
 </head>
 <body>
 
 <header>
   <div class="header-inner">
     <div class="settings-wrap">
-      <button class="theme-btn" id="settings-btn" onclick="toggleSettings()" title="Paramètres">⚙️</button>
-      <div class="settings-panel hidden" id="settings-panel">
+      <button class="theme-btn" id="settings-btn" onclick="toggleSettings()" title="Paramètres" aria-label="Paramètres" aria-haspopup="true" aria-expanded="false">⚙️</button>
+      <div class="settings-panel hidden" id="settings-panel" role="menu" aria-label="Paramètres">
         <div class="sp-section">
-          <div class="sp-label">Taille de l'interface</div>
-          <div class="sp-size-row">
+          <div class="sp-label" id="sp-size-label">Taille de l'interface</div>
+          <div class="sp-size-row" role="group" aria-labelledby="sp-size-label">
             <button class="size-btn" id="sz-p" onclick="setSize('small')">Petit</button>
             <button class="size-btn" id="sz-m" onclick="setSize('medium')">Moyen</button>
             <button class="size-btn" id="sz-g" onclick="setSize('large')">Grand</button>
           </div>
+        </div>
+        <div class="sp-divider"></div>
+        <div class="sp-section">
+          <div class="sp-label">Accessibilité</div>
+          <label class="sp-toggle">
+            <span>Mode daltonien</span>
+            <input type="checkbox" id="cb-toggle" onchange="setCbMode(this.checked)">
+            <span class="sp-switch" aria-hidden="true"></span>
+          </label>
+          <label class="sp-toggle">
+            <span>Sons</span>
+            <input type="checkbox" id="sfx-toggle" onchange="setSfx(this.checked)">
+            <span class="sp-switch" aria-hidden="true"></span>
+          </label>
         </div>
         <div class="sp-divider"></div>
         <button class="sp-stats-btn" onclick="showStats(); toggleSettings()">📊 Statistiques</button>
@@ -93,20 +107,20 @@
       </a>
       <span class="subtitle">6 défis quotidiens · Teste ta connaissance One Piece</span>
     </div>
-    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer de thème">🌙</button>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer de thème" aria-label="Changer de thème clair/sombre">🌙</button>
   </div>
 </header>
 
-<div class="mode-tabs">
-  <button class="mode-tab active" id="tab-classic" onclick="switchMode('classic')">🗺️ Classique</button>
-  <button class="mode-tab" id="tab-wanted" onclick="switchMode('wanted')">🏴‍☠️ Wanted</button>
-  <button class="mode-tab" id="tab-flag" onclick="switchMode('flag')">🏴 Pavillon</button>
-  <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')">🍎 Fruit du Démon</button>
-  <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')">🤔 Émoji</button>
-  <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')">🎵 Opening</button>
+<div class="mode-tabs" role="tablist" aria-label="Modes de jeu quotidiens">
+  <button class="mode-tab active" id="tab-classic" onclick="switchMode('classic')" role="tab" aria-selected="true">🗺️ Classique</button>
+  <button class="mode-tab" id="tab-wanted" onclick="switchMode('wanted')" role="tab" aria-selected="false">🖼️ Wanted</button>
+  <button class="mode-tab" id="tab-flag" onclick="switchMode('flag')" role="tab" aria-selected="false">🏴‍☠️ Pavillon</button>
+  <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')" role="tab" aria-selected="false">🍎 Fruit du Démon</button>
+  <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')" role="tab" aria-selected="false">🤔 Émoji</button>
+  <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')" role="tab" aria-selected="false">🎵 Opening</button>
 </div>
 <div class="mode-tabs-inf">
-  <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')">🔀 Mode Infini</button>
+  <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')" role="tab" aria-selected="false">🔀 Mode Infini</button>
 </div>
 
 <!-- PUB MOBILE — sous les onglets -->
@@ -144,19 +158,19 @@
   <div class="yesterday" id="yesterday-bar"></div>
   <div class="daily-counter" id="daily-counter"></div>
 
-  <div id="win-banner">
+  <div id="win-banner" role="status" aria-live="polite">
     <h2 id="win-title">🏴‍☠️ Nakama trouvé !</h2>
     <p>Tu as identifié <span class="answer" id="win-char-name"></span> en <span class="attempts" id="win-attempts"></span> essai(s) !</p>
   </div>
-  <div id="lose-banner">
+  <div id="lose-banner" role="status" aria-live="polite">
     <h2>☠️ Défaite !</h2>
     <p>Le personnage était : <span class="answer" id="lose-char-name"></span>. Reviens demain !</p>
   </div>
 
   <div class="search-area">
     <div class="search-wrap">
-      <input type="text" id="search-input" placeholder="Tape un nom de personnage..." autocomplete="off" maxlength="120"/>
-      <div id="autocomplete"></div>
+      <input type="text" id="search-input" placeholder="Tape un nom de personnage..." autocomplete="off" maxlength="120" aria-label="Tape un nom de personnage à deviner"/>
+      <div id="autocomplete" role="listbox" aria-label="Suggestions"></div>
     </div>
     <button id="guess-btn">Deviner</button>
   </div>
@@ -191,7 +205,7 @@
         <div class="col-label">1er Arc</div>
         <div class="col-label">Prime (M)</div>
       </div>
-      <div id="guesses-container"></div>
+      <div id="guesses-container" role="list" aria-label="Tes tentatives"></div>
     </div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot correct"></div> Correct</div>
@@ -432,7 +446,7 @@
   LogPose — Classique · Wanted · Pavillon · Fruit · Émoji · Opening &nbsp;|&nbsp; One Piece © Eiichiro Oda
   <br>
   <button class="footer-about-btn" onclick="openAbout()">À propos</button>
-  <span class="footer-version">v4.5</span>
+  <span class="footer-version">v4.6</span>
 </footer>
 
 <!-- MODAL AVERTISSEMENT SPOILERS -->
@@ -478,8 +492,8 @@
 
     <div class="modal-mode-tabs">
       <button class="modal-mode-tab active" id="stab-classic" onclick="switchStatsTab('classic')">🗺️ Classique</button>
-      <button class="modal-mode-tab" id="stab-wanted"  onclick="switchStatsTab('wanted')">🏴‍☠️ Wanted</button>
-      <button class="modal-mode-tab" id="stab-flag"    onclick="switchStatsTab('flag')">🏴 Pavillon</button>
+      <button class="modal-mode-tab" id="stab-wanted"  onclick="switchStatsTab('wanted')">🖼️ Wanted</button>
+      <button class="modal-mode-tab" id="stab-flag"    onclick="switchStatsTab('flag')">🏴‍☠️ Pavillon</button>
       <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')">🍎 Démon</button>
       <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')">😀 Émoji</button>
       <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')">🎵 Opening</button>
@@ -505,7 +519,7 @@
 
     <div class="about-logo-wrap">
       <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
-      <div class="about-version-badge">v4.5</div>
+      <div class="about-version-badge">v4.6</div>
     </div>
 
     <p class="about-desc">
@@ -515,8 +529,8 @@
 
     <div class="about-modes-grid">
       <div class="about-mode-item">🗺️ Classique</div>
-      <div class="about-mode-item">🏴‍☠️ Wanted</div>
-      <div class="about-mode-item">🏴 Pavillon</div>
+      <div class="about-mode-item">🖼️ Wanted</div>
+      <div class="about-mode-item">🏴‍☠️ Pavillon</div>
       <div class="about-mode-item">🍎 Fruit du Démon</div>
       <div class="about-mode-item">🤔 Émoji</div>
       <div class="about-mode-item">🎵 Opening</div>
@@ -550,7 +564,7 @@
 </script>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="js/data.js?v=92"></script>
-<script src="js/app.js?v=92"></script>
+<script src="js/data.js?v=99"></script>
+<script src="js/app.js?v=99"></script>
 </body>
 </html>

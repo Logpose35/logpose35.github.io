@@ -41,7 +41,7 @@ let CELL_ORDER   = [];
 
 // ===== CHARGEMENT DES DONNÉES =====
 async function loadGameData() {
-  const res  = await fetch('/data.json');
+  const res  = await fetch('/data.json', { cache: 'no-cache' });
   if (!res.ok) throw new Error(`data.json introuvable (${res.status})`);
   const raw  = await res.json();
 

@@ -202,6 +202,34 @@ footer {
 /* ===== ANIMATIONS ===== */
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
 
+/* ===== MICRO-ANIMATIONS ===== */
+/* Entrée en fondu/glissé lors du changement de mode */
+#classic-section:not(.hidden),
+#wanted-section.active, #flag-section.active, #fruit-section.active,
+#emoji-section.active, #audio-section.active, #inf-section.active {
+  animation: sectionIn 0.34s var(--ease) both;
+}
+@keyframes sectionIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Pulsation festive du titre de victoire */
+#win-banner.show h2 { animation: winPulse 1.3s ease-in-out 0.45s 2; }
+@keyframes winPulse {
+  0%,100% { transform: scale(1);    text-shadow: none; }
+  50%     { transform: scale(1.06); text-shadow: 0 0 18px var(--glow-green); }
+}
+
+/* ===== RESPECT DES PRÉFÉRENCES DE MOUVEMENT ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ===== EASTER EGG KONAMI ===== */
 .konami-player {
   position: fixed;

@@ -32,7 +32,7 @@ const COUNTER_LABELS = {
 const WIN_TITLES = {
   classic: '🏴‍☠️ Nakama trouvé !',
   wanted:  '🎯 Avis de recherche résolu !',
-  flag:    '🏴 Pavillon reconnu !',
+  flag:    '🏴‍☠️ Pavillon reconnu !',
   fruit:   '🍎 Fruit du Démon identifié !',
   emoji:   '😄 Nakama identifié !',
   audio:   '🎵 Opening trouvé !',
@@ -141,6 +141,126 @@ document.addEventListener('click', e => {
   setSize(lsGet('op-size') || 'medium');
 })();
 
+// ===== ACCESSIBILITÉ : MODE DALTONIEN =====
+let cbMode = false;
+function setCbMode(on) {
+  cbMode = !!on;
+  document.body.classList.toggle('cb-mode', cbMode);
+  lsSet('op-cb', cbMode ? '1' : '0');
+  const t = document.getElementById('cb-toggle');
+  if (t) t.checked = cbMode;
+}
+
+// ===== SONS (opt-in, synthétisés via Web Audio) =====
+let sfxOn = false;
+let _actx = null;
+function setSfx(on) {
+  sfxOn = !!on;
+  lsSet('op-sfx', sfxOn ? '1' : '0');
+  const t = document.getElementById('sfx-toggle');
+  if (t) t.checked = sfxOn;
+  if (sfxOn) { try { _ensureAudio(); sfx('tick'); } catch {} }
+}
+function _ensureAudio() {
+  if (!_actx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) _actx = new AC();
+  }
+  if (_actx && _actx.state === 'suspended') _actx.resume();
+  return _actx;
+}
+function _tone(freq, start, dur, type = 'sine', peak = 0.18) {
+  const ctx = _actx; if (!ctx) return;
+  const t0 = ctx.currentTime + start;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(peak, t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+// Note de cuivre (2 saws désaccordés + filtre + léger vibrato) → timbre fanfare/aventure
+function _brass(freq, start, dur, peak = 0.16) {
+  const ctx = _actx; if (!ctx) return;
+  const t0 = ctx.currentTime + start;
+  const g = ctx.createGain();
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(freq * 2.2, t0);
+  lp.frequency.exponentialRampToValueAtTime(freq * 4.5, t0 + 0.05);
+  lp.Q.value = 0.7;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(peak, t0 + 0.025);
+  g.gain.setValueAtTime(peak, t0 + dur * 0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  // vibrato
+  const lfo = ctx.createOscillator(); const lfoG = ctx.createGain();
+  lfo.frequency.value = 5.5; lfoG.gain.value = freq * 0.012;
+  lfo.connect(lfoG);
+  [0, -3].forEach(det => {
+    const o = ctx.createOscillator();
+    o.type = 'sawtooth'; o.frequency.value = freq; o.detune.value = det;
+    lfoG.connect(o.detune);
+    o.connect(g);
+    o.start(t0); o.stop(t0 + dur + 0.03);
+  });
+  lfo.start(t0); lfo.stop(t0 + dur + 0.03);
+  g.connect(lp).connect(ctx.destination);
+}
+// Glissando de cuivre (trombone) avec "wah" → effet comique de dégonflage
+function _slide(f1, f2, start, dur, peak = 0.16) {
+  const ctx = _actx; if (!ctx) return;
+  const t0 = ctx.currentTime + start;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 1400; lp.Q.value = 4;
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(f1, t0);
+  osc.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+  lp.frequency.setValueAtTime(1600, t0);
+  lp.frequency.exponentialRampToValueAtTime(500, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(peak, t0 + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(lp).connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+function sfx(kind) {
+  if (!sfxOn || !_ensureAudio()) return;
+  switch (kind) {
+    // petit "toc" de bois (coque de navire)
+    case 'tick':    _tone(900, 0, 0.04, 'triangle', 0.08); break;
+    // double "toc" boisé pour une tentative
+    case 'guess':   _tone(640, 0, 0.05, 'triangle', 0.11); _tone(480, 0.05, 0.06, 'triangle', 0.09); break;
+    // fanfare triomphale aux cuivres (do majeur ascendant + accord tenu + grelot)
+    case 'win':
+      _brass(392, 0.00, 0.14, 0.14);   // sol (levée)
+      _brass(523, 0.13, 0.16, 0.16);   // do
+      _brass(659, 0.29, 0.16, 0.16);   // mi
+      _brass(784, 0.45, 0.50, 0.18);   // sol tenu
+      _brass(523, 0.55, 0.40, 0.10);   // accord : do
+      _brass(659, 0.55, 0.40, 0.10);   // accord : mi
+      _tone(1568, 0.50, 0.45, 'sine', 0.07); // grelot brillant
+      break;
+    // trombone comique qui se dégonfle (wah-wah descendant + blat grave)
+    case 'lose':
+      _slide(330, 247, 0.00, 0.22, 0.15);
+      _slide(247, 175, 0.22, 0.30, 0.15);
+      _brass(131, 0.52, 0.30, 0.12);   // blat final grave
+      break;
+  }
+}
+
+(function () {
+  setCbMode(lsGet('op-cb') === '1');
+  sfxOn = lsGet('op-sfx') === '1';
+  const st = document.getElementById('sfx-toggle');
+  if (st) st.checked = sfxOn;
+})();
+
 // ===== THÈME =====
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -246,6 +366,10 @@ function switchMode(mode) {
   document.getElementById('tab-emoji').classList.toggle('active', mode === 'emoji');
   document.getElementById('tab-audio').classList.toggle('active', mode === 'audio');
   document.getElementById('tab-inf').classList.toggle('active', mode === 'inf');
+  // Sync ARIA : l'onglet actif est annoncé comme sélectionné aux lecteurs d'écran
+  document.querySelectorAll('.mode-tab[role="tab"]').forEach(t => {
+    t.setAttribute('aria-selected', t.classList.contains('active') ? 'true' : 'false');
+  });
   document.getElementById('classic-section').classList.toggle('hidden', mode !== 'classic');
   document.getElementById('wanted-section').classList.toggle('active', mode === 'wanted');
   document.getElementById('flag-section').classList.toggle('active', mode === 'flag');
@@ -458,10 +582,12 @@ function submitClassic() {
   checkHintAvailable();
   if (char.name === TARGET_C.name) finClassic(true);
   else if (cGuesses.length >= MAX_CLASSIC_GUESSES) finClassic(false);
+  else sfx('guess');
 }
 
 function finClassic(won) {
   cOver = true;
+  if (!_restoring) sfx(won ? 'win' : 'lose');
   document.getElementById('guess-btn').disabled = true;
   input.disabled = true;
   // Révèle l'image du personnage
@@ -522,9 +648,12 @@ function cmpAffil(a, b) {
   return wordsA.some(w => lowerB.includes(w)) ? 'partial' : 'wrong';
 }
 
+const STATE_FR = { correct: 'correct', partial: 'partiel', wrong: 'incorrect' };
+const arrowFr = a => a === '⬆️' ? ', plus haut' : a === '⬇️' ? ', plus bas' : '';
 function buildGuessRow(char, T) {
   const row = document.createElement('div');
   row.className = 'guess-row grid-cols';
+  row.setAttribute('role', 'listitem');
   const gs = char.gender === T.gender ? 'correct' : 'wrong';
   const as = cmpAffil(char.affil, T.affil);
   const os = cmpOrigin(char.origin, T.origin);
@@ -534,6 +663,10 @@ function buildGuessRow(char, T) {
   const ac = cmpArc(char.arc, T.arc);
   const bc = cmpBounty(char.bounty, T.bounty);
   const fl = fruitLabel(char.fruit);
+  const genderTxt = char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu';
+  const hakiTxt   = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun';
+  const arcTxt    = ARCS[char.arc - 1] || '?';
+  const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))} — ${STATE_FR[state]}${extra}"`;
   row.innerHTML = `
     <div class="cell cell-char">
       ${getImgFile(char)
@@ -541,14 +674,14 @@ function buildGuessRow(char, T) {
         : `<span class="char-name-only">${esc(char.name)}</span>`
       }
     </div>
-    <div class="cell ${gs}" data-label="Genre"><span class="cell-icon">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu'}</span></div>
-    <div class="cell ${as}" data-label="Affiliation"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.affil)}</span></div>
-    <div class="cell ${os}" data-label="Origine"><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.origin)}</span></div>
-    <div class="cell ${fs}" data-label="Fruit du Démon"><span class="cell-icon">${esc(fl.icon)}</span><span class="cell-val">${esc(fl.val)}</span></div>
-    <div class="cell ${hs}" data-label="Haki"><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun')}</span></div>
-    <div class="cell ${ss}" data-label="Statut"><span class="cell-icon">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(char.status)}</span></div>
-    <div class="cell ${ac.state}" data-label="1er Arc"><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(ARCS[char.arc - 1] || '?')}</span>${ac.arrow ? `<span class="cell-arrow">${esc(ac.arrow)}</span>` : ''}</div>
-    <div class="cell ${bc.state}" data-label="Prime"><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${bc.arrow ? `<span class="cell-arrow">${esc(bc.arrow)}</span>` : ''}</div>
+    <div class="cell ${gs}" data-label="Genre" ${al('Genre', genderTxt, gs)}><span class="cell-icon" aria-hidden="true">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${genderTxt}</span></div>
+    <div class="cell ${as}" data-label="Affiliation" ${al('Affiliation', char.affil, as)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.affil)}</span></div>
+    <div class="cell ${os}" data-label="Origine" ${al('Origine', char.origin, os)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.origin)}</span></div>
+    <div class="cell ${fs}" data-label="Fruit du Démon" ${al('Fruit du Démon', fl.val, fs)}><span class="cell-icon" aria-hidden="true">${esc(fl.icon)}</span><span class="cell-val">${esc(fl.val)}</span></div>
+    <div class="cell ${hs}" data-label="Haki" ${al('Haki', hakiTxt, hs)}><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(hakiTxt)}</span></div>
+    <div class="cell ${ss}" data-label="Statut" ${al('Statut', char.status, ss)}><span class="cell-icon" aria-hidden="true">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(char.status)}</span></div>
+    <div class="cell ${ac.state}" data-label="1er Arc" ${al('Premier arc', arcTxt, ac.state, arrowFr(ac.arrow))}><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(arcTxt)}</span>${ac.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(ac.arrow)}</span>` : ''}</div>
+    <div class="cell ${bc.state}" data-label="Prime" ${al('Prime', formatBounty(char.bounty), bc.state, arrowFr(bc.arrow))}><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${bc.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(bc.arrow)}</span>` : ''}</div>
   `;
   // Flip animé décalé par colonne (style Wordle)
   row.querySelectorAll('.cell').forEach((cell, i) => {
@@ -736,6 +869,7 @@ function renderWantedRow(char, correct) {
 
 function finWanted(won) {
   wOver = true;
+  if (!_restoring) sfx(won ? 'win' : 'lose');
   document.getElementById('guess-btn').disabled = true;
   input.disabled = true;
   revealFull();
@@ -833,6 +967,7 @@ function renderFlagGuess(flag, correct) {
 
 function finFlag(won) {
   fOver = true;
+  if (!_restoring) sfx(won ? 'win' : 'lose');
   document.getElementById('guess-btn').disabled = true;
   input.disabled = true;
   revealAllFlag();
@@ -907,6 +1042,7 @@ function submitInf() {
 
 function finInf(won) {
   infOver = true;
+  if (!_restoring) sfx(won ? 'win' : 'lose');
   document.getElementById('guess-btn').disabled = true;
   input.disabled = true;
   const { streak, record } = loadInfStats();
@@ -1110,8 +1246,8 @@ function renderStatsContent(mode) {
   if (nextMode) {
     const NEXT_LABELS = {
       classic: '🗺️ Classique',
-      wanted:  '🏴‍☠️ Wanted',
-      flag:    '🏴 Pavillon',
+      wanted:  '🖼️ Wanted',
+      flag:    '🏴‍☠️ Pavillon',
       fruit:   '🍎 Fruit du Démon',
       emoji:   '😀 Émoji',
       audio:   '🎵 Opening',
@@ -1225,6 +1361,7 @@ function renderFruitRow(char, correct) {
 
 function finFruit(won) {
   frOver = true;
+  if (!_restoring) sfx(won ? 'win' : 'lose');
   document.getElementById('guess-btn').disabled = true;
   input.disabled = true;
   renderFruitHints();
@@ -1409,6 +1546,7 @@ function renderEmojiGuess(char, correct, prepend = true) {
 
 function finEmoji(won) {
   emOver = true;
+  if (!_restoring) sfx(won ? 'win' : 'lose');
   document.getElementById('guess-btn').disabled = true;
   input.disabled = true;
 
@@ -1641,6 +1779,7 @@ function renderAudioGuess(op, correct, prepend = true) {
 
 function finAudio(won) {
   auOver = true;
+  if (!_restoring) sfx(won ? 'win' : 'lose');
   document.getElementById('guess-btn').disabled = true;
   input.disabled = true;
   updateAudioDots();
@@ -1784,8 +1923,8 @@ function buildShareText() {
 
   const MODES = [
     { key: 'classic', icon: '🗺️'  },
-    { key: 'wanted',  icon: '🏴‍☠️' },
-    { key: 'flag',    icon: '🏴'   },
+    { key: 'wanted',  icon: '🖼️' },
+    { key: 'flag',    icon: '🏴‍☠️'   },
     { key: 'fruit',   icon: '🍎'  },
     { key: 'emoji',   icon: '😀'  },
     { key: 'audio',   icon: '🎵'  },
@@ -1917,8 +2056,8 @@ function toggleScoreBreakdown(e) {
     const results = safeParseJSON(lsGet('op-result-' + todayKey()), {});
     const MODES   = [
       { key:'classic', icon:'🗺️',  label:'Classique' },
-      { key:'wanted',  icon:'🏴‍☠️', label:'Wanted'    },
-      { key:'flag',    icon:'🏴',   label:'Pavillon'  },
+      { key:'wanted',  icon:'🖼️', label:'Wanted'    },
+      { key:'flag',    icon:'🏴‍☠️',   label:'Pavillon'  },
       { key:'fruit',   icon:'🍎',  label:'Fruit'     },
       { key:'emoji',   icon:'😀',  label:'Émoji'     },
       { key:'audio',   icon:'🎵',  label:'Opening'   },
