@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LogPose — 6 défis One Piece quotidiens</title>
+  <title>LogPose — 7 défis One Piece quotidiens</title>
 
   <!-- SEO -->
-  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 6 modes quotidiens : Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening. Devine les personnages mystères en analysant leurs caractéristiques.">
+  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères en analysant leurs caractéristiques.">
   <meta name="keywords" content="LogPose, One Piece, Wordle, jeu, devinette, personnage, manga, anime, quotidien">
   <meta name="author" content="LogPose">
   <meta name="robots" content="index, follow">
@@ -16,8 +16,8 @@
   <meta name="google-site-verification" content="i0vh5Ns4PHg6NJDlxaqo-uQZ2qaM-HRbuoVM-Gz3BYg">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="LogPose — 6 défis One Piece quotidiens">
-  <meta property="og:description" content="6 défis One Piece par jour — Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening. Un nouveau défi chaque jour !">
+  <meta property="og:title" content="LogPose — 7 défis One Piece quotidiens">
+  <meta property="og:description" content="7 défis One Piece par jour — Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome. Un nouveau défi chaque jour !">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://onepiecedle.fr/game.html">
   <meta property="og:locale" content="fr_FR">
@@ -28,8 +28,8 @@
 
   <!-- Twitter / X Cards -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LogPose — 6 défis One Piece quotidiens">
-  <meta name="twitter:description" content="Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening. Un nouveau défi chaque jour !">
+  <meta name="twitter:title" content="LogPose — 7 défis One Piece quotidiens">
+  <meta name="twitter:description" content="Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome. Un nouveau défi chaque jour !">
   <meta name="twitter:image" content="https://onepiecedle.fr/images/og_preview.jpg">
 
   <!-- PWA Manifest -->
@@ -42,7 +42,7 @@
     "@type": "WebApplication",
     "name": "LogPose",
     "url": "https://onepiecedle.fr/game.html",
-    "description": "6 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening",
+    "description": "7 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome",
     "applicationCategory": "Game",
     "genre": "Word Game",
     "inLanguage": "fr",
@@ -55,17 +55,20 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=102">
-  <link rel="stylesheet" href="css/layout.css?v=102">
-  <link rel="stylesheet" href="css/modals.css?v=102">
-  <link rel="stylesheet" href="css/classic.css?v=102">
-  <link rel="stylesheet" href="css/wanted.css?v=102">
-  <link rel="stylesheet" href="css/flag.css?v=102">
-  <link rel="stylesheet" href="css/fruit.css?v=102">
-  <link rel="stylesheet" href="css/inf.css?v=102">
-  <link rel="stylesheet" href="css/emoji.css?v=102">
-  <link rel="stylesheet" href="css/misc.css?v=102">
-  <link rel="stylesheet" href="css/audio.css?v=102">
+  <link rel="stylesheet" href="css/base.css?v=164">
+  <link rel="stylesheet" href="css/layout.css?v=164">
+  <link rel="stylesheet" href="css/modals.css?v=164">
+  <link rel="stylesheet" href="css/classic.css?v=164">
+  <link rel="stylesheet" href="css/wanted.css?v=164">
+  <link rel="stylesheet" href="css/flag.css?v=164">
+  <link rel="stylesheet" href="css/fruit.css?v=164">
+  <link rel="stylesheet" href="css/inf.css?v=164">
+  <link rel="stylesheet" href="css/emoji.css?v=164">
+  <link rel="stylesheet" href="css/misc.css?v=164">
+  <link rel="stylesheet" href="css/audio.css?v=164">
+  <link rel="stylesheet" href="css/animations.css?v=164">
+  <link rel="stylesheet" href="css/map.css?v=164">
+  <link rel="stylesheet" href="css/tome.css?v=164">
 </head>
 <body>
 
@@ -98,6 +101,14 @@
         </div>
         <div class="sp-divider"></div>
         <button class="sp-stats-btn" onclick="showStats(); toggleSettings()">📊 Statistiques</button>
+        <button class="sp-stats-btn" onclick="showPatchNotes(); toggleSettings()">📜 Notes de version</button>
+        <div class="sp-divider"></div>
+        <div class="sp-section">
+          <div class="sp-label">Sauvegarde</div>
+          <button class="sp-stats-btn" onclick="exportSave()">💾 Exporter ma sauvegarde</button>
+          <button class="sp-stats-btn" onclick="importSavePrompt()">📥 Importer une sauvegarde</button>
+          <input type="file" id="import-save-input" accept="application/json" hidden onchange="importSaveFile(event)">
+        </div>
       </div>
     </div>
     <div class="header-center">
@@ -105,9 +116,13 @@
         <img class="skull-jolly" src="images/jolly_roger.png" alt="Jolly Roger"/>
         <h1>LogPose</h1>
       </a>
-      <span class="subtitle">6 défis quotidiens · Teste ta connaissance One Piece</span>
+      <span class="subtitle">7 défis quotidiens · Teste ta connaissance One Piece</span>
+      <div id="pirate-rank-badge" class="pirate-rank-badge" aria-label="Rang pirate"></div>
     </div>
-    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer de thème" aria-label="Changer de thème clair/sombre">🌙</button>
+    <div class="header-right" style="display:flex;align-items:center;gap:8px">
+      <button class="map-header-btn" onclick="openMap()" title="Carte de Grand Line" aria-label="Carte de Grand Line">🗺️</button>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer de thème" aria-label="Changer de thème clair/sombre">🌙</button>
+    </div>
   </div>
 </header>
 
@@ -118,6 +133,7 @@
   <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')" role="tab" aria-selected="false">🍎 Fruit du Démon</button>
   <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')" role="tab" aria-selected="false">🤔 Émoji</button>
   <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')" role="tab" aria-selected="false">🎵 Opening</button>
+  <button class="mode-tab" id="tab-tome" onclick="switchMode('tome')" role="tab" aria-selected="false">📕 Tome</button>
 </div>
 <div class="mode-tabs-inf">
   <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')" role="tab" aria-selected="false">🔀 Mode Infini</button>
@@ -143,18 +159,17 @@
     </div>
     <span class="score-text">
       <span id="score-total">0</span>
-      <span class="score-max"> / 60 000</span>
+      <span class="score-max"> / 70 000</span>
     </span>
     <button class="share-daily-btn hidden" id="share-daily-btn" onclick="shareDaily()" title="Partager mon récap du jour">
       📋 Partager
     </button>
   </div>
+  <div class="streak-bar hidden" id="streak-bar"></div>
 </div>
 
-<div class="streak-bar hidden" id="streak-bar"></div>
-
 <main>
-  <div class="date-badge"><span id="date-label"></span></div>
+  <div class="date-badge"><span id="date-label"></span><span id="birthday-badge" class="birthday-badge" hidden></span></div>
   <div class="yesterday" id="yesterday-bar"></div>
   <div class="daily-counter" id="daily-counter"></div>
 
@@ -212,6 +227,26 @@
       <div class="legend-item"><div class="legend-dot partial"></div> Partiel / Proche</div>
       <div class="legend-item"><div class="legend-dot wrong"></div> Faux</div>
       <div class="legend-item">⬆️ Plus haut &nbsp; ⬇️ Plus bas</div>
+    </div>
+  </div>
+
+  <!-- MODE TOME (couverture zoomée → dézoom) -->
+  <div id="tome-section">
+    <div class="tome-layout">
+      <div class="tome-frame">
+        <img id="tome-img" src="" alt="Couverture de tome (gros plan)"/>
+      </div>
+      <div class="tome-controls">
+        <div class="tome-input-row">
+          <input type="number" id="tome-input" min="1" max="112" inputmode="numeric"
+                 placeholder="N° du tome (1–112)" autocomplete="off"
+                 aria-label="Numéro du tome"
+                 onkeydown="if(event.key==='Enter')submitTome()"/>
+          <button id="tome-btn" onclick="submitTome()">Deviner</button>
+        </div>
+        <div class="tome-hint" id="tome-hint"></div>
+        <div class="tome-guesses" id="tome-guesses" role="list" aria-label="Tes tentatives"></div>
+      </div>
     </div>
   </div>
 
@@ -292,16 +327,17 @@
     <div class="emoji-layout">
 
       <div class="emoji-left">
+        <div class="emoji-reveal" id="emoji-reveal" style="display:none">
+          <img id="emoji-reveal-img" src="" alt=""/>
+          <div class="emoji-reveal-name" id="emoji-reveal-name"></div>
+        </div>
         <div class="emoji-card">
           <div class="emoji-question">Quel personnage se cache derrière ces indices ?</div>
           <div class="emoji-strip" id="emoji-strip">
             <!-- Rempli par JS -->
           </div>
           <div class="emoji-progress-label" id="emoji-progress-label"></div>
-        </div>
-        <div class="emoji-reveal" id="emoji-reveal" style="display:none">
-          <img id="emoji-reveal-img" src="" alt=""/>
-          <div class="emoji-reveal-name" id="emoji-reveal-name"></div>
+          <div class="emoji-debut-hint hidden" id="emoji-debut-hint"></div>
         </div>
       </div>
 
@@ -443,10 +479,12 @@
 </div>
 
 <footer>
-  LogPose — Classique · Wanted · Pavillon · Fruit · Émoji · Opening &nbsp;|&nbsp; One Piece © Eiichiro Oda
+  LogPose — Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome
+  <br>
+  One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation
   <br>
   <button class="footer-about-btn" onclick="openAbout()">À propos</button>
-  <span class="footer-version">v4.7</span>
+  <span class="footer-version">v5.0</span>
 </footer>
 
 <!-- MODAL AVERTISSEMENT SPOILERS -->
@@ -480,7 +518,18 @@
       <button class="share-via-btn share-via-twitter"   onclick="shareVia('twitter')">𝕏 Twitter</button>
       <button class="share-via-btn share-via-facebook"  onclick="shareVia('facebook')">📘 Facebook</button>
       <button class="share-via-btn share-via-bluesky"   onclick="shareVia('bluesky')">🦋 Bluesky</button>
+      <button class="share-via-btn share-via-image"     onclick="shareImage()" id="share-via-image-btn">🖼️ Image</button>
     </div>
+
+    <!-- Preview canvas (généré à la demande) -->
+    <div id="share-canvas-wrap" style="display:none">
+      <img id="share-canvas-img" alt="Récap LogPose">
+      <div class="share-canvas-actions">
+        <button class="share-via-btn share-canvas-dl-btn"     onclick="downloadShareImage()">💾 Télécharger</button>
+        <button class="share-via-btn share-canvas-share-btn"  onclick="shareImageNative()" id="share-canvas-native-btn" style="display:none">📤 Partager</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -497,6 +546,7 @@
       <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')">🍎 Démon</button>
       <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')">😀 Émoji</button>
       <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')">🎵 Opening</button>
+      <button class="modal-mode-tab" id="stab-tome"    onclick="switchStatsTab('tome')">📕 Tome</button>
     </div>
 
     <div id="stats-content"></div>
@@ -519,12 +569,12 @@
 
     <div class="about-logo-wrap">
       <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
-      <div class="about-version-badge">v4.7</div>
+      <div class="about-version-badge">v5.0</div>
     </div>
 
     <p class="about-desc">
       Jeu de devinettes quotidien basé sur l'univers de <strong>One Piece</strong>.
-      Six défis renouvelés chaque jour à minuit (heure de Paris).
+      Sept défis renouvelés chaque jour à minuit (heure de Paris).
     </p>
 
     <div class="about-modes-grid">
@@ -534,6 +584,7 @@
       <div class="about-mode-item">🍎 Fruit du Démon</div>
       <div class="about-mode-item">🤔 Émoji</div>
       <div class="about-mode-item">🎵 Opening</div>
+      <div class="about-mode-item">📕 Tome</div>
     </div>
     <div class="about-inf-row">🔀 Classique Infini — entraînement sans limite</div>
 
@@ -563,8 +614,35 @@
   }
 </script>
 
+<!-- Modale Carte de Grand Line (P6) -->
+<div id="map-modal" class="map-modal hidden" role="dialog" aria-modal="true" aria-label="Carte de Grand Line">
+  <div class="map-modal-head">
+    <div>
+      <div class="map-modal-title">🗺️ Carte de Grand Line</div>
+      <div id="map-progress"></div>
+    </div>
+    <button id="map-close-btn" class="map-close-btn" onclick="closeMap()" aria-label="Fermer la carte">✕</button>
+  </div>
+  <div class="map-stage">
+    <div id="map-canvas"></div>
+    <div class="map-zoom-ctrls">
+      <button id="map-zoom-in" type="button" aria-label="Zoomer">＋</button>
+      <button id="map-zoom-out" type="button" aria-label="Dézoomer">−</button>
+      <button id="map-zoom-reset" type="button" aria-label="Réinitialiser le zoom">⟲</button>
+    </div>
+  </div>
+  <div class="map-hint">Molette/pincement pour zoomer · glisser pour déplacer · clique une île débloquée pour ouvrir son dossier</div>
+  <!-- Dossier d'arc (B + E) : injecté par map.js, masqué par défaut -->
+  <div id="map-dossier" class="map-dossier hidden" role="dialog" aria-label="Dossier d'arc"></div>
+  <!-- Fiche personnage : injectée par map.js, masquée par défaut -->
+  <div id="map-charsheet" class="map-charsheet hidden" role="dialog" aria-label="Fiche personnage"></div>
+</div>
+
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="js/data.js?v=102"></script>
-<script src="js/app.js?v=102"></script>
+<script src="js/data.js?v=164"></script>
+<script src="js/jolly-roger.js?v=164"></script>
+<script src="js/app.js?v=164"></script>
+<script src="js/canvas-share.js?v=164"></script>
+<script src="js/map.js?v=164"></script>
 </body>
 </html>

@@ -20,13 +20,29 @@ async function fbIncrement(path) {
   } catch { return null; }
 }
 
-const COUNTER_LABELS = {
-  classic: 'le mode Classique',
-  wanted:  'le mode Wanted',
-  flag:    'le mode Pavillon',
-  fruit:   null, // remplacé par le nom du fruit
-  emoji:   'le mode Émoji',
-  audio:   'le mode Opening',
+async function fbIncrementBy(path, delta) {
+  if (!delta || delta <= 0) return null;
+  try {
+    const url  = `${FB_URL}/${path}.json`;
+    const raw  = await (await fetch(url)).json();
+    const current = (Number.isFinite(Number(raw)) && Number(raw) >= 0)
+      ? Math.floor(Number(raw)) : 0;
+    const next = current + Math.floor(delta);
+    await fetch(url, { method: 'PUT', body: JSON.stringify(next) });
+    return next;
+  } catch { return null; }
+}
+
+// Verbe/action propre à chaque mode pour le compteur du jour ("X pirates ont ___ aujourd'hui").
+// fruit : null → "croqué le <nom du fruit>" (dynamique). Sert aussi à filtrer les modes éligibles (pas l'Infini).
+const COUNTER_VERBS = {
+  classic: "mené l'enquête",
+  wanted:  "scruté l'avis de recherche",
+  flag:    'reconnu le pavillon',
+  fruit:   null,
+  emoji:   'déchiffré les émojis',
+  audio:   "identifié l'opening",
+  tome:    'feuilleté le tome',
 };
 
 const WIN_TITLES = {
@@ -36,6 +52,7 @@ const WIN_TITLES = {
   fruit:   '🍎 Fruit du Démon identifié !',
   emoji:   '😄 Nakama identifié !',
   audio:   '🎵 Opening trouvé !',
+  tome:    '📕 Tome identifié !',
   inf:     '🏴‍☠️ Nakama trouvé !',
 };
 
@@ -48,6 +65,7 @@ const MODES = [
   { id: 'fruit',   icon: '🍎',  label: 'Fruit du Démon' },
   { id: 'emoji',   icon: '😀',  label: 'Émoji' },
   { id: 'audio',   icon: '🎵',  label: 'Opening' },
+  { id: 'tome',    icon: '📕',  label: 'Tome' },
 ];
 const MODE_IDS = MODES.map(m => m.id);
 
@@ -60,6 +78,7 @@ const LS = {
   sfx:       'op-sfx',
   theme:     'op-theme',
   spoilerOk: 'op-spoiler-ok',
+  v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue
   // Mode Infini
   infStreak: 'op-inf-streak',
   infRecord: 'op-inf-record',
@@ -74,33 +93,86 @@ const LS = {
   cumulativeScore: 'op-cumulative-score',
   pirateRank:      'op-pirate-rank',
   mapUnlocked:     'op-map-unlocked',
+  captured:        'op-captured',          // B — carnet de capture (noms de persos trouvés)
+  islandsReached:  'op-islands-reached',   // E — arcs déjà comptés au compteur communauté
 };
+
+// ===== RANG PIRATE =====
+const RANK_THRESHOLDS = [
+  { emoji: '⚓',  title: 'Moussaillon', min: 0 },
+  { emoji: '🌊',  title: 'Matelot',     min: 50_000 },
+  { emoji: '🏴‍☠️', title: 'Pirate',      min: 150_000 },
+  { emoji: '⚔️',  title: 'Second',      min: 350_000 },
+  { emoji: '🎩',  title: 'Capitaine',   min: 700_000 },
+  { emoji: '⚜️',  title: 'Corsaire',    min: 1_500_000 },
+  { emoji: '🌟',  title: 'Amiral',      min: 3_000_000 },
+  { emoji: '👑',  title: 'Yonko',       min: 6_000_000 },
+];
+
+function getRankFromScore(score) {
+  let rank = RANK_THRESHOLDS[0];
+  for (const r of RANK_THRESHOLDS) {
+    if (score >= r.min) rank = r;
+  }
+  const idx = RANK_THRESHOLDS.indexOf(rank);
+  return { ...rank, next: RANK_THRESHOLDS[idx + 1] || null };
+}
+
+function updateRankBadge() {
+  const el = document.getElementById('pirate-rank-badge');
+  if (!el) return;
+  const score = sanitizeNum(lsGet(LS.cumulativeScore));
+  const { emoji, title } = getRankFromScore(score);
+  el.textContent = `${emoji} ${title}`;
+  el.title = `Score cumulé : ${score.toLocaleString('fr-FR')} pts`;
+}
+
+function counterPredicate(mode) {
+  return mode === 'fruit' ? `croqué le ${TARGET_FRU.name}` : COUNTER_VERBS[mode];
+}
+// "🏴‍☠️ X pirates ont <action propre au mode> aujourd'hui" (+ "· N essais moyens" si dispo)
+function counterText(count, mode, avg) {
+  const pred = counterPredicate(mode);
+  let t = `🏴‍☠️ ${count.toLocaleString('fr-FR')} pirate${count > 1 ? 's ont' : ' a'} ${pred} aujourd'hui`;
+  if (avg > 0) t += ` · ${avg} essai${avg > 1 ? 's' : ''} moyen${avg > 1 ? 's' : ''}`;
+  return t;
+}
 
 async function loadDailyCounter(mode) {
   const el = document.getElementById('daily-counter');
-  if (!el || !COUNTER_LABELS.hasOwnProperty(mode)) { if (el) el.textContent = ''; return; }
+  if (!el || !COUNTER_VERBS.hasOwnProperty(mode)) { if (el) el.textContent = ''; return; }
   el.textContent = '';
   el.classList.add('loading');
   const dateKey = todayKey();
   const count = await fbGet(`counters/${dateKey}/${mode}`);
   el.classList.remove('loading');
-  if (count === null || count === 0) { el.textContent = ''; return; }
-  const label = mode === 'fruit'
-    ? `le ${TARGET_FRU.name}`
-    : COUNTER_LABELS[mode];
-  el.textContent = `🏴‍☠️ ${count.toLocaleString('fr-FR')} pirate${count > 1 ? 's' : ''} ont navigué sur ${label} aujourd'hui`;
+  if (currentMode !== mode) return;   // onglet changé pendant l'await → on n'écrase pas
+  if (count && count > 0) {
+    el.textContent = counterText(count, mode, 0);     // accroche immédiate
+    appendDailyAvg(el, mode, count, dateKey);         // ajoute "· N essais moyens" si dispo
+  }
 }
 
 async function incrementDailyCounter(mode) {
   const dateKey = todayKey();
   const count = await fbIncrement(`counters/${dateKey}/${mode}`);
-  if (count === null) return;
   const el = document.getElementById('daily-counter');
   if (!el) return;
-  const label = mode === 'fruit'
-    ? `le ${TARGET_FRU.name}`
-    : COUNTER_LABELS[mode];
-  el.textContent = `🏴‍☠️ ${count.toLocaleString('fr-FR')} pirate${count > 1 ? 's' : ''} ont navigué sur ${label} aujourd'hui`;
+  if (count && count > 0) {
+    el.textContent = counterText(count, mode, 0);
+    appendDailyAvg(el, mode, count, dateKey);
+  }
+}
+
+// Ajoute "· N essais moyens" à l'accroche, depuis daily-stats/{date}/{mode} (alimenté par onGameEnd).
+// Ne fait rien s'il n'y a pas encore de gagnant ou si Firebase est indispo (fallback gracieux).
+async function appendDailyAvg(el, mode, count, dateKey) {
+  let s;
+  try { s = await fbGet(`daily-stats/${dateKey}/${mode}`); } catch (e) { return; }
+  if (currentMode !== mode) return;   // onglet changé pendant l'await
+  if (!el || !s || !s.wins || !s.tries_sum) return;
+  const avg = Math.round(s.tries_sum / s.wins);
+  if (avg > 0) el.textContent = counterText(count, mode, avg);
 }
 
 // ===== UTILS =====
@@ -391,10 +463,42 @@ function buildYesterdayBar() {
 
   el.innerHTML =
     `Hier &nbsp;—&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
-    `<br><span class="yesterday-op">🎵 Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em></span>`;
+    `<br><span class="yesterday-op">🎵 Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em></span>` +
+    `<br><span class="yesterday-community" id="yesterday-community"></span>`;
 }
+// Charge les stats communauté d'hier depuis Firebase et les affiche
+async function loadYesterdayStats() {
+  const d = parisNow(); d.setDate(d.getDate() - 1);
+  // Même format (non zéro-paddé) que todayKey(), sinon la clé ne matche pas l'écriture de daily-stats
+  const yKey = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const stats = await fbGet(`daily-stats/${yKey}`);
+  const el = document.getElementById('yesterday-community');
+  if (!el || !stats) return;
+  const parts = MODES.map(({ id, icon }) => {
+    const s = stats[id];
+    if (!s || !s.total) return null;
+    const pct = s.wins ? Math.round((s.wins / s.total) * 100) : 0;
+    const avg = (s.wins && s.tries_sum) ? (s.tries_sum / s.wins).toFixed(1) : null;
+    return `${icon}&nbsp;${pct}%${avg ? `&nbsp;·&nbsp;∅${avg}` : ''}`;
+  }).filter(Boolean);
+  if (!parts.length) return;
+  el.innerHTML = `🏴‍☠️&nbsp;Communauté&nbsp;: ${parts.join('&emsp;')}`;
+}
+
 // ===== NAVIGATION PAR ONGLETS =====
 function switchMode(mode) {
+  const _prevMode = currentMode;
+
+  // ── Transition FLIP : style inline (priorité absolue sur les stylesheets) ──
+  let _flipEl = null;
+  if (_prevMode !== mode && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const _order = ['classic', 'wanted', 'flag', 'fruit', 'emoji', 'audio', 'tome', 'inf'];
+    const _anim  = _order.indexOf(mode) >= _order.indexOf(_prevMode) ? 'slideInRight' : 'slideInLeft';
+    const _sid   = mode === 'classic' ? 'classic-section' : `${mode}-section`;
+    _flipEl = document.getElementById(_sid);
+    if (_flipEl) _flipEl.style.animation = `${_anim} 220ms cubic-bezier(0.25,0.46,0.45,0.94) both`;
+  }
+
   currentMode = mode;
   document.getElementById('tab-classic').classList.toggle('active', mode === 'classic');
   document.getElementById('tab-wanted').classList.toggle('active', mode === 'wanted');
@@ -402,6 +506,7 @@ function switchMode(mode) {
   document.getElementById('tab-fruit').classList.toggle('active', mode === 'fruit');
   document.getElementById('tab-emoji').classList.toggle('active', mode === 'emoji');
   document.getElementById('tab-audio').classList.toggle('active', mode === 'audio');
+  document.getElementById('tab-tome').classList.toggle('active', mode === 'tome');
   document.getElementById('tab-inf').classList.toggle('active', mode === 'inf');
   // Sync ARIA : l'onglet actif est annoncé comme sélectionné aux lecteurs d'écran
   document.querySelectorAll('.mode-tab[role="tab"]').forEach(t => {
@@ -413,7 +518,12 @@ function switchMode(mode) {
   document.getElementById('fruit-section').classList.toggle('active', mode === 'fruit');
   document.getElementById('emoji-section').classList.toggle('active', mode === 'emoji');
   document.getElementById('audio-section').classList.toggle('active', mode === 'audio');
+  document.getElementById('tome-section').classList.toggle('active', mode === 'tome');
   document.getElementById('inf-section').classList.toggle('active', mode === 'inf');
+  // Le mode Tome a son propre champ numérique → masquer la zone de saisie partagée + le compteur
+  const _sa = input.closest('.search-area');
+  if (_sa) _sa.style.display = (mode === 'tome') ? 'none' : '';
+  if (mode === 'tome') { const _c = document.getElementById('counter'); if (_c) _c.style.display = 'none'; }
 
   const over = mode === 'classic' ? cOver
              : mode === 'wanted'  ? wOver
@@ -421,6 +531,7 @@ function switchMode(mode) {
              : mode === 'emoji'   ? emOver
              : mode === 'audio'   ? auOver
              : mode === 'inf'     ? infOver
+             : mode === 'tome'    ? tmOver
              :                      fOver;
   input.placeholder = mode === 'classic' || mode === 'inf'
     ? 'Tape un nom de personnage...'
@@ -442,6 +553,7 @@ function switchMode(mode) {
   if (mode === 'fruit')  initFruitMode();
   if (mode === 'emoji')  initEmojiMode();
   if (mode === 'audio')  initAudioMode();
+  if (mode === 'tome')   initTomeMode();
   if (mode === 'inf')    initInfMode();
   loadDailyCounter(mode);
   // Auto-focus du champ de saisie si le mode n'est pas terminé
@@ -453,13 +565,37 @@ function switchMode(mode) {
     fruit:   'LogPose · Fruit du Démon — Trouve le détenteur',
     emoji:   'LogPose · Émoji — Devine le personnage One Piece',
     audio:   'LogPose · Opening — Devine l\'opening One Piece',
+    tome:    'LogPose · Tome — Devine le tome One Piece',
     inf:     'LogPose · Classique Infini — Entraînement sans limite',
   };
-  document.title = TITLES[mode] || 'LogPose — 6 défis One Piece quotidiens';
+  document.title = TITLES[mode] || 'LogPose — 7 défis One Piece quotidiens';
+
+  // Cleanup FLIP : fige animation:none pour neutraliser sectionIn (ne PAS remettre '' — ça le retriggerait)
+  if (_flipEl) {
+    _flipEl.addEventListener('animationend', () => { _flipEl.style.animation = 'none'; }, { once: true });
+  }
 }
 
 // ===== BANNERS =====
 function syncBanners() {
+  if (currentMode === 'tome') {
+    if (!tmOver) {
+      document.getElementById('win-banner').classList.remove('show');
+      document.getElementById('lose-banner').classList.remove('show');
+      return;
+    }
+    const won = tmGuesses.includes(TARGET_TOME);
+    document.getElementById('win-banner').classList.toggle('show', won);
+    document.getElementById('lose-banner').classList.toggle('show', !won);
+    if (won) {
+      document.getElementById('win-title').textContent     = WIN_TITLES.tome;
+      document.getElementById('win-char-name').textContent = `Tome ${TARGET_TOME}`;
+      document.getElementById('win-attempts').textContent  = tmGuesses.length;
+    } else {
+      document.getElementById('lose-char-name').textContent = `Tome ${TARGET_TOME}`;
+    }
+    return;
+  }
   const over    = currentMode === 'classic' ? cOver    : currentMode === 'wanted' ? wOver    : currentMode === 'fruit' ? frOver    : currentMode === 'emoji' ? emOver    : currentMode === 'audio' ? auOver  : currentMode === 'inf' ? infOver  : fOver;
   const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'audio' ? auGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
   const target  = currentMode === 'classic' ? TARGET_C : currentMode === 'wanted' ? TARGET_W : currentMode === 'fruit' ? { name: TARGET_FRU.holder } : currentMode === 'emoji' ? emTarget : currentMode === 'audio' ? TARGET_AU : currentMode === 'inf' ? infTarget : TARGET_F;
@@ -483,6 +619,7 @@ function syncBanners() {
 
 // ===== COUNTER =====
 function updateCounter() {
+  if (currentMode === 'tome') return;   // le mode Tome gère son propre affichage (tome-hint / tome-guesses)
   const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'audio' ? auGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
   const names   = currentMode === 'classic' ? cNames   : currentMode === 'wanted' ? wNames   : currentMode === 'fruit' ? frNames   : currentMode === 'emoji' ? emNames   : currentMode === 'audio' ? auNames   : currentMode === 'inf' ? infNames   : fNames;
   document.getElementById('counter').style.display = 'block';
@@ -595,6 +732,7 @@ function submitGuess() {
   else if (currentMode === 'emoji')  submitEmoji();
   else if (currentMode === 'audio')  submitAudio();
   else if (currentMode === 'inf')    submitInf();
+  else if (currentMode === 'tome')   submitTome();   // (input dédié, mais sécurité)
   else                               submitFlag();
 }
 
@@ -638,11 +776,12 @@ function finClassic(won) {
     revealEl.style.display = 'block';
   }
   if (won) {
-    document.getElementById('win-title').textContent      = WIN_TITLES['classic'];
+    const isBdayWin = getTodayBirthdays().some(c => c.name === TARGET_C.name);
+    document.getElementById('win-title').textContent      = isBdayWin ? '🎂 Joyeux anniversaire !' : WIN_TITLES['classic'];
     document.getElementById('win-char-name').textContent  = TARGET_C.name;
     document.getElementById('win-attempts').textContent   = cGuesses.length;
     document.getElementById('win-banner').classList.add('show');
-    if (!_restoring) launchConfetti();
+    if (!_restoring) launchConfetti(isBdayWin ? 'birthday' : null);
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_C.name;
     document.getElementById('lose-banner').classList.add('show');
@@ -909,6 +1048,7 @@ function finWanted(won) {
     document.getElementById('win-attempts').textContent   = wGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     if (!_restoring) launchConfetti();
+    playWinWanted();
   } else {
     document.getElementById('lose-char-name').textContent = TARGET_W.name;
     document.getElementById('lose-banner').classList.add('show');
@@ -1100,7 +1240,7 @@ function defaultStats(maxGuesses) {
 
 function loadStats(mode) {
   const key  = LS.stats(mode);
-  const max  = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : MAX_DIST_CLASSIC;
+  const max  = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : mode === 'tome' ? MAX_TOME_GUESSES : MAX_DIST_CLASSIC;
   const raw  = lsGet(key);
   if (!raw) return defaultStats(max);
   return safeParseJSON(raw, defaultStats(max));
@@ -1161,7 +1301,8 @@ function showStats(mode) {
   renderStatsContent(_statsMode);
   // Met à jour les onglets
   MODE_IDS.forEach(m => {
-    document.getElementById(`stab-${m}`).classList.toggle('active', m === _statsMode);
+    const tab = document.getElementById(`stab-${m}`);
+    if (tab) tab.classList.toggle('active', m === _statsMode);
   });
 }
 
@@ -1176,7 +1317,8 @@ function handleModalClick(e) {
 function switchStatsTab(mode) {
   _statsMode = mode;
   MODE_IDS.forEach(m => {
-    document.getElementById(`stab-${m}`).classList.toggle('active', m === mode);
+    const tab = document.getElementById(`stab-${m}`);
+    if (tab) tab.classList.toggle('active', m === mode);
   });
   renderStatsContent(mode);
 }
@@ -1201,8 +1343,11 @@ function renderStatsContent(mode) {
   const winPct  = played === 0 ? 0 : Math.round((won / played) * 100);
   const streak  = sanitizeNum(stats.currentStreak);
   const maxStr  = sanitizeNum(stats.maxStreak);
-  const maxDist = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : MAX_DIST_CLASSIC;
+  const maxDist = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : mode === 'tome' ? MAX_TOME_GUESSES : MAX_DIST_CLASSIC;
   const maxVal  = Math.max(1, ...Object.values(stats.distribution).map(v => sanitizeNum(v)));
+  // Moyenne d'essais (sur les parties gagnées uniquement)
+  const totGuesses  = Object.entries(stats.distribution).reduce((s, [k, v]) => s + Number(k) * sanitizeNum(v), 0);
+  const avgTriesTxt = won > 0 ? (totGuesses / won).toFixed(1).replace('.', ',') : '—';
 
   // Dernier essai gagnant pour surligner la barre
   const lastWinGuess = stats.lastWinGuesses || null;
@@ -1221,16 +1366,36 @@ function renderStatsContent(mode) {
       <div class="stats-score-sep">⚓</div>
       <div class="stats-score-item">
         <span class="stats-score-label">Total du jour</span>
-        <span class="stats-score-val">${totalScore.toLocaleString('fr-FR')} <span class="stats-score-max">/ 60 000</span></span>
+        <span class="stats-score-val">${totalScore.toLocaleString('fr-FR')} <span class="stats-score-max">/ 70 000</span></span>
       </div>
     </div>` : '';
 
-  let html = scoreHtml + `
+  // ── Rang pirate ──────────────────────────────────────────────
+  const cumulScore = sanitizeNum(lsGet(LS.cumulativeScore));
+  const { emoji: rankEmoji, title: rankTitle, min: rankMin, next: rankNext } = getRankFromScore(cumulScore);
+  const rankPct = rankNext
+    ? Math.min(100, Math.round(((cumulScore - rankMin) / (rankNext.min - rankMin)) * 100))
+    : 100;
+  const rankHtml = `
+    <div class="stats-rank-section">
+      <div class="stats-rank-jr-row">
+        <div class="jr-badge" id="jr-badge"></div>
+        <div class="stats-rank-info">
+          <div class="stats-rank-title">${esc(rankEmoji)} ${esc(rankTitle)}</div>
+          <div class="stats-rank-sub">${cumulScore.toLocaleString('fr-FR')} pts cumulés${rankNext ? ` · prochain : ${rankNext.title} (${rankNext.min.toLocaleString('fr-FR')})` : ' · Rang maximal atteint !'}</div>
+          <div class="stats-rank-bar-track"><div class="stats-rank-bar" style="width:${rankPct}%"></div></div>
+          <div class="jr-label" id="jr-label"></div>
+        </div>
+      </div>
+    </div>`;
+
+  let html = rankHtml + scoreHtml + `
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-val">${played}</div><div class="stat-label">Parties jouées</div></div>
       <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-label">Victoires</div></div>
       <div class="stat-card"><div class="stat-val">${streak}</div><div class="stat-label">Série actuelle</div></div>
       <div class="stat-card"><div class="stat-val">${maxStr}</div><div class="stat-label">Meilleure série</div></div>
+      <div class="stat-card"><div class="stat-val">${avgTriesTxt}</div><div class="stat-label">Essais moyen</div></div>
     </div>
     <div class="dist-title">Distribution des essais</div>
   `;
@@ -1272,6 +1437,14 @@ function renderStatsContent(mode) {
   }
 
   document.getElementById('stats-content').innerHTML = html;
+
+  // Jolly Roger procédural — badge unique par appareil (déterministe, SVG)
+  const jrEl = document.getElementById('jr-badge');
+  if (jrEl && window.renderJollyRoger) {
+    renderJollyRoger(jrEl);
+    const jrLbl = document.getElementById('jr-label');
+    if (jrLbl) jrLbl.textContent = getJollyRogerVariantName();
+  }
 
   // Anime les barres après insertion dans le DOM (délai pour laisser le browser rendre width:0 d'abord)
   setTimeout(() => {
@@ -1410,7 +1583,7 @@ function finFruit(won) {
 // ===== MODE EMOJI =====
 const MAX_EM_GUESSES = 8; // = nombre d'émojis max par personnage
 
-let emGuesses = [], emOver = false, emNames = new Set();
+let emGuesses = [], emOver = false, emNames = new Set(), emHintRevealed = false;
 let emTarget  = null;   // null → sera initialisé sur TARGET_EM à l'ouverture du mode
 let emShuffledEmoji = []; // ordre mélangé (seed du jour)
 
@@ -1466,6 +1639,7 @@ function initEmojiMode() {
 
   updateEmojiStrip();
   updateEmojiStatus();
+  updateEmojiDebutHint();
 
   // Re-rendu des devinettes déjà faites (si on revient sur l'onglet)
   emGuesses.slice().reverse().forEach(g => renderEmojiGuess(g, g.name === emTarget.name, false));
@@ -1520,6 +1694,41 @@ function updateEmojiStatus() {
   }
 }
 
+// Indice « 1ère apparition » : bouton cliquable débloqué au 3e essai (façon mode Fruit).
+const EM_HINT_AT = 3; // nombre d'erreurs avant déblocage du bouton
+function updateEmojiDebutHint() {
+  const el = document.getElementById('emoji-debut-hint');
+  if (!el) return;
+  const debut = (emTarget && emTarget.debut) ? String(emTarget.debut).trim() : '';
+  if (!debut) { el.className = 'emoji-debut-hint hidden'; el.onclick = null; el.innerHTML = ''; return; }
+
+  const wrongCount = emGuesses.filter(g => g.name !== emTarget.name).length;
+  const available  = wrongCount >= EM_HINT_AT || emOver;
+  const revealed   = emHintRevealed || emOver;
+
+  el.classList.remove('hidden');
+  el.classList.toggle('available', available && !revealed);
+  el.classList.toggle('revealed',  revealed);
+
+  if (!available) {
+    const left = EM_HINT_AT - wrongCount;
+    el.innerHTML = `🔒 Indice « 1ʳᵉ apparition » dans ${left} essai${left > 1 ? 's' : ''}`;
+    el.onclick = null;
+  } else if (!revealed) {
+    el.innerHTML = `👁 Révéler l'indice « 1ʳᵉ apparition » <span class="em-hint-cost">(−score)</span>`;
+    el.onclick = revealEmojiHint;
+  } else {
+    el.innerHTML = `💡 <strong>1ʳᵉ apparition</strong> : ${esc(debut)}`;
+    el.onclick = null;
+  }
+}
+function revealEmojiHint() {
+  if (emOver || emHintRevealed) return;
+  emHintRevealed = true;
+  saveState('emoji');
+  updateEmojiDebutHint();
+}
+
 function submitEmoji() {
   if (emOver) return;
   const raw  = input.value.trim();
@@ -1540,6 +1749,7 @@ function submitEmoji() {
     const newIdx = Math.min(wrongCount, emShuffledEmoji.length - 1);
     updateEmojiStrip(newIdx);
     updateEmojiStatus();
+    updateEmojiDebutHint();
     if (emGuesses.length >= MAX_EM_GUESSES) finEmoji(false);
   }
 }
@@ -1561,6 +1771,7 @@ function finEmoji(won) {
 
   // Révèle tous les émojis
   updateEmojiStrip();
+  updateEmojiDebutHint();
 
   // Affiche l'image du personnage
   const imgFile = getImgFile(emTarget);
@@ -1586,7 +1797,7 @@ function finEmoji(won) {
     document.getElementById('lose-char-name').textContent = emTarget.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  onGameEnd('emoji', won, emGuesses.length, won ? calcModeScore('emoji', emGuesses.length, false, 0) : 0);
+  onGameEnd('emoji', won, emGuesses.length, won ? calcModeScore('emoji', emGuesses.length, false, emHintRevealed ? 1 : 0) : 0);
 }
 
 // ===== MODE AUDIO (OPENING) =====
@@ -1806,9 +2017,106 @@ function finAudio(won) {
     { opening: TARGET_AU.name, artist: TARGET_AU.artist });
 }
 
+// ===== MODE TOME (couverture zoomée → dézoom) =====
+const MAX_TOME_GUESSES = 6;
+const TOME_ZOOM_SCALES = [8, 5.3, 3.5, 2.3, 1.5, 1]; // du plus serré (gros plan) au dézoom complet
+let tmGuesses = [], tmOver = false;                    // tmGuesses = numéros de tomes proposés
+function tomeInputEl() { return document.getElementById('tome-input'); }
+function tomeCoverSrc() { return `images/cover/Tome_${TARGET_TOME}.webp`; }
+
+function initTomeMode() {
+  const img = document.getElementById('tome-img');
+  if (img && img.getAttribute('src') !== tomeCoverSrc()) {
+    img.src = tomeCoverSrc();
+    img.draggable = false;
+    img.addEventListener('dragstart', e => e.preventDefault());
+  }
+  document.getElementById('tome-guesses').innerHTML = '';
+  tmGuesses.forEach(n => renderTomeGuess(n, n === TARGET_TOME, false));
+  updateTomeZoom();
+  updateTomeHint();
+  const ti = tomeInputEl(), tb = document.getElementById('tome-btn');
+  if (ti) ti.disabled = tmOver;
+  if (tb) tb.disabled = tmOver;
+}
+
+function updateTomeZoom() {
+  const img = document.getElementById('tome-img');
+  if (!img) return;
+  const step = Math.min(tmGuesses.length, TOME_ZOOM_SCALES.length - 1);
+  const s = tmOver ? 1 : TOME_ZOOM_SCALES[step];
+  img.style.transformOrigin = `${TOME_ZOOM.x}% ${TOME_ZOOM.y}%`;
+  img.style.transform = `scale(${s})`;
+}
+
+function updateTomeHint() {
+  const el = document.getElementById('tome-hint');
+  if (!el) return;
+  if (tmOver) {
+    const won = tmGuesses.includes(TARGET_TOME);
+    el.textContent = won ? `🎉 C'était le Tome ${TARGET_TOME} !`
+                         : `💀 Perdu ! C'était le Tome ${TARGET_TOME}.`;
+    return;
+  }
+  const left = MAX_TOME_GUESSES - tmGuesses.length;
+  const last = tmGuesses.length ? tmGuesses[tmGuesses.length - 1] : null;
+  const dir  = last == null ? '' : (last < TARGET_TOME ? ' · 📈 plus haut' : ' · 📉 plus bas');
+  el.textContent = `${left} essai${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''}${dir}`;
+}
+
+function renderTomeGuess(n, correct, fresh = true) {
+  const cont = document.getElementById('tome-guesses');
+  if (!cont) return;
+  const row = document.createElement('div');
+  row.className = 'tome-guess-row' + (fresh ? ' fresh' : '');
+  const verdict = correct ? '✅ TROUVÉ !' : (n < TARGET_TOME ? '📈 Plus haut' : '📉 Plus bas');
+  row.innerHTML = `<span class="tg-num">Tome ${n}</span><span class="tg-res ${correct ? 'correct' : 'wrong'}">${verdict}</span>`;
+  cont.prepend(row);
+}
+
+function submitTome() {
+  if (tmOver) return;
+  const ti = tomeInputEl();
+  const n  = parseInt((ti.value || '').trim(), 10);
+  if (!n || n < 1 || n > 112 || tmGuesses.includes(n)) { shake(ti); return; }
+  tmGuesses.push(n);
+  saveState('tome');
+  ti.value = '';
+  const correct = n === TARGET_TOME;
+  renderTomeGuess(n, correct);
+  if (correct) {
+    finTome(true);
+  } else {
+    updateTomeZoom();
+    updateTomeHint();
+    if (tmGuesses.length >= MAX_TOME_GUESSES) finTome(false);
+  }
+}
+
+function finTome(won) {
+  tmOver = true;
+  if (!_restoring) sfx(won ? 'win' : 'lose');
+  const ti = tomeInputEl(), tb = document.getElementById('tome-btn');
+  if (ti) ti.disabled = true;
+  if (tb) tb.disabled = true;
+  updateTomeZoom();
+  updateTomeHint();
+  if (won) {
+    document.getElementById('win-title').textContent     = WIN_TITLES['tome'];
+    document.getElementById('win-char-name').textContent = `Tome ${TARGET_TOME}`;
+    document.getElementById('win-attempts').textContent  = tmGuesses.length;
+    document.getElementById('win-banner').classList.add('show');
+    if (!_restoring) launchConfetti();
+  } else {
+    document.getElementById('lose-char-name').textContent = `Tome ${TARGET_TOME}`;
+    document.getElementById('lose-banner').classList.add('show');
+  }
+  onGameEnd('tome', won, tmGuesses.length, won ? calcModeScore('tome', tmGuesses.length, false, 0) : 0);
+}
+
 // ===== SYSTÈME DE SCORE =====
-const SCORE_MAX_TOTAL = 60000;
-const SCORE_PENALTIES = { classic: 1000, wanted: 1250, fruit: 1000, emoji: 1250 };
+const SCORE_MAX_TOTAL = 70000;   // 7 modes × 10 000
+const SCORE_PENALTIES = { classic: 1000, wanted: 1250, fruit: 1000, emoji: 1250, tome: 1800 };
 
 function round50(n) { return Math.round(n / 50) * 50; }
 
@@ -1822,6 +2130,7 @@ function calcModeScore(mode, tries, hintUsed, hintsCount) {
   }
   if (mode === 'classic' && hintUsed)    base = round50(base / 2);
   if (mode === 'fruit'   && hintsCount)  base = round50(base / Math.pow(1.5, hintsCount));
+  if (mode === 'emoji'   && hintsCount)  base = round50(base / 1.5);
   return base;
 }
 
@@ -1833,8 +2142,9 @@ function saveState(mode) {
   if (mode === 'wanted')  lsSet(LS.gs('wanted',  dk), JSON.stringify({ guesses: wGuesses.map(c => c.name), target: TARGET_W.name }));
   if (mode === 'flag')    lsSet(LS.gs('flag',    dk), JSON.stringify({ guesses: fGuesses.map(f => f.name), target: TARGET_F.name }));
   if (mode === 'fruit')   lsSet(LS.gs('fruit',   dk), JSON.stringify({ guesses: frGuesses.map(f => f.name), hints: [...frHintsRevealed], target: TARGET_FRU.name }));
-  if (mode === 'emoji')   lsSet(LS.gs('emoji',   dk), JSON.stringify({ guesses: emGuesses.map(c => c.name), target: TARGET_EM.name }));
+  if (mode === 'emoji')   lsSet(LS.gs('emoji',   dk), JSON.stringify({ guesses: emGuesses.map(c => c.name), hintRevealed: emHintRevealed, target: TARGET_EM.name }));
   if (mode === 'audio')   lsSet(LS.gs('audio',   dk), JSON.stringify({ guesses: auGuesses.map(o => o.name), target: TARGET_AU.name }));
+  if (mode === 'tome')    lsSet(LS.gs('tome',    dk), JSON.stringify({ guesses: tmGuesses, target: TARGET_TOME }));
 }
 
 // Valide qu'un nom restauré depuis le localStorage est une chaîne de taille raisonnable
@@ -1878,12 +2188,20 @@ function restoreAllStates() {
       emShuffledEmoji = seededShuffle(emTarget.emoji, buildEmojiSeed());
     }
     sem.guesses.filter(validName).forEach(name => { input.value = name; submitEmoji(); });
+    if (sem.hintRevealed) emHintRevealed = true;
   }
 
   // Audio
   const sau = safeParseJSON(lsGet(LS.gs('audio', dk)), null);
   if (sau && Array.isArray(sau.guesses) && (!sau.target || sau.target === TARGET_AU.name)) {
     sau.guesses.filter(validName).forEach(name => { input.value = name; submitAudio(); });
+  }
+
+  // Tome
+  const stm = safeParseJSON(lsGet(LS.gs('tome', dk)), null);
+  if (stm && Array.isArray(stm.guesses) && (stm.target == null || stm.target === TARGET_TOME)) {
+    const ti = tomeInputEl();
+    if (ti) { stm.guesses.forEach(n => { ti.value = String(n); submitTome(); }); ti.value = ''; }
   }
 
   _restoring = false;
@@ -1906,16 +2224,53 @@ function saveModeResult(mode, won, tries, extra) {
   lsSet(key, JSON.stringify(results));
 }
 
-// Fin de partie des 6 modes quotidiens — point d'ancrage unique.
+// Fin de partie des 7 modes quotidiens — point d'ancrage unique.
 // Toute nouvelle réaction à "partie terminée" (rang pirate, animation de
 // victoire, stats communauté…) se branche ICI plutôt que dans chaque finXxx().
+// ── B — Carnet de capture : nom du perso-cible d'un mode (null si non pertinent) ──
+function captureTargetName(mode) {
+  try {
+    const t = mode === 'classic' ? TARGET_C
+            : mode === 'wanted'  ? TARGET_W
+            : mode === 'fruit'   ? { name: TARGET_FRU.holder }
+            : mode === 'emoji'   ? emTarget
+            : mode === 'audio'   ? TARGET_AU
+            : mode === 'inf'     ? infTarget
+            : TARGET_F;
+    return (t && t.name) ? t.name : null;
+  } catch (e) { return null; }
+}
+function markCaptured(mode) {
+  const name = captureTargetName(mode);
+  if (!name || !CHARACTERS.some(c => c.name === name)) return;  // uniquement de vrais persos
+  const list = safeParseJSON(lsGet(LS.captured), []);
+  if (!list.includes(name)) { list.push(name); lsSet(LS.captured, JSON.stringify(list)); }
+}
+
 function onGameEnd(mode, won, tries, score, extra) {
   if (_restoring) return;
   recordResult(mode, won, tries);
   saveModeResult(mode, won, tries, extra);
+  // Écriture stats communauté, PUIS rafraîchissement du compteur une fois les écritures
+  // prises en compte (sinon on relit daily-stats avant que la victoire du joueur y figure).
+  const _dk = todayKey();
+  const _statWrites = [fbIncrement(`daily-stats/${_dk}/${mode}/total`)];
   if (won) {
-    incrementDailyCounter(mode);
+    _statWrites.push(fbIncrement(`daily-stats/${_dk}/${mode}/wins`));
+    if (tries > 0) _statWrites.push(fbIncrementBy(`daily-stats/${_dk}/${mode}/tries_sum`, tries));
+  }
+  // compteur public (navigation + gagnants/essais moyens), rafraîchi après les écritures
+  Promise.allSettled(_statWrites).then(() => incrementDailyCounter(mode));
+  if (won) {
     saveModeScore(mode, score);
+    const prev = sanitizeNum(lsGet(LS.cumulativeScore));
+    const cumul = prev + score;
+    lsSet(LS.cumulativeScore, cumul);
+    lsSet(LS.pirateRank, getRankFromScore(cumul).title);
+    updateRankBadge();
+    markCaptured(mode);                                              // B — carnet de capture
+    if (typeof reportIslandsReached === 'function') reportIslandsReached(cumul); // E — compteur communauté
+    playWinAnimation(mode);
   } else {
     updateScoreBar();
   }
@@ -1947,8 +2302,20 @@ function buildShareText() {
     }
   });
 
+  // Mention anniversaire si un perso fête son anniv aujourd'hui
+  const bdays = getTodayBirthdays();
+  if (bdays.length) {
+    const names = bdays.map(c => c.name).join(' & ');
+    lines.push(`🎂 Anniversaire de ${names} !`);
+  }
   lines.push('');
-  lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 60 000 pts`);
+  lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 70 000 pts`);
+  const cumul = sanitizeNum(lsGet(LS.cumulativeScore));
+  if (cumul > 0) {
+    const { title: rankTitle } = getRankFromScore(cumul);
+    const streak = sanitizeNum(loadStats('classic').currentStreak);
+    lines.push(`⚔️ ${rankTitle} · Série ${streak}j · ${cumul.toLocaleString('fr-FR')} pts cumulés`);
+  }
   lines.push('https://onepiecedle.fr');
   return lines.join('\n');
 }
@@ -1961,6 +2328,7 @@ function shareDaily() {
 
 function closeSharePopup() {
   document.getElementById('share-popup').classList.add('hidden');
+  if (typeof hideCanvasPreview === 'function') hideCanvasPreview();
 }
 
 function handleShareOverlayClick(e) {
@@ -1976,6 +2344,164 @@ function closeAbout() {
 }
 function handleAboutOverlayClick(e) {
   if (e.target === document.getElementById('about-modal')) closeAbout();
+}
+
+// ===== POP-UP "NOUVEAUTÉS v5" (Une de gazette · affichée une seule fois) =====
+function maybeShowWhatsNew() {
+  if (lsGet(LS.v5seen)) return;        // déjà vue → on ne montre plus
+  showWhatsNew();
+}
+function _wnEsc(e) { if (e.key === 'Escape') closeWhatsNew(); }
+function closeWhatsNew() {
+  lsSet(LS.v5seen, '1');
+  const ov = document.getElementById('whatsnew-overlay');
+  if (ov) ov.remove();
+  document.removeEventListener('keydown', _wnEsc);
+}
+function showWhatsNew() {
+  if (document.getElementById('whatsnew-overlay')) return;
+  const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  const ov = document.createElement('div');
+  ov.id = 'whatsnew-overlay';
+  ov.className = 'wn-overlay';
+  ov.setAttribute('role', 'dialog');
+  ov.setAttribute('aria-modal', 'true');
+  ov.setAttribute('aria-label', 'Nouveautés LogPose v5');
+  ov.innerHTML =
+      '<div class="wn-gazette" role="document">'
+    +   '<button class="wn-close" type="button" aria-label="Fermer">×</button>'
+    +   '<div class="wn-frame">'
+    +     '<div class="wn-masthead">'
+    +       '<div class="wn-paper-name"><span class="wn-orn">☠</span>La Gazette du Log Pose<span class="wn-orn">☠</span></div>'
+    +       '<div class="wn-tagline">« Toutes les nouvelles de Grand Line »</div>'
+    +     '</div>'
+    +     '<div class="wn-dateline"><span>Édition spéciale · v5</span><span>' + esc(today) + '</span></div>'
+    +     '<div class="wn-kicker">— Un nouveau défi accoste —</div>'
+    +     '<h2 class="wn-headline">Le mode Tome 📕</h2>'
+    +     '<p class="wn-lede">Reconnais le tome du manga à sa seule couverture&nbsp;: l\'image démarre en gros plan, puis se dézoome indice après indice.</p>'
+    +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
+    +     '<div class="wn-cols">'
+    +       '<div class="wn-col"><div class="wn-col-ico">🏴‍☠️</div><div class="wn-col-h">Rang de pirate</div><div class="wn-col-p">Grimpe les échelons selon ton score cumulé, de Moussaillon à Empereur.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico">🗺️</div><div class="wn-col-h">Carte de Grand Line</div><div class="wn-col-p">Explore 32 îles, remplis ton carnet de capture et ouvre les fiches des persos.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico">🏴</div><div class="wn-col-h">Ton Jolly Roger</div><div class="wn-col-p">Un pavillon unique généré rien que pour toi, sur tes stats et ton image de partage.</div></div>'
+    +     '</div>'
+    +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
+    +     '<p class="wn-brief">Et aussi&nbsp;: 💾 transfert de ta sauvegarde · 🖼️ image de partage récap · 📊 stats de la communauté.</p>'
+    +     '<div class="wn-cta-wrap"><button class="wn-cta" type="button">Découvrir ⚓</button></div>'
+    +   '</div>'
+    + '</div>';
+  ov.addEventListener('click', e => { if (e.target === ov) closeWhatsNew(); });
+  ov.querySelector('.wn-close').addEventListener('click', closeWhatsNew);
+  ov.querySelector('.wn-cta').addEventListener('click', closeWhatsNew);
+  document.body.appendChild(ov);
+  document.addEventListener('keydown', _wnEsc);
+  const cta = ov.querySelector('.wn-cta');
+  if (cta) cta.focus();
+}
+
+// ===== EXPORT / IMPORT DE LA SAUVEGARDE (clés "op-" uniquement · 100% local, sans serveur) =====
+function exportSave() {
+  try {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('op-')) data[k] = localStorage.getItem(k);
+    }
+    const d = parisNow();
+    const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `logpose-save-${stamp}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Échec de l\'export de la sauvegarde.');
+  }
+}
+
+function importSavePrompt() {
+  const inp = document.getElementById('import-save-input');
+  if (inp) { inp.value = ''; inp.click(); }   // reset → permet de réimporter le même fichier
+}
+
+function importSaveFile(event) {
+  const file = event.target && event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onerror = () => alert('Impossible de lire le fichier.');
+  reader.onload = () => {
+    let obj;
+    try { obj = JSON.parse(reader.result); }
+    catch (e) { alert('Fichier invalide : ce n\'est pas une sauvegarde LogPose lisible.'); return; }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+      alert('Fichier invalide : format inattendu.'); return;
+    }
+    // On ne retient QUE les clés "op-" à valeur texte (on ignore tout le reste du fichier)
+    const entries = Object.entries(obj).filter(([k, v]) => k.startsWith('op-') && typeof v === 'string');
+    if (!entries.length) {
+      alert('Aucune donnée LogPose (clés « op- ») trouvée dans ce fichier.'); return;
+    }
+    if (!confirm(`Importer cette sauvegarde ? Cela remplacera ta progression actuelle (${entries.length} entrée${entries.length > 1 ? 's' : ''}).`)) return;
+    try {
+      // On ne touche QU'AUX clés "op-" : on retire les anciennes, puis on pose celles du fichier
+      Object.keys(localStorage).filter(k => k.startsWith('op-')).forEach(k => localStorage.removeItem(k));
+      entries.forEach(([k, v]) => localStorage.setItem(k, v));
+    } catch (e) {
+      alert('Échec de l\'import (stockage plein ?).'); return;
+    }
+    location.reload();
+  };
+  reader.readAsText(file);
+}
+
+// ===== NOTES DE VERSION (changelog accessible à tout moment) =====
+// Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
+const CHANGELOG = [
+  { v: '5.0', date: 'Juin 2026', items: [
+    '📕 Nouveau mode Tome — devine le tome à sa couverture',
+    '🗺️ Carte de Grand Line : 32 îles, carnet de capture & fiches perso',
+    '🏴‍☠️ Rang de pirate + Jolly Roger personnel généré',
+    '🖼️ Image de partage récap (avec ton pavillon)',
+    '🎂 Anniversaires des personnages · 📊 stats de la communauté',
+    '💾 Export / import de ta sauvegarde',
+    '➕ 11 nouveaux personnages (244 au total)',
+  ] },
+  { v: '4.7', date: 'Mai 2026', items: [
+    '😀 Grand audit des émojis (60 personnages)',
+    '⚡ Popup de fin de partie accélérée',
+  ] },
+];
+
+function _pnEsc(e) { if (e.key === 'Escape') closePatchNotes(); }
+function closePatchNotes() {
+  const o = document.getElementById('patchnotes-overlay');
+  if (o) o.remove();
+  document.removeEventListener('keydown', _pnEsc);
+}
+function showPatchNotes() {
+  if (document.getElementById('patchnotes-overlay')) return;
+  const entries = CHANGELOG.map(e =>
+      '<div class="pn-entry">'
+    +   `<div class="pn-ver">v${esc(e.v)}<span class="pn-date"> · ${esc(e.date)}</span></div>`
+    +   `<ul class="pn-items">${e.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`
+    + '</div>'
+  ).join('');
+  const ov = document.createElement('div');
+  ov.id = 'patchnotes-overlay';
+  ov.className = 'modal-overlay';
+  ov.setAttribute('role', 'dialog');
+  ov.setAttribute('aria-modal', 'true');
+  ov.setAttribute('aria-label', 'Notes de version');
+  ov.innerHTML =
+      '<div class="modal-box pn-box">'
+    +   '<button class="modal-close" type="button" aria-label="Fermer" onclick="closePatchNotes()">×</button>'
+    +   '<div class="modal-title">📜 Notes de version</div>'
+    +   `<div class="pn-list">${entries}</div>`
+    + '</div>';
+  ov.addEventListener('click', e => { if (e.target === ov) closePatchNotes(); });
+  document.body.appendChild(ov);
+  document.addEventListener('keydown', _pnEsc);
 }
 
 function shareVia(platform) {
@@ -2132,7 +2658,7 @@ function launchPerfectDay() {
     <canvas class="perfect-canvas" id="perfect-canvas"></canvas>
     <div class="perfect-content">
       <div class="perfect-emoji">🏴‍☠️</div>
-      <div class="perfect-sub">60 000 / 60 000 pts</div>
+      <div class="perfect-sub">70 000 / 70 000 pts</div>
       <div class="perfect-sub2">Tu as réussi tous les défis du jour !</div>
     </div>
   `;
@@ -2220,7 +2746,7 @@ function startCountdown() {
 // (startCountdown est appelé dans initGame ci-dessous)
 
 // ===== CONFETTIS =====
-function launchConfetti() {
+function launchConfetti(variant) {
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
   document.body.appendChild(canvas);
@@ -2228,7 +2754,10 @@ function launchConfetti() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const COLORS = ['#e8c030','#20b858','#e04040','#4a9ff5','#ff8c42','#c878f0','#ffffff'];
+  // Palette anniversaire : rose/violet/doré + emojis 🎂🎉🎈
+  const COLORS = variant === 'birthday'
+    ? ['#ff69b4','#ff1493','#c878f0','#ffd84d','#ff8c42','#ffffff','#da70d6']
+    : ['#e8c030','#20b858','#e04040','#4a9ff5','#ff8c42','#c878f0','#ffffff'];
   const pieces = Array.from({ length: 130 }, () => ({
     x:         Math.random() * canvas.width,
     y:         Math.random() * -canvas.height * 0.5,
@@ -2322,6 +2851,75 @@ function stopKonamiAudio() {
 }
 
 
+// ===== MICRO-ANIMATIONS VICTOIRE (P3) =====
+function playWinAnimation(mode) {
+  const fns = {
+    classic: playWinClassic,
+    wanted:  playWinWanted,
+    flag:    playWinFlag,
+    fruit:   playWinFruit,
+    emoji:   playWinEmoji,
+    audio:   playWinAudio,
+  };
+  fns[mode]?.();
+}
+
+function playWinClassic() {
+  const img  = document.getElementById('classic-reveal-img');
+  const name = document.getElementById('classic-reveal-name');
+  if (img)  img.classList.add('anim-reveal-classic');
+  if (name) name.classList.add('anim-typewriter');
+}
+
+function playWinWanted() {
+  const box = document.querySelector('.poster-aspect-box');
+  if (!box || box.querySelector('#win-stamp')) return;
+  const stamp = document.createElement('div');
+  stamp.id = 'win-stamp';
+  stamp.className = 'anim-stamp';
+  stamp.textContent = 'TROUVÉ !';
+  box.appendChild(stamp);
+}
+
+function playWinFlag() {
+  const grid = document.getElementById('flag-grid');
+  if (grid) grid.classList.add('anim-wave-flag');
+}
+
+function playWinFruit() {
+  const img = document.getElementById('fruit-reveal-img');
+  if (!img) return;
+  img.classList.add('anim-reveal-fruit');
+  const typeMap = {
+    Logia:     'aura-logia',
+    Zoan:      'aura-zoan',
+    Paramecia: 'aura-paramecia',
+    Mythique:  'aura-mythique',
+  };
+  const aura = typeMap[TARGET_FRU?.type];
+  if (aura) img.classList.add(aura);
+}
+
+function playWinEmoji() {
+  const boxes = document.querySelectorAll('#emoji-strip .emoji-box.revealed');
+  boxes.forEach((box, i) => {
+    box.style.animationDelay = `${i * 60}ms`;
+    box.classList.add('anim-jump');
+  });
+  const reveal = document.getElementById('emoji-reveal');
+  if (reveal) {
+    reveal.style.animationDelay = `${boxes.length * 60}ms`;
+    reveal.classList.add('anim-pop');
+  }
+}
+
+function playWinAudio() {
+  const reveal = document.getElementById('au-reveal');
+  if (reveal) reveal.classList.add('anim-reveal-audio');
+  const num = document.getElementById('au-reveal-num');
+  if (num) num.classList.add('anim-num-big');
+}
+
 // ===== INIT ASYNCHRONE =====
 // Attend le chargement de data.json avant d'initialiser le jeu
 (async function initGame() {
@@ -2336,11 +2934,23 @@ function stopKonamiAudio() {
   }
   saveTodayTargets();
   buildYesterdayBar();
+  loadYesterdayStats(); // fire-and-forget, remplit #yesterday-community quand Firebase répond
+  // Badge anniversaire
+  (function() {
+    const bdays = getTodayBirthdays();
+    const el = document.getElementById('birthday-badge');
+    if (!el || !bdays.length) return;
+    const names = bdays.map(c => c.name).join(' & ');
+    el.textContent = `🎂 ${names}`;
+    el.hidden = false;
+  })();
   try { updateScoreBar();    } catch(e) { console.warn('updateScoreBar init:', e); }
+  try { updateRankBadge();   } catch(e) { console.warn('updateRankBadge init:', e); }
   try { restoreAllStates();  } catch(e) { console.warn('restoreAllStates init:', e); }
   startCountdown();
   updateCounter();
   initFlagGrid();
   loadDailyCounter('classic');
+  try { maybeShowWhatsNew(); } catch(e) { console.warn('whatsNew init:', e); }
 })();
 

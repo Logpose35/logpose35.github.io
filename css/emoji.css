@@ -84,6 +84,38 @@
   text-transform: uppercase; color: var(--text3);
 }
 
+/* Indice « 1ère apparition » : bouton cliquable débloqué au 3e essai (façon Fruit) */
+.emoji-debut-hint {
+  margin-top: 10px;
+  padding: 9px 12px;
+  background: rgba(200,148,10,0.08);
+  border: 1px solid rgba(200,148,10,0.30);
+  border-radius: 8px;
+  font-size: 0.86rem;
+  color: var(--text3);
+  text-align: center;
+  animation: fadeIn .3s ease;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.emoji-debut-hint.hidden { display: none; }
+.emoji-debut-hint.available {
+  cursor: pointer;
+  color: var(--text2, #e8d5b0);
+  border-color: rgba(200,148,10,0.5);
+}
+.emoji-debut-hint.available:hover {
+  background: rgba(200,148,10,0.18);
+  border-color: var(--gold, #c89408);
+}
+.emoji-debut-hint.revealed {
+  background: rgba(200,148,10,0.12);
+  border-color: rgba(200,148,10,0.45);
+  color: var(--text2, #e8d5b0);
+  text-align: left;
+}
+.emoji-debut-hint strong { color: var(--gold, #c89408); }
+.em-hint-cost { opacity: .6; font-size: .8em; }
+
 /* ── Révélation du personnage en fin de partie ── */
 .emoji-reveal {
   background: var(--card);

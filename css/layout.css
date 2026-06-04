@@ -94,14 +94,13 @@
 
 /* ===== STREAK BAR ===== */
 .streak-bar {
-  background: var(--ocean-2);
-  border: none;
   text-align: center;
-  padding: 2px 16px;
-  font-size: var(--fs-xs);
+  padding: 6px 16px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   color: var(--gold);
-  opacity: 0.85;
-  letter-spacing: 0.02em;
 }
 .streak-bar.hidden { display: none; }
 
@@ -226,6 +225,17 @@
   opacity: 0.7;
   font-size: 0.9em;
 }
+
+/* ===== YESTERDAY BAR — Stats communauté ===== */
+.yesterday-community {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  opacity: 0.65;
+}
+.yesterday-community:empty { display: none; }
 
 /* Remplissage : juste la ligne de vague, pas de fond solide */
 .score-fill {

@@ -356,6 +356,14 @@
 }
 .land-footer .lf-legal { margin-bottom: 0.5rem; line-height: 1.4; }
 .land-footer .lf-ver { color: var(--gold); font-weight: 600; }
+.footer-about-btn {
+  background: none; border: 1px solid rgba(200,148,10,0.35);
+  color: rgba(200,148,10,0.65); border-radius: 20px;
+  padding: 2px 12px; font-size: 0.72rem; cursor: pointer;
+  letter-spacing: 0.08em; transition: border-color 0.2s, color 0.2s;
+  margin-right: 8px; vertical-align: middle;
+}
+.footer-about-btn:hover { border-color: var(--gold); color: var(--gold); }
 
 /* ===== ANIMATIONS AU SCROLL ===== */
 .reveal {

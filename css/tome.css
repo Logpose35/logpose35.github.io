@@ -1,0 +1,68 @@
+/* ===== MODE TOME (couverture zoomée → dézoom) ===== */
+#tome-section { display: none; }
+#tome-section.active { display: block; padding: 10px 0 24px; }
+
+.tome-layout {
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  max-width: 520px; margin: 0 auto;
+}
+
+/* Cadre du gros plan (overflow caché : le zoom déborde, on ne voit qu'une zone) */
+.tome-frame {
+  width: min(86vw, 320px);
+  aspect-ratio: 0.66;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid rgba(200,148,10,0.45);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.5);
+  background: #0a1422;
+}
+#tome-img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+  transform-origin: 50% 50%;
+  transition: transform .55s cubic-bezier(0.25,0.46,0.45,0.94);
+  user-select: none; -webkit-user-drag: none;
+}
+
+/* Contrôles dédiés (le mode Tome n'utilise pas l'input partagé) */
+.tome-controls { width: min(92vw, 420px); display: flex; flex-direction: column; gap: 12px; }
+.tome-input-row { display: flex; gap: 8px; }
+#tome-input {
+  flex: 1; padding: 12px 14px; font-size: 1rem;
+  border-radius: 10px; border: 1.5px solid var(--border, rgba(200,148,10,0.3));
+  background: var(--card, #0a1422); color: var(--text, #e8d5b0);
+  text-align: center; font-family: 'Barlow Condensed', sans-serif;
+}
+#tome-input:focus { outline: none; border-color: var(--gold, #c89408); }
+#tome-input::-webkit-outer-spin-button,
+#tome-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+#tome-input[type=number] { -moz-appearance: textfield; }
+#tome-btn {
+  padding: 12px 20px; font-size: .95rem; font-weight: 700; cursor: pointer;
+  border: none; border-radius: 10px;
+  background: var(--gold, #c89408); color: #1a0f00;
+  font-family: 'Barlow Condensed', sans-serif; letter-spacing: .04em;
+}
+#tome-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Indice + tentatives */
+.tome-hint {
+  text-align: center; font-family: 'Barlow Condensed', sans-serif;
+  font-size: .95rem; color: var(--text2, #e8d5b0); min-height: 1.2em;
+}
+.tome-guesses { display: flex; flex-direction: column; gap: 6px; }
+.tome-guess-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px; border-radius: 8px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(200,148,10,0.15);
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.tome-guess-row.fresh { animation: fadeIn .3s ease; }
+.tg-num { font-weight: 600; color: var(--text, #e8d5b0); }
+.tg-res { font-weight: 700; font-size: .9rem; }
+.tg-res.correct { color: #5fd98a; }
+.tg-res.wrong   { color: var(--gold-bright, #ffd84d); }
+
+@media (prefers-reduced-motion: reduce) { #tome-img { transition: none; } }

@@ -5,8 +5,8 @@ GitHub Pages, déployé sur **onepiecedle.fr**. 6 modes quotidiens (Classique, W
 Pavillon, Fruit du Démon, Émoji, Opening) + un mode Infini. Compteurs journaliers via
 Firebase Realtime DB. Version affichée en prod : **v4.7**.
 
-> Pour attaquer la **v5**, lire `V5_ROADMAP.md` (gitignoré — non chargé auto, à ouvrir
-> manuellement). Ce fichier-ci = contexte opérationnel permanent.
+> **v5 : fonctionnellement complète** (cache `v137`), non déployée. Seul **P5b — Calendrier
+> de l'Avent** reste (hors-saison, décembre). Ce fichier-ci = contexte opérationnel permanent.
 
 ## Standard de travail attendu
 
@@ -109,12 +109,12 @@ Chaque perso a **8 emojis distinctifs**. Règles :
 
 - **Ne JAMAIS pousser sur GitHub sans accord explicite de l'utilisateur.** Idem pour les commits :
   attendre la demande.
-- `V5_ROADMAP.md` est **gitignoré** — ne pas le commiter.
 - À **exclure des commits** (untracked, non voulus) : `.claude/`, et les doublons d'images
   `images/*.jpg` (favicon, going_merry, jolly_roger, wanted_frame, wanted_template — les vrais sont en `.png`).
 - Garder **onepiecedle.fr** dans les meta/OG (le repo GitHub est `Logpose35` mais le domaine est onepiecedle.fr).
 - Les **chaînes de clés localStorage doivent rester identiques** (ne pas casser les sauvegardes joueurs).
-- Phase actuelle = **pré-adaptation uniquement** : ne pas coder les features v5 tant que ce n'est pas demandé.
+- **v5 codée en local, NON déployée** (cache `v137`). Avant prod : règles Firebase pour la branche
+  `island-reach/`, version affichée v4.7 → v5, puis commit + push (sur accord).
 - `split_css.py` est **obsolète** (lisait `style.css` supprimé) — à retirer.
 
 ## État courant — v4.7 (commité + poussé le 29/05/2026)
@@ -128,4 +128,16 @@ La release **v4.7** est en prod (cache **v102**). Contenu de cette release :
 - **UX** : popup de fin accélérée (1800→900 ms), OG preview régénérée (6 modes).
 - **Doc/infra** : ajout de ce `CLAUDE.md`, `.gitignore` enrichi (`.claude/` + doublons `.jpg`).
 
-Prochaine étape = **v5** : voir `V5_ROADMAP.md`. Rien de la v5 n'est encore codé.
+## v5 — codée en local (cache `v137`, NON déployée)
+
+Toute la v5 est implémentée mais **rien n'est commité/poussé** :
+- **P1** Rang/titre pirate · **P1.1** Jolly Roger procédural (`js/jolly-roger.js`)
+- **P2** Share image canvas (`js/canvas-share.js`, + pavillon perso en filigrane)
+- **P3** Micro-animations victoire (`css/animations.css`) · **UX** transitions d'onglets
+- **P4** Stats communauté Firebase · **P5a** Anniversaires personnages
+- **P6** Carte de Grand Line (`js/map.js` + `css/map.css`) : 32 îles aux vraies positions géo,
+  zoom/pan, déblocage par score cumulé, **carnet de capture** (clic île → dossier d'arc, persos
+  capturés/silhouettes), **fiche personnage** (clic perso), **compteur communauté** (`island-reach/{arc}`).
+
+**Reste :** P5b — Calendrier de l'Avent (hors-saison, décembre).
+**Avant prod :** règles Firebase `island-reach/` · version v4.7 → v5 · commit + push (sur accord) · test appareil.

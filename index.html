@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LogPose — Le jeu One Piece du jour · 6 défis quotidiens</title>
+  <title>LogPose — Le jeu One Piece du jour · 7 défis quotidiens</title>
 
   <!-- SEO -->
-  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 6 modes quotidiens : Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening. Devine les personnages mystères chaque jour.">
+  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères chaque jour.">
   <meta name="keywords" content="LogPose, One Piece, Wordle, jeu, devinette, personnage, manga, anime, quotidien">
   <meta name="author" content="LogPose">
   <meta name="robots" content="index, follow">
@@ -16,8 +16,8 @@
   <meta name="google-site-verification" content="i0vh5Ns4PHg6NJDlxaqo-uQZ2qaM-HRbuoVM-Gz3BYg">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="LogPose — 6 défis One Piece quotidiens">
-  <meta property="og:description" content="6 défis One Piece par jour — Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening. Un nouveau défi chaque jour !">
+  <meta property="og:title" content="LogPose — 7 défis One Piece quotidiens">
+  <meta property="og:description" content="7 défis One Piece par jour — Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome. Un nouveau défi chaque jour !">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://onepiecedle.fr/">
   <meta property="og:locale" content="fr_FR">
@@ -28,8 +28,8 @@
 
   <!-- Twitter / X Cards -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LogPose — 6 défis One Piece quotidiens">
-  <meta name="twitter:description" content="Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening. Un nouveau défi chaque jour !">
+  <meta name="twitter:title" content="LogPose — 7 défis One Piece quotidiens">
+  <meta name="twitter:description" content="Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome. Un nouveau défi chaque jour !">
   <meta name="twitter:image" content="https://onepiecedle.fr/images/og_preview.jpg">
 
   <!-- PWA Manifest -->
@@ -42,7 +42,7 @@
     "@type": "WebApplication",
     "name": "LogPose",
     "url": "https://onepiecedle.fr/",
-    "description": "6 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon, Émoji et Opening",
+    "description": "7 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome",
     "applicationCategory": "Game",
     "genre": "Word Game",
     "inLanguage": "fr",
@@ -55,8 +55,9 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=102">
-  <link rel="stylesheet" href="css/landing.css?v=102">
+  <link rel="stylesheet" href="css/base.css?v=164">
+  <link rel="stylesheet" href="css/landing.css?v=164">
+  <link rel="stylesheet" href="css/modals.css?v=164">
 </head>
 <body class="landing-body">
 
@@ -73,8 +74,8 @@
 <section class="hero">
   <img class="hero-skull" src="images/jolly_roger.png" alt="Jolly Roger One Piece">
   <h1 class="hero-title">LogPose</h1>
-  <p class="hero-tagline">Le jeu One Piece du jour. 6 défis, un seul cap : devine les personnages mystères.</p>
-  <p class="hero-sub">Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening</p>
+  <p class="hero-tagline">Le jeu One Piece du jour. 7 défis, un seul cap : devine les personnages mystères.</p>
+  <p class="hero-sub">Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome</p>
   <a class="cta-play" href="game.html">⚓ Jouer maintenant</a>
 
   <a href="#modes" class="scroll-hint" aria-label="Découvrir">▾</a>
@@ -88,7 +89,7 @@
 
 <!-- ===== MODES ===== -->
 <section class="land-section" id="modes">
-  <h2 class="reveal">Six défis, chaque jour</h2>
+  <h2 class="reveal">Sept défis, chaque jour</h2>
   <p class="sec-intro reveal">Un nouveau personnage mystère par mode, renouvelé chaque jour à minuit (heure de Paris).</p>
   <div class="modes-grid">
     <div class="mode-card reveal">
@@ -121,6 +122,34 @@
       <h3>Opening</h3>
       <p>Écoute un extrait d'opening de l'anime et retrouve de quel générique il s'agit.</p>
     </div>
+    <div class="mode-card reveal">
+      <span class="mc-icon">📕</span>
+      <h3>Tome</h3>
+      <p>Une couverture de tome se dézoome peu à peu. Retrouve de quel volume il s'agit.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CE QUI REND LOGPOSE UNIQUE (nouveautés v5) ===== -->
+<section class="land-section" id="aventure">
+  <h2 class="reveal">Bien plus qu'un simple Wordle</h2>
+  <p class="sec-intro reveal">Chaque partie nourrit ta propre aventure de pirate : explore, progresse et arbore tes couleurs.</p>
+  <div class="modes-grid">
+    <div class="mode-card reveal">
+      <span class="mc-icon">🗺️</span>
+      <h3>Carte de Grand Line</h3>
+      <p>Explore 32 îles à leurs vraies positions et remplis ton carnet de capture : chaque personnage trouvé en jeu se débloque sur la carte.</p>
+    </div>
+    <div class="mode-card reveal">
+      <span class="mc-icon">🏴‍☠️</span>
+      <h3>Rang de pirate</h3>
+      <p>Tes points se cumulent jour après jour et te font gravir les rangs, de simple Moussaillon jusqu'à Empereur des mers.</p>
+    </div>
+    <div class="mode-card reveal">
+      <span class="mc-icon">🏴</span>
+      <h3>Ton Jolly Roger</h3>
+      <p>Un pavillon pirate généré rien que pour toi, unique à ton parcours — affiché dans tes stats et sur tes images de partage.</p>
+    </div>
   </div>
 </section>
 
@@ -132,7 +161,7 @@
     <div class="step reveal">
       <span class="step-num">1</span>
       <h4>Choisis un mode</h4>
-      <p>Six défis t'attendent, du Classique à l'Opening.</p>
+      <p>Sept défis t'attendent, du Classique au Tome.</p>
     </div>
     <div class="step reveal">
       <span class="step-num">2</span>
@@ -162,7 +191,7 @@
       <div class="stat-label">Parties aujourd'hui</div>
     </div>
     <div class="stat-block">
-      <div class="stat-num">6</div>
+      <div class="stat-num">7</div>
       <div class="stat-label">Modes de jeu</div>
     </div>
     <div class="stat-block">
@@ -184,13 +213,52 @@
 
 <!-- ===== PIED DE PAGE ===== -->
 <footer class="land-footer">
-  <p class="lf-legal">
-    One Piece © Eiichiro Oda · Shueisha · Toei Animation<br>
-    LogPose est un projet fan non officiel, sans affiliation.
-  </p>
-  <p class="lf-ver">LogPose v4.7</p>
+  <p class="lf-legal">LogPose — Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome</p>
+  <p class="lf-legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation</p>
+  <p class="lf-ver"><button class="footer-about-btn" onclick="openAbout()">À propos</button>v5.0</p>
 </footer>
 
-<script src="js/landing.js?v=102"></script>
+<!-- ===== MODALE À PROPOS (identique à game.html) ===== -->
+<div class="modal-overlay hidden" id="about-modal" onclick="handleAboutOverlayClick(event)">
+  <div class="modal-box about-box">
+    <button class="modal-close" onclick="closeAbout()">✕</button>
+    <div class="modal-title">⚓ À propos</div>
+
+    <div class="about-logo-wrap">
+      <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
+      <div class="about-version-badge">v5.0</div>
+    </div>
+
+    <p class="about-desc">
+      Jeu de devinettes quotidien basé sur l'univers de <strong>One Piece</strong>.
+      Sept défis renouvelés chaque jour à minuit (heure de Paris).
+    </p>
+
+    <div class="about-modes-grid">
+      <div class="about-mode-item">🗺️ Classique</div>
+      <div class="about-mode-item">🖼️ Wanted</div>
+      <div class="about-mode-item">🏴‍☠️ Pavillon</div>
+      <div class="about-mode-item">🍎 Fruit du Démon</div>
+      <div class="about-mode-item">🤔 Émoji</div>
+      <div class="about-mode-item">🎵 Opening</div>
+      <div class="about-mode-item">📕 Tome</div>
+    </div>
+    <div class="about-inf-row">🔀 Classique Infini — entraînement sans limite</div>
+
+    <div class="about-stats-row">
+      <span class="about-stat">🎵 29 openings</span>
+      <span class="about-stat">🏴‍☠️ Mis à jour jusqu'à l'arc Elbaf</span>
+    </div>
+
+    <div class="about-divider"></div>
+
+    <p class="about-legal">
+      One Piece © Eiichiro Oda · Shueisha · Toei Animation<br>
+      LogPose est un projet fan non officiel, sans affiliation.
+    </p>
+  </div>
+</div>
+
+<script src="js/landing.js?v=164"></script>
 </body>
 </html>

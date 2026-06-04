@@ -25,9 +25,14 @@ function toggleTheme() {
   }
 })();
 
+// ---- Modale À propos (identique au jeu) ----
+function openAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
+function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); }
+function handleAboutOverlayClick(e) { if (e.target === document.getElementById('about-modal')) closeAbout(); }
+
 // ---- Statistiques globales (Firebase) ----
 const FB_URL = 'https://logpose-eec08-default-rtdb.europe-west1.firebasedatabase.app';
-const MODES = ['classic', 'wanted', 'flag', 'fruit', 'emoji', 'audio'];
+const MODES = ['classic', 'wanted', 'flag', 'fruit', 'emoji', 'audio', 'tome'];
 
 function parisNow() {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
