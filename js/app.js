@@ -1429,15 +1429,9 @@ function renderStatsContent(mode) {
   // Bouton "mode suivant" — uniquement si un mode non joué existe
   const nextMode = getNextUnplayedMode(mode);
   if (nextMode) {
-    const NEXT_LABELS = {
-      classic: '🗺️ Classique',
-      wanted:  '🖼️ Wanted',
-      flag:    '🏴‍☠️ Pavillon',
-      fruit:   '🍎 Fruit du Démon',
-      emoji:   '😀 Émoji',
-      audio:   '🎵 Opening',
-    };
-    html += `<button class="stats-next-btn" onclick="closeStats(); switchMode('${nextMode}')">Jouer : ${NEXT_LABELS[nextMode]} →</button>`;
+    const nm = MODES.find(m => m.id === nextMode);
+    const nextLabel = nm ? `${nm.icon} ${nm.label}` : nextMode;
+    html += `<button class="stats-next-btn" onclick="closeStats(); switchMode('${nextMode}')">Jouer : ${nextLabel} →</button>`;
   }
 
   document.getElementById('stats-content').innerHTML = html;
