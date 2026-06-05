@@ -46,26 +46,34 @@ function getImgFile(char) {
 }
 
 // salt : nombre premier différent par mode pour éviter les collisions
-function dailyPick(pool, salt = 1) {
-  const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
-  const base = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  let h = Math.imul(base + salt, 2654435761) >>> 0;
-  h = (h ^ (h >>> 16)) >>> 0;
-  h = Math.imul(h, 0x45d9f3b) >>> 0;
-  h = (h ^ (h >>> 16)) >>> 0;
-  return pool[h % pool.length];
+function _parisDate() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
 }
-
-// Retourne le hash pur (sans modulo) pour la même date Paris + salt donné.
-// Utilisé pour des décisions déterministes indépendantes du pool.
-function dailySeed(salt = 1) {
-  const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
-  const base = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  let h = Math.imul(base + salt, 2654435761) >>> 0;
+function _dateBase(d) { return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+function _seedHash(base, salt) {
+  let h = Math.imul((base + salt) >>> 0, 2654435761) >>> 0;
   h = (h ^ (h >>> 16)) >>> 0;
   h = Math.imul(h, 0x45d9f3b) >>> 0;
   h = (h ^ (h >>> 16)) >>> 0;
   return h;
+}
+// Index du jour pour une date donnée, en évitant la répétition de la veille.
+// (Sur les petits pools — ex. 17 pavillons — le hash seul peut retomber sur la
+//  même valeur deux jours de suite ; on décale alors d'un cran.)
+function dailyIndex(d, salt, n) {
+  if (n <= 1) return 0;
+  const idx  = _seedHash(_dateBase(d), salt) % n;
+  const prev = new Date(d); prev.setDate(prev.getDate() - 1);
+  const pIdx = _seedHash(_dateBase(prev), salt) % n;
+  return idx === pIdx ? (idx + 1) % n : idx;
+}
+function dailyPick(pool, salt = 1) {
+  return pool[dailyIndex(_parisDate(), salt, pool.length)];
+}
+
+// Hash pur (sans modulo) pour des décisions déterministes indépendantes du pool.
+function dailySeed(salt = 1) {
+  return _seedHash(_dateBase(_parisDate()), salt);
 }
 
 // ===== VARIABLES GLOBALES (initialisées par loadGameData) =====

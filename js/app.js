@@ -440,6 +440,7 @@ function saveTodayTargets() {
     fruit:   TARGET_FRU.holder,
     emoji:   TARGET_EM.name,
     audio:   TARGET_AU.name,
+    tome:    TARGET_TOME,
   }));
 }
 // Affiche la barre "hier" — localStorage en priorité, seed en fallback
@@ -450,20 +451,23 @@ function buildYesterdayBar() {
   const el = document.getElementById('yesterday-bar');
 
   const audioOp = stored?.audio
-    ? OPENINGS.find(o => o.name === stored.audio) || OPENINGS[seedForDate(d, 53) % OPENINGS.length]
-    : OPENINGS[seedForDate(d, 53) % OPENINGS.length];
+    ? OPENINGS.find(o => o.name === stored.audio) || OPENINGS[dailyIndex(d, 53, OPENINGS.length)]
+    : OPENINGS[dailyIndex(d, 53, OPENINGS.length)];
 
   const data = stored || {
-    classic: CHARACTERS[seedForDate(d,  1)   % CHARACTERS.length].name,
-    wanted:  WANTED_CHARS[seedForDate(d, 31)  % WANTED_CHARS.length].name,
-    flag:    FLAGS[seedForDate(d,       97)   % FLAGS.length].name,
-    fruit:   FRUITS[seedForDate(d,      71)   % FRUITS.length].holder,
-    emoji:   EMOJI_POOL[seedForDate(d,  137)  % EMOJI_POOL.length].name,
+    classic: CHARACTERS[dailyIndex(d,    1, CHARACTERS.length)].name,
+    wanted:  WANTED_CHARS[dailyIndex(d, 31, WANTED_CHARS.length)].name,
+    flag:    FLAGS[dailyIndex(d,        97, FLAGS.length)].name,
+    fruit:   FRUITS[dailyIndex(d,       71, FRUITS.length)].holder,
+    emoji:   EMOJI_POOL[dailyIndex(d,  137, EMOJI_POOL.length)].name,
+    tome:    TOMES[dailyIndex(d,       181, TOMES.length)],
   };
 
+  const tomeBit = (data.tome != null)
+    ? ` &nbsp;|&nbsp; 📕 Tome : <strong>${esc(String(data.tome))}</strong>` : '';
   el.innerHTML =
     `Hier &nbsp;—&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
-    `<br><span class="yesterday-op">🎵 Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em></span>` +
+    `<br><span class="yesterday-op">🎵 Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
     `<br><span class="yesterday-community" id="yesterday-community"></span>`;
 }
 // Charge les stats communauté d'hier depuis Firebase et les affiche
