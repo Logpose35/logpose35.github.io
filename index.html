@@ -55,11 +55,13 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=166">
-  <link rel="stylesheet" href="css/landing.css?v=166">
-  <link rel="stylesheet" href="css/modals.css?v=166">
+  <link rel="stylesheet" href="css/base.css?v=175">
+  <link rel="stylesheet" href="css/landing.css?v=175">
+  <link rel="stylesheet" href="css/modals.css?v=175">
+  <link rel="stylesheet" href="css/ocean3d.css?v=175">
 </head>
-<body class="landing-body">
+<body class="landing-body" data-ocean="landing">
+<canvas id="ocean-canvas" aria-hidden="true"></canvas>
 
 <!-- ===== BARRE DU HAUT ===== -->
 <div class="land-topbar">
@@ -92,37 +94,37 @@
   <h2 class="reveal">Sept défis, chaque jour</h2>
   <p class="sec-intro reveal">Un nouveau personnage mystère par mode, renouvelé chaque jour à minuit (heure de Paris).</p>
   <div class="modes-grid">
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🗺️</span>
       <h3>Classique</h3>
       <p>Devine le personnage en comparant équipage, origine, prime, Haki et plus encore.</p>
     </div>
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🖼️</span>
       <h3>Wanted</h3>
       <p>Un avis de recherche flouté se dévoile peu à peu. Identifie le pirate avant la fin.</p>
     </div>
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🏴‍☠️</span>
       <h3>Pavillon</h3>
       <p>Reconnais le Jolly Roger case par case. À quel équipage appartient ce drapeau ?</p>
     </div>
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🍎</span>
       <h3>Fruit du Démon</h3>
       <p>Indices sur le type, le pouvoir et l'utilisateur : trouve le Fruit du jour.</p>
     </div>
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🤔</span>
       <h3>Émoji</h3>
       <p>Une suite d'émojis décrit un personnage. Décrypte le rébus pour le démasquer.</p>
     </div>
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🎵</span>
       <h3>Opening</h3>
       <p>Écoute un extrait d'opening de l'anime et retrouve de quel générique il s'agit.</p>
     </div>
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">📕</span>
       <h3>Tome</h3>
       <p>Une couverture de tome se dézoome peu à peu. Retrouve de quel volume il s'agit.</p>
@@ -135,17 +137,17 @@
   <h2 class="reveal">Bien plus qu'un simple Wordle</h2>
   <p class="sec-intro reveal">Chaque partie nourrit ta propre aventure de pirate : explore, progresse et arbore tes couleurs.</p>
   <div class="modes-grid">
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🗺️</span>
       <h3>Carte de Grand Line</h3>
       <p>Explore 32 îles à leurs vraies positions et remplis ton carnet de capture : chaque personnage trouvé en jeu se débloque sur la carte.</p>
     </div>
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🏴‍☠️</span>
       <h3>Rang de pirate</h3>
       <p>Tes points se cumulent jour après jour et te font gravir les rangs, de simple Moussaillon jusqu'à Empereur des mers.</p>
     </div>
-    <div class="mode-card reveal">
+    <div class="mode-card reveal" data-tilt>
       <span class="mc-icon">🏴</span>
       <h3>Ton Jolly Roger</h3>
       <p>Un pavillon pirate généré rien que pour toi, unique à ton parcours — affiché dans tes stats et sur tes images de partage.</p>
@@ -215,7 +217,7 @@
 <footer class="land-footer">
   <p class="lf-legal">LogPose — Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome</p>
   <p class="lf-legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation</p>
-  <p class="lf-ver"><button class="footer-about-btn" onclick="openAbout()">À propos</button>v5.0</p>
+  <p class="lf-ver"><button class="footer-about-btn" onclick="openAbout()">À propos</button>v5.1</p>
 </footer>
 
 <!-- ===== MODALE À PROPOS (identique à game.html) ===== -->
@@ -226,7 +228,7 @@
 
     <div class="about-logo-wrap">
       <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
-      <div class="about-version-badge">v5.0</div>
+      <div class="about-version-badge">v5.1</div>
     </div>
 
     <p class="about-desc">
@@ -259,6 +261,8 @@
   </div>
 </div>
 
-<script src="js/landing.js?v=166"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+<script src="js/ocean3d.js?v=175"></script>
+<script src="js/landing.js?v=175"></script>
 </body>
 </html>

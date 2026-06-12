@@ -1,0 +1,315 @@
+/* ============================================================
+   LOGPOSE — Ocean 3D (prototype refonte "nuit en mer")
+   Redesign visuel : glassmorphisme, gradients or, profondeur.
+   Chargé APRÈS tous les autres CSS — il les surcharge.
+   ============================================================ */
+
+/* ===== CANVAS OCÉAN ===== */
+#ocean-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+}
+body[data-ocean] #ocean-canvas        { display: block; }
+body[data-ocean="game"] #ocean-canvas { opacity: 0.62; }
+
+/* ===== NEUTRALISATIONS (le 3D remplace les décors CSS) ===== */
+body[data-ocean]::before { display: none !important; }   /* vagues SVG du fond */
+.landing-body .hero { background: none !important; }     /* dégradé du héros   */
+.landing-body .hero::before { display: none; }           /* fausses étoiles    */
+.landing-body .hero-sea { display: none; }               /* Merry CSS -> Merry 3D */
+
+/* ===== PROFONDEUR / EMPILEMENT =====
+   Le canvas est à z-index 0 : tout le contenu remonte à 10+. */
+.landing-body .hero,
+.landing-body .land-section,
+.landing-body .final-cta,
+.landing-body .land-footer {
+  position: relative;
+  z-index: 10;
+}
+
+/* Vignette douce : concentre la lumière au centre, assoit le texte */
+body[data-ocean="landing"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 38%, transparent 52%, rgba(2, 8, 16, 0.55) 100%);
+  transition: background 0.8s ease;
+}
+/* Mode jour : vignette plus légère, voile bleu pâle */
+html[data-theme="light"] body[data-ocean="landing"]::after {
+  background: radial-gradient(ellipse at 50% 38%, transparent 58%, rgba(10, 30, 56, 0.35) 100%);
+}
+
+/* ===== TEXTES SUR VERRE FUMÉ — forcés clairs dans LES DEUX thèmes =====
+   Les surfaces de verre restent sombres en mode jour (lunettes de soleil) :
+   le texte qu'elles portent doit rester clair quel que soit data-theme. */
+body[data-ocean] .mode-card h3 { color: #ecdfae !important; }
+body[data-ocean] .mode-card p  { color: #9fb8d4 !important; }
+body[data-ocean] .step h4      { color: #ecdfae !important; }
+body[data-ocean] .step p       { color: #9fb8d4 !important; }
+body[data-ocean] .sec-intro    { color: #bcd2e8 !important; }
+body[data-ocean] .land-footer,
+body[data-ocean] .land-footer .lf-legal { color: #7a94b0 !important; }
+
+/* ===== TOPBAR LANDING — verre fumé ===== */
+.landing-body .land-topbar {
+  background: rgba(2, 8, 16, 0.55) !important;
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border-bottom: 1px solid rgba(232, 192, 48, 0.1);
+}
+.landing-body .lt-brand {
+  text-shadow: 0 0 18px rgba(232, 192, 48, 0.45);
+}
+
+/* ===== HÉROS — typographie premium ===== */
+.landing-body .hero-title {
+  background: linear-gradient(135deg, #ffe680 0%, #f0c030 40%, #c89408 70%, #ffec80 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 30px rgba(240, 192, 48, 0.4));
+}
+.landing-body .hero-tagline {
+  text-shadow: 0 2px 18px rgba(2, 8, 16, 0.9);
+}
+.landing-body .hero-skull {
+  filter: drop-shadow(0 0 26px rgba(232, 192, 48, 0.6)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+}
+
+/* CTA : balayage lumineux au survol */
+.landing-body .cta-play {
+  position: relative;
+  overflow: hidden;
+}
+.landing-body .cta-play::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -80%;
+  width: 50%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.55s ease;
+}
+.landing-body .cta-play:hover::before { left: 130%; }
+
+/* ===== TITRES DE SECTION — or liquide ===== */
+.landing-body .land-section h2,
+.landing-body .final-cta h2 {
+  background: linear-gradient(90deg, #c89408, #f0d060, #c89408);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 14px rgba(2, 8, 16, 0.85));
+}
+.landing-body .sec-intro {
+  text-shadow: 0 1px 10px rgba(2, 8, 16, 0.9);
+}
+
+/* ===== CARTES DE MODES — verre + tilt 3D ±12° ===== */
+.landing-body .mode-card {
+  background: rgba(4, 10, 24, 0.62) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(232, 192, 48, 0.18) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: relative;
+  /* pas d'overflow:hidden : il aplatirait le preserve-3d */
+  transform-style: preserve-3d;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, border-color 0.12s,
+              opacity 0.7s ease !important;
+  will-change: transform;
+}
+/* le reveal au scroll garde son glissement vertical via translateY en plus du tilt */
+.landing-body .mode-card.reveal {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(30px);
+}
+.landing-body .mode-card.reveal.in {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(0);
+}
+
+/* Reflet qui suit le curseur */
+.landing-body .mode-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--sx, 50%) var(--sy, 50%),
+                rgba(255, 255, 255, 0.13) 0%, transparent 65%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.landing-body .mode-card:hover::after { opacity: 1; }
+.landing-body .mode-card:hover {
+  border-color: rgba(232, 192, 48, 0.45) !important;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 0 35px rgba(232, 192, 48, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Relief intérieur : l'icône et le titre flottent au-dessus du verre */
+.landing-body .mode-card .mc-icon {
+  transform: translateZ(34px);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
+}
+.landing-body .mode-card h3 { transform: translateZ(22px); }
+.landing-body .mode-card p  { transform: translateZ(12px); }
+
+/* ===== ÉTAPES "COMMENT JOUER" — verre léger ===== */
+.landing-body .step {
+  background: rgba(4, 10, 24, 0.58);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(232, 192, 48, 0.14);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.landing-body .step:hover {
+  border-color: rgba(232, 192, 48, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 24px rgba(232, 192, 48, 0.08);
+}
+.landing-body .step .step-num {
+  box-shadow: 0 0 18px rgba(232, 192, 48, 0.55), 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== BANDEAU STATISTIQUES — verre profond ===== */
+.landing-body .stats-band {
+  background: rgba(4, 12, 26, 0.62);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(232, 192, 48, 0.16);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ===== PIED DE PAGE LANDING ===== */
+.landing-body .land-footer {
+  background: rgba(2, 8, 16, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(232, 192, 48, 0.12);
+}
+
+/* ============================================================
+   PAGE DE JEU
+   ============================================================ */
+
+/* Voile sombre : garantit la lisibilité du jeu sur l'île */
+body[data-ocean="game"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(2, 8, 16, 0.55) 0%,
+    rgba(2, 8, 16, 0.32) 50%,
+    rgba(2, 8, 16, 0.6) 100%);
+  transition: background 0.8s ease;
+}
+/* Mode jour : voile bleu clair, l'île respire */
+html[data-theme="light"] body[data-ocean="game"]::after {
+  background: linear-gradient(180deg,
+    rgba(222, 236, 248, 0.30) 0%,
+    rgba(222, 236, 248, 0.10) 50%,
+    rgba(222, 236, 248, 0.35) 100%);
+}
+
+/* Cockpit en verre */
+body[data-ocean="game"] header {
+  position: relative;
+  z-index: 100;
+  background: rgba(2, 8, 16, 0.7) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(200, 148, 10, 0.15);
+}
+body[data-ocean="game"] .mode-tabs,
+body[data-ocean="game"] .mode-tabs-inf {
+  position: relative;
+  z-index: 11;
+  background: rgba(4, 12, 24, 0.65) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+body[data-ocean="game"] .score-bar-section {
+  position: relative;
+  z-index: 10;
+  background: rgba(4, 12, 24, 0.6) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+/* Texte du score : clair dans les deux thèmes (surface toujours sombre) */
+body[data-ocean="game"] .score-text,
+body[data-ocean="game"] .score-max { color: #e8d8a8 !important; }
+body[data-ocean="game"] main {
+  position: relative;
+  z-index: 10;
+}
+body[data-ocean="game"] footer {
+  position: relative;
+  z-index: 10;
+  background: rgba(2, 8, 16, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ============================================================
+   FINITIONS GLOBALES
+   ============================================================ */
+
+/* Barre de défilement — or sur abysse */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #020810; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#c8940a, #071428);
+  border-radius: 3px;
+}
+html { scrollbar-width: thin; scrollbar-color: #c8940a #020810; }
+
+/* Sélection de texte */
+body[data-ocean] ::selection {
+  background: rgba(232, 192, 48, 0.35);
+  color: #fff8e0;
+}
+
+/* ============================================================
+   RESPONSIVE & ACCESSIBILITÉ
+   ============================================================ */
+
+/* Tactile : pas de tilt (pas de survol) */
+@media (hover: none) {
+  .mode-card { transform: none !important; }
+  .landing-body .mode-card .mc-icon,
+  .landing-body .mode-card h3,
+  .landing-body .mode-card p { transform: none; }
+}
+
+/* Mouvement réduit : pas de canvas 3D, on restaure un fond statique digne */
+@media (prefers-reduced-motion: reduce) {
+  #ocean-canvas { display: none !important; }
+  .landing-body .hero {
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(20, 60, 110, 0.55) 0%, transparent 60%),
+      linear-gradient(180deg, #04101f 0%, #061528 45%, #02080f 100%) !important;
+  }
+  body[data-ocean="landing"]::after { display: none; }
+  .landing-body .mode-card,
+  .landing-body .mode-card.reveal,
+  .landing-body .mode-card.reveal.in { transform: none; }
+}

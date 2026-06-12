@@ -76,6 +76,7 @@ const LS = {
   size:      'op-size',
   cb:        'op-cb',
   sfx:       'op-sfx',
+  ocean3d:   'op-ocean3d',     // fond 3D animé ('0' = coupé — perfs)
   theme:     'op-theme',
   spoilerOk: 'op-spoiler-ok',
   v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue
@@ -270,6 +271,14 @@ function setSfx(on) {
   if (t) t.checked = sfxOn;
   if (sfxOn) { try { _ensureAudio(); sfx('tick'); } catch {} }
 }
+// ===== FOND 3D (océan/île) — désactivable pour les performances =====
+function setOcean3d(on) {
+  lsSet(LS.ocean3d, on ? '1' : '0');
+  const t = document.getElementById('ocean-toggle');
+  if (t) t.checked = !!on;
+  window.dispatchEvent(new Event('lp-ocean3d-changed'));
+}
+
 function _ensureAudio() {
   if (!_actx) {
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -368,6 +377,8 @@ function sfx(kind) {
   sfxOn = lsGet(LS.sfx) === '1';
   const st = document.getElementById('sfx-toggle');
   if (st) st.checked = sfxOn;
+  const ot = document.getElementById('ocean-toggle');
+  if (ot) ot.checked = lsGet(LS.ocean3d) !== '0';
 })();
 
 // ===== THÈME =====
@@ -2456,6 +2467,12 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '5.1', date: 'Juin 2026', items: [
+    '🌊 Refonte visuelle « nuit en mer » — océan animé en 3D',
+    '🏝️ Île 3D à explorer : un décor unique pour chaque mode',
+    '✨ Interface en verre dépoli & cartes en relief (accueil)',
+    '⚙️ Option « Fond 3D animé » dans les paramètres (perfs)',
+  ] },
   { v: '5.0', date: 'Juin 2026', items: [
     '📕 Nouveau mode Tome — devine le tome à sa couverture',
     '🗺️ Carte de Grand Line : 32 îles, carnet de capture & fiches perso',
