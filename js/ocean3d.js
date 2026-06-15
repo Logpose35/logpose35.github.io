@@ -20,11 +20,24 @@
   var T0 = performance.now();
   function olog(msg) { console.log('[ocean +' + Math.round(performance.now() - T0) + 'ms] ' + msg); }
 
-  /* Fond 3D désactivable (paramètres du jeu — perfs).
-     Clé centralisée dans LS d'app.js : 'op-ocean3d', '0' = coupé. */
+  /* Fond 3D — défaut par page :
+       • Landing : toujours actif (c'est sa vitrine).
+       • Jeu     : OPT-IN, classique statique par défaut (jugé plus confortable).
+         Le toggle des paramètres écrit 'op-ocean3d' ('1' = 3D, sinon classique).
+     La classe body.ocean3d-active (posée ci-dessous) déclenche le re-skin verre
+     dans ocean3d.css ; sans elle, game.html garde son fond classique d'avant. */
   var OCEAN_CTL = { built: false, pause: null, resume: null };
+  function pageMode() {
+    return (document.body && document.body.dataset) ? document.body.dataset.ocean : '';
+  }
   function ocean3dEnabled() {
-    try { return localStorage.getItem('op-ocean3d') !== '0'; } catch (e) { return true; }
+    if (pageMode() === 'game') {
+      try { return localStorage.getItem('op-ocean3d') === '1'; } catch (e) { return false; }
+    }
+    return true;   /* landing (et tout autre cas) : 3D par défaut */
+  }
+  function syncOceanClass() {
+    if (document.body) document.body.classList.toggle('ocean3d-active', ocean3dEnabled());
   }
 
   /* ---------- Palettes nuit / jour (lerpées côté JS) ---------- */
@@ -2534,13 +2547,15 @@
         console.warn('Ocean3D init failed:', err);
       }
     }
+    syncOceanClass();
     if (ocean3dEnabled()) {
       start();
     } else {
-      canvas.style.display = 'none';   /* le fond CSS du thème reprend */
+      canvas.style.display = 'none';   /* le fond classique du thème reprend */
     }
     /* bascule en direct depuis les paramètres (setOcean3d dans app.js) */
     window.addEventListener('lp-ocean3d-changed', function () {
+      syncOceanClass();
       if (ocean3dEnabled()) {
         canvas.style.display = '';
         if (!OCEAN_CTL.built) start();

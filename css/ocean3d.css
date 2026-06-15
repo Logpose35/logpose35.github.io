@@ -15,10 +15,15 @@
   display: none;
 }
 body[data-ocean] #ocean-canvas        { display: block; }
-body[data-ocean="game"] #ocean-canvas { opacity: 0.62; }
+body.ocean3d-active[data-ocean="game"] #ocean-canvas { opacity: 0.62; }
 
-/* ===== NEUTRALISATIONS (le 3D remplace les décors CSS) ===== */
-body[data-ocean]::before { display: none !important; }   /* vagues SVG du fond */
+/* ===== NEUTRALISATIONS (le 3D remplace les décors CSS) =====
+   Le fond classique (vagues SVG de base.css) n'est masqué QUE là où la 3D
+   tourne réellement : toujours sur la landing, et sur le jeu seulement si le
+   fond 3D est activé (classe .ocean3d-active posée par ocean3d.js). Sinon,
+   game.html retrouve à l'identique son fond classique d'avant. */
+body[data-ocean="landing"]::before,
+body.ocean3d-active[data-ocean="game"]::before { display: none !important; }  /* vagues SVG du fond */
 .landing-body .hero { background: none !important; }     /* dégradé du héros   */
 .landing-body .hero::before { display: none; }           /* fausses étoiles    */
 .landing-body .hero-sea { display: none; }               /* Merry CSS -> Merry 3D */
@@ -210,7 +215,7 @@ body[data-ocean] .land-footer .lf-legal { color: #7a94b0 !important; }
    ============================================================ */
 
 /* Voile sombre : garantit la lisibilité du jeu sur l'île */
-body[data-ocean="game"]::after {
+body.ocean3d-active[data-ocean="game"]::after {
   content: '';
   position: fixed;
   inset: 0;
@@ -223,7 +228,7 @@ body[data-ocean="game"]::after {
   transition: background 0.8s ease;
 }
 /* Mode jour : voile bleu clair, l'île respire */
-html[data-theme="light"] body[data-ocean="game"]::after {
+html[data-theme="light"] body.ocean3d-active[data-ocean="game"]::after {
   background: linear-gradient(180deg,
     rgba(222, 236, 248, 0.30) 0%,
     rgba(222, 236, 248, 0.10) 50%,
@@ -231,7 +236,7 @@ html[data-theme="light"] body[data-ocean="game"]::after {
 }
 
 /* Cockpit en verre */
-body[data-ocean="game"] header {
+body.ocean3d-active[data-ocean="game"] header {
   position: relative;
   z-index: 100;
   background: rgba(2, 8, 16, 0.7) !important;
@@ -239,15 +244,15 @@ body[data-ocean="game"] header {
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-bottom: 1px solid rgba(200, 148, 10, 0.15);
 }
-body[data-ocean="game"] .mode-tabs,
-body[data-ocean="game"] .mode-tabs-inf {
+body.ocean3d-active[data-ocean="game"] .mode-tabs,
+body.ocean3d-active[data-ocean="game"] .mode-tabs-inf {
   position: relative;
   z-index: 11;
   background: rgba(4, 12, 24, 0.65) !important;
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
-body[data-ocean="game"] .score-bar-section {
+body.ocean3d-active[data-ocean="game"] .score-bar-section {
   position: relative;
   z-index: 10;
   background: rgba(4, 12, 24, 0.6) !important;
@@ -255,13 +260,13 @@ body[data-ocean="game"] .score-bar-section {
   -webkit-backdrop-filter: blur(16px);
 }
 /* Texte du score : clair dans les deux thèmes (surface toujours sombre) */
-body[data-ocean="game"] .score-text,
-body[data-ocean="game"] .score-max { color: #e8d8a8 !important; }
-body[data-ocean="game"] main {
+body.ocean3d-active[data-ocean="game"] .score-text,
+body.ocean3d-active[data-ocean="game"] .score-max { color: #e8d8a8 !important; }
+body.ocean3d-active[data-ocean="game"] main {
   position: relative;
   z-index: 10;
 }
-body[data-ocean="game"] footer {
+body.ocean3d-active[data-ocean="game"] footer {
   position: relative;
   z-index: 10;
   background: rgba(2, 8, 16, 0.55);

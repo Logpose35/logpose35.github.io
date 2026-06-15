@@ -76,7 +76,7 @@ const LS = {
   size:      'op-size',
   cb:        'op-cb',
   sfx:       'op-sfx',
-  ocean3d:   'op-ocean3d',     // fond 3D animé ('0' = coupé — perfs)
+  ocean3d:   'op-ocean3d',     // fond 3D du jeu — opt-in ('1' = 3D, sinon classique)
   theme:     'op-theme',
   spoilerOk: 'op-spoiler-ok',
   v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue
@@ -378,7 +378,7 @@ function sfx(kind) {
   const st = document.getElementById('sfx-toggle');
   if (st) st.checked = sfxOn;
   const ot = document.getElementById('ocean-toggle');
-  if (ot) ot.checked = lsGet(LS.ocean3d) !== '0';
+  if (ot) ot.checked = lsGet(LS.ocean3d) === '1';   // jeu : classique par défaut, 3D en opt-in
 })();
 
 // ===== THÈME =====
@@ -2386,7 +2386,7 @@ function showWhatsNew() {
     +     '</div>'
     +     '<div class="wn-dateline"><span>Édition spéciale · v5</span><span>' + esc(today) + '</span></div>'
     +     '<div class="wn-kicker">— Un nouveau défi accoste —</div>'
-    +     '<h2 class="wn-headline">Le mode Tome 📕</h2>'
+    +     '<h2 class="wn-headline">Le mode Tome <span class="wn-headline-ico">📕</span></h2>'
     +     '<p class="wn-lede">Reconnais le tome du manga à sa seule couverture&nbsp;: l\'image démarre en gros plan, puis se dézoome indice après indice.</p>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
     +     '<div class="wn-cols">'
@@ -2467,12 +2467,6 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
-  { v: '5.1', date: 'Juin 2026', items: [
-    '🌊 Refonte visuelle « nuit en mer » — océan animé en 3D',
-    '🏝️ Île 3D à explorer : un décor unique pour chaque mode',
-    '✨ Interface en verre dépoli & cartes en relief (accueil)',
-    '⚙️ Option « Fond 3D animé » dans les paramètres (perfs)',
-  ] },
   { v: '5.0', date: 'Juin 2026', items: [
     '📕 Nouveau mode Tome — devine le tome à sa couverture',
     '🗺️ Carte de Grand Line : 32 îles, carnet de capture & fiches perso',
