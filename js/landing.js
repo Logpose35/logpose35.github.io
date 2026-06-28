@@ -6,8 +6,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, v); } catch {} }
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  const btn = document.getElementById('land-theme-btn');
-  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  // Le bouton thème porte ses icônes SVG (soleil/lune) ; le swap est géré en CSS via [data-theme].
 }
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -93,6 +92,18 @@ function initReveal() {
   els.forEach(e => obs.observe(e));
 }
 
+// ---- Nav qui s'efface sur le héros, réapparaît au scroll (desktop) ----
+function initNavCondense() {
+  const hero = document.querySelector('.lp-hero');
+  if (!hero) return;
+  function onScroll() {
+    const t = hero.offsetHeight * 0.6;
+    document.body.classList.toggle('nav-condensed', window.scrollY > t);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
 // ---- Service Worker ----
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -104,4 +115,5 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', () => {
   initReveal();
   loadGlobalStats();
+  initNavCondense();
 });
