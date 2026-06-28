@@ -59,13 +59,13 @@ const WIN_TITLES = {
 // ===== REGISTRE DES MODES (source unique, ordre canonique) =====
 // id : identifiant interne · icon : emoji (share/landing) · label : nom affiché
 const MODES = [
-  { id: 'classic', icon: '🗺️',  label: 'Classique' },
-  { id: 'wanted',  icon: '🖼️', label: 'Wanted' },
-  { id: 'flag',    icon: '🏴‍☠️',   label: 'Pavillon' },
-  { id: 'fruit',   icon: '🍎',  label: 'Fruit du Démon' },
-  { id: 'emoji',   icon: '😀',  label: 'Émoji' },
-  { id: 'audio',   icon: '🎵',  label: 'Opening' },
-  { id: 'tome',    icon: '📕',  label: 'Tome' },
+  { id: 'classic', icon: '🗺️',  svg: 'ic-compass', label: 'Classique' },
+  { id: 'wanted',  icon: '🖼️', svg: 'ic-wanted',  label: 'Wanted' },
+  { id: 'flag',    icon: '🏴‍☠️',   svg: 'ic-flag',    label: 'Pavillon' },
+  { id: 'fruit',   icon: '🍎',  svg: 'ic-fruit',   label: 'Fruit du Démon' },
+  { id: 'emoji',   icon: '😀',  svg: 'ic-rebus',   label: 'Émoji' },
+  { id: 'audio',   icon: '🎵',  svg: 'ic-note',    label: 'Opening' },
+  { id: 'tome',    icon: '📕',  svg: 'ic-tome',    label: 'Tome' },
 ];
 const MODE_IDS = MODES.map(m => m.id);
 
@@ -100,14 +100,14 @@ const LS = {
 
 // ===== RANG PIRATE =====
 const RANK_THRESHOLDS = [
-  { emoji: '⚓',  title: 'Moussaillon', min: 0 },
-  { emoji: '🌊',  title: 'Matelot',     min: 50_000 },
-  { emoji: '🏴‍☠️', title: 'Pirate',      min: 150_000 },
-  { emoji: '⚔️',  title: 'Second',      min: 350_000 },
-  { emoji: '🎩',  title: 'Capitaine',   min: 700_000 },
-  { emoji: '⚜️',  title: 'Corsaire',    min: 1_500_000 },
-  { emoji: '🌟',  title: 'Amiral',      min: 3_000_000 },
-  { emoji: '👑',  title: 'Yonko',       min: 6_000_000 },
+  { emoji: '⚓',  icon: 'ic-rk-anchor', title: 'Moussaillon', min: 0 },
+  { emoji: '🌊',  icon: 'ic-rk-wave',   title: 'Matelot',     min: 50_000 },
+  { emoji: '🏴‍☠️', icon: 'ic-rk-flag',   title: 'Pirate',      min: 150_000 },
+  { emoji: '⚔️',  icon: 'ic-rk-sabers', title: 'Second',      min: 350_000 },
+  { emoji: '🎩',  icon: 'ic-rk-hat',    title: 'Capitaine',   min: 700_000 },
+  { emoji: '⚜️',  icon: 'ic-rk-shield', title: 'Corsaire',    min: 1_500_000 },
+  { emoji: '🌟',  icon: 'ic-rk-star',   title: 'Amiral',      min: 3_000_000 },
+  { emoji: '👑',  icon: 'ic-rk-crown',  title: 'Yonko',       min: 6_000_000 },
 ];
 
 function getRankFromScore(score) {
@@ -123,8 +123,8 @@ function updateRankBadge() {
   const el = document.getElementById('pirate-rank-badge');
   if (!el) return;
   const score = sanitizeNum(lsGet(LS.cumulativeScore));
-  const { emoji, title } = getRankFromScore(score);
-  el.textContent = `${emoji} ${title}`;
+  const { icon, title } = getRankFromScore(score);
+  el.innerHTML = `<svg class="rank-ic" aria-hidden="true"><use href="#${icon}"></use></svg>${esc(title)}`;
   el.title = `Score cumulé : ${score.toLocaleString('fr-FR')} pts`;
 }
 
@@ -391,8 +391,7 @@ function toggleTheme() {
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  // Le bouton thème porte ses icônes SVG (soleil/lune) ; le swap est géré en CSS via [data-theme].
 }
 
 (function () {
@@ -475,10 +474,10 @@ function buildYesterdayBar() {
   };
 
   const tomeBit = (data.tome != null)
-    ? ` &nbsp;|&nbsp; 📕 Tome : <strong>${esc(String(data.tome))}</strong>` : '';
+    ? ` &nbsp;|&nbsp; <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome : <strong>${esc(String(data.tome))}</strong>` : '';
   el.innerHTML =
     `Hier &nbsp;—&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
-    `<br><span class="yesterday-op">🎵 Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
+    `<br><span class="yesterday-op"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-note"></use></svg>Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
     `<br><span class="yesterday-community" id="yesterday-community"></span>`;
 }
 // Charge les stats communauté d'hier depuis Firebase et les affiche
@@ -489,15 +488,15 @@ async function loadYesterdayStats() {
   const stats = await fbGet(`daily-stats/${yKey}`);
   const el = document.getElementById('yesterday-community');
   if (!el || !stats) return;
-  const parts = MODES.map(({ id, icon }) => {
+  const parts = MODES.map(({ id, svg }) => {
     const s = stats[id];
     if (!s || !s.total) return null;
     const pct = s.wins ? Math.round((s.wins / s.total) * 100) : 0;
     const avg = (s.wins && s.tries_sum) ? (s.tries_sum / s.wins).toFixed(1) : null;
-    return `${icon}&nbsp;${pct}%${avg ? `&nbsp;·&nbsp;∅${avg}` : ''}`;
+    return `<svg class="ic ic-inline" aria-hidden="true"><use href="#${svg}"></use></svg>${pct}%${avg ? `&nbsp;·&nbsp;∅${avg}` : ''}`;
   }).filter(Boolean);
   if (!parts.length) return;
-  el.innerHTML = `🏴‍☠️&nbsp;Communauté&nbsp;: ${parts.join('&emsp;')}`;
+  el.innerHTML = `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-flag"></use></svg>Communauté&nbsp;: ${parts.join('&emsp;')}`;
 }
 
 // ===== NAVIGATION PAR ONGLETS =====
@@ -1441,7 +1440,7 @@ function renderStatsContent(mode) {
   const nextMode = getNextUnplayedMode(mode);
   if (nextMode) {
     const nm = MODES.find(m => m.id === nextMode);
-    const nextLabel = nm ? `${nm.icon} ${nm.label}` : nextMode;
+    const nextLabel = nm ? `<svg class="ic ic-inline" aria-hidden="true"><use href="#${nm.svg}"></use></svg>${esc(nm.label)}` : esc(nextMode);
     html += `<button class="stats-next-btn" onclick="closeStats(); switchMode('${nextMode}')">Jouer : ${nextLabel} →</button>`;
   }
 

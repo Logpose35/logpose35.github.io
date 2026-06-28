@@ -265,10 +265,9 @@ html, .landing-body { overflow-x: clip; }
 .lp-about-btn:hover { border-color: var(--lb-hair-2); color: var(--gold); }
 
 /* ============================================================
-   ICÔNES (sprite SVG, or monochrome via currentColor)
+   ICÔNES — le style de base `.ic` vit dans base.css (source unique partagée).
+   Ci-dessous, seules les TAILLES spécifiques à la landing.
    ============================================================ */
-.ic { display: inline-block; fill: none; stroke: currentColor; stroke-width: 1.6;
-      stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
 
 /* ============================================================
    MOTION — fade-in léger (hook .reveal préservé)

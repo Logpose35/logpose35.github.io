@@ -55,29 +55,199 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=179">
-  <link rel="stylesheet" href="css/layout.css?v=179">
-  <link rel="stylesheet" href="css/modals.css?v=179">
-  <link rel="stylesheet" href="css/classic.css?v=179">
-  <link rel="stylesheet" href="css/wanted.css?v=179">
-  <link rel="stylesheet" href="css/flag.css?v=179">
-  <link rel="stylesheet" href="css/fruit.css?v=179">
-  <link rel="stylesheet" href="css/inf.css?v=179">
-  <link rel="stylesheet" href="css/emoji.css?v=179">
-  <link rel="stylesheet" href="css/misc.css?v=179">
-  <link rel="stylesheet" href="css/audio.css?v=179">
-  <link rel="stylesheet" href="css/animations.css?v=179">
-  <link rel="stylesheet" href="css/map.css?v=179">
-  <link rel="stylesheet" href="css/tome.css?v=179">
-  <link rel="stylesheet" href="css/ocean3d.css?v=179">
+  <link rel="stylesheet" href="css/base.css?v=183">
+  <link rel="stylesheet" href="css/layout.css?v=183">
+  <link rel="stylesheet" href="css/modals.css?v=183">
+  <link rel="stylesheet" href="css/classic.css?v=183">
+  <link rel="stylesheet" href="css/wanted.css?v=183">
+  <link rel="stylesheet" href="css/flag.css?v=183">
+  <link rel="stylesheet" href="css/fruit.css?v=183">
+  <link rel="stylesheet" href="css/inf.css?v=183">
+  <link rel="stylesheet" href="css/emoji.css?v=183">
+  <link rel="stylesheet" href="css/misc.css?v=183">
+  <link rel="stylesheet" href="css/audio.css?v=183">
+  <link rel="stylesheet" href="css/animations.css?v=183">
+  <link rel="stylesheet" href="css/map.css?v=183">
+  <link rel="stylesheet" href="css/tome.css?v=183">
+  <link rel="stylesheet" href="css/ocean3d.css?v=183">
 </head>
 <body data-ocean="game">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
 
+<!-- ===== SPRITE D'ICÔNES (partagé avec la landing — or monochrome via currentColor) ===== -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="ic-compass" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 5l1.7 5.3 5.3 1.7-5.3 1.7L12 19l-1.7-5.3L5 12l5.3-1.7z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-wanted" viewBox="0 0 24 24">
+    <rect x="5" y="3" width="14" height="18" rx="1"/>
+    <path d="M5 6h14M5 18h14"/>
+    <circle cx="12" cy="11" r="2.6"/>
+    <path d="M8.5 15.5c.8-1.6 6.2-1.6 7 0"/>
+  </symbol>
+  <symbol id="ic-flag" viewBox="0 0 24 24">
+    <path d="M6 3v18"/>
+    <path d="M6 4h12l-2.2 3L18 10H6z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-fruit" viewBox="0 0 24 24">
+    <path d="M12 8.2C12 5.5 13.2 4.2 15.3 3.6"/>
+    <circle cx="12" cy="14.3" r="6.3"/>
+    <path d="M9.4 14.8c1-1.7 3.8-1.7 4.8 0s-1.1 3.1-2.6 2.1"/>
+  </symbol>
+  <symbol id="ic-rebus" viewBox="0 0 24 24">
+    <path d="M4 5h16v11H9l-4 4v-4H4z"/>
+    <circle cx="9" cy="10.5" r="0.7" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="10.5" r="0.7" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="10.5" r="0.7" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-note" viewBox="0 0 24 24">
+    <path d="M9 17V6l10-2.2V15"/>
+    <ellipse cx="6.5" cy="17" rx="2.5" ry="2"/>
+    <ellipse cx="16.5" cy="15" rx="2.5" ry="2"/>
+  </symbol>
+  <symbol id="ic-tome" viewBox="0 0 24 24">
+    <rect x="6" y="3" width="12" height="18" rx="1"/>
+    <path d="M9 3v18"/>
+    <path d="M11.5 7.5h4M11.5 10.5h4"/>
+  </symbol>
+  <symbol id="ic-shuffle" viewBox="0 0 24 24">
+    <path d="M3 7h3.5l9.5 10H21"/>
+    <path d="M18 14l3 3-3 3"/>
+    <path d="M3 17h3.5l9.5-10H21"/>
+    <path d="M18 4l3 3-3 3"/>
+  </symbol>
+  <symbol id="ic-map" viewBox="0 0 24 24">
+    <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/>
+    <path d="M9 4v14M15 6v14"/>
+    <path d="M11 11l2 2M13 11l-2 2"/>
+  </symbol>
+  <symbol id="ic-anchor" viewBox="0 0 24 24">
+    <circle cx="12" cy="5" r="2"/>
+    <path d="M12 7v13"/>
+    <path d="M7.5 11h9"/>
+    <path d="M5 13.5a7 7 0 0 0 14 0"/>
+    <path d="M5 13.5l-1.8.4M5 13.5l1.4 1.4M19 13.5l1.8.4M19 13.5l-1.4 1.4"/>
+  </symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/>
+  </symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24">
+    <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="3.4"/>
+    <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2.6-1.5L14 1.5h-4l-.4 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2.6 1.5L10 22.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.4 1 2-3.4z"/>
+  </symbol>
+  <symbol id="ic-chart" viewBox="0 0 24 24">
+    <path d="M3 20.5h18"/>
+    <path d="M5 20V11M10 20V5M15 20V13.5M20 20V8"/>
+  </symbol>
+  <symbol id="ic-scroll" viewBox="0 0 24 24">
+    <path d="M7 3h8l3 3v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+    <path d="M15 3v3h3"/>
+    <path d="M8 11h7M8 14h7M8 17h4"/>
+  </symbol>
+  <symbol id="ic-save" viewBox="0 0 24 24">
+    <path d="M12 4v9"/>
+    <path d="M8.4 9.4 12 13l3.6-3.6"/>
+    <path d="M5 16v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V16"/>
+  </symbol>
+  <symbol id="ic-import" viewBox="0 0 24 24">
+    <path d="M12 13V4"/>
+    <path d="M8.4 7.6 12 4l3.6 3.6"/>
+    <path d="M5 16v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V16"/>
+  </symbol>
+  <symbol id="ic-clipboard" viewBox="0 0 24 24">
+    <rect x="5" y="4.5" width="14" height="16" rx="1.5"/>
+    <rect x="9" y="2.8" width="6" height="3" rx="1"/>
+    <path d="M9 11h6M9 14.5h6"/>
+  </symbol>
+  <symbol id="ic-fire" viewBox="0 0 24 24">
+    <path d="M13 3c.5 2.5-1.6 3.6-1.6 5.6 0 1 .6 1.6 1.4 1.6.7 0 1.1-.6 1.1-1.6 1.5 1 2.6 2.8 2.6 5a4.5 4.5 0 0 1-9 0C6.5 9 11 7.5 13 3z"/>
+  </symbol>
+  <symbol id="ic-trophy" viewBox="0 0 24 24">
+    <path d="M8 4h8v5a4 4 0 0 1-8 0z"/>
+    <path d="M8 5.5H5.5v1.5a3 3 0 0 0 3 3M16 5.5h2.5v1.5a3 3 0 0 1-3 3"/>
+    <path d="M12 13v3.5M9 20h6M9.8 20l.6-3.5h3.2l.6 3.5"/>
+  </symbol>
+  <symbol id="ic-atom" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+    <ellipse cx="12" cy="12" rx="9" ry="3.6"/>
+    <ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/>
+    <ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/>
+  </symbol>
+  <symbol id="ic-globe" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M3 12h18"/>
+    <ellipse cx="12" cy="12" rx="4" ry="9"/>
+  </symbol>
+  <symbol id="ic-help" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M9.3 9.3a2.7 2.7 0 0 1 5.3 .9c0 1.8-2.6 1.9-2.6 3.8"/>
+    <circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-hourglass" viewBox="0 0 24 24">
+    <path d="M6 3h12M6 21h12"/>
+    <path d="M7 3c0 4 5 5 5 9s-5 5-5 9M17 3c0 4-5 5-5 9s5 5 5 9"/>
+  </symbol>
+  <symbol id="ic-skull" viewBox="0 0 24 24">
+    <path d="M5 10.5a7 7 0 0 1 14 0v3l-1 .6v2.9a1 1 0 0 1-1 1h-1.2v-2h-1.6v2h-2.4v-2H9.2v2H8a1 1 0 0 1-1-1V14.1l-1-.6z"/>
+    <circle cx="9.2" cy="11" r="1.7" fill="currentColor" stroke="none"/>
+    <circle cx="14.8" cy="11" r="1.7" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-image" viewBox="0 0 24 24">
+    <rect x="3" y="5" width="18" height="14" rx="1.5"/>
+    <circle cx="8.5" cy="10" r="1.6"/>
+    <path d="M21 16.5 15.5 11 9 17.5"/>
+  </symbol>
+  <symbol id="ic-bulb" viewBox="0 0 24 24">
+    <path d="M9.5 17.5h5M10.5 20.5h3"/>
+    <path d="M8 11a4 4 0 1 1 8 0c0 1.7-1 2.5-1.4 3.2-.3.5-.6 1-.6 1.8h-4c0-.8-.3-1.3-.6-1.8C9 13.5 8 12.7 8 11z"/>
+  </symbol>
+
+  <!-- Insignes de rang (COLORÉS — couleurs figées, ne pas styler en .ic) -->
+  <symbol id="ic-rk-anchor" viewBox="0 0 24 24" fill="none" stroke="#a9c2dd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="5" r="2.2"/><path d="M12 7.2v11.8"/><path d="M7.5 11h9"/><path d="M5 14a7 7 0 0 0 14 0"/><path d="M5 14l-1.8.5M5 14l1.5 1.5M19 14l1.8.5M19 14l-1.5 1.5"/>
+  </symbol>
+  <symbol id="ic-rk-wave" viewBox="0 0 24 24" fill="none" stroke="#3f95d8" stroke-width="2" stroke-linecap="round">
+    <path d="M3 8c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+    <path d="M3 13c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+    <path d="M3 18c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+  </symbol>
+  <symbol id="ic-rk-flag" viewBox="0 0 24 24">
+    <path d="M6 3v18" fill="none" stroke="#c8940a" stroke-width="2" stroke-linecap="round"/>
+    <path d="M6 4h12l-2.2 3L18 10H6z" fill="#1b2233"/>
+    <circle cx="11.3" cy="6.4" r="1.4" fill="#efe6c8"/>
+  </symbol>
+  <symbol id="ic-rk-sabers" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-width="2">
+    <path d="M5 5l11 11" stroke="#cdd7e2"/>
+    <path d="M19 5L8 16" stroke="#cdd7e2"/>
+    <path d="M4 19l3-3M20 19l-3-3" stroke="#e0b020"/>
+  </symbol>
+  <symbol id="ic-rk-hat" viewBox="0 0 24 24">
+    <path d="M3.5 15c3 1.2 14 1.2 17 0-1-5-4-8-8.5-8s-7.5 3-8.5 8z" fill="#272c39"/>
+    <path d="M3.5 15c3 1.2 14 1.2 17 0" fill="none" stroke="#e0b020" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-rk-shield" viewBox="0 0 24 24">
+    <path d="M12 2.5l7.5 2.8v5.7c0 4.7-3.8 8.5-7.5 10.5-3.7-2-7.5-5.8-7.5-10.5V5.3z" fill="#e6b41e"/>
+    <path d="M12 6.5v11" fill="none" stroke="#9a2018" stroke-width="2"/>
+  </symbol>
+  <symbol id="ic-rk-star" viewBox="0 0 24 24">
+    <path d="M12 2l2.6 6.3 6.8.5-5.2 4.4 1.7 6.6L12 16.6 6.1 20.4l1.7-6.6L2.6 8.8l6.8-.5z" fill="#ffd84d"/>
+  </symbol>
+  <symbol id="ic-rk-crown" viewBox="0 0 24 24">
+    <path d="M3.5 18l-1.4-9.2 5.2 3.7L12 5l4.7 7.5 5.2-3.7L20.5 18z" fill="#ffd24a"/>
+    <path d="M3.5 18h17" fill="none" stroke="#b8860b" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="12" cy="9.6" r="1.5" fill="#c0392b"/>
+  </symbol>
+</svg>
+
 <header>
   <div class="header-inner">
     <div class="settings-wrap">
-      <button class="theme-btn" id="settings-btn" onclick="toggleSettings()" title="Paramètres" aria-label="Paramètres" aria-haspopup="true" aria-expanded="false">⚙️</button>
+      <button class="theme-btn" id="settings-btn" onclick="toggleSettings()" title="Paramètres" aria-label="Paramètres" aria-haspopup="true" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="#ic-gear"></use></svg></button>
       <div class="settings-panel hidden" id="settings-panel" role="menu" aria-label="Paramètres">
         <div class="sp-section">
           <div class="sp-label" id="sp-size-label">Taille de l'interface</div>
@@ -107,13 +277,13 @@
           </label>
         </div>
         <div class="sp-divider"></div>
-        <button class="sp-stats-btn" onclick="showStats(); toggleSettings()">📊 Statistiques</button>
-        <button class="sp-stats-btn" onclick="showPatchNotes(); toggleSettings()">📜 Notes de version</button>
+        <button class="sp-stats-btn" onclick="showStats(); toggleSettings()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-chart"></use></svg>Statistiques</button>
+        <button class="sp-stats-btn" onclick="showPatchNotes(); toggleSettings()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-scroll"></use></svg>Notes de version</button>
         <div class="sp-divider"></div>
         <div class="sp-section">
           <div class="sp-label">Sauvegarde</div>
-          <button class="sp-stats-btn" onclick="exportSave()">💾 Exporter ma sauvegarde</button>
-          <button class="sp-stats-btn" onclick="importSavePrompt()">📥 Importer une sauvegarde</button>
+          <button class="sp-stats-btn" onclick="exportSave()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-save"></use></svg>Exporter ma sauvegarde</button>
+          <button class="sp-stats-btn" onclick="importSavePrompt()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-import"></use></svg>Importer une sauvegarde</button>
           <input type="file" id="import-save-input" accept="application/json" hidden onchange="importSaveFile(event)">
         </div>
       </div>
@@ -127,23 +297,23 @@
       <div id="pirate-rank-badge" class="pirate-rank-badge" aria-label="Rang pirate"></div>
     </div>
     <div class="header-right" style="display:flex;align-items:center;gap:8px">
-      <button class="map-header-btn" onclick="openMap()" title="Carte de Grand Line" aria-label="Carte de Grand Line">🗺️</button>
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer de thème" aria-label="Changer de thème clair/sombre">🌙</button>
+      <button class="map-header-btn" onclick="openMap()" title="Carte de Grand Line" aria-label="Carte de Grand Line"><svg class="ic" aria-hidden="true"><use href="#ic-map"></use></svg></button>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer de thème" aria-label="Changer de thème clair/sombre"><svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg><svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg></button>
     </div>
   </div>
 </header>
 
 <div class="mode-tabs" role="tablist" aria-label="Modes de jeu quotidiens">
-  <button class="mode-tab active" id="tab-classic" onclick="switchMode('classic')" role="tab" aria-selected="true">🗺️ Classique</button>
-  <button class="mode-tab" id="tab-wanted" onclick="switchMode('wanted')" role="tab" aria-selected="false">🖼️ Wanted</button>
-  <button class="mode-tab" id="tab-flag" onclick="switchMode('flag')" role="tab" aria-selected="false">🏴‍☠️ Pavillon</button>
-  <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')" role="tab" aria-selected="false">🍎 Fruit du Démon</button>
-  <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')" role="tab" aria-selected="false">🤔 Émoji</button>
-  <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')" role="tab" aria-selected="false">🎵 Opening</button>
-  <button class="mode-tab" id="tab-tome" onclick="switchMode('tome')" role="tab" aria-selected="false">📕 Tome</button>
+  <button class="mode-tab active" id="tab-classic" onclick="switchMode('classic')" role="tab" aria-selected="true"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classique</button>
+  <button class="mode-tab" id="tab-wanted" onclick="switchMode('wanted')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-wanted"></use></svg>Wanted</button>
+  <button class="mode-tab" id="tab-flag" onclick="switchMode('flag')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-flag"></use></svg>Pavillon</button>
+  <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Fruit du Démon</button>
+  <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
+  <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-note"></use></svg>Opening</button>
+  <button class="mode-tab" id="tab-tome" onclick="switchMode('tome')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome</button>
 </div>
 <div class="mode-tabs-inf">
-  <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')" role="tab" aria-selected="false">🔀 Mode Infini</button>
+  <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-shuffle"></use></svg>Mode Infini</button>
 </div>
 
 <!-- PUB MOBILE — sous les onglets -->
@@ -158,7 +328,7 @@
 
 <div class="score-bar-section">
   <div class="score-bar-inner">
-    <span class="score-anchor">⚓</span>
+    <span class="score-anchor"><svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg></span>
     <div class="score-track" id="score-track" onclick="toggleScoreBreakdown(event)" title="Voir le détail par mode" style="cursor:pointer">
       <div class="score-fill" id="score-fill">
         <img class="score-merry" src="images/going_merry.png" alt="Vogue Merry">
@@ -169,7 +339,7 @@
       <span class="score-max"> / 70 000</span>
     </span>
     <button class="share-daily-btn hidden" id="share-daily-btn" onclick="shareDaily()" title="Partager mon récap du jour">
-      📋 Partager
+      <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>Partager
     </button>
   </div>
   <div class="streak-bar hidden" id="streak-bar"></div>
@@ -208,12 +378,12 @@
       <div class="classic-reveal-name" id="classic-reveal-name"></div>
     </div>
     <div class="hint-area" id="hint-area" style="display:none">
-      <button id="hint-btn" onclick="useHint()">💡 Indice</button>
+      <button id="hint-btn" onclick="useHint()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-bulb"></use></svg>Indice</button>
       <div id="hint-display"></div>
     </div>
     <div class="table-scroll"><div class="table-inner">
       <div id="recap-bar" style="display:none">
-        <div class="recap-title">📋 Ce qu'on sait</div>
+        <div class="recap-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>Ce qu'on sait</div>
         <div class="recap-grid" id="recap-grid"></div>
       </div>
       <div class="grid-header grid-cols">
@@ -360,12 +530,12 @@
   <div id="inf-section">
     <div class="inf-streak-bar">
       <div class="inf-streak-item">
-        <div class="inf-streak-label">🔥 Série en cours</div>
+        <div class="inf-streak-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-fire"></use></svg>Série en cours</div>
         <div class="inf-streak-val" id="inf-streak">0</div>
       </div>
       <div class="inf-streak-sep"></div>
       <div class="inf-streak-item">
-        <div class="inf-streak-label">🏆 Record</div>
+        <div class="inf-streak-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-trophy"></use></svg>Record</div>
         <div class="inf-streak-val" id="inf-record">0</div>
       </div>
     </div>
@@ -444,17 +614,17 @@
           </div>
           <div class="fruit-hints-row">
             <div class="fruit-hint-box" id="fr-hint1">
-              <div class="fh-icon">⚛️</div>
+              <div class="fh-icon"><svg class="ic" aria-hidden="true"><use href="#ic-atom"></use></svg></div>
               <div class="fh-label">INDICE DE TYPE</div>
               <div class="fh-sub" id="fr-h1-sub">DANS 3 ESSAIS</div>
             </div>
             <div class="fruit-hint-box" id="fr-hint2">
-              <div class="fh-icon">🌐</div>
+              <div class="fh-icon"><svg class="ic" aria-hidden="true"><use href="#ic-globe"></use></svg></div>
               <div class="fh-label">NOM TRADUIT</div>
               <div class="fh-sub" id="fr-h2-sub">DANS 5 ESSAIS</div>
             </div>
             <div class="fruit-hint-box" id="fr-hint3">
-              <div class="fh-icon">❓</div>
+              <div class="fh-icon"><svg class="ic" aria-hidden="true"><use href="#ic-help"></use></svg></div>
               <div class="fh-label">POUVOIR</div>
               <div class="fh-sub" id="fr-h3-sub">DANS 8 ESSAIS</div>
             </div>
@@ -481,7 +651,7 @@
 </div>
 
 <div class="next-puzzle">
-  <span class="next-puzzle-label">⏳ Prochains défis dans</span>
+  <span class="next-puzzle-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-hourglass"></use></svg>Prochains défis dans</span>
   <span class="next-puzzle-timer" id="next-puzzle-timer">--:--:--</span>
 </div>
 
@@ -497,7 +667,7 @@
 <!-- MODAL AVERTISSEMENT SPOILERS -->
 <div class="modal-overlay hidden" id="spoiler-modal">
   <div class="modal-box spoiler-box">
-    <div class="spoiler-skull">☠️</div>
+    <div class="spoiler-skull"><svg class="ic" aria-hidden="true"><use href="#ic-skull"></use></svg></div>
     <div class="modal-title">Attention — Spoilers !</div>
     <p class="spoiler-text">
       LogPose est mis à jour jusqu'au <strong>dernier chapitre publié</strong> de One Piece.<br><br>
@@ -505,7 +675,7 @@
       En continuant, tu acceptes le risque d'être spoilé.
     </p>
     <div class="spoiler-actions">
-      <button class="spoiler-btn-accept" onclick="closeSpoilerModal()">⚓ Je comprends, allons-y !</button>
+      <button class="spoiler-btn-accept" onclick="closeSpoilerModal()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Je comprends, allons-y !</button>
       <label class="spoiler-remember">
         <input type="checkbox" id="spoiler-no-show" checked/> Ne plus afficher
       </label>
@@ -517,15 +687,15 @@
 <div class="share-popup-overlay hidden" id="share-popup" onclick="handleShareOverlayClick(event)">
   <div class="share-popup-box">
     <button class="share-popup-close" onclick="closeSharePopup()">✕</button>
-    <div class="share-popup-title">⚓ Partager mon récap</div>
+    <div class="share-popup-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Partager mon récap</div>
     <pre id="share-popup-preview" class="share-popup-preview"></pre>
     <div class="share-popup-btns">
-      <button class="share-via-btn share-via-copy"      onclick="shareVia('copy')">📋 Copier</button>
+      <button class="share-via-btn share-via-copy"      onclick="shareVia('copy')"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>Copier</button>
       <button class="share-via-btn share-via-discord"   onclick="shareVia('discord')">💬 Discord</button>
       <button class="share-via-btn share-via-twitter"   onclick="shareVia('twitter')">𝕏 Twitter</button>
       <button class="share-via-btn share-via-facebook"  onclick="shareVia('facebook')">📘 Facebook</button>
       <button class="share-via-btn share-via-bluesky"   onclick="shareVia('bluesky')">🦋 Bluesky</button>
-      <button class="share-via-btn share-via-image"     onclick="shareImage()" id="share-via-image-btn">🖼️ Image</button>
+      <button class="share-via-btn share-via-image"     onclick="shareImage()" id="share-via-image-btn"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-image"></use></svg>Image</button>
     </div>
 
     <!-- Preview canvas (généré à la demande) -->
@@ -544,16 +714,16 @@
 <div class="modal-overlay hidden" id="stats-modal" onclick="handleModalClick(event)">
   <div class="modal-box">
     <button class="modal-close" onclick="closeStats()">✕</button>
-    <div class="modal-title">📊 Statistiques</div>
+    <div class="modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-chart"></use></svg>Statistiques</div>
 
     <div class="modal-mode-tabs">
-      <button class="modal-mode-tab active" id="stab-classic" onclick="switchStatsTab('classic')">🗺️ Classique</button>
-      <button class="modal-mode-tab" id="stab-wanted"  onclick="switchStatsTab('wanted')">🖼️ Wanted</button>
-      <button class="modal-mode-tab" id="stab-flag"    onclick="switchStatsTab('flag')">🏴‍☠️ Pavillon</button>
-      <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')">🍎 Démon</button>
-      <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')">😀 Émoji</button>
-      <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')">🎵 Opening</button>
-      <button class="modal-mode-tab" id="stab-tome"    onclick="switchStatsTab('tome')">📕 Tome</button>
+      <button class="modal-mode-tab active" id="stab-classic" onclick="switchStatsTab('classic')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classique</button>
+      <button class="modal-mode-tab" id="stab-wanted"  onclick="switchStatsTab('wanted')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-wanted"></use></svg>Wanted</button>
+      <button class="modal-mode-tab" id="stab-flag"    onclick="switchStatsTab('flag')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-flag"></use></svg>Pavillon</button>
+      <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Démon</button>
+      <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
+      <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-note"></use></svg>Opening</button>
+      <button class="modal-mode-tab" id="stab-tome"    onclick="switchStatsTab('tome')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome</button>
     </div>
 
     <div id="stats-content"></div>
@@ -563,7 +733,7 @@
 <!-- EASTER EGG KONAMI -->
 <audio id="konami-audio" src="audio/easter_egg.mp3" preload="none"></audio>
 <div class="konami-player hidden" id="konami-player">
-  <span class="konami-player-title">🎵 Dr. Tony Tony Chopper</span>
+  <span class="konami-player-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-note"></use></svg>Dr. Tony Tony Chopper</span>
   <button class="konami-play-btn" id="konami-play-btn" onclick="toggleKonamiAudio()">⏸</button>
   <button class="konami-stop-btn" onclick="stopKonamiAudio()">✕</button>
 </div>
@@ -572,7 +742,7 @@
 <div class="modal-overlay hidden" id="about-modal" onclick="handleAboutOverlayClick(event)">
   <div class="modal-box about-box">
     <button class="modal-close" onclick="closeAbout()">✕</button>
-    <div class="modal-title">⚓ À propos</div>
+    <div class="modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>À propos</div>
 
     <div class="about-logo-wrap">
       <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
@@ -585,13 +755,13 @@
     </p>
 
     <div class="about-modes-grid">
-      <div class="about-mode-item">🗺️ Classique</div>
-      <div class="about-mode-item">🖼️ Wanted</div>
-      <div class="about-mode-item">🏴‍☠️ Pavillon</div>
-      <div class="about-mode-item">🍎 Fruit du Démon</div>
-      <div class="about-mode-item">🤔 Émoji</div>
-      <div class="about-mode-item">🎵 Opening</div>
-      <div class="about-mode-item">📕 Tome</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg> Classique</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-wanted"></use></svg> Wanted</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-flag"></use></svg> Pavillon</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-fruit"></use></svg> Fruit du Démon</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-rebus"></use></svg> Émoji</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-note"></use></svg> Opening</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-tome"></use></svg> Tome</div>
     </div>
     <div class="about-inf-row">🔀 Classique Infini — entraînement sans limite</div>
 
@@ -625,7 +795,7 @@
 <div id="map-modal" class="map-modal hidden" role="dialog" aria-modal="true" aria-label="Carte de Grand Line">
   <div class="map-modal-head">
     <div>
-      <div class="map-modal-title">🗺️ Carte de Grand Line</div>
+      <div class="map-modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-map"></use></svg>Carte de Grand Line</div>
       <div id="map-progress"></div>
     </div>
     <button id="map-close-btn" class="map-close-btn" onclick="closeMap()" aria-label="Fermer la carte">✕</button>
@@ -647,11 +817,11 @@
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/ocean3d.js?v=179"></script>
-<script src="js/data.js?v=179"></script>
-<script src="js/jolly-roger.js?v=179"></script>
-<script src="js/app.js?v=179"></script>
-<script src="js/canvas-share.js?v=179"></script>
-<script src="js/map.js?v=179"></script>
+<script src="js/ocean3d.js?v=183"></script>
+<script src="js/data.js?v=183"></script>
+<script src="js/jolly-roger.js?v=183"></script>
+<script src="js/app.js?v=183"></script>
+<script src="js/canvas-share.js?v=183"></script>
+<script src="js/map.js?v=183"></script>
 </body>
 </html>
