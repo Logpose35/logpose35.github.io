@@ -149,6 +149,30 @@ button:focus-visible, input:focus-visible {
 /* Insignes de rang : COLORÉS (couleurs figées dans le sprite), donc PAS .ic — juste la taille */
 .rank-ic { display: inline-block; width: 1.2em; height: 1.2em; vertical-align: -0.22em; margin-right: 0.28em; }
 
+/* ===== COULEUR SIGNATURE PAR MODE (jeu uniquement — la landing reste or) =====
+   Couleurs centralisées en variables, réutilisées pour l'icône ET la
+   surbrillance de survol des onglets (cf. layout.css .mode-tab:hover). */
+:root {
+  --mode-classic: #d99f2e; --mode-wanted: #cf8a3e; --mode-flag: #d8483d; --mode-fruit: #a85bc8;
+  --mode-emoji:   #e0b62e; --mode-audio:  #3a8fcf; --mode-tome: #3fae73; --mode-inf:   #7d6ee8;
+}
+/* --mode-color porté par chaque onglet (sert à l'icône + au hover) */
+#tab-classic, #stab-classic { --mode-color: var(--mode-classic); }
+#tab-wanted,  #stab-wanted  { --mode-color: var(--mode-wanted); }
+#tab-flag,    #stab-flag    { --mode-color: var(--mode-flag); }
+#tab-fruit,   #stab-fruit   { --mode-color: var(--mode-fruit); }
+#tab-emoji,   #stab-emoji   { --mode-color: var(--mode-emoji); }
+#tab-audio,   #stab-audio   { --mode-color: var(--mode-audio); }
+#tab-tome,    #stab-tome    { --mode-color: var(--mode-tome); }
+#tab-inf                    { --mode-color: var(--mode-inf); }
+/* Icône de l'onglet inactif → couleur du mode (l'actif garde sa couleur de contraste) */
+.mode-tab:not(.active) .tab-ic, .modal-mode-tab:not(.active) .tab-ic { color: var(--mode-color); }
+/* Icônes injectées par app.js + grille « À propos » */
+.mi-classic { color: var(--mode-classic); } .mi-wanted { color: var(--mode-wanted); }
+.mi-flag    { color: var(--mode-flag); }    .mi-fruit  { color: var(--mode-fruit); }
+.mi-emoji   { color: var(--mode-emoji); }   .mi-audio  { color: var(--mode-audio); }
+.mi-tome    { color: var(--mode-tome); }    .mi-inf    { color: var(--mode-inf); }
+
 /* ===== BODY & FOND ===== */
 body {
   background: var(--bg);

@@ -474,10 +474,10 @@ function buildYesterdayBar() {
   };
 
   const tomeBit = (data.tome != null)
-    ? ` &nbsp;|&nbsp; <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome : <strong>${esc(String(data.tome))}</strong>` : '';
+    ? ` &nbsp;|&nbsp; <svg class="ic ic-inline mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome : <strong>${esc(String(data.tome))}</strong>` : '';
   el.innerHTML =
     `Hier &nbsp;—&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
-    `<br><span class="yesterday-op"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-note"></use></svg>Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
+    `<br><span class="yesterday-op"><svg class="ic ic-inline mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg>Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
     `<br><span class="yesterday-community" id="yesterday-community"></span>`;
 }
 // Charge les stats communauté d'hier depuis Firebase et les affiche
@@ -493,7 +493,7 @@ async function loadYesterdayStats() {
     if (!s || !s.total) return null;
     const pct = s.wins ? Math.round((s.wins / s.total) * 100) : 0;
     const avg = (s.wins && s.tries_sum) ? (s.tries_sum / s.wins).toFixed(1) : null;
-    return `<svg class="ic ic-inline" aria-hidden="true"><use href="#${svg}"></use></svg>${pct}%${avg ? `&nbsp;·&nbsp;∅${avg}` : ''}`;
+    return `<svg class="ic ic-inline mi-${id}" aria-hidden="true"><use href="#${svg}"></use></svg>${pct}%${avg ? `&nbsp;·&nbsp;∅${avg}` : ''}`;
   }).filter(Boolean);
   if (!parts.length) return;
   el.innerHTML = `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-flag"></use></svg>Communauté&nbsp;: ${parts.join('&emsp;')}`;
@@ -1440,7 +1440,7 @@ function renderStatsContent(mode) {
   const nextMode = getNextUnplayedMode(mode);
   if (nextMode) {
     const nm = MODES.find(m => m.id === nextMode);
-    const nextLabel = nm ? `<svg class="ic ic-inline" aria-hidden="true"><use href="#${nm.svg}"></use></svg>${esc(nm.label)}` : esc(nextMode);
+    const nextLabel = nm ? `<svg class="ic ic-inline mi-${nm.id}" aria-hidden="true"><use href="#${nm.svg}"></use></svg>${esc(nm.label)}` : esc(nextMode);
     html += `<button class="stats-next-btn" onclick="closeStats(); switchMode('${nextMode}')">Jouer : ${nextLabel} →</button>`;
   }
 

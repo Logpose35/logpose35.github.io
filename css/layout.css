@@ -80,9 +80,10 @@
   color: #fff;
 }
 .mode-tab:hover {
-  border-color: var(--gold);
-  color: var(--gold-l);
-  background: rgba(200, 148, 10, 0.1);
+  border-color: var(--mode-color, var(--gold));
+  color: var(--mode-color, var(--gold-l));
+  background: color-mix(in srgb, var(--mode-color, var(--gold)) 12%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--mode-color, var(--gold)) 32%, transparent);
 }
 .mode-tab.active {
   background: var(--gold);
