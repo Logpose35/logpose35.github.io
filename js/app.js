@@ -2466,6 +2466,12 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '5.1', date: 'Juin 2026', items: [
+    '🌊 Refonte visuelle « nuit en mer » : fond 3D océan & île',
+    '🧭 Nouvelle page d\'accueil en rose des vents',
+    '🎨 Icônes du jeu redessinées + couleur de signature par mode',
+    '➕ 2 nouveaux Chevaliers Divins : Shamrock & Gunko (246 persos)',
+  ] },
   { v: '5.0', date: 'Juin 2026', items: [
     '📕 Nouveau mode Tome — devine le tome à sa couverture',
     '🗺️ Carte de Grand Line : 32 îles, carnet de capture & fiches perso',
