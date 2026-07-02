@@ -40,7 +40,7 @@ Agir comme un dev web senior responsable de ce site en prod :
 | `js/data.js` | Charge `data.json` + `silhouettes/focus.json`, calcule les cibles du jour (seed timezone Paris, salt premier par mode) |
 | `js/app.js` | Toute la logique de jeu (gros fichier, ~3030 lignes) |
 | `js/map.js`, `js/jolly-roger.js`, `js/canvas-share.js`, `js/ocean3d.js` | Carte Grand Line, Jolly Roger procédural, image de partage, fond 3D |
-| `data.json` | 246 personnages + arcs/aliases/fruits/openings/tomes/emoji-names. **JSON minifié sur UNE ligne** (~103 Ko) |
+| `data.json` | 246 personnages + arcs/aliases/fruits/openings/tomes/emoji-names. **JSON minifié sur UNE ligne** (~102 Ko) |
 | `silhouettes/` | Assets du mode Silhouette : `<clé>.png` (noir), `color/<clé>.png`, `focus.json` (clé → point de focus ; = source du pool) |
 | `css/*.css` | CSS éclaté : base, layout, modals, classic, wanted, silhouette, fruit, inf, emoji, misc, audio, landing, animations, map, tome, ocean3d |
 | `sw.js` | Service Worker, cache `logpose-vNN`, network-first HTML/JS/CSS/JSON, cache-first images, `/audio/` jamais intercepté |
@@ -97,7 +97,7 @@ Agir comme un dev web senior responsable de ce site en prod :
   seul Mugiwara absent du pool (les autres y sont via leurs clés `_pre`).
 - Restes assumés : 4 variantes non utilisées dans `silhouettes/` (`chopper_ts`, `luffy_g5`,
   `nami_ts`, `robin2` — la clé du jeu est `img[0]`) ; anciennes stats `op-stats-flag` orphelines
-  dans le localStorage des joueurs (inoffensif) ; clé `FLAGS` encore présente dans data.json (inutilisée).
+  dans le localStorage des joueurs (inoffensif).
 
 ## Schéma d'un personnage (`data.json` → `CHARACTERS[]`)
 
@@ -124,7 +124,7 @@ Chaque perso a **8 emojis distinctifs**. Règles :
   `json.dump(d, open('data.json','w',encoding='utf-8'), ensure_ascii=False, separators=(',',':'))`
 - **Cache-busting** : après toute modif de JS/CSS/JSON, bumper la version partout :
   `sed -i "s/v=NN/v=NN+1/g; s/logpose-vNN/logpose-vNN+1/g" sw.js game.html index.html js/app.js`
-  (`js/app.js` inclus à cause des `?v=` en dur de `silSrc`/`silColorSrc`). **Version actuelle : v194.**
+  (`js/app.js` inclus à cause des `?v=` en dur de `silSrc`/`silColorSrc`). **Version actuelle : v195.**
 - **Nouveau fichier JS/CSS** : (a) `<script>/<link>` dans game.html, (b) ajouté au
   précache de `sw.js`, (c) suffixé `?v=NN`.
 - **Preview local** : MCP `Claude_Preview` (config "logpose", `python http.server` port 3333).
@@ -148,9 +148,10 @@ Chaque perso a **8 emojis distinctifs**. Règles :
 
 - **Prod (poussée)** : **v5.1**, cache `v186` — refonte landing « rose des vents », icônes SVG,
   couleur par mode, fond 3D océan/île, carte Grand Line, rang pirate, stats communauté.
-- **Commité en local, NON poussé** : **v5.2**, cache `v194` — **mode Silhouette** (remplace
-  Pavillon), gazette de lancement, nettoyage code mort Pavillon (`css/flag.css`,
-  `TARGET_F`/`FLAGS`/`CELL_ORDER` de data.js), `.gitignore` chantier silhouette.
+- **Commité en local, NON poussé** : **v5.2**, cache `v195` — **mode Silhouette** (remplace
+  Pavillon), gazette de lancement, purge complète du Pavillon (`css/flag.css`, `flags/`,
+  clé `FLAGS` de data.json, `TARGET_F`/`CELL_ORDER` de data.js), `.gitignore` chantier
+  silhouette, ménage du dépôt (scripts one-shot retirés).
 - **Avant push v5.2** : vérifier les règles Firebase (la branche `island-reach/` est DÉJÀ
   utilisée en prod par la carte) · test appareil réel.
 - **Reste à faire** : 96 silhouettes manquantes (Zoro/Sanji/Usopp/Franky/Brook en tête) ·
