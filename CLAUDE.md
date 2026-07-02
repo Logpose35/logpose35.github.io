@@ -1,12 +1,12 @@
 # LogPose — Contexte projet
 
 Jeu One Piece quotidien type Wordle. **Site statique** (HTML/CSS/JS pur) hébergé sur
-GitHub Pages, déployé sur **onepiecedle.fr**. 6 modes quotidiens (Classique, Wanted,
-Pavillon, Fruit du Démon, Émoji, Opening) + un mode Infini. Compteurs journaliers via
-Firebase Realtime DB. Version affichée en prod : **v4.7**.
+GitHub Pages, déployé sur **onepiecedle.fr**. **7 modes quotidiens** (Classique, Wanted,
+Silhouette, Fruit du Démon, Émoji, Opening, Tome) + un mode Infini. Compteurs journaliers
+via Firebase Realtime DB.
 
-> **v5 : fonctionnellement complète** (cache `v137`), non déployée. Seul **P5b — Calendrier
-> de l'Avent** reste (hors-saison, décembre). Ce fichier-ci = contexte opérationnel permanent.
+> **Prod : v5.1** (cache `v186`). **En local, commité non poussé : v5.2** (cache `v194`,
+> mode Silhouette). Ce fichier-ci = contexte opérationnel permanent.
 
 ## Standard de travail attendu
 
@@ -25,7 +25,8 @@ Agir comme un dev web senior responsable de ce site en prod :
 
 - **Aucun build, aucun Node** (pas de `package.json`). On édite les fichiers servis tels quels.
 - **Python dispo** (PIL/Pillow OK) — utilisé pour éditer `data.json` et générer des images.
-- **Firebase** : config inline dans `js/app.js` et `js/landing.js` (compteurs de parties).
+- **Firebase** : config inline dans `js/app.js` et `js/landing.js` (compteurs de parties,
+  compteur communauté `island-reach/{arc}` via `js/map.js`).
 - OS : **Windows**. Bash dispo. Piège : le `/tmp` de bash ≠ `/tmp` du Python Windows
   (qui est `C:/Users/lebos/AppData/Local/Temp/`). Pour les emojis en sortie console :
   `sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')`.
@@ -34,50 +35,75 @@ Agir comme un dev web senior responsable de ce site en prod :
 
 | Chemin | Rôle |
 |---|---|
-| `index.html` | Landing (présente les 6 modes), `js/landing.js` |
-| `game.html` | Le jeu, charge `js/data.js` puis `js/app.js` |
-| `js/data.js` | Charge `data.json` (fetch `/data.json`, `no-cache`), calcule les cibles du jour (seed timezone Paris, salt premier par mode) |
-| `js/app.js` | Toute la logique de jeu (gros fichier) |
-| `data.json` | Données des 233 personnages + arcs/flags/fruits/openings. **JSON minifié sur une ligne** |
-| `css/*.css` | CSS éclaté par mode (base, layout, modals, classic, wanted, flag, fruit, inf, emoji, misc, audio, landing). ⚠️ `style.css` monolithe a été SUPPRIMÉ |
-| `sw.js` | Service Worker, cache `logpose-vNN`, network-first HTML/JS/CSS/JSON, cache-first images |
+| `index.html` | Landing « rose des vents » (7 modes), `js/landing.js` |
+| `game.html` | Le jeu, charge `js/data.js` puis `js/app.js` (+ sprite SVG `<symbol>` inline) |
+| `js/data.js` | Charge `data.json` + `silhouettes/focus.json`, calcule les cibles du jour (seed timezone Paris, salt premier par mode) |
+| `js/app.js` | Toute la logique de jeu (gros fichier, ~3030 lignes) |
+| `js/map.js`, `js/jolly-roger.js`, `js/canvas-share.js`, `js/ocean3d.js` | Carte Grand Line, Jolly Roger procédural, image de partage, fond 3D |
+| `data.json` | 246 personnages + arcs/aliases/fruits/openings/tomes/emoji-names. **JSON minifié sur UNE ligne** (~103 Ko) |
+| `silhouettes/` | Assets du mode Silhouette : `<clé>.png` (noir), `color/<clé>.png`, `focus.json` (clé → point de focus ; = source du pool) |
+| `css/*.css` | CSS éclaté : base, layout, modals, classic, wanted, silhouette, fruit, inf, emoji, misc, audio, landing, animations, map, tome, ocean3d |
+| `sw.js` | Service Worker, cache `logpose-vNN`, network-first HTML/JS/CSS/JSON, cache-first images, `/audio/` jamais intercepté |
 
-## Carte de `js/app.js` (2346 lignes — lire par tranches, pas en entier)
+## Carte de `js/app.js` (~3030 lignes — lire par tranches, pas en entier)
 
 > Utiliser `Read` avec `offset`/`limit` sur la région voulue plutôt que tout le fichier.
 
 | Lignes | Région |
 |---|---|
-| 1–105 | Firebase (`fbGet`/`fbIncrement`) + constantes `COUNTER_LABELS`, `WIN_TITLES`, `MODES`, `MODE_IDS`, `LS` |
-| 107–146 | Helpers (`esc`, `safeParseJSON`, `sanitizeNum`, `lsGet/Set/Remove`) |
-| 149–330 | Réglages & UI globale (taille, settings, daltonien, SFX WebAudio, thème) |
-| 333–495 | Cœur quotidien (`seedForDate`, `saveTodayTargets`, `switchMode`, `syncBanners`, `updateCounter`) |
-| 495–590 | Comparaisons & recherche (`formatBounty`, `getMatchHint`, `charMatchesQuery`) |
-| 591–810 | **Mode Classique** (`submitClassic`, `finClassic`, `cmp*`, `buildGuessRow`, `updateRecap`, indices) |
-| 812–918 | **Mode Wanted** (`initPoster`, `applyFilter`, `defloutStep`, `finWanted`) |
-| 920–1011 | **Mode Pavillon** (`initFlagGrid`, `revealFlagCells`, `finFlag`) |
-| 1012–1094 | **Mode Infini** (`pickInfTarget`, `initInfMode`, `finInf`, `replayInf`) |
-| 1095–1294 | Stats & résultats (`loadStats`, `recordResult`, `showStats`, `renderStatsContent`) |
-| 1295–1417 | **Mode Fruit** (`initFruitMode`, `revealHint`, `finFruit`) |
-| 1418–1599 | **Mode Émoji** (`seededShuffle`, `buildEmojiSeed`, `updateEmojiStrip`, `finEmoji`) |
-| 1600–1812 | **Mode Opening** (`initAudioMode`, `playSnippet`, `showAudioReveal`, `finAudio`) |
-| 1813–1927 | Scores & persistance (`calcModeScore`, `saveState`, `restoreAllStates`, **`onGameEnd` @1912**) |
-| 1928–2033 | Partage (`buildShareText`, `shareDaily`, `shareVia`) |
-| 2034–2126 | Barre de score & onglets (`updateScoreBar`, `updateStreakDisplay`) |
-| 2127–2346 | Effets (`launchPerfectDay`, `startCountdown`, `launchConfetti`, konami) |
+| 1–58 | Firebase (`fbGet`/`fbIncrement`) + compteurs |
+| 59–101 | Registre **`MODES`**/`MODE_IDS` + clés **`LS`** (sources uniques) |
+| 102–179 | Rang pirate (8 insignes SVG colorés, seuils de score cumulé) |
+| 180–227 | Utils (`esc`, `safeParseJSON`, `lsGet/Set`) + état du jeu |
+| 228–414 | Réglages & UI (taille, daltonien, SFX WebAudio, fond 3D opt-in, thème) |
+| 415–502 | Modal spoiler · date & hier (cibles par date, dont silhouette salt 211) |
+| 503–659 | Onglets (`switchMode`), banners, compteur, formatage prime |
+| 660–760 | Autocomplete + submit |
+| 761–965 | **Mode Classique** (+ récap + indices) |
+| 966–1074 | **Mode Wanted** |
+| 1075–1215 | **Mode Silhouette** (dézoom `SIL_SCALES` ×3.2→1, 10 essais, indice couleur au 5e) |
+| 1216–1520 | Statistiques (`loadStats`@1305, `showStats`@1361) + **Mode Infini** |
+| 1521–1640 | **Mode Fruit** (Akuma no Mi) |
+| 1641–1860 | **Mode Émoji** |
+| 1861–2077 | **Mode Opening** (audio) |
+| 2078–2174 | **Mode Tome** (couverture zoomée → dézoom) |
+| 2175–2394 | Score (`calcModeScore`@2181), persistance (`saveState`/`restoreAllStates`), **`onGameEnd`@2304**, partage (`buildShareText`@2340) |
+| 2395–2688 | À propos · gazette Silhouette · export/import sauvegarde · changelog |
+| 2689–2992 | Barre de score (`updateScoreBar`@2689) · compte à rebours · confettis · konami · micro-animations |
+| 2993–fin | Init asynchrone |
 
-## Seams en place pour la v5 (déjà pré-adaptés, comportement identique à v4.6)
+## Points d'architecture
 
-- **`onGameEnd(mode, won, tries, score, extra)`** dans `app.js` = point d'entrée UNIQUE
-  de fin de partie des 6 modes. C'est ici qu'on branchera rang pirate / animations / stats Firebase.
-- **`MODES`** = `[{ id, icon, label }]` (+ `MODE_IDS`) : registre unique, ordre canonique.
+- **`onGameEnd(mode, won, tries, score, extra)`** = point d'entrée UNIQUE de fin de partie
+  des 7 modes (rang pirate, stats Firebase, animations y sont branchés).
+- **`MODES`** = `[{ id, icon, svg, label }]` (+ `MODE_IDS`) : registre unique, ordre canonique.
+  Icônes = sprite SVG `<symbol>` inline dans game.html/index.html (plus d'emojis d'UI).
 - **`LS`** : objet centralisant TOUTES les clés localStorage. Toute nouvelle clé va ici.
-  Clés v5 déjà réservées : `LS.cumulativeScore`, `LS.pirateRank`, `LS.mapUnlocked`.
+- **Couleur signature par mode** : variables CSS `--mode-*`, survol d'onglet coloré.
+
+## Mode Silhouette (v5.2 — remplace l'ancien Pavillon/`flag`)
+
+- **Pool = clés de `silhouettes/focus.json`** croisées avec `img[0]` des persos
+  (`SIL_POOL`, actuellement **150/246**). Les persos sans silhouette sont **exclus du pool**.
+  ⚠️ Ajouter des silhouettes change la taille du pool → **la cible du jour change** au déploiement.
+- Mécanique : gros plan ×3.2 sur un point du contour (focus.json) → pan + dézoom sur 10 essais ;
+  **indice couleur au 5e essai** (÷2 score, disque `clip-path` depuis `silhouettes/color/<clé>.png`).
+- **⚠️ `?v=` codé en dur** dans `silSrc`/`silColorSrc` (`app.js` ~1082) → à bumper avec le reste
+  (le sed ci-dessous inclut `js/app.js` pour ça).
+- Workflow assets : l'utilisateur fournit des découpes PNG transparentes dans
+  `images/silhouette_src/` (gitignoré, ~200 Mo) → `python blacken.py <clés>` (noircit + cadre +
+  focus.json) puis `python colorize.py` (version couleur cadrée idem). Scripts gitignorés (locaux).
+- **96 persos restants** (liste : `images/silhouette_src/_A_REFAIRE.txt`) — dont
+  **Zoro, Sanji, Usopp, Franky, Brook** (prioritaires).
+- Restes assumés : 4 variantes non utilisées dans `silhouettes/` (`chopper_ts`, `luffy_g5`,
+  `nami_ts`, `robin2` — la clé du jeu est `img[0]`) ; anciennes stats `op-stats-flag` orphelines
+  dans le localStorage des joueurs (inoffensif) ; clé `FLAGS` encore présente dans data.json (inutilisée).
 
 ## Schéma d'un personnage (`data.json` → `CHARACTERS[]`)
 
 `name`, `img` (string | array | null), `emoji` (array de 8), `epithet`, `gender`,
-`affil`, `origin`, `fruit`, `haki` (array), `status`, `arc` (1-based), `bounty`.
+`affil`, `origin`, `fruit`, `haki` (array), `status`, `arc` (1-based), `bounty`, `debut`.
+Le jeu charge les portraits en `images/<img>.jpg`.
 
 ### Convention emojis (mode Émoji) — établie le 29/05/2026
 
@@ -92,14 +118,14 @@ Chaque perso a **8 emojis distinctifs**. Règles :
 
 ## Workflow de dev
 
-- **`data.json` = 87 Ko sur UNE seule ligne.** Ne JAMAIS le `Read` en entier (gaspille ~20k tokens
+- **`data.json` = ~103 Ko sur UNE seule ligne.** Ne JAMAIS le `Read` en entier (gaspille ~20k tokens
   pour une ligne illisible). Le **lire/interroger via Python** (`json.load` puis filtrer `CHARACTERS`
   par `name`) ou `Grep`. L'**éditer toujours via Python**, jamais à la main :
   `json.dump(d, open('data.json','w',encoding='utf-8'), ensure_ascii=False, separators=(',',':'))`
 - **Cache-busting** : après toute modif de JS/CSS/JSON, bumper la version partout :
-  `sed -i "s/v=NN/v=NN+1/g; s/logpose-vNN/logpose-vNN+1/g" sw.js game.html index.html`
-  (les `<script>/<link>` sont suffixés `?v=NN`, le SW a `logpose-vNN`). **Version actuelle : v102.**
-- **Nouveau fichier JS/CSS en v5** : (a) `<script>/<link>` dans game.html, (b) ajouté au
+  `sed -i "s/v=NN/v=NN+1/g; s/logpose-vNN/logpose-vNN+1/g" sw.js game.html index.html js/app.js`
+  (`js/app.js` inclus à cause des `?v=` en dur de `silSrc`/`silColorSrc`). **Version actuelle : v194.**
+- **Nouveau fichier JS/CSS** : (a) `<script>/<link>` dans game.html, (b) ajouté au
   précache de `sw.js`, (c) suffixé `?v=NN`.
 - **Preview local** : MCP `Claude_Preview` (config "logpose", `python http.server` port 3333).
   Rituel pour voir du frais : unregister SW + `caches.delete` + recharger avec `?fresh=Date.now()`.
@@ -109,35 +135,24 @@ Chaque perso a **8 emojis distinctifs**. Règles :
 
 - **Ne JAMAIS pousser sur GitHub sans accord explicite de l'utilisateur.** Idem pour les commits :
   attendre la demande.
-- À **exclure des commits** (untracked, non voulus) : `.claude/`, et les doublons d'images
-  `images/*.jpg` (favicon, going_merry, jolly_roger, wanted_frame, wanted_template — les vrais sont en `.png`).
+- Le `.gitignore` couvre déjà : `.claude/`, docs de dev (`BRIEF_*`, `CONTEXTE_*`…),
+  `images/silhouette_src/` (197 Mo !), scripts silhouette (`blacken.py`/`colorize.py`/
+  `generate_silhouettes.py`), `__pycache__/`, `.playwright-mcp/`, doublons d'images.
+  **Ne jamais forcer l'ajout d'un fichier ignoré.**
 - Garder **onepiecedle.fr** dans les meta/OG (le repo GitHub est `Logpose35` mais le domaine est onepiecedle.fr).
 - Les **chaînes de clés localStorage doivent rester identiques** (ne pas casser les sauvegardes joueurs).
-- **v5 codée en local, NON déployée** (cache `v137`). Avant prod : règles Firebase pour la branche
-  `island-reach/`, version affichée v4.7 → v5, puis commit + push (sur accord).
-- `split_css.py` est **obsolète** (lisait `style.css` supprimé) — à retirer.
+- **Copyright** : 30 MP3 d'openings (`audio/`) et images de persos dans un repo public — risque
+  connu et assumé, à re-signaler si le sujet revient.
 
-## État courant — v4.7 (commité + poussé le 29/05/2026)
+## État courant (02/07/2026)
 
-La release **v4.7** est en prod (cache **v102**). Contenu de cette release :
-- **Audit complet des emojis** (60 personnages) — suppression des béquilles couleur,
-  dégroupage des blocs identiques (satellites Vegapunk, 5 Gorosei, équipage Barbe Noire),
-  nettoyage des marqueurs Wano empilés. Convention emoji documentée plus haut.
-- **Pré-adaptation v5** : seams `onGameEnd` / `MODES` / `LS` posés (comportement identique),
-  suppression du `css/style.css` mort.
-- **UX** : popup de fin accélérée (1800→900 ms), OG preview régénérée (6 modes).
-- **Doc/infra** : ajout de ce `CLAUDE.md`, `.gitignore` enrichi (`.claude/` + doublons `.jpg`).
-
-## v5 — codée en local (cache `v137`, NON déployée)
-
-Toute la v5 est implémentée mais **rien n'est commité/poussé** :
-- **P1** Rang/titre pirate · **P1.1** Jolly Roger procédural (`js/jolly-roger.js`)
-- **P2** Share image canvas (`js/canvas-share.js`, + pavillon perso en filigrane)
-- **P3** Micro-animations victoire (`css/animations.css`) · **UX** transitions d'onglets
-- **P4** Stats communauté Firebase · **P5a** Anniversaires personnages
-- **P6** Carte de Grand Line (`js/map.js` + `css/map.css`) : 32 îles aux vraies positions géo,
-  zoom/pan, déblocage par score cumulé, **carnet de capture** (clic île → dossier d'arc, persos
-  capturés/silhouettes), **fiche personnage** (clic perso), **compteur communauté** (`island-reach/{arc}`).
-
-**Reste :** P5b — Calendrier de l'Avent (hors-saison, décembre).
-**Avant prod :** règles Firebase `island-reach/` · version v4.7 → v5 · commit + push (sur accord) · test appareil.
+- **Prod (poussée)** : **v5.1**, cache `v186` — refonte landing « rose des vents », icônes SVG,
+  couleur par mode, fond 3D océan/île, carte Grand Line, rang pirate, stats communauté.
+- **Commité en local, NON poussé** : **v5.2**, cache `v194` — **mode Silhouette** (remplace
+  Pavillon), gazette de lancement, nettoyage code mort Pavillon (`css/flag.css`,
+  `TARGET_F`/`FLAGS`/`CELL_ORDER` de data.js), `.gitignore` chantier silhouette.
+- **Avant push v5.2** : vérifier les règles Firebase (la branche `island-reach/` est DÉJÀ
+  utilisée en prod par la carte) · test appareil réel.
+- **Reste à faire** : 96 silhouettes manquantes (Zoro/Sanji/Usopp/Franky/Brook en tête) ·
+  P5b Calendrier de l'Avent (décembre) · compression images lourdes
+  (`wanted_frame.png` 4,3 Mo, `carte.jpeg` 2,3 Mo, `koala.jpg` 2 Mo).

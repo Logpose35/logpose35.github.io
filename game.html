@@ -6,7 +6,7 @@
   <title>LogPose — 7 défis One Piece quotidiens</title>
 
   <!-- SEO -->
-  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères en analysant leurs caractéristiques.">
+  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères en analysant leurs caractéristiques.">
   <meta name="keywords" content="LogPose, One Piece, Wordle, jeu, devinette, personnage, manga, anime, quotidien">
   <meta name="author" content="LogPose">
   <meta name="robots" content="index, follow">
@@ -17,7 +17,7 @@
 
   <!-- Open Graph -->
   <meta property="og:title" content="LogPose — 7 défis One Piece quotidiens">
-  <meta property="og:description" content="7 défis One Piece par jour — Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome. Un nouveau défi chaque jour !">
+  <meta property="og:description" content="7 défis One Piece par jour — Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Un nouveau défi chaque jour !">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://onepiecedle.fr/game.html">
   <meta property="og:locale" content="fr_FR">
@@ -29,7 +29,7 @@
   <!-- Twitter / X Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="LogPose — 7 défis One Piece quotidiens">
-  <meta name="twitter:description" content="Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome. Un nouveau défi chaque jour !">
+  <meta name="twitter:description" content="Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome. Un nouveau défi chaque jour !">
   <meta name="twitter:image" content="https://onepiecedle.fr/images/og_preview.jpg">
 
   <!-- PWA Manifest -->
@@ -42,7 +42,7 @@
     "@type": "WebApplication",
     "name": "LogPose",
     "url": "https://onepiecedle.fr/game.html",
-    "description": "7 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome",
+    "description": "7 défis One Piece quotidiens — Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome",
     "applicationCategory": "Game",
     "genre": "Word Game",
     "inLanguage": "fr",
@@ -55,21 +55,21 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=186">
-  <link rel="stylesheet" href="css/layout.css?v=186">
-  <link rel="stylesheet" href="css/modals.css?v=186">
-  <link rel="stylesheet" href="css/classic.css?v=186">
-  <link rel="stylesheet" href="css/wanted.css?v=186">
-  <link rel="stylesheet" href="css/flag.css?v=186">
-  <link rel="stylesheet" href="css/fruit.css?v=186">
-  <link rel="stylesheet" href="css/inf.css?v=186">
-  <link rel="stylesheet" href="css/emoji.css?v=186">
-  <link rel="stylesheet" href="css/misc.css?v=186">
-  <link rel="stylesheet" href="css/audio.css?v=186">
-  <link rel="stylesheet" href="css/animations.css?v=186">
-  <link rel="stylesheet" href="css/map.css?v=186">
-  <link rel="stylesheet" href="css/tome.css?v=186">
-  <link rel="stylesheet" href="css/ocean3d.css?v=186">
+  <link rel="stylesheet" href="css/base.css?v=194">
+  <link rel="stylesheet" href="css/layout.css?v=194">
+  <link rel="stylesheet" href="css/modals.css?v=194">
+  <link rel="stylesheet" href="css/classic.css?v=194">
+  <link rel="stylesheet" href="css/wanted.css?v=194">
+  <link rel="stylesheet" href="css/silhouette.css?v=194">
+  <link rel="stylesheet" href="css/fruit.css?v=194">
+  <link rel="stylesheet" href="css/inf.css?v=194">
+  <link rel="stylesheet" href="css/emoji.css?v=194">
+  <link rel="stylesheet" href="css/misc.css?v=194">
+  <link rel="stylesheet" href="css/audio.css?v=194">
+  <link rel="stylesheet" href="css/animations.css?v=194">
+  <link rel="stylesheet" href="css/map.css?v=194">
+  <link rel="stylesheet" href="css/tome.css?v=194">
+  <link rel="stylesheet" href="css/ocean3d.css?v=194">
 </head>
 <body data-ocean="game">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -89,6 +89,14 @@
   <symbol id="ic-flag" viewBox="0 0 24 24">
     <path d="M6 3v18"/>
     <path d="M6 4h12l-2.2 3L18 10H6z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-silhouette" viewBox="0 0 24 24">
+    <circle cx="12" cy="7.5" r="4" fill="currentColor" stroke="none"/>
+    <path d="M4.5 21c0-4.7 3.4-7.5 7.5-7.5s7.5 2.8 7.5 7.5z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-eye" viewBox="0 0 24 24">
+    <path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z"/>
+    <circle cx="12" cy="12" r="2.7"/>
   </symbol>
   <symbol id="ic-fruit" viewBox="0 0 24 24">
     <path d="M12 8.2C12 5.5 13.2 4.2 15.3 3.6"/>
@@ -306,7 +314,7 @@
 <div class="mode-tabs" role="tablist" aria-label="Modes de jeu quotidiens">
   <button class="mode-tab active" id="tab-classic" onclick="switchMode('classic')" role="tab" aria-selected="true"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classique</button>
   <button class="mode-tab" id="tab-wanted" onclick="switchMode('wanted')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-wanted"></use></svg>Wanted</button>
-  <button class="mode-tab" id="tab-flag" onclick="switchMode('flag')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-flag"></use></svg>Pavillon</button>
+  <button class="mode-tab" id="tab-silhouette" onclick="switchMode('silhouette')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>Silhouette</button>
   <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Fruit du Démon</button>
   <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
   <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-note"></use></svg>Opening</button>
@@ -480,22 +488,21 @@
     </div>
   </div>
 
-  <!-- MODE PAVILLON -->
-  <div id="flag-section">
-    <div class="flag-layout">
-      <div class="flag-left">
-        <div class="flag-grid-wrap">
-          <div class="flag-grid" id="flag-grid"></div>
-        </div>
-        <div class="flag-progress">Cases révélées : <span id="flag-revealed">0</span> / 16</div>
+  <!-- MODE SILHOUETTE (gros plan sur un bord → dézoom + pan) -->
+  <div id="silhouette-section">
+    <div class="sil-layout">
+      <div class="sil-frame">
+        <img id="sil-img" src="" alt="Silhouette du personnage à deviner"/>
+        <img id="sil-color" src="" alt=""/>
       </div>
-      <div class="flag-right">
-        <div class="flag-hint">
-          <strong id="flag-hint-title">0 case révélée</strong>
-          Devine l'équipage — une case se dévoile à chaque mauvaise réponse
-        </div>
-        <div id="flag-guesses"></div>
+      <div class="sil-status" id="sil-status"></div>
+      <div class="sil-hint-bar hidden" id="sil-hint-bar">
+        <button class="sil-hint-btn" id="sil-hint-btn" type="button" onclick="useSilHint()">
+          <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-eye"></use></svg>
+          Indice couleur <span class="sil-hint-cost">(−½ score)</span>
+        </button>
       </div>
+      <div id="sil-guesses"></div>
     </div>
   </div>
 
@@ -656,12 +663,12 @@
 </div>
 
 <footer>
-  LogPose — Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome
+  LogPose — Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome
   <br>
   One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation
   <br>
   <button class="footer-about-btn" onclick="openAbout()">À propos</button>
-  <span class="footer-version">v5.1</span>
+  <span class="footer-version">v5.2</span>
 </footer>
 
 <!-- MODAL AVERTISSEMENT SPOILERS -->
@@ -719,7 +726,7 @@
     <div class="modal-mode-tabs">
       <button class="modal-mode-tab active" id="stab-classic" onclick="switchStatsTab('classic')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classique</button>
       <button class="modal-mode-tab" id="stab-wanted"  onclick="switchStatsTab('wanted')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-wanted"></use></svg>Wanted</button>
-      <button class="modal-mode-tab" id="stab-flag"    onclick="switchStatsTab('flag')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-flag"></use></svg>Pavillon</button>
+      <button class="modal-mode-tab" id="stab-silhouette" onclick="switchStatsTab('silhouette')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>Silhouette</button>
       <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Démon</button>
       <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
       <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-note"></use></svg>Opening</button>
@@ -746,7 +753,7 @@
 
     <div class="about-logo-wrap">
       <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
-      <div class="about-version-badge">v5.1</div>
+      <div class="about-version-badge">v5.2</div>
     </div>
 
     <p class="about-desc">
@@ -757,7 +764,7 @@
     <div class="about-modes-grid">
       <div class="about-mode-item"><svg class="ic mi-classic" aria-hidden="true"><use href="#ic-compass"></use></svg> Classique</div>
       <div class="about-mode-item"><svg class="ic mi-wanted" aria-hidden="true"><use href="#ic-wanted"></use></svg> Wanted</div>
-      <div class="about-mode-item"><svg class="ic mi-flag" aria-hidden="true"><use href="#ic-flag"></use></svg> Pavillon</div>
+      <div class="about-mode-item"><svg class="ic mi-flag" aria-hidden="true"><use href="#ic-silhouette"></use></svg> Silhouette</div>
       <div class="about-mode-item"><svg class="ic mi-fruit" aria-hidden="true"><use href="#ic-fruit"></use></svg> Fruit du Démon</div>
       <div class="about-mode-item"><svg class="ic mi-emoji" aria-hidden="true"><use href="#ic-rebus"></use></svg> Émoji</div>
       <div class="about-mode-item"><svg class="ic mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg> Opening</div>
@@ -817,11 +824,11 @@
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/ocean3d.js?v=186"></script>
-<script src="js/data.js?v=186"></script>
-<script src="js/jolly-roger.js?v=186"></script>
-<script src="js/app.js?v=186"></script>
-<script src="js/canvas-share.js?v=186"></script>
-<script src="js/map.js?v=186"></script>
+<script src="js/ocean3d.js?v=194"></script>
+<script src="js/data.js?v=194"></script>
+<script src="js/jolly-roger.js?v=194"></script>
+<script src="js/app.js?v=194"></script>
+<script src="js/canvas-share.js?v=194"></script>
+<script src="js/map.js?v=194"></script>
 </body>
 </html>

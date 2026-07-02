@@ -38,7 +38,7 @@ async function fbIncrementBy(path, delta) {
 const COUNTER_VERBS = {
   classic: "mené l'enquête",
   wanted:  "scruté l'avis de recherche",
-  flag:    'reconnu le pavillon',
+  silhouette: 'reconnu la silhouette',
   fruit:   null,
   emoji:   'déchiffré les émojis',
   audio:   "identifié l'opening",
@@ -48,7 +48,7 @@ const COUNTER_VERBS = {
 const WIN_TITLES = {
   classic: '🏴‍☠️ Nakama trouvé !',
   wanted:  '🎯 Avis de recherche résolu !',
-  flag:    '🏴‍☠️ Pavillon reconnu !',
+  silhouette: '<svg class="ic win-ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>Silhouette reconnue !',
   fruit:   '🍎 Fruit du Démon identifié !',
   emoji:   '😄 Nakama identifié !',
   audio:   '🎵 Opening trouvé !',
@@ -61,7 +61,7 @@ const WIN_TITLES = {
 const MODES = [
   { id: 'classic', icon: '🗺️',  svg: 'ic-compass', label: 'Classique' },
   { id: 'wanted',  icon: '🖼️', svg: 'ic-wanted',  label: 'Wanted' },
-  { id: 'flag',    icon: '🏴‍☠️',   svg: 'ic-flag',    label: 'Pavillon' },
+  { id: 'silhouette', icon: '🕵️', svg: 'ic-silhouette', label: 'Silhouette' },
   { id: 'fruit',   icon: '🍎',  svg: 'ic-fruit',   label: 'Fruit du Démon' },
   { id: 'emoji',   icon: '😀',  svg: 'ic-rebus',   label: 'Émoji' },
   { id: 'audio',   icon: '🎵',  svg: 'ic-note',    label: 'Opening' },
@@ -79,7 +79,8 @@ const LS = {
   ocean3d:   'op-ocean3d',     // fond 3D du jeu — opt-in ('1' = 3D, sinon classique)
   theme:     'op-theme',
   spoilerOk: 'op-spoiler-ok',
-  v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue
+  v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue (historique)
+  wnSilSeen: 'op-wn-sil-seen', // pop-up "Gazette · mode Silhouette (v5.2)" déjà vue
   // Mode Infini
   infStreak: 'op-inf-streak',
   infRecord: 'op-inf-record',
@@ -214,7 +215,7 @@ function lsRemove(key)   { try { localStorage.removeItem(key); }        catch {}
 let currentMode = 'classic';
 let cGuesses = [], cOver = false, cNames = new Set();
 let wGuesses = [], wOver = false, wNames = new Set();
-let fGuesses  = [], fOver  = false, fNames  = new Set();
+let silGuesses = [], silOver = false, silNames = new Set(), silHintUsed = false, silHintFocus = null;
 let frGuesses = [], frOver = false, frNames = new Set(), frHintsRevealed = new Set();
 let infGuesses = [], infOver = false, infNames = new Set(), infTarget = null;
 let auGuesses = [], auOver = false, auNames = new Set();
@@ -446,7 +447,7 @@ function saveTodayTargets() {
   lsSet(key, JSON.stringify({
     classic: TARGET_C.name,
     wanted:  TARGET_W.name,
-    flag:    TARGET_F.name,
+    silhouette: TARGET_SIL ? TARGET_SIL.name : null,
     fruit:   TARGET_FRU.holder,
     emoji:   TARGET_EM.name,
     audio:   TARGET_AU.name,
@@ -467,7 +468,7 @@ function buildYesterdayBar() {
   const data = stored || {
     classic: CHARACTERS[dailyIndex(d,    1, CHARACTERS.length)].name,
     wanted:  WANTED_CHARS[dailyIndex(d, 31, WANTED_CHARS.length)].name,
-    flag:    FLAGS[dailyIndex(d,        97, FLAGS.length)].name,
+    silhouette: (typeof SIL_POOL !== 'undefined' && SIL_POOL.length) ? SIL_POOL[dailyIndex(d, 211, SIL_POOL.length)].name : null,
     fruit:   FRUITS[dailyIndex(d,       71, FRUITS.length)].holder,
     emoji:   EMOJI_POOL[dailyIndex(d,  137, EMOJI_POOL.length)].name,
     tome:    TOMES[dailyIndex(d,       181, TOMES.length)],
@@ -476,7 +477,7 @@ function buildYesterdayBar() {
   const tomeBit = (data.tome != null)
     ? ` &nbsp;|&nbsp; <svg class="ic ic-inline mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome : <strong>${esc(String(data.tome))}</strong>` : '';
   el.innerHTML =
-    `Hier &nbsp;—&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Pavillon : <strong>${esc(data.flag)}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
+    `Hier &nbsp;—&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Silhouette : <strong>${esc(data.silhouette || '?')}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
     `<br><span class="yesterday-op"><svg class="ic ic-inline mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg>Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
     `<br><span class="yesterday-community" id="yesterday-community"></span>`;
 }
@@ -506,7 +507,7 @@ function switchMode(mode) {
   // ── Transition FLIP : style inline (priorité absolue sur les stylesheets) ──
   let _flipEl = null;
   if (_prevMode !== mode && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const _order = ['classic', 'wanted', 'flag', 'fruit', 'emoji', 'audio', 'tome', 'inf'];
+    const _order = ['classic', 'wanted', 'silhouette', 'fruit', 'emoji', 'audio', 'tome', 'inf'];
     const _anim  = _order.indexOf(mode) >= _order.indexOf(_prevMode) ? 'slideInRight' : 'slideInLeft';
     const _sid   = mode === 'classic' ? 'classic-section' : `${mode}-section`;
     _flipEl = document.getElementById(_sid);
@@ -516,7 +517,7 @@ function switchMode(mode) {
   currentMode = mode;
   document.getElementById('tab-classic').classList.toggle('active', mode === 'classic');
   document.getElementById('tab-wanted').classList.toggle('active', mode === 'wanted');
-  document.getElementById('tab-flag').classList.toggle('active', mode === 'flag');
+  document.getElementById('tab-silhouette').classList.toggle('active', mode === 'silhouette');
   document.getElementById('tab-fruit').classList.toggle('active', mode === 'fruit');
   document.getElementById('tab-emoji').classList.toggle('active', mode === 'emoji');
   document.getElementById('tab-audio').classList.toggle('active', mode === 'audio');
@@ -528,7 +529,7 @@ function switchMode(mode) {
   });
   document.getElementById('classic-section').classList.toggle('hidden', mode !== 'classic');
   document.getElementById('wanted-section').classList.toggle('active', mode === 'wanted');
-  document.getElementById('flag-section').classList.toggle('active', mode === 'flag');
+  document.getElementById('silhouette-section').classList.toggle('active', mode === 'silhouette');
   document.getElementById('fruit-section').classList.toggle('active', mode === 'fruit');
   document.getElementById('emoji-section').classList.toggle('active', mode === 'emoji');
   document.getElementById('audio-section').classList.toggle('active', mode === 'audio');
@@ -546,7 +547,8 @@ function switchMode(mode) {
              : mode === 'audio'   ? auOver
              : mode === 'inf'     ? infOver
              : mode === 'tome'    ? tmOver
-             :                      fOver;
+             : mode === 'silhouette' ? silOver
+             :                      cOver;
   input.placeholder = mode === 'classic' || mode === 'inf'
     ? 'Tape un nom de personnage...'
     : mode === 'wanted'
@@ -557,13 +559,13 @@ function switchMode(mode) {
     ? 'Devine le personnage...'
     : mode === 'audio'
     ? "Devine le nom de l'opening..."
-    : "Devine l'équipage...";
+    : 'Devine le personnage...';
   input.disabled = over;
   document.getElementById('guess-btn').disabled = over;
   syncBanners();
   updateCounter();
   if (mode === 'wanted') initPoster();
-  if (mode === 'flag')   initFlagGrid();
+  if (mode === 'silhouette') initSilhouetteMode();
   if (mode === 'fruit')  initFruitMode();
   if (mode === 'emoji')  initEmojiMode();
   if (mode === 'audio')  initAudioMode();
@@ -575,7 +577,7 @@ function switchMode(mode) {
   const TITLES = {
     classic: 'LogPose · Classique — Devine le personnage One Piece',
     wanted:  'LogPose · Wanted — Reconnais l\'avis de recherche',
-    flag:    'LogPose · Pavillon — Identifie le Jolly Roger',
+    silhouette: 'LogPose · Silhouette — Devine le personnage à sa forme',
     fruit:   'LogPose · Fruit du Démon — Trouve le détenteur',
     emoji:   'LogPose · Émoji — Devine le personnage One Piece',
     audio:   'LogPose · Opening — Devine l\'opening One Piece',
@@ -610,9 +612,9 @@ function syncBanners() {
     }
     return;
   }
-  const over    = currentMode === 'classic' ? cOver    : currentMode === 'wanted' ? wOver    : currentMode === 'fruit' ? frOver    : currentMode === 'emoji' ? emOver    : currentMode === 'audio' ? auOver  : currentMode === 'inf' ? infOver  : fOver;
-  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'audio' ? auGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
-  const target  = currentMode === 'classic' ? TARGET_C : currentMode === 'wanted' ? TARGET_W : currentMode === 'fruit' ? { name: TARGET_FRU.holder } : currentMode === 'emoji' ? emTarget : currentMode === 'audio' ? TARGET_AU : currentMode === 'inf' ? infTarget : TARGET_F;
+  const over    = currentMode === 'classic' ? cOver    : currentMode === 'wanted' ? wOver    : currentMode === 'fruit' ? frOver    : currentMode === 'emoji' ? emOver    : currentMode === 'audio' ? auOver  : currentMode === 'inf' ? infOver  : silOver;
+  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'audio' ? auGuesses : currentMode === 'inf' ? infGuesses : silGuesses;
+  const target  = currentMode === 'classic' ? TARGET_C : currentMode === 'wanted' ? TARGET_W : currentMode === 'fruit' ? { name: TARGET_FRU.holder } : currentMode === 'emoji' ? emTarget : currentMode === 'audio' ? TARGET_AU : currentMode === 'inf' ? infTarget : TARGET_SIL;
 
   if (!over) {
     document.getElementById('win-banner').classList.remove('show');
@@ -623,7 +625,7 @@ function syncBanners() {
   document.getElementById('win-banner').classList.toggle('show', won);
   document.getElementById('lose-banner').classList.toggle('show', !won);
   if (won) {
-    document.getElementById('win-title').textContent = WIN_TITLES[currentMode] || '🏴‍☠️ Nakama trouvé !';
+    document.getElementById('win-title').innerHTML = WIN_TITLES[currentMode] || '🏴‍☠️ Nakama trouvé !';
     document.getElementById('win-char-name').textContent = target.name;
     document.getElementById('win-attempts').textContent = guesses.length;
   } else {
@@ -634,8 +636,8 @@ function syncBanners() {
 // ===== COUNTER =====
 function updateCounter() {
   if (currentMode === 'tome') return;   // le mode Tome gère son propre affichage (tome-hint / tome-guesses)
-  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'audio' ? auGuesses : currentMode === 'inf' ? infGuesses : fGuesses;
-  const names   = currentMode === 'classic' ? cNames   : currentMode === 'wanted' ? wNames   : currentMode === 'fruit' ? frNames   : currentMode === 'emoji' ? emNames   : currentMode === 'audio' ? auNames   : currentMode === 'inf' ? infNames   : fNames;
+  const guesses = currentMode === 'classic' ? cGuesses : currentMode === 'wanted' ? wGuesses : currentMode === 'fruit' ? frGuesses : currentMode === 'emoji' ? emGuesses : currentMode === 'audio' ? auGuesses : currentMode === 'inf' ? infGuesses : silGuesses;
+  const names   = currentMode === 'classic' ? cNames   : currentMode === 'wanted' ? wNames   : currentMode === 'fruit' ? frNames   : currentMode === 'emoji' ? emNames   : currentMode === 'audio' ? auNames   : currentMode === 'inf' ? infNames   : silNames;
   document.getElementById('counter').style.display = 'block';
   document.getElementById('current-try').textContent = guesses.length + 1;
   document.getElementById('already-guessed-label').textContent =
@@ -706,11 +708,11 @@ input.addEventListener('input', () => {
   else if (currentMode === 'emoji')   { pool = EMOJI_POOL;   used = emNames; }
   else if (currentMode === 'audio')   { pool = OPENINGS;     used = auNames; }
   else if (currentMode === 'inf')     { pool = CHARACTERS;   used = infNames; }
-  else                                { pool = FLAGS;        used = fNames; }
+  else                                { pool = CHARACTERS;   used = silNames; }  // silhouette
   acFilt = pool.filter(c => !used.has(c.name) && charMatchesQuery(c, q)).slice(0, 8);
   if (!acFilt.length) { acBox.classList.remove('open'); return; }
   acBox.innerHTML = acFilt.map((c, i) => {
-    const hint = getMatchHint(c, q) || (c.captain && currentMode === 'flag' ? c.captain : null);
+    const hint = getMatchHint(c, q);
     const sub  = hint ? ` <span class="ac-hint">${esc(hint)}</span>` : '';
     return `<div class="ac-item" data-i="${i}">${esc(c.name)}${sub}</div>`;
   }).join('');
@@ -747,7 +749,7 @@ function submitGuess() {
   else if (currentMode === 'audio')  submitAudio();
   else if (currentMode === 'inf')    submitInf();
   else if (currentMode === 'tome')   submitTome();   // (input dédié, mais sécurité)
-  else                               submitFlag();
+  else if (currentMode === 'silhouette') submitSilhouette();
 }
 
 function shake(el) {
@@ -1070,102 +1072,150 @@ function finWanted(won) {
   onGameEnd('wanted', won, wGuesses.length, won ? calcModeScore('wanted', wGuesses.length, false, 0) : 0);
 }
 
-// ===== MODE PAVILLON =====
-function initFlagGrid() {
-  const grid = document.getElementById('flag-grid');
-  grid.innerHTML = '';
-  const src = `flags/${TARGET_F.file}.jpg`;
-  for (let i = 0; i < 16; i++) {
-    const r = Math.floor(i / 4), c = i % 4;
-    const cell = document.createElement('div');
-    cell.className = 'flag-cell flag-masked';
-    cell.dataset.r = r; cell.dataset.c = c; cell.dataset.i = i;
-    const img = document.createElement('img');
-    img.src = src; img.alt = '';
-    img.draggable = false;
-    img.addEventListener('dragstart', e => e.preventDefault());
-    cell.appendChild(img);
-    grid.appendChild(cell);
+// ===== MODE SILHOUETTE (gros plan sur un bord → dézoom + pan) =====
+const MAX_SIL_GUESSES = 10;
+// départ serré (gros plan sur une arête) → dézoom complet (silhouette entière) en 10 essais
+const SIL_SCALES  = [3.2, 2.9, 2.6, 2.3, 2.0, 1.75, 1.5, 1.3, 1.15, 1];
+const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
+
+function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
+function silSrc(char)       { return `silhouettes/${silFile(char)}.png?v=194`; }
+function silColorSrc(char)  { return `silhouettes/color/${silFile(char)}.png?v=194`; }
+function silFocus() {
+  const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
+  return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
+}
+// Centre de cadrage (pan) à l'étape courante : interpole du point de contour vers le centre.
+function silCenter(step) {
+  const s = SIL_SCALES[Math.min(step, SIL_SCALES.length - 1)];
+  const t = (SIL_SCALES[0] - s) / (SIL_SCALES[0] - 1) || 0;
+  const f = silFocus();
+  return { x: f.x + (0.5 - f.x) * t, y: f.y + (0.5 - f.y) * t, s };
+}
+
+function initSilhouetteMode() {
+  if (!TARGET_SIL) return;
+  const img = document.getElementById('sil-img');
+  const col = document.getElementById('sil-color');
+  if (img && img.getAttribute('src') !== silSrc(TARGET_SIL)) {
+    img.src = silSrc(TARGET_SIL);
+    img.draggable = false; img.addEventListener('dragstart', e => e.preventDefault());
   }
-  if (fOver) revealAllFlag();
-  else       revealFlagCells();
-  updateFlagHint();
-}
-
-function revealFlagCells() {
-  const cells    = document.querySelectorAll('.flag-cell');
-  const toReveal = Math.min(fGuesses.length + 1, 16);
-  for (let i = 0; i < 16; i++) {
-    const idx = CELL_ORDER[i];
-    if (i < toReveal) cells[idx].classList.remove('flag-masked');
-    else              cells[idx].classList.add('flag-masked');
+  if (col && col.getAttribute('src') !== silColorSrc(TARGET_SIL)) {
+    col.src = silColorSrc(TARGET_SIL);
+    col.draggable = false; col.addEventListener('dragstart', e => e.preventDefault());
   }
-  document.getElementById('flag-revealed').textContent = toReveal;
+  document.getElementById('sil-guesses').innerHTML = '';
+  silGuesses.forEach(c => renderSilGuess(c, c.name === TARGET_SIL.name, false));
+  applyZoomSil();
+  applySilHintReveal();
+  updateSilStatus();
 }
 
-function updateFlagHint() {
-  const toReveal = Math.min(fGuesses.length + 1, 16);
-  const el   = document.getElementById('flag-hint-title');
-  const left = 16 - fGuesses.length;
-  if (fOver) el.textContent = fGuesses.some(g => g.name === TARGET_F.name) ? '🎉 Trouvé !' : '💀 Perdu !';
-  else        el.textContent = `${toReveal} case(s) révélée(s) — ${Math.max(0, left - 1)} essai(s) restant(s)`;
+// Pan du point de contour (départ) vers le centre (fin) + dézoom léger — §3.3(c).
+function applyZoomSil() {
+  const img = document.getElementById('sil-img');
+  const col = document.getElementById('sil-color');
+  if (!img) return;
+  const step = Math.min(silGuesses.length, SIL_SCALES.length - 1);
+  const cc = silCenter(step);
+  const s  = silOver ? 1 : cc.s;
+  const ccx = silOver ? 0.5 : cc.x;
+  const ccy = silOver ? 0.5 : cc.y;
+  // transform-origin:0 0 → translate (en %) place le point (ccx,ccy) au centre du cadre
+  const tr = `translate(${(0.5 - s * ccx) * 100}%, ${(0.5 - s * ccy) * 100}%) scale(${s})`;
+  img.style.transform = tr;
+  if (col) col.style.transform = tr;
 }
 
-function revealAllFlag() {
-  document.querySelectorAll('.flag-cell').forEach(c => c.classList.remove('flag-masked'));
-  document.getElementById('flag-revealed').textContent = 16;
+// Indice : révèle un petit disque en couleur, figé sur la zone visible au moment de l'appui.
+function useSilHint() {
+  if (silOver || silHintUsed || silGuesses.length < SIL_HINT_AT) return;
+  const cc = silCenter(Math.min(silGuesses.length, SIL_SCALES.length - 1));
+  silHintFocus = { x: cc.x, y: cc.y };   // centre de la zone actuellement visible
+  silHintUsed  = true;
+  saveState('silhouette');
+  applySilHintReveal();
+  updateSilStatus();
 }
 
-function submitFlag() {
-  if (fOver) return;
-  const name = input.value.trim();
-  const flag = FLAGS.find(f => f.name.toLowerCase() === name.toLowerCase());
-  if (!flag || fNames.has(flag.name)) { shake(input); return; }
-  fNames.add(flag.name); fGuesses.push(flag);
-  saveState('flag');
-  input.value = ''; acBox.classList.remove('open');
-  const correct = flag.name === TARGET_F.name;
-  renderFlagGuess(flag, correct);
-  updateCounter();
-  if (correct) finFlag(true);
-  else {
-    revealFlagCells();
-    updateFlagHint();
-    if (fGuesses.length >= 15) finFlag(false);
+function applySilHintReveal() {
+  const sec = document.getElementById('silhouette-section');
+  const col = document.getElementById('sil-color');
+  if (!sec || !col) return;
+  if (silOver) {                                   // partie finie → révèle le perso en couleur entière
+    col.style.clipPath = 'none';
+    sec.classList.add('sil-hinted');
+  } else if (silHintUsed && silHintFocus) {        // indice actif → petit disque couleur sur la zone visible
+    col.style.clipPath = `circle(7% at ${(silHintFocus.x * 100).toFixed(2)}% ${(silHintFocus.y * 100).toFixed(2)}%)`;
+    sec.classList.add('sil-hinted');
+  } else {
+    sec.classList.remove('sil-hinted');
   }
 }
 
-function renderFlagGuess(flag, correct) {
+function updateSilStatus() {
+  const st  = document.getElementById('sil-status');
+  const bar = document.getElementById('sil-hint-bar');
+  const left = MAX_SIL_GUESSES - silGuesses.length;
+  if (st) {
+    st.textContent = silOver
+      ? (silGuesses.some(g => g.name === TARGET_SIL.name) ? '🎉 Trouvé !' : `💀 Perdu ! C'était ${TARGET_SIL.name}.`)
+      : `${left} essai${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''}`;
+  }
+  if (bar) bar.classList.toggle('hidden', !(!silOver && !silHintUsed && silGuesses.length >= SIL_HINT_AT));
+}
+
+function renderSilGuess(char, correct, fresh = true) {
   const row = document.createElement('div');
-  row.className = 'wanted-guess-row';
-  row.innerHTML = `<span class="wg-name">${esc(flag.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
-  document.getElementById('flag-guesses').prepend(row);
+  row.className = 'wanted-guess-row' + (fresh ? ' fresh' : '');
+  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+  document.getElementById('sil-guesses').prepend(row);
 }
 
-function finFlag(won) {
-  fOver = true;
+function submitSilhouette() {
+  if (silOver || !TARGET_SIL) return;
+  const name = input.value.trim();
+  const char = CHARACTERS.find(c => c.name.toLowerCase() === name.toLowerCase());
+  if (!char || silNames.has(char.name)) { shake(input); return; }
+  silNames.add(char.name); silGuesses.push(char);
+  saveState('silhouette');
+  input.value = ''; acBox.classList.remove('open');
+  const correct = char.name === TARGET_SIL.name;
+  renderSilGuess(char, correct);
+  updateCounter();
+  if (correct) finSilhouette(true);
+  else {
+    applyZoomSil();
+    updateSilStatus();
+    if (silGuesses.length >= MAX_SIL_GUESSES) finSilhouette(false);
+  }
+}
+
+function finSilhouette(won) {
+  silOver = true;
   if (!_restoring) sfx(won ? 'win' : 'lose');
   document.getElementById('guess-btn').disabled = true;
   input.disabled = true;
-  revealAllFlag();
-  updateFlagHint();
+  applyZoomSil();          // s=1 → silhouette pleine centrée
+  applySilHintReveal();
+  updateSilStatus();
   if (won) {
-    document.getElementById('win-title').textContent      = WIN_TITLES['flag'];
-    document.getElementById('win-char-name').textContent  = TARGET_F.name;
-    document.getElementById('win-attempts').textContent   = fGuesses.length;
+    document.getElementById('win-title').innerHTML        = WIN_TITLES['silhouette'];
+    document.getElementById('win-char-name').textContent  = TARGET_SIL.name;
+    document.getElementById('win-attempts').textContent   = silGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     if (!_restoring) launchConfetti();
   } else {
-    document.getElementById('lose-char-name').textContent = TARGET_F.name;
+    document.getElementById('lose-char-name').textContent = TARGET_SIL.name;
     document.getElementById('lose-banner').classList.add('show');
   }
-  onGameEnd('flag', won, fGuesses.length, won ? calcModeScore('flag', fGuesses.length, false, 0) : 0);
+  onGameEnd('silhouette', won, silGuesses.length, won ? calcModeScore('silhouette', silGuesses.length, silHintUsed, 0) : 0);
 }
 
 // ===== STATISTIQUES =====
 const MAX_DIST_CLASSIC = 10;
 const MAX_DIST_WANTED  = 8;
-const MAX_DIST_FLAG    = 15;
 const MAX_DIST_FRUIT   = 10;
 
 // ===== MODE INFINI =====
@@ -1254,7 +1304,7 @@ function defaultStats(maxGuesses) {
 
 function loadStats(mode) {
   const key  = LS.stats(mode);
-  const max  = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : mode === 'tome' ? MAX_TOME_GUESSES : MAX_DIST_CLASSIC;
+  const max  = mode === 'silhouette' ? MAX_SIL_GUESSES : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : mode === 'tome' ? MAX_TOME_GUESSES : MAX_DIST_CLASSIC;
   const raw  = lsGet(key);
   if (!raw) return defaultStats(max);
   return safeParseJSON(raw, defaultStats(max));
@@ -1357,7 +1407,7 @@ function renderStatsContent(mode) {
   const winPct  = played === 0 ? 0 : Math.round((won / played) * 100);
   const streak  = sanitizeNum(stats.currentStreak);
   const maxStr  = sanitizeNum(stats.maxStreak);
-  const maxDist = mode === 'flag' ? MAX_DIST_FLAG : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : mode === 'tome' ? MAX_TOME_GUESSES : MAX_DIST_CLASSIC;
+  const maxDist = mode === 'silhouette' ? MAX_SIL_GUESSES : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : mode === 'tome' ? MAX_TOME_GUESSES : MAX_DIST_CLASSIC;
   const maxVal  = Math.max(1, ...Object.values(stats.distribution).map(v => sanitizeNum(v)));
   // Moyenne d'essais (sur les parties gagnées uniquement)
   const totGuesses  = Object.entries(stats.distribution).reduce((s, [k, v]) => s + Number(k) * sanitizeNum(v), 0);
@@ -1370,7 +1420,7 @@ function renderStatsContent(mode) {
   const todayScores = safeParseJSON(lsGet(LS.score(todayKey())), {});
   const rawMode     = Object.prototype.hasOwnProperty.call(todayScores, mode) ? sanitizeNum(todayScores[mode]) : undefined;
   const totalScore  = Object.values(todayScores).reduce((a, b) => a + sanitizeNum(b), 0);
-  const modeLabels  = { classic:'Classique', wanted:'Wanted', flag:'Pavillon', fruit:'Fruit du Démon', emoji:'Émoji' };
+  const modeLabels  = { classic:'Classique', wanted:'Wanted', silhouette:'Silhouette', fruit:'Fruit du Démon', emoji:'Émoji' };
   const scoreHtml   = rawMode !== undefined ? `
     <div class="stats-score-row">
       <div class="stats-score-item">
@@ -2124,21 +2174,16 @@ function finTome(won) {
 
 // ===== SYSTÈME DE SCORE =====
 const SCORE_MAX_TOTAL = 70000;   // 7 modes × 10 000
-const SCORE_PENALTIES = { classic: 1000, wanted: 1250, fruit: 1000, emoji: 1250, tome: 1800 };
+const SCORE_PENALTIES = { classic: 1000, wanted: 1250, fruit: 1000, emoji: 1250, tome: 1800, silhouette: 1100 };
 
 function round50(n) { return Math.round(n / 50) * 50; }
 
 function calcModeScore(mode, tries, hintUsed, hintsCount) {
-  let base;
-  if (mode === 'flag') {
-    // Pavillon : proportionnel sur 15 essais, pénalité 650/essai
-    base = Math.max(0, round50(10000 - (tries - 1) * 650));
-  } else {
-    base = Math.max(0, 10000 - (tries - 1) * SCORE_PENALTIES[mode]);
-  }
-  if (mode === 'classic' && hintUsed)    base = round50(base / 2);
-  if (mode === 'fruit'   && hintsCount)  base = round50(base / Math.pow(1.5, hintsCount));
-  if (mode === 'emoji'   && hintsCount)  base = round50(base / 1.5);
+  let base = Math.max(0, 10000 - (tries - 1) * SCORE_PENALTIES[mode]);
+  if (mode === 'classic'    && hintUsed)   base = round50(base / 2);
+  if (mode === 'silhouette' && hintUsed)   base = round50(base / 2);   // indice couleur
+  if (mode === 'fruit'      && hintsCount) base = round50(base / Math.pow(1.5, hintsCount));
+  if (mode === 'emoji'      && hintsCount) base = round50(base / 1.5);
   return base;
 }
 
@@ -2148,7 +2193,7 @@ function saveState(mode) {
   // Le nom de la cible est inclus pour détecter un changement de hash en cours de journée
   if (mode === 'classic') lsSet(LS.gs('classic', dk), JSON.stringify({ guesses: cGuesses.map(c => c.name), hintUsed, target: TARGET_C.name }));
   if (mode === 'wanted')  lsSet(LS.gs('wanted',  dk), JSON.stringify({ guesses: wGuesses.map(c => c.name), target: TARGET_W.name }));
-  if (mode === 'flag')    lsSet(LS.gs('flag',    dk), JSON.stringify({ guesses: fGuesses.map(f => f.name), target: TARGET_F.name }));
+  if (mode === 'silhouette') lsSet(LS.gs('silhouette', dk), JSON.stringify({ guesses: silGuesses.map(c => c.name), hintUsed: silHintUsed, hintFocus: silHintFocus, target: TARGET_SIL.name }));
   if (mode === 'fruit')   lsSet(LS.gs('fruit',   dk), JSON.stringify({ guesses: frGuesses.map(f => f.name), hints: [...frHintsRevealed], target: TARGET_FRU.name }));
   if (mode === 'emoji')   lsSet(LS.gs('emoji',   dk), JSON.stringify({ guesses: emGuesses.map(c => c.name), hintRevealed: emHintRevealed, target: TARGET_EM.name }));
   if (mode === 'audio')   lsSet(LS.gs('audio',   dk), JSON.stringify({ guesses: auGuesses.map(o => o.name), target: TARGET_AU.name }));
@@ -2175,10 +2220,11 @@ function restoreAllStates() {
     sw.guesses.filter(validName).forEach(name => { input.value = name; submitWanted(); });
   }
 
-  // Flag
-  const sf = safeParseJSON(lsGet(LS.gs('flag', dk)), null);
-  if (sf && Array.isArray(sf.guesses) && (!sf.target || sf.target === TARGET_F.name)) {
-    sf.guesses.filter(validName).forEach(name => { input.value = name; submitFlag(); });
+  // Silhouette
+  const ssil = safeParseJSON(lsGet(LS.gs('silhouette', dk)), null);
+  if (ssil && Array.isArray(ssil.guesses) && TARGET_SIL && (!ssil.target || ssil.target === TARGET_SIL.name)) {
+    ssil.guesses.filter(validName).forEach(name => { input.value = name; submitSilhouette(); });
+    if (ssil.hintUsed) { silHintUsed = true; silHintFocus = ssil.hintFocus || silHintFocus; applySilHintReveal(); updateSilStatus(); }
   }
 
   // Fruit
@@ -2244,7 +2290,7 @@ function captureTargetName(mode) {
             : mode === 'emoji'   ? emTarget
             : mode === 'audio'   ? TARGET_AU
             : mode === 'inf'     ? infTarget
-            : TARGET_F;
+            : TARGET_SIL;
     return (t && t.name) ? t.name : null;
   } catch (e) { return null; }
 }
@@ -2283,7 +2329,10 @@ function onGameEnd(mode, won, tries, score, extra) {
     updateScoreBar();
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => showStats(mode), 900);
+  // N'ouvre les stats automatiquement QUE lorsque TOUS les modes du jour sont terminés
+  // (sinon la modale s'ouvre après chaque mode et casse l'enchaînement).
+  const _res = safeParseJSON(lsGet(LS.result(todayKey())), {});
+  if (MODE_IDS.every(m => _res[m])) setTimeout(() => showStats(mode), 900);
 }
 
 let _shareText = '';
@@ -2354,14 +2403,14 @@ function handleAboutOverlayClick(e) {
   if (e.target === document.getElementById('about-modal')) closeAbout();
 }
 
-// ===== POP-UP "NOUVEAUTÉS v5" (Une de gazette · affichée une seule fois) =====
+// ===== POP-UP "GAZETTE · MODE SILHOUETTE (v5.2)" (Une de gazette · affichée une seule fois) =====
 function maybeShowWhatsNew() {
-  if (lsGet(LS.v5seen)) return;        // déjà vue → on ne montre plus
+  if (lsGet(LS.wnSilSeen)) return;     // déjà vue → on ne montre plus
   showWhatsNew();
 }
 function _wnEsc(e) { if (e.key === 'Escape') closeWhatsNew(); }
 function closeWhatsNew() {
-  lsSet(LS.v5seen, '1');
+  lsSet(LS.wnSilSeen, '1');
   const ov = document.getElementById('whatsnew-overlay');
   if (ov) ov.remove();
   document.removeEventListener('keydown', _wnEsc);
@@ -2374,7 +2423,7 @@ function showWhatsNew() {
   ov.className = 'wn-overlay';
   ov.setAttribute('role', 'dialog');
   ov.setAttribute('aria-modal', 'true');
-  ov.setAttribute('aria-label', 'Nouveautés LogPose v5');
+  ov.setAttribute('aria-label', 'Nouveautés LogPose v5.2 — mode Silhouette');
   ov.innerHTML =
       '<div class="wn-gazette" role="document">'
     +   '<button class="wn-close" type="button" aria-label="Fermer">×</button>'
@@ -2383,18 +2432,18 @@ function showWhatsNew() {
     +       '<div class="wn-paper-name"><span class="wn-orn">☠</span>La Gazette du Log Pose<span class="wn-orn">☠</span></div>'
     +       '<div class="wn-tagline">« Toutes les nouvelles de Grand Line »</div>'
     +     '</div>'
-    +     '<div class="wn-dateline"><span>Édition spéciale · v5</span><span>' + esc(today) + '</span></div>'
-    +     '<div class="wn-kicker">— Un nouveau défi accoste —</div>'
-    +     '<h2 class="wn-headline">Le mode Tome <span class="wn-headline-ico">📕</span></h2>'
-    +     '<p class="wn-lede">Reconnais le tome du manga à sa seule couverture&nbsp;: l\'image démarre en gros plan, puis se dézoome indice après indice.</p>'
+    +     '<div class="wn-dateline"><span>Édition spéciale · v5.2</span><span>' + esc(today) + '</span></div>'
+    +     '<div class="wn-kicker">— Une ombre se dessine à l\'horizon —</div>'
+    +     '<h2 class="wn-headline">Le mode Silhouette <span class="wn-headline-ico"><svg class="ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg></span></h2>'
+    +     '<p class="wn-lede">Un nouveau défi quotidien prend la relève du Pavillon&nbsp;: reconnais le pirate à sa seule silhouette noire. Gros plan sur une arête du contour au départ, qui dézoome et glisse vers la forme entière à chaque erreur.</p>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
     +     '<div class="wn-cols">'
-    +       '<div class="wn-col"><div class="wn-col-ico">🏴‍☠️</div><div class="wn-col-h">Rang de pirate</div><div class="wn-col-p">Grimpe les échelons selon ton score cumulé, de Moussaillon à Empereur.</div></div>'
-    +       '<div class="wn-col"><div class="wn-col-ico">🗺️</div><div class="wn-col-h">Carte de Grand Line</div><div class="wn-col-p">Explore 32 îles, remplis ton carnet de capture et ouvre les fiches des persos.</div></div>'
-    +       '<div class="wn-col"><div class="wn-col-ico">🏴</div><div class="wn-col-h">Ton Jolly Roger</div><div class="wn-col-p">Un pavillon unique généré rien que pour toi, sur tes stats et ton image de partage.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-eye"></use></svg></div><div class="wn-col-h">Dézoom sur 10 essais</div><div class="wn-col-p">L\'ombre s\'ouvre indice après indice, jusqu\'à la révélation complète en couleur.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-bulb"></use></svg></div><div class="wn-col-h">Indice couleur</div><div class="wn-col-p">À mi-partie, un éclat de la vraie image se dévoile pour t\'aiguiller (au prix de la moitié du score).</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-map"></use></svg></div><div class="wn-col-h">Tout Grand Line</div><div class="wn-col-p">De l\'équipage au Chapeau de Paille jusqu\'aux Chevaliers Divins — sauras-tu les démasquer&nbsp;?</div></div>'
     +     '</div>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
-    +     '<p class="wn-brief">Et aussi&nbsp;: 💾 transfert de ta sauvegarde · 🖼️ image de partage récap · 📊 stats de la communauté.</p>'
+    +     '<p class="wn-brief">Le mode Pavillon tire sa révérence&nbsp;— place aux ombres.</p>'
     +     '<div class="wn-cta-wrap"><button class="wn-cta" type="button">Découvrir ⚓</button></div>'
     +   '</div>'
     + '</div>';
@@ -2466,6 +2515,10 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '5.2', date: 'Juillet 2026', items: [
+    '👤 Nouveau mode Silhouette — devine le pirate à son ombre (remplace Pavillon)',
+    '🎨 Indice couleur à mi-partie + révélation en couleur en fin de partie',
+  ] },
   { v: '5.1', date: 'Juin 2026', items: [
     '🌊 Refonte visuelle « nuit en mer » : fond 3D océan & île',
     '🧭 Nouvelle page d\'accueil en rose des vents',
@@ -2599,7 +2652,7 @@ function toggleScoreBreakdown(e) {
     const rows = [
       { key:'classic', icon:'🗺️',  label:'Classique' },
       { key:'wanted',  icon:'🖼️', label:'Wanted'    },
-      { key:'flag',    icon:'🏴‍☠️',   label:'Pavillon'  },
+      { key:'silhouette', icon:'🕵️', label:'Silhouette' },
       { key:'fruit',   icon:'🍎',  label:'Fruit'     },
       { key:'emoji',   icon:'😀',  label:'Émoji'     },
       { key:'audio',   icon:'🎵',  label:'Opening'   },
@@ -2870,7 +2923,7 @@ function playWinAnimation(mode) {
   const fns = {
     classic: playWinClassic,
     wanted:  playWinWanted,
-    flag:    playWinFlag,
+    silhouette: playWinSilhouette,
     fruit:   playWinFruit,
     emoji:   playWinEmoji,
     audio:   playWinAudio,
@@ -2895,9 +2948,12 @@ function playWinWanted() {
   box.appendChild(stamp);
 }
 
-function playWinFlag() {
-  const grid = document.getElementById('flag-grid');
-  if (grid) grid.classList.add('anim-wave-flag');
+function playWinSilhouette() {
+  // Payoff : la silhouette laisse place au personnage en couleur.
+  const sec = document.getElementById('silhouette-section');
+  const col = document.getElementById('sil-color');
+  if (col) col.style.clipPath = 'none';
+  if (sec) sec.classList.add('sil-hinted', 'sil-won');
 }
 
 function playWinFruit() {
@@ -2963,7 +3019,7 @@ function playWinAudio() {
   try { restoreAllStates();  } catch(e) { console.warn('restoreAllStates init:', e); }
   startCountdown();
   updateCounter();
-  initFlagGrid();
+  initSilhouetteMode();
   loadDailyCounter('classic');
   try { maybeShowWhatsNew(); } catch(e) { console.warn('whatsNew init:', e); }
 })();

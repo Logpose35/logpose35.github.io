@@ -6,7 +6,7 @@
   <title>LogPose — Le jeu One Piece du jour · 7 défis quotidiens</title>
 
   <!-- SEO -->
-  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères chaque jour.">
+  <meta name="description" content="LogPose — Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères chaque jour.">
   <meta name="keywords" content="LogPose, One Piece, Wordle, jeu, devinette, personnage, manga, anime, quotidien">
   <meta name="author" content="LogPose">
   <meta name="robots" content="index, follow">
@@ -17,7 +17,7 @@
 
   <!-- Open Graph -->
   <meta property="og:title" content="LogPose — 7 défis One Piece quotidiens">
-  <meta property="og:description" content="7 défis One Piece par jour — Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome. Un nouveau défi chaque jour !">
+  <meta property="og:description" content="7 défis One Piece par jour — Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Un nouveau défi chaque jour !">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://onepiecedle.fr/">
   <meta property="og:locale" content="fr_FR">
@@ -29,7 +29,7 @@
   <!-- Twitter / X Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="LogPose — 7 défis One Piece quotidiens">
-  <meta name="twitter:description" content="Classique · Wanted · Pavillon · Fruit du Démon · Émoji · Opening · Tome. Un nouveau défi chaque jour !">
+  <meta name="twitter:description" content="Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome. Un nouveau défi chaque jour !">
   <meta name="twitter:image" content="https://onepiecedle.fr/images/og_preview.jpg">
 
   <!-- PWA Manifest -->
@@ -42,7 +42,7 @@
     "@type": "WebApplication",
     "name": "LogPose",
     "url": "https://onepiecedle.fr/",
-    "description": "7 défis One Piece quotidiens — Classique, Wanted, Pavillon, Fruit du Démon, Émoji, Opening et Tome",
+    "description": "7 défis One Piece quotidiens — Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome",
     "applicationCategory": "Game",
     "genre": "Word Game",
     "inLanguage": "fr",
@@ -55,10 +55,10 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=186">
-  <link rel="stylesheet" href="css/landing.css?v=186">
-  <link rel="stylesheet" href="css/modals.css?v=186">
-  <link rel="stylesheet" href="css/ocean3d.css?v=186">
+  <link rel="stylesheet" href="css/base.css?v=194">
+  <link rel="stylesheet" href="css/landing.css?v=194">
+  <link rel="stylesheet" href="css/modals.css?v=194">
+  <link rel="stylesheet" href="css/ocean3d.css?v=194">
 </head>
 <body class="landing-body layout-rose" data-ocean="landing">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -79,6 +79,10 @@
   <symbol id="ic-flag" viewBox="0 0 24 24">
     <path d="M6 3v18"/>
     <path d="M6 4h12l-2.2 3L18 10H6z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-silhouette" viewBox="0 0 24 24">
+    <circle cx="12" cy="7.5" r="4" fill="currentColor" stroke="none"/>
+    <path d="M4.5 21c0-4.7 3.4-7.5 7.5-7.5s7.5 2.8 7.5 7.5z" fill="currentColor" stroke="none"/>
   </symbol>
   <symbol id="ic-fruit" viewBox="0 0 24 24">
     <path d="M12 8.2C12 5.5 13.2 4.2 15.3 3.6"/>
@@ -178,8 +182,8 @@
       <span class="coin__name">Wanted</span>
     </a>
     <a class="coin" href="game.html" style="--i:2">
-      <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-flag"></use></svg></span>
-      <span class="coin__name">Pavillon</span>
+      <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg></span>
+      <span class="coin__name">Silhouette</span>
     </a>
     <a class="coin" href="game.html" style="--i:3">
       <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-fruit"></use></svg></span>
@@ -256,7 +260,7 @@
   </a>
   <div class="lp-foot__meta">
     <span class="lp-foot__brand">LogPose</span>
-    <span class="lp-foot__ver"><button class="lp-about-btn" onclick="openAbout()">À propos</button>&nbsp;v5.1</span>
+    <span class="lp-foot__ver"><button class="lp-about-btn" onclick="openAbout()">À propos</button>&nbsp;v5.2</span>
   </div>
   <p class="lp-foot__legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation — projet fan non officiel, sans affiliation.</p>
 </footer>
@@ -272,7 +276,7 @@
 
     <div class="about-logo-wrap">
       <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
-      <div class="about-version-badge">v5.1</div>
+      <div class="about-version-badge">v5.2</div>
     </div>
 
     <p class="about-desc">
@@ -283,7 +287,7 @@
     <div class="about-modes-grid">
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg> Classique</div>
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-wanted"></use></svg> Wanted</div>
-      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-flag"></use></svg> Pavillon</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg> Silhouette</div>
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-fruit"></use></svg> Fruit du Démon</div>
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-rebus"></use></svg> Émoji</div>
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-note"></use></svg> Opening</div>
@@ -305,7 +309,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/ocean3d.js?v=186"></script>
-<script src="js/landing.js?v=186"></script>
+<script src="js/ocean3d.js?v=194"></script>
+<script src="js/landing.js?v=194"></script>
 </body>
 </html>

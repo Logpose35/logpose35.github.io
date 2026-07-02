@@ -425,20 +425,22 @@
   font-family: 'Ultra', Georgia, serif;
   font-size: clamp(1.85rem, 6.6vw, 2.6rem); line-height: 1.02;
   text-align: center; text-transform: uppercase; margin: 0 0 11px;
-  background: linear-gradient(177deg, #6f4d11 0%, #a9781b 24%, #edc96a 46%, #fff6d0 52%, #d8a838 60%, #8a6212 100%);
+  background: linear-gradient(177deg, #5a3d0a 0%, #9a6c15 22%, #e6bf58 46%, #fff2c0 52%, #cf9c2c 60%, #6f4d11 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.25);
-  filter: drop-shadow(0 1px 0 rgba(120,84,22,0.45)) drop-shadow(0 3px 4px rgba(50,32,8,0.3));
+  /* Contour bronze foncé pour détacher les lettres dorées du fond clair (lisibilité) */
+  -webkit-text-stroke: 1px #3c2907; paint-order: stroke fill;
+  filter: drop-shadow(0 1px 0 rgba(90,62,12,0.65)) drop-shadow(0 3px 5px rgba(40,26,6,0.5));
 }
-/* L'émoji Livre garde sa couleur native (sinon clippé par la feuille d'or)
-   — c'est le repère visuel du mode Tome. */
+/* Icône SVG du titre (silhouette) : couleur bronze visible, non clippée par la feuille d'or */
 .wn-headline-ico {
-  -webkit-text-fill-color: initial; color: initial;
+  -webkit-text-fill-color: initial; color: #6f4d11;
   -webkit-background-clip: initial; background-clip: initial; background: none;
+  -webkit-text-stroke: 0;
   filter: drop-shadow(0 2px 3px rgba(40,25,5,0.3));
-  font-size: 0.94em; vertical-align: -0.04em; margin-left: 0.06em;
+  vertical-align: -0.1em; margin-left: 0.12em;
 }
+.wn-headline-ico .ic { width: 0.82em; height: 0.82em; stroke-width: 1.7; }
 .wn-lede {
   font-family: 'Barlow Condensed', sans-serif; text-align: center;
   font-size: 1.08rem; color: #3a2f1c; margin: 0 auto; max-width: 52ch; line-height: 1.4;
@@ -458,7 +460,7 @@
 /* Icônes en médaillons dorés */
 .wn-col-ico {
   width: 56px; height: 56px; margin: 0 auto 9px; display: grid; place-items: center;
-  font-size: 1.6rem; line-height: 1; border-radius: 50%;
+  font-size: 1.6rem; line-height: 1; border-radius: 50%; color: #6f4d11;
   background: radial-gradient(circle at 36% 30%, #fff8e2 0%, #f1deac 58%, #dcbd7c 100%);
   box-shadow:
     0 0 0 2px #b8860b,
@@ -466,6 +468,7 @@
     inset 0 -3px 5px rgba(130,90,24,0.32),
     0 3px 7px rgba(60,40,10,0.22);
 }
+.wn-col-ico .ic { width: 27px; height: 27px; stroke-width: 1.7; }
 .wn-col-h {
   font-family: 'Cinzel Decorative', serif; font-weight: 700;
   font-size: .94rem; text-transform: uppercase; letter-spacing: .02em;

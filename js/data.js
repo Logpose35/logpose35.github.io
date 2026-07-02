@@ -79,7 +79,6 @@ function dailySeed(salt = 1) {
 // ===== VARIABLES GLOBALES (initialisées par loadGameData) =====
 let ARCS         = [];
 let CHARACTERS   = [];
-let FLAGS        = [];
 let ALIASES      = {};
 let FRUITS       = [];
 let OPENINGS     = [];
@@ -87,11 +86,11 @@ let WANTED_CHARS = [];
 let WANTED_EXTRA  = []; // réservé pour futures affiches spéciales
 let EMOJI_POOL    = [];
 let EMOJI_NAMES   = {}; // emoji → nom lisible (infobulle)
-let TARGET_C, TARGET_W, TARGET_F, TARGET_FRU, TARGET_EM, TARGET_AU;
+let TARGET_C, TARGET_W, TARGET_FRU, TARGET_EM, TARGET_AU;
+let SIL_POOL = [], TARGET_SIL = null, SIL_FOCUS_MAP = {};   // Mode Silhouette
 let TOMES        = [];           // numéros de tomes du pool quotidien (1..112)
 let TARGET_TOME;                 // numéro du tome à deviner aujourd'hui
 let TOME_ZOOM    = { x: 50, y: 50 }; // centre du gros plan (en %), déterministe
-let CELL_ORDER   = [];
 
 // ===== CHARGEMENT DES DONNÉES =====
 async function loadGameData() {
@@ -101,7 +100,6 @@ async function loadGameData() {
 
   ARCS        = raw.ARCS;
   CHARACTERS  = raw.CHARACTERS;
-  FLAGS       = raw.FLAGS;
   ALIASES     = raw.ALIASES;
   FRUITS      = raw.FRUITS;
   OPENINGS    = raw.OPENINGS;
@@ -114,7 +112,6 @@ async function loadGameData() {
   // Cibles du jour (seed indépendant par mode)
   TARGET_C   = dailyPick(CHARACTERS,   1);   // Classique
   TARGET_W   = dailyPick(WANTED_CHARS, 31);  // Wanted
-  TARGET_F   = dailyPick(FLAGS,        97);  // Pavillon
   TARGET_FRU = dailyPick(FRUITS,       71);  // Fruit du Démon
   TARGET_EM  = dailyPick(EMOJI_POOL,  137);  // Émoji
   TARGET_AU  = dailyPick(OPENINGS,    53);   // Opening du jour
@@ -123,6 +120,18 @@ async function loadGameData() {
   // Centre du gros plan : déterministe, bridé loin des bords (18..82 %)
   const _z = dailySeed(191);
   TOME_ZOOM  = { x: 18 + (_z % 64), y: 18 + ((_z >>> 8) % 64) };
+
+  // Mode Silhouette : pool = personnages ayant une silhouette générée (= clés de focus.json).
+  // Certains persos (sans bonne image) n'ont pas de silhouette → exclus du pool.
+  try {
+    const _fr = await fetch('/silhouettes/focus.json', { cache: 'no-cache' });
+    SIL_FOCUS_MAP = _fr.ok ? await _fr.json() : {};
+  } catch (e) { SIL_FOCUS_MAP = {}; }
+  SIL_POOL = CHARACTERS.filter(c => {
+    const k = Array.isArray(c.img) ? c.img[0] : c.img;
+    return k && SIL_FOCUS_MAP[k];
+  });
+  TARGET_SIL = SIL_POOL.length ? dailyPick(SIL_POOL, 211) : null;   // salt premier dédié
 
   // Override anniversaire Classique : 30 % de chances si un personnage fête son anniv aujourd'hui.
   // Déterministe — même seed → même décision à chaque rechargement.
@@ -135,15 +144,4 @@ async function loadGameData() {
     }
   }
 
-  // Ordre déterministe des cases du pavillon
-  CELL_ORDER = (function () {
-    const arr  = [...Array(16).keys()];
-    let seed = TARGET_F.file.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    for (let i = arr.length - 1; i > 0; i--) {
-      seed = (seed * 9301 + 49297) % 233280;
-      const j = Math.floor(seed / 233280 * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  })();
 }

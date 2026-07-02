@@ -14,3 +14,17 @@ JOLLY_ROGER.md
 TODO_V5_FINITIONS.md
 ROADMAP_V6_V7.md
 BRIEF_*.md
+CONTEXTE_MODE_SILHOUETTE*.md
+
+# Chantier Silhouette : sources de découpe (197 Mo !) & outils locaux
+images/silhouette_src/
+blacken.py
+colorize.py
+generate_silhouettes.py
+__pycache__/
+.playwright-mcp/
+
+# Doublons .png de persos (ici les assets servis sont les .jpg suivis)
+images/gunko.png
+images/gunko3.png
+images/shamrock.png

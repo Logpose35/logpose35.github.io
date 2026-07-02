@@ -31,7 +31,7 @@ function handleAboutOverlayClick(e) { if (e.target === document.getElementById('
 
 // ---- Statistiques globales (Firebase) ----
 const FB_URL = 'https://logpose-eec08-default-rtdb.europe-west1.firebasedatabase.app';
-const MODES = ['classic', 'wanted', 'flag', 'fruit', 'emoji', 'audio', 'tome'];
+const MODES = ['classic', 'wanted', 'silhouette', 'fruit', 'emoji', 'audio', 'tome'];
 
 function parisNow() {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
