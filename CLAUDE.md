@@ -93,8 +93,8 @@ Agir comme un dev web senior responsable de ce site en prod :
 - Workflow assets : l'utilisateur fournit des découpes PNG transparentes dans
   `images/silhouette_src/` (gitignoré, ~200 Mo) → `python blacken.py <clés>` (noircit + cadre +
   focus.json) puis `python colorize.py` (version couleur cadrée idem). Scripts gitignorés (locaux).
-- **96 persos restants** (liste : `images/silhouette_src/_A_REFAIRE.txt`) — dont
-  **Zoro, Sanji, Usopp, Franky, Brook** (prioritaires).
+- **96 persos restants** (liste : `images/silhouette_src/_A_REFAIRE.txt`) — dont **Brook**,
+  seul Mugiwara absent du pool (les autres y sont via leurs clés `_pre`).
 - Restes assumés : 4 variantes non utilisées dans `silhouettes/` (`chopper_ts`, `luffy_g5`,
   `nami_ts`, `robin2` — la clé du jeu est `img[0]`) ; anciennes stats `op-stats-flag` orphelines
   dans le localStorage des joueurs (inoffensif) ; clé `FLAGS` encore présente dans data.json (inutilisée).
