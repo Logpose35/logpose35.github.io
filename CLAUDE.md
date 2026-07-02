@@ -5,8 +5,8 @@ GitHub Pages, déployé sur **onepiecedle.fr**. **7 modes quotidiens** (Classiqu
 Silhouette, Fruit du Démon, Émoji, Opening, Tome) + un mode Infini. Compteurs journaliers
 via Firebase Realtime DB.
 
-> **Prod : v5.1** (cache `v186`). **En local, commité non poussé : v5.2** (cache `v194`,
-> mode Silhouette). Ce fichier-ci = contexte opérationnel permanent.
+> **Prod : v5.2** (cache `v195`) — mode Silhouette en ligne depuis le 02/07/2026.
+> Ce fichier-ci = contexte opérationnel permanent.
 
 ## Standard de travail attendu
 
@@ -146,14 +146,12 @@ Chaque perso a **8 emojis distinctifs**. Règles :
 
 ## État courant (02/07/2026)
 
-- **Prod (poussée)** : **v5.1**, cache `v186` — refonte landing « rose des vents », icônes SVG,
-  couleur par mode, fond 3D océan/île, carte Grand Line, rang pirate, stats communauté.
-- **Commité en local, NON poussé** : **v5.2**, cache `v195` — **mode Silhouette** (remplace
-  Pavillon), gazette de lancement, purge complète du Pavillon (`css/flag.css`, `flags/`,
-  clé `FLAGS` de data.json, `TARGET_F`/`CELL_ORDER` de data.js), `.gitignore` chantier
-  silhouette, ménage du dépôt (scripts one-shot retirés).
-- **Avant push v5.2** : vérifier les règles Firebase (la branche `island-reach/` est DÉJÀ
-  utilisée en prod par la carte) · test appareil réel.
-- **Reste à faire** : 96 silhouettes manquantes (Zoro/Sanji/Usopp/Franky/Brook en tête) ·
+- **Prod (poussée)** : **v5.2**, cache `v195` — **mode Silhouette** (remplace Pavillon),
+  gazette de lancement, purge complète du Pavillon (`css/flag.css`, `flags/`, clé `FLAGS`
+  de data.json, `TARGET_F`/`CELL_ORDER` de data.js), ménage du dépôt (scripts one-shot
+  retirés, worktree obsolète supprimé). En prod depuis un `git push origin main` explicite.
+- **À vérifier** : règles Firebase pour `island-reach/` (branche déjà utilisée par la carte
+  depuis v5.1, non re-testée à ce push) · comportement sur appareil réel.
+- **Reste à faire** : 96 silhouettes manquantes (Brook en tête, seul Mugiwara absent du pool) ·
   P5b Calendrier de l'Avent (décembre) · compression images lourdes
   (`wanted_frame.png` 4,3 Mo, `carte.jpeg` 2,3 Mo, `koala.jpg` 2 Mo).
