@@ -1,0 +1,299 @@
+/* ===== MODE VERSUS 1v1 — page dédiée versus.html ===== */
+/* Réutilise base.css (thème) + classic.css (grille/cellules/autocomplete). */
+
+.versus-body { min-height: 100vh; background: linear-gradient(180deg, var(--bg), var(--bg2)); }
+
+/* nos display:flex/grid écraseraient l'attribut hidden sans ceci */
+.versus-body [hidden] { display: none !important; }
+
+/* ── Header ── */
+.v-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 16px; background: var(--header-bg); color: var(--header-t);
+}
+.v-header .ic { width: 1.15em; height: 1.15em; vertical-align: -0.18em; }
+.v-back {
+  display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
+  color: var(--header-t); font-weight: 600; font-size: 0.9rem; opacity: 0.85;
+  padding: 4px 11px; border-radius: 8px; border: 1px solid transparent; transition: color .12s, border-color .12s, opacity .12s;
+}
+.v-back .ic { width: 1.05em; height: 1.05em; }
+.v-back:hover { opacity: 1; color: var(--gold-l); border-color: var(--gold-l); }
+.v-brand { color: var(--header-t); text-decoration: none; font-weight: 700; letter-spacing: .04em; display: inline-flex; align-items: center; gap: 6px; }
+.v-brand:hover { color: var(--gold-l); }
+.v-title { font-family: 'Cinzel Decorative', serif; font-weight: 900; font-size: 1.05rem; display: inline-flex; align-items: center; gap: 7px; color: var(--gold-l); }
+.v-title .ic { width: 1.25em; height: 1.25em; }
+.v-codechip {
+  margin-left: auto; padding: 3px 12px; border: 1px solid var(--gold-l); border-radius: 20px;
+  font-weight: 700; letter-spacing: .25em; font-size: .95rem;
+}
+/* Quand le code est visible, il porte le margin-left:auto ; sinon c'est le bouton thème */
+.v-codechip:not([hidden]) ~ .v-theme { margin-left: 0; }
+.v-theme {
+  margin-left: auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+  background: transparent; border: 1px solid var(--gold-l); color: var(--header-t);
+  transition: background .12s;
+}
+.v-theme:hover { background: rgba(255,255,255,.08); }
+.v-theme .ic { width: 1.15em; height: 1.15em; }
+/* Lune en thème nuit, soleil en thème jour (même logique que la landing) */
+.v-theme .ic-sun { display: none; }
+[data-theme="light"] .v-theme .ic-sun  { display: inline-block; }
+[data-theme="light"] .v-theme .ic-moon { display: none; }
+.ic-inline { width: 1.05em; height: 1.05em; vertical-align: -0.15em; margin-right: 0.4em; }
+
+/* ── Héros d'accueil ── */
+.v-hero { text-align: center; padding: 14px 0 4px; }
+.v-hero-skull { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 3px 8px rgba(10,24,40,.3)); }
+.v-hero-title {
+  font-family: 'Cinzel Decorative', serif; font-weight: 900; font-size: 2rem;
+  margin: 6px 0 4px; color: var(--text2); letter-spacing: .02em;
+}
+.v-hero-tag { color: var(--text3); font-size: .95rem; max-width: 520px; margin: 0 auto; line-height: 1.5; }
+.v-pseudo-card { max-width: 420px; margin: 0 auto; width: 100%; }
+
+/* ── Écrans / cartes ── */
+#v-root { max-width: 1040px; margin: 0 auto; padding: 18px 12px 60px; }
+.v-screen { display: flex; flex-direction: column; gap: 14px; }
+.v-card {
+  background: var(--card); border: 1.5px solid var(--border2); border-radius: 12px;
+  padding: 16px 18px; box-shadow: 0 3px 14px rgba(10, 24, 40, .08);
+}
+.v-card h2 { margin: 0 0 12px; font-size: 1.05rem; color: var(--text2); display: flex; align-items: center; }
+.v-card h2 .ic { color: var(--gold); }
+.v-center { text-align: center; max-width: 460px; margin: 24px auto 0; width: 100%; }
+.v-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 680px) { .v-duo { grid-template-columns: 1fr; } }
+
+.v-label { display: block; font-size: .82rem; color: var(--text3); margin-bottom: 5px; }
+#v-home input, #v-code, #v-pseudo {
+  width: 100%; padding: 9px 12px; border: 1.5px solid var(--border2); border-radius: 8px;
+  font-size: 1rem; background: var(--bg); color: var(--text); box-sizing: border-box;
+}
+.v-opts { display: flex; gap: 16px; margin: 10px 0 14px; flex-wrap: wrap; }
+.v-opts label { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--text3); }
+.v-opts select {
+  padding: 6px 10px; border: 1.5px solid var(--border2); border-radius: 8px;
+  background: var(--bg); color: var(--text); font-size: .95rem;
+}
+
+.v-btn {
+  display: inline-block; margin-top: 8px; padding: 10px 22px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--card); color: var(--text2);
+  font-weight: 700; font-size: .95rem; cursor: pointer; transition: transform .08s, box-shadow .12s;
+}
+.v-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(10,24,40,.15); }
+.v-btn-gold { background: linear-gradient(180deg, var(--gold-l), var(--gold)); color: #fff; border-color: var(--gold); }
+.v-btn-gold .ic { color: #fff; }
+.v-btn-quiet { border-color: transparent; background: transparent; color: var(--text3); font-weight: 400; }
+.v-btn-wide { display: block; width: 100%; box-sizing: border-box; text-align: center; }
+.v-btn[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* Champ de code : gros, espacé, façon « saisie de code » */
+.v-codeinput {
+  text-align: center; text-transform: uppercase; font-weight: 800;
+  letter-spacing: .4em; font-size: 1.3rem; padding-left: .4em;
+}
+
+.v-hint { color: var(--text3); font-size: .85rem; text-align: center; margin: 6px auto; max-width: 640px; }
+
+/* ── Salle d'attente ── */
+.v-wait-lead { margin-bottom: 2px; }
+.v-bigcode {
+  display: inline-block; font-size: 2.6rem; font-weight: 900; letter-spacing: .35em;
+  color: var(--gold); margin: 4px 0; padding: 6px 18px 6px 24px; cursor: pointer;
+  background: var(--bg); border: 1.5px dashed var(--gold-l); border-radius: 12px;
+  font-family: inherit; transition: transform .1s, box-shadow .12s;
+}
+.v-bigcode:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10,24,40,.15); }
+.v-bigcode.copied { border-style: solid; border-color: var(--green); color: var(--green); }
+.v-wait-opts { display: flex; justify-content: center; gap: 10px; margin: 8px 0 4px; flex-wrap: wrap; }
+.v-wait-opts .v-optpill {
+  padding: 3px 12px; border: 1px solid var(--border2); border-radius: 20px;
+  font-size: .82rem; color: var(--text3); font-weight: 600;
+}
+.v-waiting::after { content: ''; display: inline-block; width: 1.2em; text-align: left; animation: v-dots 1.4s steps(1) infinite; }
+@keyframes v-dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: '.'; } }
+
+/* ── Écran prêts ── */
+.v-players { display: flex; justify-content: center; gap: 18px; margin: 10px 0; flex-wrap: wrap; }
+.v-player {
+  padding: 8px 16px; border: 1.5px solid var(--border2); border-radius: 10px; min-width: 130px;
+}
+.v-player.ready { border-color: var(--green); background: var(--correct-bg); }
+.v-player .v-pname { font-weight: 700; }
+.v-player .v-pstate { display: block; font-size: .78rem; color: var(--text3); }
+.v-player.off { opacity: .55; border-style: dashed; }
+
+/* ── Choix de mode (écran prêts) ── */
+.v-picks { margin: 12px 0 4px; }
+.v-pickrow { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.v-pick {
+  padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--border2);
+  background: var(--bg); color: var(--text2); font-weight: 600; cursor: pointer; font-size: .9rem;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.v-pick .ic { width: 1.15em; height: 1.15em; color: var(--mc, var(--gold)); }
+.v-pick:hover { border-color: var(--mc, var(--gold)); }
+.v-pick.on { border-color: var(--mc, var(--gold)); background: var(--mc, var(--gold)); color: #fff; }
+.v-pick.on .ic { color: #fff; }
+.v-player .v-ppick { display: block; font-size: .78rem; margin-top: 2px; }
+
+/* Puce de mode (icône + libellé, couleur signature) — partout où un mode est cité */
+.v-modechip { font-weight: 700; white-space: nowrap; }
+.v-modechip .ic { width: 1.05em; height: 1.05em; vertical-align: -0.15em; margin-right: 0.25em; }
+
+/* ── Zone d'indice (émoji / fruit) — accent à la couleur du mode en cours ── */
+.v-clue { text-align: center; border-color: var(--vmode, var(--gold)); }
+.v-clue-emojis { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.v-clue-emojis .em {
+  width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.7rem; border: 1.5px solid var(--border2); border-radius: 10px; background: var(--bg);
+}
+.v-clue-emojis .em.hid { color: var(--text3); font-size: 1.1rem; border-style: dashed; opacity: .6; }
+.v-clue-fruit .v-fruitname { font-weight: 900; font-size: 1.15rem; color: var(--text2); }
+.v-clue-fruit .v-fruithints { margin-top: 6px; font-size: .88rem; color: var(--text2); line-height: 1.6; }
+.v-clue-fruit .v-fruithints .lock { color: var(--text3); font-style: italic; }
+
+/* ── Indice visuel (wanted / silhouette / tome) — cadres calqués sur le daily ── */
+.v-clue-frame {
+  position: relative; margin: 0 auto; overflow: hidden; border-radius: 10px;
+  border: 2px solid rgba(200, 148, 10, 0.45); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+.v-clue-frame img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; display: block; transform-origin: 0 0;
+  transition: transform .55s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter .5s ease;
+  user-select: none; -webkit-user-drag: none; pointer-events: none;
+}
+.v-frame-wanted { width: min(70vw, 230px); aspect-ratio: 0.78; background: #0a1422; }
+.v-frame-sil    { width: min(70vw, 300px); aspect-ratio: 1; background: #ece7d8; }
+.v-sil-color    { opacity: 0; transition: opacity .45s ease, transform .55s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important; }
+.v-frame-tome   { width: min(70vw, 220px); aspect-ratio: 0.66; background: #0a1422; }
+.v-frame-tome img { transform-origin: 50% 50%; }
+.v-clue-sub { margin-top: 10px; color: var(--text3); font-size: .85rem; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .v-clue-frame img { transition: none; } }
+
+/* ── Lignes simples (modes émoji/fruit : pas de grille de verdicts) ── */
+.v-simple-row {
+  display: flex; align-items: center; gap: 10px; padding: 6px 10px; margin-top: 6px;
+  background: var(--card); border: 1.5px solid var(--border2); border-radius: 10px;
+}
+.v-simple-row img { width: 38px; height: 38px; object-fit: cover; border-radius: 8px; }
+.v-simple-row .nm { font-weight: 600; flex: 1; text-align: left; }
+.v-simple-row .res.wrong { color: var(--red); font-weight: 700; }
+.v-simple-row .res.correct { color: var(--green); font-weight: 700; }
+
+/* Modes sans grille de verdicts : en-têtes de colonnes masqués, pas de min-width */
+.v-gridblock.simple .grid-header { display: none; }
+.v-gridblock.simple .v-gridinner { min-width: 0; }
+
+/* ── Partie : bandeau de statut ── */
+.v-status { position: sticky; top: 8px; z-index: 30; }
+.v-scorebar { display: flex; justify-content: center; align-items: center; gap: 22px; font-weight: 700; flex-wrap: wrap; font-size: 1.02rem; }
+.v-scorebar .me { color: var(--green); }
+.v-scorebar .op { color: var(--red); }
+.v-scorebar .v-strikes { font-size: .8rem; letter-spacing: .1em; color: var(--text3); margin-left: 4px; }
+.v-turnline { text-align: center; margin-top: 8px; font-size: 1.05rem; color: var(--text2); font-weight: 600; transition: color .2s; }
+.v-turnline.mine { color: var(--green); font-weight: 800; }
+.v-timerwrap { height: 8px; background: var(--wrong); border-radius: 4px; margin-top: 9px; overflow: hidden; }
+.v-timerbar { height: 100%; width: 100%; background: var(--vmode, var(--gold)); transition: width .2s linear; }
+.v-timerbar.urgent { background: linear-gradient(90deg, #e06060, var(--red)); }
+
+.v-search { margin: 10px auto 4px; max-width: 560px; }
+.v-search input[disabled] { opacity: .55; }
+
+/* ── Grilles : chaque joueur = un panneau distinct, surligné à son tour ── */
+.v-gridblock {
+  margin-top: 14px; border: 1.5px solid var(--border2); border-radius: 12px;
+  background: var(--card); overflow: hidden; transition: border-color .2s, box-shadow .2s;
+}
+.v-gridtitle {
+  font-weight: 700; color: var(--text2); font-size: .95rem; margin: 0;
+  padding: 8px 14px; background: rgba(0, 0, 0, 0.14);
+  border-bottom: 1px solid var(--border2); border-left: 3px solid var(--border2);
+  transition: background .2s, border-color .2s;
+}
+#v-gridtitle-me { border-left-color: var(--green); }
+#v-gridtitle-op { border-left-color: var(--red); }
+/* Tour actif : le panneau du joueur qui doit jouer est mis en avant */
+.v-gridtitle.turn-me { background: linear-gradient(90deg, rgba(40, 160, 72, 0.28), transparent 70%); color: var(--green); }
+.v-gridtitle.turn    { background: linear-gradient(90deg, rgba(200, 32, 32, 0.18), transparent 70%); }
+.v-gridtitle.turn::after    { content: ' ⏳ à lui de jouer'; color: var(--text3); font-weight: 400; font-size: .8rem; }
+.v-gridtitle.turn-me::after { content: ' 🎯 à toi !'; color: var(--green); font-weight: 700; font-size: .8rem; }
+.table-wrap { overflow-x: auto; padding: 6px 8px 8px; }
+.v-gridinner { min-width: 860px; }
+.v-gridblock.simple .v-gridinner { min-width: 0; }
+/* Mobile : le mode Classique passe en cartes (media query de classic.css) → plus de min-width */
+@media (max-width: 680px) {
+  .v-gridinner { min-width: 0; }
+  .table-wrap { overflow-x: visible; }
+}
+
+/* ── Reveal fin de manche (carte du récap de fin de match) ── */
+.v-reveal { display: flex; align-items: center; gap: 16px; border-color: var(--gold); }
+.v-reveal img { width: 74px; height: 74px; object-fit: cover; border-radius: 10px; border: 2px solid var(--gold); }
+.v-reveal .v-rtitle { font-weight: 900; font-size: 1.05rem; }
+.v-reveal .v-rsub { color: var(--text3); font-size: .88rem; }
+
+/* ── Overlay de fin de manche : la réponse en GRAND au centre (comme le daily) ── */
+.v-roundover-card {
+  display: flex; align-items: center; gap: 20px; text-align: left;
+  background: var(--card); border: 2px solid var(--gold); border-radius: 14px;
+  padding: 26px 30px; max-width: min(92vw, 500px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  animation: v-pop .25s ease-out;
+}
+@keyframes v-pop { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.v-roundover-card img { width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 2px solid var(--gold); flex-shrink: 0; }
+.v-roundover-card .v-rtitle { font-weight: 900; font-size: 1.3rem; }
+.v-roundover-card .v-rname { font-size: 1.15rem; margin-top: 6px; color: var(--text2); }
+.v-roundover-card .v-rsub { color: var(--text3); font-size: .92rem; margin-top: 4px; }
+
+/* ── Toggle couleur du mode Wanted (copie de wanted.css, non chargé sur cette page) ── */
+.v-wcolor { justify-content: center; margin-top: 10px; }
+.color-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: .82rem; color: var(--text2); letter-spacing: .08em; user-select: none; }
+.color-toggle input { display: none; }
+.toggle-track { width: 36px; height: 20px; background: var(--wrong); border-radius: 10px; position: relative; border: 1.5px solid var(--border2); transition: background .2s; }
+.color-toggle input:checked + .toggle-track { background: var(--gold); border-color: var(--gold); }
+.toggle-knob { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+.color-toggle input:checked + .toggle-track .toggle-knob { transform: translateX(16px); }
+
+/* ── Fin de match ── */
+/* L'écran de fin est le seul contenu de la page : carte plus large et plus généreuse */
+#v-post .v-card { max-width: 640px; margin-top: 7vh; padding: 34px 30px 30px; }
+/* Titre de fin de match : verdict + pseudo du gagnant mis en avant */
+#v-post-title { display: flex; flex-direction: column; gap: 6px; }
+.v-post-verdict { font-size: 1.5rem; }
+.v-post-winner {
+  font-family: 'Cinzel Decorative', serif; font-weight: 900; font-size: 2rem;
+  color: var(--gold); text-shadow: 0 2px 10px rgba(2, 8, 16, 0.5);
+}
+.v-post-score { font-size: 2.1rem; font-weight: 900; letter-spacing: .1em; margin: 12px 0; }
+.v-post-reveal { margin: 14px auto; text-align: left; max-width: 440px; }
+.v-post-rounds { color: var(--text3); font-size: .95rem; margin: 6px 0 16px; line-height: 1.8; }
+@media (max-width: 680px) {
+  #v-post .v-card { margin-top: 12px; padding: 22px 16px 20px; }
+  .v-post-winner { font-size: 1.4rem; }
+  .v-post-score { font-size: 1.6rem; }
+}
+
+/* ── Bannière / overlay / toast ── */
+.v-banner {
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 90;
+  background: var(--header-bg); color: #f0d898; border: 1px solid var(--gold);
+  padding: 9px 18px; border-radius: 10px; font-size: .92rem; box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+.v-countoverlay {
+  position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; background: rgba(7, 20, 40, .72);
+}
+.v-countnum { font-size: 6rem; font-weight: 900; color: var(--gold-l); font-family: 'Cinzel Decorative', serif; }
+.v-countround { color: #fff; font-size: 1.2rem; margin-top: 4px; }
+.v-toast {
+  position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 95;
+  background: var(--red-dark); color: #fff; padding: 9px 20px; border-radius: 10px;
+  font-size: .92rem; box-shadow: 0 6px 18px rgba(0,0,0,.3);
+}
+.v-toast.info { background: var(--tab-act); }

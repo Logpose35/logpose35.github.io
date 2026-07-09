@@ -34,6 +34,10 @@
 }
 .mode-tab-inf:hover { opacity: 1; }
 .mode-tab-inf.active { opacity: 1; }
+/* Versus = lien vers la page dédiée (mode bonus hors quotidien) rendu comme un onglet */
+.mode-tab-versus { text-decoration: none; display: inline-flex; align-items: center; }
+.mode-tab-versus .tab-ic { color: var(--mode-versus); }
+.mode-tab-versus:hover { border-color: var(--mode-versus); color: var(--mode-versus); }
 
 .mode-tab {
   padding: 9px 26px;

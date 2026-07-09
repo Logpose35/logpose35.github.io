@@ -7,6 +7,10 @@
 (function () {
   'use strict';
 
+  // Base des assets lourds (VPS) — locale à l'IIFE pour éviter toute collision
+  // avec la constante homonyme d'app.js (scripts classiques, portée globale partagée).
+  const ASSET_BASE = window.ASSET_BASE || '';
+
   // ── Table des 32 îles ──
   // x / y : position en % sur l'image (0-100). seuil : score cumulé requis.
   // Le parcours suit le voyage : East Blue (haut-droite) → Reverse Mountain (centre)
@@ -320,7 +324,7 @@
       const on   = cap.has(c.name);
       const file = (typeof getImgFile === 'function') ? getImgFile(c) : null;
       const media = file
-        ? `<img src="images/${file}.jpg" alt="" loading="lazy" draggable="false">`
+        ? `<img src="${ASSET_BASE}images/${file}.jpg" alt="" loading="lazy" draggable="false">`
         : `<div class="jm-char-noimg">☠</div>`;
       return `<div class="jm-char ${on ? 'jm-char--on' : 'jm-char--off'}"`
            + (on ? ` data-name="${esc(c.name)}" tabindex="0" role="button"` : '')
@@ -390,7 +394,7 @@
     if (!sheet || !c) return;
     const file = (typeof getImgFile === 'function') ? getImgFile(c) : null;
     const media = file
-      ? `<img src="images/${file}.jpg" alt="${esc(c.name)}" draggable="false">`
+      ? `<img src="${ASSET_BASE}images/${file}.jpg" alt="${esc(c.name)}" draggable="false">`
       : `<div class="jm-cs-noimg">☠</div>`;
 
     // Lignes d'info réutilisant RECAP_COLS (mêmes libellés/formats que le mode Classique)

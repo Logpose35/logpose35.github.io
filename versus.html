@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LogPose — Versus 1v1</title>
+  <meta name="description" content="LogPose Versus — Affronte un ami en 1v1 : même personnage One Piece mystère, chacun son tour, le premier qui trouve gagne la manche !">
+  <meta name="theme-color" content="#c89408">
+  <link rel="canonical" href="https://onepiecedle.fr/versus.html">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+  <!-- Base des assets lourds (VPS). Rollback : '' → chemins relatifs. -->
+  <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
+
+  <!-- Thème partagé avec le reste du site (clé 'op-theme') — appliqué AVANT le rendu
+       pour éviter le flash ; toggleTheme() global, réutilisé par le bouton de l'en-tête. -->
+  <script>
+    (function () {
+      function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+      window.toggleTheme = function () {
+        var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        try { localStorage.setItem('op-theme', next); } catch (e) {}
+      };
+      function readAndApply() {
+        var saved;
+        try { saved = localStorage.getItem('op-theme'); } catch (e) {}
+        if (saved) applyTheme(saved);
+        else applyTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      }
+      readAndApply();
+      // bfcache : une restauration back/forward ne relance pas ce script → re-synchroniser le thème
+      window.addEventListener('pageshow', function (e) { if (e.persisted) readAndApply(); });
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css?v=210">
+  <link rel="stylesheet" href="css/classic.css?v=210">
+  <link rel="stylesheet" href="css/versus.css?v=210">
+</head>
+<body class="versus-body">
+
+<!-- ===== SPRITE D'ICÔNES (sous-ensemble du sprite de game.html — modes jouables en versus) ===== -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="ic-wanted" viewBox="0 0 24 24">
+    <rect x="5" y="3" width="14" height="18" rx="1"/>
+    <path d="M5 6h14M5 18h14"/>
+    <circle cx="12" cy="11" r="2.6"/>
+    <path d="M8.5 15.5c.8-1.6 6.2-1.6 7 0"/>
+  </symbol>
+  <symbol id="ic-silhouette" viewBox="0 0 24 24">
+    <circle cx="12" cy="7.5" r="4" fill="currentColor" stroke="none"/>
+    <path d="M4.5 21c0-4.7 3.4-7.5 7.5-7.5s7.5 2.8 7.5 7.5z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-tome" viewBox="0 0 24 24">
+    <rect x="6" y="3" width="12" height="18" rx="1"/>
+    <path d="M9 3v18"/>
+    <path d="M11.5 7.5h4M11.5 10.5h4"/>
+  </symbol>
+  <symbol id="ic-compass" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 5l1.7 5.3 5.3 1.7-5.3 1.7L12 19l-1.7-5.3L5 12l5.3-1.7z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-rebus" viewBox="0 0 24 24">
+    <path d="M4 5h16v11H9l-4 4v-4H4z"/>
+    <circle cx="9" cy="10.5" r="0.7" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="10.5" r="0.7" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="10.5" r="0.7" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-fruit" viewBox="0 0 24 24">
+    <path d="M12 8.2C12 5.5 13.2 4.2 15.3 3.6"/>
+    <circle cx="12" cy="14.3" r="6.3"/>
+    <path d="M9.4 14.8c1-1.7 3.8-1.7 4.8 0s-1.1 3.1-2.6 2.1"/>
+  </symbol>
+  <symbol id="ic-versus" viewBox="0 0 24 24">
+    <path d="M14.5 17.5 3 6V3h3l11.5 11.5"/>
+    <path d="M13 19 19 13"/>
+    <path d="M16 16 20 20"/>
+    <path d="M19 21 21 19"/>
+    <path d="M14.5 6.5 18 3h3v3l-3.5 3.5"/>
+    <path d="M5 14 9 18"/>
+    <path d="M7 17 4 20"/>
+    <path d="M3 19 5 21"/>
+  </symbol>
+  <symbol id="ic-anchor" viewBox="0 0 24 24">
+    <circle cx="12" cy="5" r="2"/>
+    <path d="M12 7v13"/>
+    <path d="M7.5 11h9"/>
+    <path d="M5 13.5a7 7 0 0 0 14 0"/>
+    <path d="M5 13.5l-1.8.4M5 13.5l1.4 1.4M19 13.5l1.8.4M19 13.5l-1.4 1.4"/>
+  </symbol>
+  <symbol id="ic-link" viewBox="0 0 24 24">
+    <path d="M9 15l6-6"/>
+    <path d="M11 6.5l1.5-1.5a3.5 3.5 0 0 1 5 5L16 11.5"/>
+    <path d="M13 17.5l-1.5 1.5a3.5 3.5 0 0 1-5-5L8 12.5"/>
+  </symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/>
+  </symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24">
+    <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-back" viewBox="0 0 24 24">
+    <path d="M11 6l-6 6 6 6"/>
+    <path d="M5 12h14"/>
+  </symbol>
+</svg>
+
+<header class="v-header">
+  <a class="v-back" href="game.html" title="Retour au jeu quotidien">
+    <svg class="ic" aria-hidden="true"><use href="#ic-back"></use></svg>
+    <span class="v-back-label">Retour au jeu</span>
+  </a>
+  <a class="v-brand" href="index.html">
+    <svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg>
+    LogPose
+  </a>
+  <span class="v-title">
+    <svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg>
+    Versus 1v1
+  </span>
+  <span class="v-codechip" id="v-codechip" hidden></span>
+  <button class="v-theme" onclick="toggleTheme()" aria-label="Changer de thème" title="Changer de thème">
+    <svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg>
+    <svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg>
+  </button>
+</header>
+
+<main id="v-root">
+
+  <!-- ══ ACCUEIL ══ -->
+  <section id="v-home" class="v-screen">
+    <div class="v-hero">
+      <img class="v-hero-skull" src="images/jolly_roger.png" alt="" draggable="false">
+      <h1 class="v-hero-title">Versus 1v1</h1>
+      <p class="v-hero-tag">Défie un ami en duel. Même personnage mystère, chacun son tour — le premier qui trouve rafle la manche.</p>
+    </div>
+
+    <div class="v-card v-pseudo-card">
+      <label class="v-label" for="v-pseudo">Ton pseudo de pirate</label>
+      <input type="text" id="v-pseudo" maxlength="16" placeholder="Mugiwara" autocomplete="off">
+    </div>
+
+    <div class="v-duo">
+      <div class="v-card">
+        <h2><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-versus"></use></svg>Créer un lobby</h2>
+        <div class="v-opts">
+          <label>Manches
+            <select id="v-bestof">
+              <option value="1">Bo1</option>
+              <option value="3" selected>Bo3</option>
+              <option value="5">Bo5</option>
+            </select>
+          </label>
+          <label>Temps par tour
+            <select id="v-turns">
+              <option value="30">30 s</option>
+              <option value="60" selected>60 s</option>
+              <option value="120">120 s</option>
+              <option value="0">Illimité</option>
+            </select>
+          </label>
+        </div>
+        <button class="v-btn v-btn-gold v-btn-wide" id="v-create"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Créer la partie</button>
+      </div>
+      <div class="v-card">
+        <h2><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-compass"></use></svg>Rejoindre</h2>
+        <label class="v-label" for="v-code">Code reçu d'un ami</label>
+        <input type="text" id="v-code" maxlength="5" placeholder="A B C D E" autocomplete="off" class="v-codeinput">
+        <button class="v-btn v-btn-gold v-btn-wide" id="v-join"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Rejoindre le duel</button>
+      </div>
+    </div>
+    <p class="v-hint">Les essais des deux joueurs sont visibles — l'info adverse fait partie du jeu.</p>
+  </section>
+
+  <!-- ══ ATTENTE DE L'ADVERSAIRE ══ -->
+  <section id="v-wait" class="v-screen" hidden>
+    <div class="v-card v-center v-wait-card">
+      <h2>Lobby prêt — invite un ami !</h2>
+      <p class="v-label v-wait-lead">Partage ce code&nbsp;:</p>
+      <button class="v-bigcode" id="v-bigcode" title="Cliquer pour copier le code">·····</button>
+      <div class="v-wait-opts" id="v-wait-opts"></div>
+      <button class="v-btn v-btn-gold" id="v-copylink"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-link"></use></svg>Copier le lien d'invitation</button>
+      <p class="v-hint v-waiting">En attente de l'adversaire</p>
+      <button class="v-btn v-btn-quiet" id="v-cancelwait">Annuler</button>
+    </div>
+  </section>
+
+  <!-- ══ ÉCRAN « PRÊTS ? » ══ -->
+  <section id="v-ready" class="v-screen" hidden>
+    <div class="v-card v-center">
+      <h2 id="v-ready-title">Prêts ?</h2>
+      <div class="v-players" id="v-ready-players"></div>
+      <div class="v-opts" id="v-ready-opts">
+        <label>Manches
+          <select id="v-bestof2">
+            <option value="1">Bo1</option><option value="3">Bo3</option><option value="5">Bo5</option>
+          </select>
+        </label>
+        <label>Temps par tour
+          <select id="v-turns2">
+            <option value="30">30 s</option><option value="60">60 s</option>
+            <option value="120">120 s</option><option value="0">Illimité</option>
+          </select>
+        </label>
+      </div>
+      <p class="v-hint" id="v-ready-optsinfo" hidden>Seul le créateur peut modifier les options.</p>
+      <div class="v-picks">
+        <div class="v-label">Ton mode — chacun choisit sa manche, la manche décisive est tirée au sort</div>
+        <div class="v-pickrow" id="v-pickrow">
+          <button class="v-pick" data-mode="classic" style="--mc: var(--mode-classic)"><svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classique</button>
+          <button class="v-pick" data-mode="wanted" style="--mc: var(--mode-wanted)"><svg class="ic" aria-hidden="true"><use href="#ic-wanted"></use></svg>Wanted</button>
+          <button class="v-pick" data-mode="silhouette" style="--mc: var(--mode-silhouette)"><svg class="ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>Silhouette</button>
+          <button class="v-pick" data-mode="fruit" style="--mc: var(--mode-fruit)"><svg class="ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Fruit du Démon</button>
+          <button class="v-pick" data-mode="emoji" style="--mc: var(--mode-emoji)"><svg class="ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
+          <button class="v-pick" data-mode="tome" style="--mc: var(--mode-tome)"><svg class="ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome</button>
+        </div>
+      </div>
+      <button class="v-btn v-btn-gold" id="v-readybtn">Je suis prêt !</button>
+      <button class="v-btn v-btn-quiet" id="v-leaveready">Quitter le lobby</button>
+    </div>
+  </section>
+
+  <!-- ══ PARTIE ══ -->
+  <section id="v-game" class="v-screen" hidden>
+    <div class="v-status v-card">
+      <div class="v-scorebar" id="v-scorebar"></div>
+      <div class="v-turnline" id="v-turnline">—</div>
+      <div class="v-timerwrap" id="v-timerwrap"><div class="v-timerbar" id="v-timerbar"></div></div>
+    </div>
+
+
+    <div class="v-clue v-card" id="v-clue" hidden></div>
+
+    <div class="search-wrap v-search">
+      <input type="text" id="search-input" placeholder="À toi de jouer…" autocomplete="off" maxlength="120" aria-label="Tape un nom de personnage à deviner"/>
+      <div id="autocomplete" role="listbox" aria-label="Suggestions"></div>
+    </div>
+
+    <div class="v-gridblock">
+      <div class="v-gridtitle" id="v-gridtitle-me">Toi</div>
+      <div class="table-wrap"><div class="v-gridinner">
+        <div class="grid-header grid-cols">
+          <div class="col-label">Personnage</div><div class="col-label">Genre</div>
+          <div class="col-label">Affiliation</div><div class="col-label">Origine</div>
+          <div class="col-label">Fruit du Démon</div><div class="col-label">Haki</div>
+          <div class="col-label">Statut</div><div class="col-label">1er Arc</div>
+          <div class="col-label">Prime (M)</div>
+        </div>
+        <div id="v-grid-me" role="list" aria-label="Tes tentatives"></div>
+      </div></div>
+    </div>
+
+    <div class="v-gridblock">
+      <div class="v-gridtitle" id="v-gridtitle-op">Adversaire</div>
+      <div class="table-wrap"><div class="v-gridinner">
+        <div class="grid-header grid-cols">
+          <div class="col-label">Personnage</div><div class="col-label">Genre</div>
+          <div class="col-label">Affiliation</div><div class="col-label">Origine</div>
+          <div class="col-label">Fruit du Démon</div><div class="col-label">Haki</div>
+          <div class="col-label">Statut</div><div class="col-label">1er Arc</div>
+          <div class="col-label">Prime (M)</div>
+        </div>
+        <div id="v-grid-op" role="list" aria-label="Tentatives de l'adversaire"></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ══ FIN DE MATCH ══ -->
+  <section id="v-post" class="v-screen" hidden>
+    <div class="v-card v-center">
+      <h2 id="v-post-title">Fin du match</h2>
+      <div class="v-reveal v-post-reveal" id="v-post-reveal" hidden></div>
+      <div class="v-post-score" id="v-post-score"></div>
+      <div class="v-post-rounds" id="v-post-rounds"></div>
+      <button class="v-btn v-btn-gold" id="v-rematch">Revanche !</button>
+      <p class="v-hint" id="v-rematch-wait" hidden>En attente de l'adversaire<span class="v-dots">…</span></p>
+      <button class="v-btn v-btn-quiet" id="v-quit">Quitter</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Bannière connexion adverse + compte à rebours de manche + toasts -->
+<div class="v-banner" id="v-banner" hidden></div>
+<div class="v-countoverlay" id="v-roundover" hidden><div class="v-roundover-card" id="v-roundover-card"></div></div>
+<div class="v-countoverlay" id="v-count" hidden><div class="v-countnum" id="v-countnum">3</div><div class="v-countround" id="v-countround"></div></div>
+<div class="v-toast" id="v-toast" hidden></div>
+
+<script src="js/data.js?v=210"></script>
+<script src="js/versus-rules.js?v=210"></script>
+<script src="js/versus.js?v=210"></script>
+</body>
+</html>

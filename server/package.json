@@ -1,0 +1,14 @@
+{
+  "name": "logpose-versus-server",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Serveur Versus 1v1 LogPose (lobbies par code, tour par tour, WebSocket)",
+  "main": "versus-server.js",
+  "scripts": {
+    "start": "node versus-server.js",
+    "test": "node test-client.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

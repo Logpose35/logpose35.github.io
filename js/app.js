@@ -1,3 +1,7 @@
+// Base des assets lourds (portraits, covers, silhouettes, audio) servis par le VPS.
+// Définie inline dans le <head> de game.html/index.html ; '' = retour aux chemins relatifs (Pages).
+const ASSET_BASE = window.ASSET_BASE || '';
+
 // ===== FIREBASE COMPTEUR QUOTIDIEN =====
 const FB_URL = 'https://logpose-eec08-default-rtdb.europe-west1.firebasedatabase.app';
 
@@ -80,10 +84,13 @@ const LS = {
   theme:     'op-theme',
   spoilerOk: 'op-spoiler-ok',
   v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue (historique)
-  wnSilSeen: 'op-wn-sil-seen', // pop-up "Gazette · mode Silhouette (v5.2)" déjà vue
+  wnSilSeen: 'op-wn-sil-seen', // pop-up "Gazette · mode Silhouette (v5.2)" déjà vue (historique)
+  wnVersusSeen: 'op-wn-versus-seen', // pop-up "Gazette · mode Versus 1v1 (v6.0)" déjà vue
   // Mode Infini
   infStreak: 'op-inf-streak',
   infRecord: 'op-inf-record',
+  // Mode Versus 1v1 — { w, l }, ÉCRIT par js/versus.js (même chaîne là-bas), lu ici (onglet stats)
+  versusStats: 'op-versus-stats',
   // Paramétrées (mode et/ou jour)
   stats:   m       => `op-stats-${m}`,
   gs:      (m, dk) => `op-gs-${m}-${dk}`,
@@ -662,41 +669,8 @@ const input = document.getElementById('search-input');
 const acBox = document.getElementById('autocomplete');
 let acSel = -1, acFilt = [];
 
-// Retourne le label d'alias/épithète qui a matché, ou null si c'est le nom qui matche
-function getMatchHint(c, q) {
-  if (c.name.toLowerCase().includes(q)) return null;
-  // Capitaine (mode pavillon)
-  if (c.captain && c.captain.toLowerCase().includes(q)) return c.captain;
-  // Épithète
-  if (c.epithet && c.epithet.toLowerCase().includes(q)) return c.epithet;
-  // Alias explicites
-  for (const [alias, charName] of Object.entries(ALIASES)) {
-    if (charName === c.name && alias.includes(q)) return alias;
-  }
-  // Mode audio : numéro ou artiste
-  if (c.id !== undefined) {
-    if (/^(?:op|opening)\s*$/.test(q)) return `Opening ${c.id}`;
-    const numMatch = q.match(/^(?:opening\s+|op\s*)?(\d+)$/);
-    if (numMatch && parseInt(numMatch[1]) === c.id) return `Opening ${c.id}`;
-    if (q.length >= 2 && c.artist && c.artist.toLowerCase().includes(q)) return c.artist;
-  }
-  return null;
-}
-
-function charMatchesQuery(c, q) {
-  if (c.name.toLowerCase().includes(q)) return true;
-  if (c.captain && c.captain.toLowerCase().includes(q)) return true;
-  if (c.epithet && c.epithet.toLowerCase().includes(q)) return true;
-  if (Object.entries(ALIASES).some(([alias, charName]) => charName === c.name && alias.includes(q))) return true;
-  // Mode audio : recherche par numéro, mot-clé "op"/"opening", ou artiste
-  if (c.id !== undefined) {
-    if (/^(?:op|opening)\s*$/.test(q)) return true;
-    const numMatch = q.match(/^(?:opening\s+|op\s*)?(\d+)$/);
-    if (numMatch && parseInt(numMatch[1]) === c.id) return true;
-    if (q.length >= 2 && c.artist && c.artist.toLowerCase().includes(q)) return true;
-  }
-  return false;
-}
+// getMatchHint / charMatchesQuery vivent dans js/versus-rules.js (source unique
+// partagée avec le serveur Versus) — ALIASES y est passé en paramètre.
 
 input.addEventListener('input', () => {
   const q = input.value.trim().toLowerCase();
@@ -709,10 +683,10 @@ input.addEventListener('input', () => {
   else if (currentMode === 'audio')   { pool = OPENINGS;     used = auNames; }
   else if (currentMode === 'inf')     { pool = CHARACTERS;   used = infNames; }
   else                                { pool = CHARACTERS;   used = silNames; }  // silhouette
-  acFilt = pool.filter(c => !used.has(c.name) && charMatchesQuery(c, q)).slice(0, 8);
+  acFilt = pool.filter(c => !used.has(c.name) && charMatchesQuery(c, q, ALIASES)).slice(0, 8);
   if (!acFilt.length) { acBox.classList.remove('open'); return; }
   acBox.innerHTML = acFilt.map((c, i) => {
-    const hint = getMatchHint(c, q);
+    const hint = getMatchHint(c, q, ALIASES);
     const sub  = hint ? ` <span class="ac-hint">${esc(hint)}</span>` : '';
     return `<div class="ac-item" data-i="${i}">${esc(c.name)}${sub}</div>`;
   }).join('');
@@ -787,7 +761,7 @@ function finClassic(won) {
     const revealEl  = document.getElementById('classic-reveal');
     const revealImg = document.getElementById('classic-reveal-img');
     const revealName = document.getElementById('classic-reveal-name');
-    revealImg.src = `images/${imgFile}.jpg`;
+    revealImg.src = `${ASSET_BASE}images/${imgFile}.jpg`;
     revealName.textContent = TARGET_C.name;
     revealEl.style.display = 'block';
   }
@@ -805,33 +779,9 @@ function finClassic(won) {
   onGameEnd('classic', won, cGuesses.length, won ? calcModeScore('classic', cGuesses.length, hintUsed, 0) : 0);
 }
 
-// Comparaisons
-function cmpHaki(g, t) {
-  if (!g.length && !t.length) return 'correct';
-  if (JSON.stringify([...g].sort()) === JSON.stringify([...t].sort())) return 'correct';
-  return g.some(h => t.includes(h)) ? 'partial' : 'wrong';
-}
-function cmpArc(g, t)    { return g === t ? { state:'correct', arrow:'' } : { state:'wrong', arrow: g < t ? '⬆️' : '⬇️' }; }
-function cmpBounty(g, t) { return g === t ? { state:'correct', arrow:'' } : { state:'wrong', arrow: g < t ? '⬆️' : '⬇️' }; }
-function cmpOrigin(g, t) {
-  if (g === t) return 'correct';
-  if (g.includes('Blue') && t.includes('Blue')) return 'partial';
-  return 'wrong';
-}
-function fruitLabel(f) {
-  if (!f) return { icon:'❌', val:'Aucun' };
-  return { icon: { Paramecia:'🌀', Logia:'🌊', Zoan:'🐾', Mythique:'✨' }[f] || '❓', val: f };
-}
-
-// Mots trop génériques à ignorer dans la comparaison d'affiliation
-const AFFIL_STOP = new Set(['pirates','pirate','de','du','des','les','la','le','d','l','et','the','of','grand','new']);
-function cmpAffil(a, b) {
-  if (a === b) return 'correct';
-  const wordsA = a.toLowerCase().split(/[\s\-–]+/).filter(w => w.length > 3 && !AFFIL_STOP.has(w));
-  if (!wordsA.length) return 'wrong';
-  const lowerB = b.toLowerCase();
-  return wordsA.some(w => lowerB.includes(w)) ? 'partial' : 'wrong';
-}
+// Comparaisons : cmpHaki/cmpArc/cmpBounty/cmpOrigin/cmpAffil/AFFIL_STOP/fruitLabel
+// vivent dans js/versus-rules.js (SOURCE UNIQUE partagée avec le serveur Versus —
+// toute retouche de règle se fait là-bas, jamais en la dupliquant ici).
 
 const STATE_FR = { correct: 'correct', partial: 'partiel', wrong: 'incorrect' };
 const arrowFr = a => a === '⬆️' ? ', plus haut' : a === '⬇️' ? ', plus bas' : '';
@@ -839,14 +789,10 @@ function buildGuessRow(char, T) {
   const row = document.createElement('div');
   row.className = 'guess-row grid-cols';
   row.setAttribute('role', 'listitem');
-  const gs = char.gender === T.gender ? 'correct' : 'wrong';
-  const as = cmpAffil(char.affil, T.affil);
-  const os = cmpOrigin(char.origin, T.origin);
-  const fs = char.fruit  === T.fruit  ? 'correct' : (char.fruit && T.fruit ? 'partial' : 'wrong');
-  const hs = cmpHaki(char.haki, T.haki);
-  const ss = char.status === T.status ? 'correct' : 'wrong';
-  const ac = cmpArc(char.arc, T.arc);
-  const bc = cmpBounty(char.bounty, T.bounty);
+  // Verdicts calculés par la source unique partagée (js/versus-rules.js) ;
+  // déstructurés vers les noms historiques pour laisser le template intact.
+  const { gender: gs, affil: as, origin: os, fruit: fs, haki: hs, status: ss,
+          arc: ac, bounty: bc } = computeVerdicts(char, T);
   const fl = fruitLabel(char.fruit);
   const genderTxt = char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu';
   const hakiTxt   = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun';
@@ -855,7 +801,7 @@ function buildGuessRow(char, T) {
   row.innerHTML = `
     <div class="cell cell-char">
       ${getImgFile(char)
-        ? `<img class="char-thumb" src="images/${esc(getImgFile(char))}.jpg" alt="${esc(char.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(char.name)}</span>`
+        ? `<img class="char-thumb" src="${ASSET_BASE}images/${esc(getImgFile(char))}.jpg" alt="${esc(char.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(char.name)}</span>`
         : `<span class="char-name-only">${esc(char.name)}</span>`
       }
     </div>
@@ -968,7 +914,7 @@ function initPoster() {
   const img   = document.getElementById('wanted-img');
   const noImg = document.getElementById('wanted-no-img');
   img.src = '';
-  img.src = `images/${getImgFile(TARGET_W)}.jpg?v=30`;
+  img.src = `${ASSET_BASE}images/${getImgFile(TARGET_W)}.jpg`;
   img.draggable = false;
   img.addEventListener('dragstart', e => e.preventDefault());
   img.onerror = () => { img.style.display = 'none'; noImg.style.display = 'flex'; };
@@ -1079,8 +1025,8 @@ const SIL_SCALES  = [3.2, 2.9, 2.6, 2.3, 2.0, 1.75, 1.5, 1.3, 1.15, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `silhouettes/${silFile(char)}.png?v=195`; }
-function silColorSrc(char)  { return `silhouettes/color/${silFile(char)}.png?v=195`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=210`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=210`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1363,8 +1309,8 @@ function showStats(mode) {
   if (_statsMode === 'inf') _statsMode = 'classic'; // inf n'a pas de stats
   document.getElementById('stats-modal').classList.remove('hidden');
   renderStatsContent(_statsMode);
-  // Met à jour les onglets
-  MODE_IDS.forEach(m => {
+  // Met à jour les onglets (+ versus : onglet stats sans mode quotidien associé)
+  [...MODE_IDS, 'versus'].forEach(m => {
     const tab = document.getElementById(`stab-${m}`);
     if (tab) tab.classList.toggle('active', m === _statsMode);
   });
@@ -1380,7 +1326,7 @@ function handleModalClick(e) {
 
 function switchStatsTab(mode) {
   _statsMode = mode;
-  MODE_IDS.forEach(m => {
+  [...MODE_IDS, 'versus'].forEach(m => {
     const tab = document.getElementById(`stab-${m}`);
     if (tab) tab.classList.toggle('active', m === mode);
   });
@@ -1400,7 +1346,26 @@ function getNextUnplayedMode(currentMode) {
   return ordered.find(m => !results[m]) || null;
 }
 
+// Onglet Versus 1v1 : bilan de duels (clé écrite par js/versus.js), pas de stats quotidiennes
+function renderVersusStats() {
+  const s = safeParseJSON(lsGet(LS.versusStats), {});
+  const w = sanitizeNum(s.w), l = sanitizeNum(s.l);
+  const played = w + l;
+  const pct = played === 0 ? 0 : Math.round((w / played) * 100);
+  let html = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val">${played}</div><div class="stat-label">Duels joués</div></div>
+      <div class="stat-card"><div class="stat-val">${w}</div><div class="stat-label">Victoires</div></div>
+      <div class="stat-card"><div class="stat-val">${l}</div><div class="stat-label">Défaites</div></div>
+      <div class="stat-card"><div class="stat-val">${pct}%</div><div class="stat-label">Taux de victoire</div></div>
+    </div>`;
+  if (played === 0) html += `<div class="stats-empty">Aucun duel joué — défie un ami depuis l'onglet Versus !</div>`;
+  html += `<button class="stats-next-btn" onclick="location.href='versus.html'">Lancer un duel <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-versus"></use></svg> →</button>`;
+  document.getElementById('stats-content').innerHTML = html;
+}
+
 function renderStatsContent(mode) {
+  if (mode === 'versus') return renderVersusStats();
   const stats   = loadStats(mode);
   const played  = sanitizeNum(stats.played);
   const won     = sanitizeNum(stats.won);
@@ -1620,7 +1585,7 @@ function finFruit(won) {
       const revealEl = document.getElementById('fruit-reveal');
       const revealImg = document.getElementById('fruit-reveal-img');
       const revealName = document.getElementById('fruit-reveal-name');
-      revealImg.src = `images/${imgFile}.jpg`;
+      revealImg.src = `${ASSET_BASE}images/${imgFile}.jpg`;
       revealName.textContent = TARGET_FRU.holder;
       revealEl.style.display = 'block';
     }
@@ -1669,7 +1634,7 @@ function showEmojiReveal() {
   const revName = document.getElementById('emoji-reveal-name');
   const imgFile = getImgFile(emTarget);
   if (imgFile) {
-    revImg.src = `images/${imgFile}.jpg`;
+    revImg.src = `${ASSET_BASE}images/${imgFile}.jpg`;
     revImg.style.display = '';
   } else {
     revImg.style.display = 'none';
@@ -1837,7 +1802,7 @@ function finEmoji(won) {
     const revEl   = document.getElementById('emoji-reveal');
     const revImg  = document.getElementById('emoji-reveal-img');
     const revName = document.getElementById('emoji-reveal-name');
-    revImg.src = `images/${imgFile}.jpg`;
+    revImg.src = `${ASSET_BASE}images/${imgFile}.jpg`;
     revName.textContent = emTarget.name;
     revEl.style.display = 'block';
   }
@@ -1912,7 +1877,7 @@ function playSnippet() {
   const snippetIdx = auOver ? AUDIO_DURATIONS.length - 1 : Math.min(auGuesses.length, AUDIO_DURATIONS.length - 1);
   const duration   = AUDIO_DURATIONS[snippetIdx];
 
-  audio.src     = `audio/Opening${TARGET_AU.id}.mp3`;
+  audio.src     = `${ASSET_BASE}audio/Opening${TARGET_AU.id}.mp3`;
   audio.currentTime = 0;
   audio.volume  = parseFloat(document.getElementById('au-volume').value);
 
@@ -2080,7 +2045,7 @@ const MAX_TOME_GUESSES = 6;
 const TOME_ZOOM_SCALES = [8, 5.3, 3.5, 2.3, 1.5, 1]; // du plus serré (gros plan) au dézoom complet
 let tmGuesses = [], tmOver = false;                    // tmGuesses = numéros de tomes proposés
 function tomeInputEl() { return document.getElementById('tome-input'); }
-function tomeCoverSrc() { return `images/cover/Tome_${TARGET_TOME}.webp`; }
+function tomeCoverSrc() { return `${ASSET_BASE}images/cover/Tome_${TARGET_TOME}.webp`; }
 
 function initTomeMode() {
   const img = document.getElementById('tome-img');
@@ -2403,14 +2368,14 @@ function handleAboutOverlayClick(e) {
   if (e.target === document.getElementById('about-modal')) closeAbout();
 }
 
-// ===== POP-UP "GAZETTE · MODE SILHOUETTE (v5.2)" (Une de gazette · affichée une seule fois) =====
+// ===== POP-UP "GAZETTE · MODE VERSUS 1V1 (v6.0)" (Une de gazette · affichée une seule fois) =====
 function maybeShowWhatsNew() {
-  if (lsGet(LS.wnSilSeen)) return;     // déjà vue → on ne montre plus
+  if (lsGet(LS.wnVersusSeen)) return;  // déjà vue → on ne montre plus
   showWhatsNew();
 }
 function _wnEsc(e) { if (e.key === 'Escape') closeWhatsNew(); }
 function closeWhatsNew() {
-  lsSet(LS.wnSilSeen, '1');
+  lsSet(LS.wnVersusSeen, '1');
   const ov = document.getElementById('whatsnew-overlay');
   if (ov) ov.remove();
   document.removeEventListener('keydown', _wnEsc);
@@ -2423,7 +2388,7 @@ function showWhatsNew() {
   ov.className = 'wn-overlay';
   ov.setAttribute('role', 'dialog');
   ov.setAttribute('aria-modal', 'true');
-  ov.setAttribute('aria-label', 'Nouveautés LogPose v5.2 — mode Silhouette');
+  ov.setAttribute('aria-label', 'Nouveautés LogPose v6.0 — mode Versus 1v1');
   ov.innerHTML =
       '<div class="wn-gazette" role="document">'
     +   '<button class="wn-close" type="button" aria-label="Fermer">×</button>'
@@ -2432,24 +2397,24 @@ function showWhatsNew() {
     +       '<div class="wn-paper-name"><span class="wn-orn">☠</span>La Gazette du Log Pose<span class="wn-orn">☠</span></div>'
     +       '<div class="wn-tagline">« Toutes les nouvelles de Grand Line »</div>'
     +     '</div>'
-    +     '<div class="wn-dateline"><span>Édition spéciale · v5.2</span><span>' + esc(today) + '</span></div>'
-    +     '<div class="wn-kicker">— Une ombre se dessine à l\'horizon —</div>'
-    +     '<h2 class="wn-headline">Le mode Silhouette <span class="wn-headline-ico"><svg class="ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg></span></h2>'
-    +     '<p class="wn-lede">Un nouveau défi quotidien prend la relève du Pavillon&nbsp;: reconnais le pirate à sa seule silhouette noire. Gros plan sur une arête du contour au départ, qui dézoome et glisse vers la forme entière à chaque erreur.</p>'
+    +     '<div class="wn-dateline"><span>Édition spéciale · v6.0</span><span>' + esc(today) + '</span></div>'
+    +     '<div class="wn-kicker">— Deux navires se rangent bord à bord —</div>'
+    +     '<h2 class="wn-headline">Le mode Versus 1v1 <span class="wn-headline-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></span></h2>'
+    +     '<p class="wn-lede">Défie un ami en duel, au tour par tour&nbsp;: crée un salon, partage ton code à 5 lettres, et devinez le même personnage mystère — le premier qui le trouve remporte la manche.</p>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
     +     '<div class="wn-cols">'
-    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-eye"></use></svg></div><div class="wn-col-h">Dézoom sur 10 essais</div><div class="wn-col-p">L\'ombre s\'ouvre indice après indice, jusqu\'à la révélation complète en couleur.</div></div>'
-    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-bulb"></use></svg></div><div class="wn-col-h">Indice couleur</div><div class="wn-col-p">À mi-partie, un éclat de la vraie image se dévoile pour t\'aiguiller (au prix de la moitié du score).</div></div>'
-    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-map"></use></svg></div><div class="wn-col-h">Tout Grand Line</div><div class="wn-col-p">De l\'équipage au Chapeau de Paille jusqu\'aux Chevaliers Divins — sauras-tu les démasquer&nbsp;?</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></div><div class="wn-col-h">Bo1, Bo3 ou Bo5</div><div class="wn-col-p">Chacun choisit le mode de sa manche — Classique, Wanted, Silhouette, Fruit, Émoji ou Tome — et la manche décisive est tirée au sort.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-hourglass"></use></svg></div><div class="wn-col-h">Au tour par tour</div><div class="wn-col-p">30, 60 ou 120 secondes par tour (ou sans limite). Les indices se dévoilent à chaque erreur… pour les deux équipages.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-chart"></use></svg></div><div class="wn-col-h">Bilan de duels</div><div class="wn-col-p">Victoires, défaites et taux de victoire rejoignent tes statistiques — et la revanche est à un clic.</div></div>'
     +     '</div>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
-    +     '<p class="wn-brief">Le mode Pavillon tire sa révérence&nbsp;— place aux ombres.</p>'
-    +     '<div class="wn-cta-wrap"><button class="wn-cta" type="button">Découvrir ⚓</button></div>'
+    +     '<p class="wn-brief">Rendez-vous dans l\'onglet Versus, juste à droite du mode Infini.</p>'
+    +     '<div class="wn-cta-wrap"><button class="wn-cta" type="button">Croiser le fer ⚔</button></div>'
     +   '</div>'
     + '</div>';
   ov.addEventListener('click', e => { if (e.target === ov) closeWhatsNew(); });
   ov.querySelector('.wn-close').addEventListener('click', closeWhatsNew);
-  ov.querySelector('.wn-cta').addEventListener('click', closeWhatsNew);
+  ov.querySelector('.wn-cta').addEventListener('click', () => { closeWhatsNew(); location.href = 'versus.html'; });
   document.body.appendChild(ov);
   document.addEventListener('keydown', _wnEsc);
   const cta = ov.querySelector('.wn-cta');
@@ -2515,6 +2480,12 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '6.0', date: 'Juillet 2026', items: [
+    '⚔️ Nouveau mode Versus 1v1 — défie un ami en duel au tour par tour (salon privé, code à partager)',
+    '🎲 Bo1 / Bo3 / Bo5 : chacun choisit le mode de sa manche parmi 6, la manche décisive est tirée au sort',
+    '📊 Bilan de duels (victoires, défaites, % de victoire) dans tes statistiques',
+    '🚀 Images, silhouettes et openings servis par un serveur dédié — chargements plus rapides',
+  ] },
   { v: '5.2', date: 'Juillet 2026', items: [
     '👤 Nouveau mode Silhouette — devine le pirate à son ombre (remplace Pavillon)',
     '🎨 Indice couleur à mi-partie + révélation en couleur en fin de partie',

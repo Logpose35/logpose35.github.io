@@ -75,7 +75,9 @@
   transform-origin: 0 0;
   will-change: transform;
   background-color: #0b1f33;
-  background-image: linear-gradient(rgba(4,10,20,0.42), rgba(4,10,20,0.42)), url('../images/carte.jpeg');
+  /* URL absolue (VPS assets) : les custom properties CSS ne marchent pas dans url(),
+     et une URL relative casserait après la migration de images/ — rollback : '../images/carte.jpeg' */
+  background-image: linear-gradient(rgba(4,10,20,0.42), rgba(4,10,20,0.42)), url('https://assets.onepiecedle.fr/images/carte.jpeg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

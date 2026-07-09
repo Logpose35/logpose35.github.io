@@ -99,6 +99,11 @@ html, .landing-body { overflow-x: clip; }
 .lp-cta .ic { width: 1.2em; height: 1.2em; color: currentColor; }
 .lp-cta:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0, 5, 20, 0.55), 0 0 34px var(--glow-gold); }
 
+/* — Section Versus (mode bonus 1v1) — sobre, dorée comme le reste, alignée à gauche — */
+.lp-versus-block { text-align: left; }
+.lp-versus-block .lp-sub { margin-left: 0; margin-right: 0; }
+.lp-versus-block .lp-cta { margin-top: 1.6rem; }
+
 /* ============================================================
    HÉROS — centré, halo feutré (pas de caisson)
    ============================================================ */

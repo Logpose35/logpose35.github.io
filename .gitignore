@@ -17,6 +17,10 @@ BRIEF_*.md
 CONTEXTE_MODE_SILHOUETTE*.md
 CLAUDE.md
 
+# Chantier v6 : outils locaux (audit VPS) + dépendances du serveur Versus
+audit_vps.sh
+server/node_modules/
+
 # Chantier Silhouette : sources de découpe (197 Mo !) & outils locaux
 images/silhouette_src/
 blacken.py

@@ -53,12 +53,16 @@
   </script>
 
   <link rel="icon" type="image/png" href="images/favicon.png">
+
+  <!-- Base des assets lourds (VPS). Rollback : '' → chemins relatifs, re-couverts par le SW. -->
+  <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=195">
-  <link rel="stylesheet" href="css/landing.css?v=195">
-  <link rel="stylesheet" href="css/modals.css?v=195">
-  <link rel="stylesheet" href="css/ocean3d.css?v=195">
+  <link rel="stylesheet" href="css/base.css?v=210">
+  <link rel="stylesheet" href="css/landing.css?v=210">
+  <link rel="stylesheet" href="css/modals.css?v=210">
+  <link rel="stylesheet" href="css/ocean3d.css?v=210">
 </head>
 <body class="landing-body layout-rose" data-ocean="landing">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -133,6 +137,16 @@
   <symbol id="ic-moon" viewBox="0 0 24 24">
     <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor" stroke="none"/>
   </symbol>
+  <symbol id="ic-versus" viewBox="0 0 24 24">
+    <path d="M14.5 17.5 3 6V3h3l11.5 11.5"/>
+    <path d="M13 19 19 13"/>
+    <path d="M16 16 20 20"/>
+    <path d="M19 21 21 19"/>
+    <path d="M14.5 6.5 18 3h3v3l-3.5 3.5"/>
+    <path d="M5 14 9 18"/>
+    <path d="M7 17 4 20"/>
+    <path d="M3 19 5 21"/>
+  </symbol>
 </svg>
 
 <!-- ===== NAV — N5 pill flottant ===== -->
@@ -202,6 +216,16 @@
       <span class="coin__name">Tome</span>
     </a>
   </div>
+</section>
+
+<!-- ===== VERSUS — mode bonus 1v1 (hors défi quotidien), section sobre alignée à gauche ===== -->
+<section class="lp-block reveal lp-versus-block" aria-labelledby="b-versus">
+  <h2 class="lp-h" id="b-versus">Défie tes amis en Versus 1v1</h2>
+  <p class="lp-sub">Un lobby privé par code, deux joueurs, le même personnage mystère. Chacun son tour, les essais des deux sont visibles — le premier qui trouve rafle la manche. Séries en Bo3 ou Bo5, plusieurs modes de jeu.</p>
+  <a class="lp-cta" href="versus.html">
+    <svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg>
+    Lancer un duel
+  </a>
 </section>
 
 <!-- ===== AU-DELÀ DE LA PARTIE (nouveautés v5) ===== -->
@@ -309,7 +333,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/ocean3d.js?v=195"></script>
-<script src="js/landing.js?v=195"></script>
+<script src="js/ocean3d.js?v=210"></script>
+<script src="js/landing.js?v=210"></script>
 </body>
 </html>

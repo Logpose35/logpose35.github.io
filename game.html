@@ -53,23 +53,27 @@
   </script>
 
   <link rel="icon" type="image/png" href="images/favicon.png">
+
+  <!-- Base des assets lourds (VPS). Rollback : '' → chemins relatifs, re-couverts par le SW. -->
+  <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=195">
-  <link rel="stylesheet" href="css/layout.css?v=195">
-  <link rel="stylesheet" href="css/modals.css?v=195">
-  <link rel="stylesheet" href="css/classic.css?v=195">
-  <link rel="stylesheet" href="css/wanted.css?v=195">
-  <link rel="stylesheet" href="css/silhouette.css?v=195">
-  <link rel="stylesheet" href="css/fruit.css?v=195">
-  <link rel="stylesheet" href="css/inf.css?v=195">
-  <link rel="stylesheet" href="css/emoji.css?v=195">
-  <link rel="stylesheet" href="css/misc.css?v=195">
-  <link rel="stylesheet" href="css/audio.css?v=195">
-  <link rel="stylesheet" href="css/animations.css?v=195">
-  <link rel="stylesheet" href="css/map.css?v=195">
-  <link rel="stylesheet" href="css/tome.css?v=195">
-  <link rel="stylesheet" href="css/ocean3d.css?v=195">
+  <link rel="stylesheet" href="css/base.css?v=210">
+  <link rel="stylesheet" href="css/layout.css?v=210">
+  <link rel="stylesheet" href="css/modals.css?v=210">
+  <link rel="stylesheet" href="css/classic.css?v=210">
+  <link rel="stylesheet" href="css/wanted.css?v=210">
+  <link rel="stylesheet" href="css/silhouette.css?v=210">
+  <link rel="stylesheet" href="css/fruit.css?v=210">
+  <link rel="stylesheet" href="css/inf.css?v=210">
+  <link rel="stylesheet" href="css/emoji.css?v=210">
+  <link rel="stylesheet" href="css/misc.css?v=210">
+  <link rel="stylesheet" href="css/audio.css?v=210">
+  <link rel="stylesheet" href="css/animations.css?v=210">
+  <link rel="stylesheet" href="css/map.css?v=210">
+  <link rel="stylesheet" href="css/tome.css?v=210">
+  <link rel="stylesheet" href="css/ocean3d.css?v=210">
 </head>
 <body data-ocean="game">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -124,6 +128,16 @@
     <path d="M18 14l3 3-3 3"/>
     <path d="M3 17h3.5l9.5-10H21"/>
     <path d="M18 4l3 3-3 3"/>
+  </symbol>
+  <symbol id="ic-versus" viewBox="0 0 24 24">
+    <path d="M14.5 17.5 3 6V3h3l11.5 11.5"/>
+    <path d="M13 19 19 13"/>
+    <path d="M16 16 20 20"/>
+    <path d="M19 21 21 19"/>
+    <path d="M14.5 6.5 18 3h3v3l-3.5 3.5"/>
+    <path d="M5 14 9 18"/>
+    <path d="M7 17 4 20"/>
+    <path d="M3 19 5 21"/>
   </symbol>
   <symbol id="ic-map" viewBox="0 0 24 24">
     <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/>
@@ -322,6 +336,7 @@
 </div>
 <div class="mode-tabs-inf">
   <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-shuffle"></use></svg>Mode Infini</button>
+  <a class="mode-tab mode-tab-inf mode-tab-versus" id="tab-versus" href="versus.html"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-versus"></use></svg>Versus 1v1</a>
 </div>
 
 <!-- PUB MOBILE — sous les onglets -->
@@ -731,6 +746,7 @@
       <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
       <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-note"></use></svg>Opening</button>
       <button class="modal-mode-tab" id="stab-tome"    onclick="switchStatsTab('tome')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome</button>
+      <button class="modal-mode-tab" id="stab-versus"  onclick="switchStatsTab('versus')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-versus"></use></svg>Versus 1v1</button>
     </div>
 
     <div id="stats-content"></div>
@@ -738,7 +754,7 @@
 </div>
 
 <!-- EASTER EGG KONAMI -->
-<audio id="konami-audio" src="audio/easter_egg.mp3" preload="none"></audio>
+<audio id="konami-audio" src="https://assets.onepiecedle.fr/audio/easter_egg.mp3" preload="none"></audio>
 <div class="konami-player hidden" id="konami-player">
   <span class="konami-player-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-note"></use></svg>Dr. Tony Tony Chopper</span>
   <button class="konami-play-btn" id="konami-play-btn" onclick="toggleKonamiAudio()">⏸</button>
@@ -824,11 +840,12 @@
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/ocean3d.js?v=195"></script>
-<script src="js/data.js?v=195"></script>
-<script src="js/jolly-roger.js?v=195"></script>
-<script src="js/app.js?v=195"></script>
-<script src="js/canvas-share.js?v=195"></script>
-<script src="js/map.js?v=195"></script>
+<script src="js/ocean3d.js?v=210"></script>
+<script src="js/data.js?v=210"></script>
+<script src="js/jolly-roger.js?v=210"></script>
+<script src="js/versus-rules.js?v=210"></script>
+<script src="js/app.js?v=210"></script>
+<script src="js/canvas-share.js?v=210"></script>
+<script src="js/map.js?v=210"></script>
 </body>
 </html>
