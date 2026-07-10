@@ -38,6 +38,7 @@ const CODE_LEN = 5;
 const GRACE_MS = 90_000;                    // grace period déconnexion
 const COUNTDOWN_S = FAST ? 1 : 3;
 const INTER_ROUND_MS = FAST ? 1500 : 8000;  // temps de lecture de la réponse entre deux manches (overlay centré)
+const VETO_SECONDS = FAST ? 2 : 20;         // temps par action de veto (auto-choix aléatoire au bout)
 const TTL_MS = { CREATED: 15 * 60_000, FULL: 10 * 60_000, POST_MATCH: 10 * 60_000 };
 const MAX_LOBBIES = 500;
 const MAX_STRIKES = 3;                      // 3 timeouts consécutifs = forfait de manche
@@ -171,8 +172,8 @@ function makeLobby(code, options) {
     state: 'CREATED',            // CREATED → FULL → IN_GAME → POST_MATCH
     createdAt: Date.now(), touchedAt: Date.now(),
     players: [],                 // [{ name, ws, resumeToken, ready, connected, wantsRematch, graceTimer }]
-    picks: ['classic', 'classic'], // mode choisi par chaque joueur (index aligné sur players[])
-    roundModes: [],              // programme des manches, figé à startMatch
+    veto: null,                  // phase de veto CS2 : { steps, stepIdx, firstVetoer, avail, banned, picked, deadline, remainingOnPause, timer }
+    roundModes: [],              // programme des manches, figé par le veto
     turnOrder: [],               // indices dans players — 1re manche au hasard, puis alternance
     scores: [],                  // manches gagnées par joueur
     round: 0,                    // n° de manche 1-based
@@ -192,16 +193,80 @@ function poolForMode(m) {
 }
 const modeAvailable = m => MODES_V.includes(m) && poolForMode(m).length > 0;
 
-// Programme des manches : picks alternés, la dernière (décideur) au tirage au sort.
-// Bo1 : le pick du créateur.
-function buildRoundModes(lb) {
-  const n = lb.options.bestOf;
-  if (n === 1) return [lb.picks[0]];
-  const modes = [];
-  for (let r = 1; r < n; r++) modes.push(lb.picks[(r - 1) % 2]);
+// ── Veto des modes (façon CS2) ─────────────────────────────────────────────
+// Séquence de 5 actions sur 6 modes → il en reste 1 (le décideur). Motif :
+//   Bo1 : ban·ban·ban·ban·ban            (0 pick, 1 manche = décideur)
+//   Bo3 : ban·ban·pick·pick·ban          (2 picks + décideur = 3 manches)
+//   Bo5 : ban·pick·pick·pick·pick        (4 picks + décideur = 5 manches)
+// Généralisation (si un pool est vide → moins de modes) : 2 bans d'ouverture au
+// plus, puis tous les picks, puis les bans restants. Les joueurs alternent.
+function vetoSteps(bestOf, availCount) {
+  const picks = bestOf - 1;
+  const bans  = Math.max(0, (availCount - 1) - picks);
+  const open  = Math.min(2, bans);
+  const trail = bans - open;
+  return [...Array(open).fill('ban'), ...Array(picks).fill('pick'), ...Array(trail).fill('ban')];
+}
+
+function vetoTurnOf(v) { return (v.firstVetoer + v.stepIdx) % 2; }
+
+function startVeto(lb) {
+  lb.state = 'VETO';
   const avail = MODES_V.filter(modeAvailable);
-  modes.push(avail[crypto.randomInt(avail.length)]);   // décideur
-  return modes;
+  // Sécurité : pas assez de modes pour le format (pool vide) → on rabat Bo5→Bo3→Bo1
+  let bestOf = lb.options.bestOf;
+  while (bestOf > 1 && avail.length < bestOf) bestOf -= 2;
+  if (bestOf !== lb.options.bestOf) lb.options = { ...lb.options, bestOf };
+  lb.veto = {
+    steps: vetoSteps(bestOf, avail.length),
+    stepIdx: 0,
+    firstVetoer: crypto.randomInt(2),
+    avail: cryptoShuffle(avail),   // ordre indifférent (l'affichage suit l'ordre canonique)
+    banned: [], picked: [],
+    deadline: null, remainingOnPause: null, timer: null,
+  };
+  lb.players.forEach(p => { p.wantsRematch = false; });
+  console.log(`[lobby ${lb.code}] veto (Bo${bestOf}, ${avail.length} modes) — motif ${lb.veto.steps.join('·')}, ouvre : ${lb.players[lb.veto.firstVetoer].name}`);
+  beginVetoStep(lb);
+  broadcastState(lb);
+}
+
+function beginVetoStep(lb) {
+  const v = lb.veto;
+  clearTimeout(v.timer);
+  if (!lb.paused) {
+    v.deadline = Date.now() + VETO_SECONDS * 1000;
+    v.timer = setTimeout(() => onVetoTimeout(lb), VETO_SECONDS * 1000);
+  } else {
+    v.deadline = null;
+  }
+}
+
+function onVetoTimeout(lb) {
+  const v = lb.veto;
+  if (lb.state !== 'VETO' || !v || lb.paused) return;
+  const mode = v.avail[crypto.randomInt(v.avail.length)];  // auto : choix aléatoire
+  console.log(`[lobby ${lb.code}] veto timeout de ${lb.players[vetoTurnOf(v)].name}`);
+  applyVeto(lb, mode, true);
+}
+
+function applyVeto(lb, mode, auto) {
+  const v = lb.veto;
+  const action = v.steps[v.stepIdx];
+  const i = v.avail.indexOf(mode);
+  if (i === -1) return;
+  v.avail.splice(i, 1);
+  (action === 'ban' ? v.banned : v.picked).push(mode);
+  clearTimeout(v.timer);
+  console.log(`[lobby ${lb.code}] veto ${v.stepIdx + 1}/${v.steps.length} : ${action} ${mode}${auto ? ' (auto)' : ''}`);
+  v.stepIdx++;
+  if (v.stepIdx >= v.steps.length) {
+    lb.roundModes = [...v.picked, v.avail[0]];   // le mode restant = décideur (dernière manche)
+    startMatch(lb);
+  } else {
+    beginVetoStep(lb);
+    broadcastState(lb);
+  }
 }
 
 // Indice courant de la manche (partagé — l'info adverse fait partie du jeu)
@@ -247,7 +312,13 @@ function snapshotFor(lb, idx) {
     code: lb.code, state: lb.state, options: lb.options, dataVersion: DATA_VERSION,
     you: idx,
     players: lb.players.map(p => ({ name: p.name, ready: p.ready, connected: p.connected, wantsRematch: p.wantsRematch })),
-    picks: lb.picks.slice(),
+    veto: (lb.state === 'VETO' && lb.veto) ? {
+      action: lb.veto.steps[lb.veto.stepIdx],
+      turnOf: vetoTurnOf(lb.veto),
+      stepIdx: lb.veto.stepIdx, total: lb.veto.steps.length,
+      avail: lb.veto.avail.slice(), banned: lb.veto.banned.slice(), picked: lb.veto.picked.slice(),
+      remainingMs: vetoRemainingMs(lb), totalMs: VETO_SECONDS * 1000,
+    } : null,
     roundModes: lb.roundModes.slice(),
     scores: lb.scores.slice(),
     round: lb.round,
@@ -273,9 +344,18 @@ function turnRemainingMs(lb) {
   return Math.max(0, lb.cur.deadline - Date.now());
 }
 
+function vetoRemainingMs(lb) {
+  const v = lb.veto;
+  if (!v) return null;
+  if (lb.paused) return v.remainingOnPause ?? null;
+  if (!v.deadline) return null;
+  return Math.max(0, v.deadline - Date.now());
+}
+
 function closeLobby(lb, reason) {
   clearTimeout(lb.countdownTimer);
   if (lb.cur) clearTimeout(lb.cur.timer);
+  if (lb.veto) clearTimeout(lb.veto.timer);
   lb.players.forEach(p => {
     clearTimeout(p.graceTimer);
     send(p.ws, 'lobby_closed', { reason });
@@ -288,14 +368,13 @@ function closeLobby(lb, reason) {
 // ── Déroulé d'une partie ───────────────────────────────────────────────────
 function startMatch(lb) {
   lb.state = 'IN_GAME';
+  lb.veto = null;              // le programme (roundModes) est désormais figé
   lb.scores = lb.players.map(() => 0);
   lb.round = 0;
   lb.roundsHistory = [];
-  lb.roundModes = buildRoundModes(lb);
   // 1re manche : premier joueur au tirage au sort ; ensuite alternance stricte
   const first = crypto.randomInt(2);
   lb.turnOrder = [first, otherIdx(first)];
-  lb.players.forEach(p => { p.wantsRematch = false; });
   console.log(`[lobby ${lb.code}] programme des manches : ${lb.roundModes.join(' → ')}`);
   startRound(lb);
 }
@@ -480,12 +559,16 @@ function onDisconnect(lb, idx) {
 
   if (lb.state === 'CREATED') return closeLobby(lb, 'creator_left');
 
-  if (lb.state === 'IN_GAME' && !lb.paused) {
+  if ((lb.state === 'IN_GAME' || lb.state === 'VETO') && !lb.paused) {
     // Pause : timers gelés
     lb.paused = true;
     if (lb.cur) {
       lb.cur.remainingOnPause = lb.cur.deadline ? Math.max(0, lb.cur.deadline - Date.now()) : null;
       clearTimeout(lb.cur.timer);
+    }
+    if (lb.veto) {
+      lb.veto.remainingOnPause = lb.veto.deadline ? Math.max(0, lb.veto.deadline - Date.now()) : null;
+      clearTimeout(lb.veto.timer);
     }
     clearTimeout(lb.countdownTimer); // entre deux manches : on repartira au resume
   }
@@ -541,6 +624,11 @@ function handleResume(ws, code, token) {
       } else {
         startRound(lb); // la coupure était entre deux manches
       }
+    } else if (lb.state === 'VETO' && lb.veto) {
+      const rem = lb.veto.remainingOnPause;
+      lb.veto.remainingOnPause = null;
+      lb.veto.deadline = Date.now() + (rem != null ? rem : VETO_SECONDS * 1000);
+      lb.veto.timer = setTimeout(() => onVetoTimeout(lb), lb.veto.deadline - Date.now());
     }
   }
   send(ws, 'resume_ok', snapshotFor(lb, idx));
@@ -621,22 +709,23 @@ function onMessage(ws, raw, ip) {
       broadcastState(lb);
       return;
     }
-    case 'set_pick': {
-      // Chaque joueur choisit SON mode (pour sa manche du programme), avant le match
-      if (lb.state !== 'CREATED' && lb.state !== 'FULL') return send(ws, 'error', { code: 'GAME_IN_PROGRESS' });
+    case 'veto_action': {
+      // Ban ou pick d'un mode, au joueur dont c'est le tour, pendant la phase de veto
+      if (lb.state !== 'VETO' || !lb.veto) return send(ws, 'error', { code: 'GAME_IN_PROGRESS' });
+      if (lb.paused) return send(ws, 'error', { code: 'PAUSED' });
+      if (vetoTurnOf(lb.veto) !== idx) return send(ws, 'error', { code: 'NOT_YOUR_TURN' });
       const mode = String(payload.mode || '');
-      if (!modeAvailable(mode)) return send(ws, 'error', { code: 'BAD_OPTIONS' });
-      lb.picks[idx] = mode;
+      if (!lb.veto.avail.includes(mode)) return send(ws, 'error', { code: 'BAD_OPTIONS' });
       touch(lb);
-      broadcastState(lb);
+      applyVeto(lb, mode, false);
       return;
     }
     case 'set_ready': {
       if (lb.state !== 'FULL') return send(ws, 'error', { code: 'GAME_IN_PROGRESS' });
       lb.players[idx].ready = !!payload.ready;
       touch(lb);
-      if (lb.players.length === 2 && lb.players.every(p => p.ready)) startMatch(lb);
-      broadcastState(lb);
+      if (lb.players.length === 2 && lb.players.every(p => p.ready)) startVeto(lb);
+      else broadcastState(lb);
       return;
     }
     case 'guess':
@@ -650,7 +739,7 @@ function onMessage(ws, raw, ip) {
         lb.state = 'FULL';
         lb.players.forEach(p => { p.ready = false; p.wantsRematch = false; });
         lb.scores = lb.players.map(() => 0);
-        lb.round = 0; lb.roundsHistory = []; lb.cur = null;
+        lb.round = 0; lb.roundsHistory = []; lb.cur = null; lb.veto = null;
       }
       broadcastState(lb);
       return;

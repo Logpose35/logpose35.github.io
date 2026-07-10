@@ -67,6 +67,24 @@ class Sock {
   kill() { this.ws.terminate(); }
 }
 
+// Pilote la phase de veto jusqu'au countdown, en laissant `keep` comme décideur
+// (bannit tout le reste). Rejoue le countdown dans la file pour la suite du test.
+async function driveVeto(socks, keep) {
+  const A = socks[0];
+  const acted = new Set();
+  while (true) {
+    const m = await A.waitFor(['lobby_state', 'countdown'], 12000);
+    if (m.type === 'countdown') { A.queue.unshift(m); return; }
+    const v = m.payload.veto;
+    if (m.payload.state !== 'VETO' || !v || acted.has(v.stepIdx)) continue;
+    acted.add(v.stepIdx);
+    const mode = v.action === 'pick'
+      ? (v.avail.includes(keep) ? keep : v.avail[0])
+      : (v.avail.find(x => x !== keep) || v.avail[0]);
+    socks[v.turnOf].send('veto_action', { mode });
+  }
+}
+
 async function main() {
   console.log('— Démarrage du serveur de test —');
   const srv = spawn(process.execPath, [path.join(__dirname, 'versus-server.js')], {
@@ -117,6 +135,7 @@ async function main() {
     console.log('— Manche —');
     A.send('set_ready', { ready: true });
     B.send('set_ready', { ready: true });
+    await driveVeto([A, B], 'classic');   // veto (Bo1 : 5 bans) → laisse Classique comme décideur
     await A.waitFor('countdown');
     const turn1 = (await A.waitFor('turn')).payload;
     await B.waitFor('turn');

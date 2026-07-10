@@ -736,7 +736,7 @@ function shake(el) {
 function submitClassic() {
   if (cOver) return;
   const name = input.value.trim();
-  const char = CHARACTERS.find(c => c.name.toLowerCase() === name.toLowerCase());
+  const char = resolveName(CHARACTERS, name);
   if (!char || cNames.has(char.name)) { shake(input); return; }
   cNames.add(char.name); cGuesses.push(char);
   saveState('classic');
@@ -979,7 +979,7 @@ function revealFull() {
 function submitWanted() {
   if (wOver) return;
   const name = input.value.trim();
-  const char = WANTED_CHARS.find(c => c.name.toLowerCase() === name.toLowerCase());
+  const char = resolveName(WANTED_CHARS, name);
   if (!char || wNames.has(char.name)) { shake(input); return; }
   wNames.add(char.name); wGuesses.push(char);
   saveState('wanted');
@@ -1025,8 +1025,8 @@ const SIL_SCALES  = [3.2, 2.9, 2.6, 2.3, 2.0, 1.75, 1.5, 1.3, 1.15, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=210`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=210`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=212`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=212`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1122,7 +1122,7 @@ function renderSilGuess(char, correct, fresh = true) {
 function submitSilhouette() {
   if (silOver || !TARGET_SIL) return;
   const name = input.value.trim();
-  const char = CHARACTERS.find(c => c.name.toLowerCase() === name.toLowerCase());
+  const char = resolveName(CHARACTERS, name);
   if (!char || silNames.has(char.name)) { shake(input); return; }
   silNames.add(char.name); silGuesses.push(char);
   saveState('silhouette');
@@ -1196,7 +1196,7 @@ function initInfMode() {
 function submitInf() {
   if (infOver) return;
   const name = input.value.trim();
-  const char = CHARACTERS.find(c => c.name.toLowerCase() === name.toLowerCase());
+  const char = resolveName(CHARACTERS, name);
   if (!char || infNames.has(char.name)) { shake(input); return; }
   infNames.add(char.name); infGuesses.push(char);
   input.value = ''; acBox.classList.remove('open');
@@ -1549,7 +1549,7 @@ function submitFruit() {
   const raw = input.value.trim().toLowerCase();
   const resolved = ALIASES[raw];
   const searchName = resolved || input.value.trim();
-  const char = CHARACTERS.find(c => c.name.toLowerCase() === searchName.toLowerCase());
+  const char = resolveName(CHARACTERS, searchName);
   if (!char || frNames.has(char.name)) { shake(input); return; }
   frNames.add(char.name);
   frGuesses.push(char);
@@ -1755,7 +1755,7 @@ function revealEmojiHint() {
 function submitEmoji() {
   if (emOver) return;
   const raw  = input.value.trim();
-  const char = EMOJI_POOL.find(c => c.name.toLowerCase() === raw.toLowerCase());
+  const char = resolveName(EMOJI_POOL, raw);
   if (!char || emNames.has(char.name)) { shake(input); return; }
   emNames.add(char.name); emGuesses.push(char);
   saveState('emoji');
@@ -1989,7 +1989,7 @@ function showAudioReveal() {
 function submitAudio() {
   if (auOver) return;
   const raw = input.value.trim();
-  const op  = OPENINGS.find(o => o.name.toLowerCase() === raw.toLowerCase());
+  const op  = resolveName(OPENINGS, raw);
   if (!op || auNames.has(op.name)) { shake(input); return; }
   auNames.add(op.name);
   auGuesses.push(op);

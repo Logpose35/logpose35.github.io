@@ -36,9 +36,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=210">
-  <link rel="stylesheet" href="css/classic.css?v=210">
-  <link rel="stylesheet" href="css/versus.css?v=210">
+  <link rel="stylesheet" href="css/base.css?v=212">
+  <link rel="stylesheet" href="css/classic.css?v=212">
+  <link rel="stylesheet" href="css/versus.css?v=212">
 </head>
 <body class="versus-body">
 
@@ -208,19 +208,20 @@
         </label>
       </div>
       <p class="v-hint" id="v-ready-optsinfo" hidden>Seul le créateur peut modifier les options.</p>
-      <div class="v-picks">
-        <div class="v-label">Ton mode — chacun choisit sa manche, la manche décisive est tirée au sort</div>
-        <div class="v-pickrow" id="v-pickrow">
-          <button class="v-pick" data-mode="classic" style="--mc: var(--mode-classic)"><svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classique</button>
-          <button class="v-pick" data-mode="wanted" style="--mc: var(--mode-wanted)"><svg class="ic" aria-hidden="true"><use href="#ic-wanted"></use></svg>Wanted</button>
-          <button class="v-pick" data-mode="silhouette" style="--mc: var(--mode-silhouette)"><svg class="ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>Silhouette</button>
-          <button class="v-pick" data-mode="fruit" style="--mc: var(--mode-fruit)"><svg class="ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Fruit du Démon</button>
-          <button class="v-pick" data-mode="emoji" style="--mc: var(--mode-emoji)"><svg class="ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
-          <button class="v-pick" data-mode="tome" style="--mc: var(--mode-tome)"><svg class="ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome</button>
-        </div>
-      </div>
+      <p class="v-hint">Une fois prêts, vous bannissez et choisissez les modes tour à tour (veto).</p>
       <button class="v-btn v-btn-gold" id="v-readybtn">Je suis prêt !</button>
       <button class="v-btn v-btn-quiet" id="v-leaveready">Quitter le lobby</button>
+    </div>
+  </section>
+
+  <!-- ══ VETO DES MODES (façon CS2) ══ -->
+  <section id="v-veto" class="v-screen" hidden>
+    <div class="v-card v-center">
+      <h2 id="v-veto-title">Veto des modes</h2>
+      <div class="v-veto-status" id="v-veto-status">—</div>
+      <div class="v-timerwrap" id="v-veto-timerwrap"><div class="v-timerbar" id="v-veto-timerbar"></div></div>
+      <div class="v-veto-board" id="v-veto-board"></div>
+      <button class="v-btn v-btn-quiet" id="v-leaveveto">Quitter le lobby</button>
     </div>
   </section>
 
@@ -290,8 +291,8 @@
 <div class="v-countoverlay" id="v-count" hidden><div class="v-countnum" id="v-countnum">3</div><div class="v-countround" id="v-countround"></div></div>
 <div class="v-toast" id="v-toast" hidden></div>
 
-<script src="js/data.js?v=210"></script>
-<script src="js/versus-rules.js?v=210"></script>
-<script src="js/versus.js?v=210"></script>
+<script src="js/data.js?v=212"></script>
+<script src="js/versus-rules.js?v=212"></script>
+<script src="js/versus.js?v=212"></script>
 </body>
 </html>

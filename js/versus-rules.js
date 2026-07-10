@@ -60,39 +60,56 @@
 
   // ── Helpers d'autocomplete (ex-app.js — purs, aliases passé en paramètre) ──
 
+  // Pli des diacritiques : "Señor" → "senor", "Portgas" → "portgas".
+  // Rend la recherche ET la soumission insensibles aux accents (é, ñ, ô…),
+  // pénibles au clavier français. Source unique (daily + versus + serveur).
+  function fold(s) {
+    return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
   // Retourne le label d'alias/épithète qui a matché, ou null si c'est le nom qui matche
   function getMatchHint(c, q, aliases = {}) {
-    if (c.name.toLowerCase().includes(q)) return null;
-    if (c.captain && c.captain.toLowerCase().includes(q)) return c.captain;
-    if (c.epithet && c.epithet.toLowerCase().includes(q)) return c.epithet;
+    q = fold(q);
+    if (fold(c.name).includes(q)) return null;
+    if (c.captain && fold(c.captain).includes(q)) return c.captain;
+    if (c.epithet && fold(c.epithet).includes(q)) return c.epithet;
     for (const [alias, charName] of Object.entries(aliases)) {
-      if (charName === c.name && alias.includes(q)) return alias;
+      if (charName === c.name && fold(alias).includes(q)) return alias;
     }
     // Mode audio : numéro ou artiste
     if (c.id !== undefined) {
       if (/^(?:op|opening)\s*$/.test(q)) return `Opening ${c.id}`;
       const numMatch = q.match(/^(?:opening\s+|op\s*)?(\d+)$/);
       if (numMatch && parseInt(numMatch[1]) === c.id) return `Opening ${c.id}`;
-      if (q.length >= 2 && c.artist && c.artist.toLowerCase().includes(q)) return c.artist;
+      if (q.length >= 2 && c.artist && fold(c.artist).includes(q)) return c.artist;
     }
     return null;
   }
 
   function charMatchesQuery(c, q, aliases = {}) {
-    if (c.name.toLowerCase().includes(q)) return true;
-    if (c.captain && c.captain.toLowerCase().includes(q)) return true;
-    if (c.epithet && c.epithet.toLowerCase().includes(q)) return true;
-    if (Object.entries(aliases).some(([alias, charName]) => charName === c.name && alias.includes(q))) return true;
+    q = fold(q);
+    if (fold(c.name).includes(q)) return true;
+    if (c.captain && fold(c.captain).includes(q)) return true;
+    if (c.epithet && fold(c.epithet).includes(q)) return true;
+    if (Object.entries(aliases).some(([alias, charName]) => charName === c.name && fold(alias).includes(q))) return true;
     // Mode audio : recherche par numéro, mot-clé "op"/"opening", ou artiste
     if (c.id !== undefined) {
       if (/^(?:op|opening)\s*$/.test(q)) return true;
       const numMatch = q.match(/^(?:opening\s+|op\s*)?(\d+)$/);
       if (numMatch && parseInt(numMatch[1]) === c.id) return true;
-      if (q.length >= 2 && c.artist && c.artist.toLowerCase().includes(q)) return true;
+      if (q.length >= 2 && c.artist && fold(c.artist).includes(q)) return true;
     }
     return false;
   }
 
+  // Résout un texte saisi vers le personnage correspondant du pool, en tolérant
+  // les accents manquants (nom exact plié). Sert aux soumissions (daily + versus).
+  function resolveName(pool, typed) {
+    const t = fold(String(typed).trim());
+    if (!t) return null;
+    return pool.find(c => fold(c.name) === t) || null;
+  }
+
   return { cmpHaki, cmpArc, cmpBounty, cmpOrigin, cmpAffil, AFFIL_STOP,
-           fruitLabel, computeVerdicts, getMatchHint, charMatchesQuery };
+           fruitLabel, computeVerdicts, getMatchHint, charMatchesQuery, fold, resolveName };
 });

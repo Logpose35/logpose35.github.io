@@ -126,19 +126,32 @@
 .v-player .v-pstate { display: block; font-size: .78rem; color: var(--text3); }
 .v-player.off { opacity: .55; border-style: dashed; }
 
-/* ── Choix de mode (écran prêts) ── */
-.v-picks { margin: 12px 0 4px; }
-.v-pickrow { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
-.v-pick {
-  padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--border2);
-  background: var(--bg); color: var(--text2); font-weight: 600; cursor: pointer; font-size: .9rem;
-  display: inline-flex; align-items: center; gap: 6px;
+/* ── Veto des modes (façon CS2) : plateau ban/pick tour à tour ── */
+.v-veto-status { font-size: 1.15rem; margin: 8px 0 4px; min-height: 1.5em; font-weight: 600; }
+.v-veto-status.mine.ban  { color: var(--red); }
+.v-veto-status.mine.pick { color: var(--green); }
+.v-veto-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0 10px; }
+@media (max-width: 480px) { .v-veto-board { grid-template-columns: repeat(2, 1fr); } }
+.v-vcard {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 16px 8px; border-radius: 12px; border: 1.5px solid var(--border2);
+  background: var(--card); color: var(--text2); font-weight: 700; font-size: .9rem;
+  cursor: default; position: relative; transition: border-color .15s, box-shadow .15s, opacity .15s;
 }
-.v-pick .ic { width: 1.15em; height: 1.15em; color: var(--mc, var(--gold)); }
-.v-pick:hover { border-color: var(--mc, var(--gold)); }
-.v-pick.on { border-color: var(--mc, var(--gold)); background: var(--mc, var(--gold)); color: #fff; }
-.v-pick.on .ic { color: #fff; }
-.v-player .v-ppick { display: block; font-size: .78rem; margin-top: 2px; }
+.v-vcard .ic { width: 1.9em; height: 1.9em; color: var(--mc, var(--gold)); }
+.v-vcard.selectable { cursor: pointer; }
+.v-vcard.selectable.act-ban:hover  { border-color: var(--red);   box-shadow: 0 0 0 2px rgba(210, 75, 75, 0.35); }
+.v-vcard.selectable.act-pick:hover { border-color: var(--green); box-shadow: 0 0 0 2px rgba(40, 160, 72, 0.35); }
+.v-vcard.waiting { opacity: .5; }
+.v-vcard.banned  { opacity: .38; filter: grayscale(1); }
+.v-vcard.banned .v-vname { text-decoration: line-through; }
+.v-vcard.picked  { border-color: var(--gold); background: rgba(200, 148, 10, 0.12); }
+.v-vtag {
+  position: absolute; top: 5px; right: 7px; font-size: .6rem; font-weight: 800;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.v-vtag.ban  { color: var(--red); }
+.v-vtag.pick { color: var(--gold); }
 
 /* Puce de mode (icône + libellé, couleur signature) — partout où un mode est cité */
 .v-modechip { font-weight: 700; white-space: nowrap; }

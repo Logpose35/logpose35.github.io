@@ -56,6 +56,7 @@
   let guessed = new Set();         // noms proposés cette manche (autocomplete)
   let rendered = new Set();        // clés `${by}:${nom}` déjà affichées
   let deadline = null;             // échéance LOCALE du tour (Date.now() + remainingMs)
+  let vetoDeadline = null, vetoTotalMs = 0;  // minuteur local de l'action de veto
   let lastWinner = null;           // vainqueur du match (match_end)
   let lastRound = null;            // dernier round_end reçu (réponse à afficher en fin de match)
   let curMode = 'classic';         // mode de la manche en cours (classic | wanted | silhouette | fruit | emoji | tome)
@@ -177,7 +178,7 @@
 
   // ── Rendu piloté par snapshot (idempotent) ──
   function screen(id) {
-    ['v-home', 'v-wait', 'v-ready', 'v-game', 'v-post'].forEach(s => { $(s).hidden = (s !== id); });
+    ['v-home', 'v-wait', 'v-ready', 'v-veto', 'v-game', 'v-post'].forEach(s => { $(s).hidden = (s !== id); });
   }
   function resetToHome() {
     snap = null; me = null; guessed = new Set(); rendered = new Set(); deadline = null; lastWinner = null; lastRound = null;
@@ -205,11 +206,8 @@
       $('v-ready-players').innerHTML = s.players.map((p, i) => `
         <div class="v-player ${p.ready ? 'ready' : ''} ${p.connected ? '' : 'off'}">
           <span class="v-pname">${esc(p.name)}${i === me ? ' (toi)' : ''}</span>
-          <span class="v-ppick">${modeChip((s.picks || [])[i])}</span>
           <span class="v-pstate">${p.connected ? (p.ready ? 'Prêt ✔' : 'Pas prêt') : 'déconnecté…'}</span>
         </div>`).join('');
-      document.querySelectorAll('#v-pickrow .v-pick').forEach(b =>
-        b.classList.toggle('on', b.dataset.mode === (s.picks || [])[me]));
       $('v-bestof2').value = String(s.options.bestOf);
       $('v-turns2').value = String(s.options.turnSeconds);
       const isCreator = me === 0;
@@ -217,6 +215,12 @@
       $('v-ready-optsinfo').hidden = isCreator;
       $('v-readybtn').textContent = s.players[me]?.ready ? 'Annuler « prêt »' : 'Je suis prêt !';
       screen('v-ready');
+      return;
+    }
+    if (s.state === 'VETO') {
+      renderVeto(s);
+      if (s.paused) banner('⚓ Veto en pause (adversaire déconnecté)…'); else banner(null);
+      screen('v-veto');
       return;
     }
     if (s.state === 'IN_GAME') {
@@ -270,6 +274,46 @@
     }
   }
 
+  // ── Veto des modes (façon CS2) : ban/pick tour à tour jusqu'au décideur ──
+  const VETO_ORDER = ['classic', 'wanted', 'silhouette', 'fruit', 'emoji', 'tome']; // ordre canonique d'affichage
+  function renderVeto(s) {
+    const v = s.veto;
+    if (!v) return;
+    setModeAccent('classic'); document.body.style.setProperty('--vmode', 'var(--gold)');
+    const myTurn = v.turnOf === me;
+    const isBan = v.action === 'ban';
+    $('v-veto-title').textContent = `Veto des modes · ${v.stepIdx}/${v.total}`;
+    const stt = $('v-veto-status');
+    if (myTurn) {
+      stt.innerHTML = isBan ? '🚫 <b>Bannis</b> un mode' : '✅ <b>Choisis</b> un mode à jouer';
+      stt.className = 'v-veto-status mine ' + (isBan ? 'ban' : 'pick');
+    } else {
+      stt.innerHTML = `L'adversaire ${isBan ? 'bannit' : 'choisit'} un mode<span class="v-dots">…</span>`;
+      stt.className = 'v-veto-status';
+    }
+    $('v-veto-board').innerHTML = VETO_ORDER.map(m => {
+      const meta = MODE_META[m]; if (!meta) return '';
+      const banned = v.banned.includes(m);
+      const pIdx = v.picked.indexOf(m);
+      const picked = pIdx !== -1;
+      const avail = v.avail.includes(m);
+      const clickable = avail && myTurn && !s.paused;
+      const cls = ['v-vcard'];
+      if (banned) cls.push('banned');
+      if (picked) cls.push('picked');
+      if (avail && !myTurn) cls.push('waiting');
+      if (clickable) cls.push('selectable', isBan ? 'act-ban' : 'act-pick');
+      const tag = banned ? '<span class="v-vtag ban">banni</span>'
+        : picked ? `<span class="v-vtag pick">manche ${pIdx + 1}</span>` : '';
+      return `<button class="${cls.join(' ')}" data-mode="${m}" ${clickable ? '' : 'disabled'} style="--mc:${meta.color}">
+        <svg class="ic" aria-hidden="true"><use href="#${meta.svg}"></use></svg>
+        <span class="v-vname">${esc(meta.label)}</span>${tag}</button>`;
+    }).join('');
+    vetoTotalMs = v.totalMs || 20000;
+    vetoDeadline = (v.remainingMs != null) ? Date.now() + v.remainingMs : null;
+    $('v-veto-timerwrap').style.display = vetoDeadline ? '' : 'none';
+  }
+
   // ── Tour & timer (le client ne reçoit QUE des remainingMs, jamais d'horodatage) ──
   function applyTurn(turnOf, remainingMs) {
     if (!snap) return;
@@ -292,6 +336,11 @@
   function onTurn(p) { $('v-count').hidden = true; applyTurn(p.turnOf, p.remainingMs); }
 
   setInterval(() => {
+    if (snap && snap.state === 'VETO' && vetoDeadline) {
+      const rem = Math.max(0, vetoDeadline - Date.now());
+      $('v-veto-timerbar').style.width = `${(rem / vetoTotalMs) * 100}%`;
+      $('v-veto-timerbar').classList.toggle('urgent', rem < 5000);
+    }
     if (!snap || snap.state !== 'IN_GAME') return;
     const line = $('v-turnline');
     if (snap.turnOf === null) {  // entre round_end et le countdown suivant
@@ -541,8 +590,7 @@
       input().value = '';
       return;
     }
-    const c = CHARACTERS.find(x => x.name === name)
-      || CHARACTERS.find(x => x.name.toLowerCase() === name.toLowerCase());
+    const c = resolveName(CHARACTERS, name);
     if (!c) return toast(ERR_FR.UNKNOWN_CHAR);
     send('guess', { name: c.name });
     input().value = '';
@@ -602,11 +650,14 @@
     });
     $('v-cancelwait').addEventListener('click', () => { send('leave_lobby'); purgeResume(); resetToHome(); });
     $('v-leaveready').addEventListener('click', () => { send('leave_lobby'); purgeResume(); resetToHome(); });
+    $('v-leaveveto').addEventListener('click', () => { send('leave_lobby'); purgeResume(); resetToHome(); });
     $('v-quit').addEventListener('click', () => { send('leave_lobby'); purgeResume(); resetToHome(); });
 
     $('v-readybtn').addEventListener('click', () => send('set_ready', { ready: !snap?.players[me]?.ready }));
-    document.querySelectorAll('#v-pickrow .v-pick').forEach(b =>
-      b.addEventListener('click', () => send('set_pick', { mode: b.dataset.mode })));
+    $('v-veto-board').addEventListener('click', e => {
+      const btn = e.target.closest('.v-vcard.selectable');
+      if (btn) send('veto_action', { mode: btn.dataset.mode });
+    });
     $('v-rematch').addEventListener('click', () => send('rematch'));
 
     ['v-bestof2', 'v-turns2'].forEach(id => $(id).addEventListener('change', () =>
