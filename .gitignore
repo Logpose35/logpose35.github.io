@@ -21,6 +21,9 @@ CLAUDE.md
 audit_vps.sh
 server/node_modules/
 
+# Chantier Émoji : outil d'audit local
+audit_emoji.py
+
 # Chantier Silhouette : sources de découpe (197 Mo !) & outils locaux
 images/silhouette_src/
 blacken.py

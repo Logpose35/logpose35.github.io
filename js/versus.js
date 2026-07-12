@@ -561,9 +561,9 @@
   const acBox = () => $('autocomplete');
 
   function acUpdate() {
-    if (curMode === 'tome') { acBox().classList.remove('open'); return; }  // saisie numérique, pas d'autocomplete
+    if (curMode === 'tome') { acFilt = []; acBox().classList.remove('open'); return; }  // saisie numérique, pas d'autocomplete
     const q = input().value.trim().toLowerCase();
-    if (!q) { acBox().classList.remove('open'); return; }
+    if (!q) { acFilt = []; acBox().classList.remove('open'); return; }
     // Pool par mode = celui du daily (aligné sur le contrôle NOT_IN_POOL serveur)
     const pool = (curMode === 'emoji' && typeof EMOJI_POOL !== 'undefined' && EMOJI_POOL.length) ? EMOJI_POOL
       : (curMode === 'wanted' && typeof WANTED_CHARS !== 'undefined' && WANTED_CHARS.length) ? WANTED_CHARS
@@ -669,7 +669,8 @@
       if (e.key === 'ArrowDown') { acSel = Math.min(acSel + 1, items.length - 1); hiAc(items); e.preventDefault(); }
       else if (e.key === 'ArrowUp') { acSel = Math.max(acSel - 1, 0); hiAc(items); e.preventDefault(); }
       else if (e.key === 'Enter') {
-        if (acSel >= 0 && acFilt[acSel]) submitGuess(acFilt[acSel].name);
+        if (curMode === 'tome') submitGuess(input().value.trim());   // numéro : jamais l'autocomplete (acFilt périmé)
+        else if (acSel >= 0 && acFilt[acSel]) submitGuess(acFilt[acSel].name);
         else if (acFilt.length === 1) submitGuess(acFilt[0].name);
         else submitGuess(input().value.trim());
       }
