@@ -1025,8 +1025,8 @@ const SIL_SCALES  = [3.2, 2.9, 2.6, 2.3, 2.0, 1.75, 1.5, 1.3, 1.15, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=213`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=213`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=214`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=214`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2480,6 +2480,11 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '6.1', date: 'Juillet 2026', items: [
+    '😀 Mode Émoji : grande refonte du contenu — des emojis bien plus distinctifs et fidèles pour chaque personnage (fini les combinaisons génériques interchangeables)',
+    '💬 Infobulles d\'emojis complétées et entièrement traduites en français',
+    '🏴‍☠️ Mode Classique : les équipages de la Grande Flotte (Happou Navy, Tontatta…) comptent désormais comme correspondance partielle (case orange)',
+  ] },
   { v: '6.0', date: 'Juillet 2026', items: [
     '⚔️ Nouveau mode Versus 1v1 — défie un ami en duel au tour par tour (salon privé, code à partager)',
     '🎲 Bo1 / Bo3 / Bo5 : chacun choisit le mode de sa manche parmi 6, la manche décisive est tirée au sort',
