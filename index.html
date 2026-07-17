@@ -59,10 +59,10 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=215">
-  <link rel="stylesheet" href="css/landing.css?v=215">
-  <link rel="stylesheet" href="css/modals.css?v=215">
-  <link rel="stylesheet" href="css/ocean3d.css?v=215">
+  <link rel="stylesheet" href="css/base.css?v=216">
+  <link rel="stylesheet" href="css/landing.css?v=216">
+  <link rel="stylesheet" href="css/modals.css?v=216">
+  <link rel="stylesheet" href="css/ocean3d.css?v=216">
 </head>
 <body class="landing-body layout-rose" data-ocean="landing">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -264,7 +264,7 @@
       <div class="ribbon__label">Modes</div>
     </div>
     <div class="ribbon__item">
-      <div class="ribbon__num">244</div>
+      <div class="ribbon__num">246</div>
       <div class="ribbon__label">Personnages</div>
     </div>
     <div class="ribbon__item">
@@ -274,6 +274,78 @@
     <p class="ribbon__note">Le compteur tourne en direct — rejoins les équipages déjà en mer aujourd'hui.</p>
   </div>
 </section>
+
+<!-- ===== FAQ : contenu SEO (OnePiecedle) ; balisage FAQPage plus bas ===== -->
+<section class="lp-block reveal" aria-labelledby="b-faq">
+  <h2 class="lp-h" id="b-faq">OnePiecedle : questions fréquentes</h2>
+  <p class="lp-sub">Tout ce qu'il faut savoir sur LogPose, le jeu One Piece du jour.</p>
+  <div class="lp-faq">
+    <details class="lp-faq__item">
+      <summary>Qu'est-ce que LogPose (OnePiecedle) ?</summary>
+      <p>LogPose, souvent cherché sous le nom « OnePiecedle », est un jeu de devinettes quotidien et gratuit inspiré de Wordle, dédié à l'univers One Piece d'Eiichiro Oda. Chaque jour, tu dois deviner des personnages mystères à travers sept modes de jeu.</p>
+    </details>
+    <details class="lp-faq__item">
+      <summary>Comment jouer à OnePiecedle ?</summary>
+      <p>Choisis un mode, propose un personnage de One Piece, puis analyse les indices dévoilés à chaque essai : affiliation, origine, prime, fruit du démon, haki… Les couleurs (vert, orange) et les flèches te rapprochent de la solution du jour. Le nombre d'essais est limité.</p>
+    </details>
+    <details class="lp-faq__item">
+      <summary>Le jeu est-il gratuit ?</summary>
+      <p>Oui, LogPose est 100 % gratuit, sans inscription ni téléchargement. Il se joue directement dans le navigateur, aussi bien sur mobile que sur ordinateur.</p>
+    </details>
+    <details class="lp-faq__item">
+      <summary>Combien y a-t-il de personnages et de modes ?</summary>
+      <p>Le jeu compte 246 personnages de One Piece et sept modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Chaque mode propose un nouveau défi chaque jour.</p>
+    </details>
+    <details class="lp-faq__item">
+      <summary>Y a-t-il un nouveau personnage à deviner chaque jour ?</summary>
+      <p>Oui. Chaque mode propose un nouveau personnage mystère par jour, identique pour tous les joueurs. Compare ton résultat avec tes amis et reviens chaque jour pour entretenir ta série.</p>
+    </details>
+    <details class="lp-faq__item">
+      <summary>Peut-on jouer à OnePiecedle à plusieurs ?</summary>
+      <p>Oui, le mode Versus 1v1 permet de défier un ami dans un salon privé, sur le même personnage mystère, en Bo1, Bo3 ou Bo5.</p>
+    </details>
+  </div>
+</section>
+
+<!-- Balisage FAQPage (Schema.org) : miroir exact de la FAQ ci-dessus, pour l'affichage enrichi Google -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Qu'est-ce que LogPose (OnePiecedle) ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "LogPose, souvent cherché sous le nom « OnePiecedle », est un jeu de devinettes quotidien et gratuit inspiré de Wordle, dédié à l'univers One Piece d'Eiichiro Oda. Chaque jour, tu dois deviner des personnages mystères à travers sept modes de jeu." }
+    },
+    {
+      "@type": "Question",
+      "name": "Comment jouer à OnePiecedle ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Choisis un mode, propose un personnage de One Piece, puis analyse les indices dévoilés à chaque essai : affiliation, origine, prime, fruit du démon, haki… Les couleurs (vert, orange) et les flèches te rapprochent de la solution du jour. Le nombre d'essais est limité." }
+    },
+    {
+      "@type": "Question",
+      "name": "Le jeu est-il gratuit ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Oui, LogPose est 100 % gratuit, sans inscription ni téléchargement. Il se joue directement dans le navigateur, aussi bien sur mobile que sur ordinateur." }
+    },
+    {
+      "@type": "Question",
+      "name": "Combien y a-t-il de personnages et de modes ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Le jeu compte 246 personnages de One Piece et sept modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Chaque mode propose un nouveau défi chaque jour." }
+    },
+    {
+      "@type": "Question",
+      "name": "Y a-t-il un nouveau personnage à deviner chaque jour ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Oui. Chaque mode propose un nouveau personnage mystère par jour, identique pour tous les joueurs. Compare ton résultat avec tes amis et reviens chaque jour pour entretenir ta série." }
+    },
+    {
+      "@type": "Question",
+      "name": "Peut-on jouer à OnePiecedle à plusieurs ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Oui, le mode Versus 1v1 permet de défier un ami dans un salon privé, sur le même personnage mystère, en Bo1, Bo3 ou Bo5." }
+    }
+  ]
+}
+</script>
 
 <!-- ===== FOOTER — Ft5 statement ===== -->
 <footer class="lp-foot">
@@ -334,7 +406,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/ocean3d.js?v=215"></script>
-<script src="js/landing.js?v=215"></script>
+<script src="js/ocean3d.js?v=216"></script>
+<script src="js/landing.js?v=216"></script>
 </body>
 </html>

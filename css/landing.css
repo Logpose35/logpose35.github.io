@@ -448,4 +448,35 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-
   .reveal { opacity: 1; transform: none; transition: none; }
   .lp-skull { animation: none; }
   .lp-cta, .lp-theme, .lp-nav .lp-play, .coin__disc { transition: none; }
+  .lp-faq__item summary::after { transition: none; }
+}
+
+/* ============================================================
+   FAQ — contenu SEO indexable (accordéon <details> natif, sans JS)
+   ============================================================ */
+.lp-faq {
+  margin: 1.6rem auto 0; max-width: 760px;
+  display: flex; flex-direction: column; gap: 0.7rem;
+}
+.lp-faq__item {
+  background: var(--lb-glass); border: 1px solid var(--lb-hair);
+  border-radius: 12px; padding: 0 1.1rem; text-shadow: var(--lb-shadow);
+  transition: border-color 0.2s ease;
+}
+.lp-faq__item[open] { border-color: var(--lb-hair-2); }
+.lp-faq__item summary {
+  cursor: pointer; list-style: none; padding: 0.9rem 0;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+  font-size: clamp(1.02rem, 2.4vw, 1.18rem); color: var(--lb-gold);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.lp-faq__item summary::-webkit-details-marker { display: none; }
+.lp-faq__item summary::after {
+  content: '+'; font-size: 1.4em; line-height: 1; color: var(--lb-gold);
+  flex: none; transition: transform 0.2s ease;
+}
+.lp-faq__item[open] summary::after { transform: rotate(45deg); }
+.lp-faq__item p {
+  margin: 0 0 0.95rem; color: var(--lb-ink-2); line-height: 1.55;
+  font-size: clamp(0.96rem, 2.3vw, 1.06rem); max-width: 64ch;
 }
