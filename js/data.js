@@ -57,15 +57,57 @@ function _seedHash(base, salt) {
   h = (h ^ (h >>> 16)) >>> 0;
   return h;
 }
-// Index du jour pour une date donnée, en évitant la répétition de la veille.
-// (Sur les petits pools — ex. 17 pavillons — le hash seul peut retomber sur la
-//  même valeur deux jours de suite ; on décale alors d'un cran.)
+// ── Tirage quotidien SANS REMISE (« sac de jetons ») ─────────────────────────
+// Chaque perso sort UNE seule fois avant que le cycle recommence : le temps est
+// découpé en cycles de N jours (N = taille du pool) et on parcourt une permutation
+// seedée du pool, différente à chaque cycle. 100 % déterministe et identique pour
+// tous les joueurs (ne dépend que de la date, du salt du mode et de N).
+// ⚠️ La garantie « pas de doublon » tient ENTRE deux changements de taille de pool :
+// si N change (ajout de persos/silhouettes), la permutation du cycle en cours est
+// recalculée — connu et assumé (cf. brief : changer le pool change la cible).
+
+// Numéro de jour linéaire (jours depuis 1970) à partir de la date calendaire.
+// Insensible au fuseau/DST : ne dépend que de l'année/mois/jour affichés.
+function _dayNumber(d) {
+  return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+}
+// PRNG déterministe 32 bits (mulberry32) : suite reproductible depuis un seed.
+function _mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1) >>> 0;
+    t = (t ^ (t + Math.imul(t ^ (t >>> 7), t | 61))) >>> 0;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+// Permutation seedée de [0..n-1] pour un cycle donné (Fisher-Yates).
+function _shufflePerm(cycle, salt, n) {
+  const rng = _mulberry32(_seedHash(cycle, salt));
+  const a = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = (rng() * (i + 1)) | 0;
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+// Index du jour dans le sac. Garde-fou anti-répétition à la JONCTION de deux
+// cycles : si le 1er du nouveau cycle = le dernier du précédent, on fait tourner
+// la permutation d'un cran (elle reste une permutation → aucun doublon interne).
+function _bagPick(day, salt, n) {
+  const cycle = Math.floor(day / n);
+  const pos   = day - cycle * n;               // 0..n-1
+  let perm    = _shufflePerm(cycle, salt, n);
+  if (cycle > 0 && perm[0] === _shufflePerm(cycle - 1, salt, n)[n - 1]) {
+    perm = perm.slice(1).concat(perm[0]);
+  }
+  return perm[pos];
+}
+// Index du jour pour une date donnée (tirage sans remise, salt par mode).
 function dailyIndex(d, salt, n) {
   if (n <= 1) return 0;
-  const idx  = _seedHash(_dateBase(d), salt) % n;
-  const prev = new Date(d); prev.setDate(prev.getDate() - 1);
-  const pIdx = _seedHash(_dateBase(prev), salt) % n;
-  return idx === pIdx ? (idx + 1) % n : idx;
+  return _bagPick(_dayNumber(d), salt, n);
 }
 function dailyPick(pool, salt = 1) {
   return pool[dailyIndex(_parisDate(), salt, pool.length)];
