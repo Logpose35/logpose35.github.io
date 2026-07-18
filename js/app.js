@@ -1025,8 +1025,8 @@ const SIL_SCALES  = [3.2, 2.9, 2.6, 2.3, 2.0, 1.75, 1.5, 1.3, 1.15, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=216`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=216`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=217`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=217`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2338,7 +2338,7 @@ function buildShareText() {
     const streak = sanitizeNum(loadStats('classic').currentStreak);
     lines.push(`⚔️ ${rankTitle} · Série ${streak}j · ${cumul.toLocaleString('fr-FR')} pts cumulés`);
   }
-  lines.push('https://onepiecedle.fr');
+  lines.push('#OnePiecedle · https://onepiecedle.fr');
   return lines.join('\n');
 }
 
