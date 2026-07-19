@@ -506,7 +506,7 @@
     const fl = fruitLabel(char.fruit);
     const genderTxt = char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu';
     const hakiTxt = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun';
-    const arcTxt = (typeof ARCS !== 'undefined' && ARCS[char.arc - 1]) || '?';
+    const arcTxt = (typeof ARCS !== 'undefined' && ARCS[char.arc]) || '?';
     const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))} — ${STATE_FR[state]}${extra}"`;
     row.innerHTML = `
       <div class="cell cell-char">

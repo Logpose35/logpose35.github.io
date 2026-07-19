@@ -116,6 +116,8 @@
 }
 .jm-pin--on .jm-flag { font-size: 11px; }
 .jm-flag, .jm-lock { dominant-baseline: middle; pointer-events: none; }
+/* Zone « Films & Filler » : bande de pellicule monochrome (perforations = l'or du pin au travers) */
+.jm-filler-film { fill: #0a1422; fill-rule: evenodd; pointer-events: none; }
 
 .jm-pin:hover .jm-dot, .jm-pin:focus .jm-dot { r: 12; }
 .jm-pin:focus .jm-halo { fill: rgba(255,216,77,0.18); }

@@ -58,6 +58,16 @@
     { arc: 32, name: 'Elbaf',              x: 39, y: 48, seuil: 7500000 },
   ];
 
+  // Zone spéciale « Films & Filler » (arc 0) — HORS de la progression Grand Line :
+  // toujours débloquée, non comptée dans les « / 32 îles », pas de compteur communauté.
+  // Regroupe les personnages hors-canon (films, hors-série) taggés arc:0 dans data.json.
+  const FILLER_ZONE = { arc: 0, name: 'Films & Filler', x: 12, y: 12, seuil: 0 };
+
+  // Résout un numéro d'arc vers son île / sa zone (arc 0 = zone Filler).
+  function zoneByArc(arc) {
+    return arc === 0 ? FILLER_ZONE : ISLANDS.find(i => i.arc === arc);
+  }
+
   // Conversion % → unités viewBox (1000 × 500, ratio 2:1 comme l'image)
   const VBW = 1000, VBH = 500;
   const px = p => (p / 100) * VBW;
@@ -101,6 +111,16 @@
             + `</g>`;
     });
 
+    // Pin spécial « Films & Filler » — toujours débloqué, hors progression
+    const fz = FILLER_ZONE;
+    pins += `<g class="jm-pin jm-pin--on jm-pin--filler" data-arc="${fz.arc}" data-name="${esc(fz.name)}" `
+          + `data-seuil="0" data-unlocked="1" transform="translate(${px(fz.x)} ${py(fz.y)})" `
+          + `tabindex="0" role="button" aria-label="${esc(fz.name)}">`
+          + `<circle class="jm-halo" r="15"></circle>`
+          + `<circle class="jm-dot" r="9"></circle>`
+          + `<path class="jm-filler-film" d="M-5.5 -6.5H5.5V6.5H-5.5ZM-4.7 -5.15h1.2v1.3h-1.2ZM-4.7 -2.15h1.2v1.3h-1.2ZM-4.7 0.85h1.2v1.3h-1.2ZM-4.7 3.85h1.2v1.3h-1.2ZM3.5 -5.15h1.2v1.3h-1.2ZM3.5 -2.15h1.2v1.3h-1.2ZM3.5 0.85h1.2v1.3h-1.2ZM3.5 3.85h1.2v1.3h-1.2Z"></path>`
+          + `</g>`;
+
     return `<svg class="jm-svg" viewBox="0 0 ${VBW} ${VBH}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">`
          + pins
          + `</svg>`;
@@ -129,9 +149,10 @@
     const arc  = g.getAttribute('data-arc');
     const unlocked = g.getAttribute('data-unlocked') === '1';
     const seuil = parseInt(g.getAttribute('data-seuil'), 10);
+    const arcLabel = arc === '0' ? 'Hors-série' : `Arc ${esc(arc)}`;
     tip.innerHTML = unlocked
-      ? `<span class="jm-tip-arc">Arc ${esc(arc)}</span><strong>${esc(name)}</strong><span class="jm-tip-state jm-tip-state--on">☠ Débloquée</span>`
-      : `<span class="jm-tip-arc">Arc ${esc(arc)}</span><strong>${esc(name)}</strong><span class="jm-tip-state">🔒 ${seuil.toLocaleString('fr-FR')} pts cumulés</span>`;
+      ? `<span class="jm-tip-arc">${arcLabel}</span><strong>${esc(name)}</strong><span class="jm-tip-state jm-tip-state--on">☠ Débloquée</span>`
+      : `<span class="jm-tip-arc">${arcLabel}</span><strong>${esc(name)}</strong><span class="jm-tip-state">🔒 ${seuil.toLocaleString('fr-FR')} pts cumulés</span>`;
     // position en pixels écran relative au stage (tient compte du zoom via getBoundingClientRect)
     const sr = stage.getBoundingClientRect();
     const gr = g.getBoundingClientRect();
@@ -261,7 +282,7 @@
     // Interactions : survol = tooltip ; tap/clic = dossier (géré dans pointerup) ; clavier
     container.querySelectorAll('.jm-pin').forEach(g => {
       const arc = +g.getAttribute('data-arc');
-      const isl = ISLANDS.find(i => i.arc === arc);
+      const isl = zoneByArc(arc);
       const unlocked = g.getAttribute('data-unlocked') === '1';
       const enter = () => showTip(g);
       g.addEventListener('mouseenter', enter);
@@ -279,7 +300,7 @@
     const el = document.elementFromPoint(clientX, clientY);
     const pin = el && el.closest ? el.closest('.jm-pin') : null;
     if (!pin) return;
-    const isl = ISLANDS.find(i => i.arc === +pin.getAttribute('data-arc'));
+    const isl = zoneByArc(+pin.getAttribute('data-arc'));
     if (pin.getAttribute('data-unlocked') === '1') openDossier(isl);
     else showTip(pin);
   }
@@ -338,7 +359,7 @@
         '<div class="jm-dossier-head">'
       +   '<button class="jm-dossier-back" type="button">← Carte</button>'
       +   '<div class="jm-dossier-titles">'
-      +     '<div class="jm-dossier-arc">Arc ' + isl.arc + '</div>'
+      +     '<div class="jm-dossier-arc">' + (isl.arc === 0 ? 'Hors-série' : 'Arc ' + isl.arc) + '</div>'
       +     '<div class="jm-dossier-title">' + esc(isl.name) + '</div>'
       +   '</div>'
       + '</div>'
@@ -372,9 +393,11 @@
     panel.classList.remove('hidden');
     hideTip();
 
-    // Compteur communauté (Firebase, fire-and-forget)
+    // Compteur communauté (Firebase, fire-and-forget) — sauf zone Filler (hors progression)
     const commEl = document.getElementById('jm-community');
-    if (commEl && typeof fbGet === 'function') {
+    if (commEl && isl.arc === 0) {
+      commEl.textContent = '';
+    } else if (commEl && typeof fbGet === 'function') {
       fbGet('island-reach/' + isl.arc).then(v => {
         const n = parseInt(v, 10) || 0;
         commEl.textContent = n > 0

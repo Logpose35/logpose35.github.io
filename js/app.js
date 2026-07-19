@@ -796,7 +796,7 @@ function buildGuessRow(char, T) {
   const fl = fruitLabel(char.fruit);
   const genderTxt = char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu';
   const hakiTxt   = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun';
-  const arcTxt    = ARCS[char.arc - 1] || '?';
+  const arcTxt    = ARCS[char.arc] || '?';   // ARCS[0]='Filler', arc 1→32 = arcs canoniques
   const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))} — ${STATE_FR[state]}${extra}"`;
   row.innerHTML = `
     <div class="cell cell-char">
@@ -834,7 +834,7 @@ const RECAP_COLS = [
   { key:'fruit',  label:'Fruit',     fn: c => c.fruit || 'Aucun',                            check: (g,t) => g.fruit  === t.fruit  },
   { key:'haki',   label:'Haki',      fn: c => c.haki.length ? c.haki.join(', ') : 'Aucun', check: (g,t) => JSON.stringify([...g.haki].sort()) === JSON.stringify([...t.haki].sort()) },
   { key:'status', label:'Statut',    fn: c => c.status,                                      check: (g,t) => g.status === t.status },
-  { key:'arc',    label:'1er Arc',   fn: c => ARCS[c.arc - 1],                               check: (g,t) => g.arc    === t.arc    },
+  { key:'arc',    label:'1er Arc',   fn: c => ARCS[c.arc],                                   check: (g,t) => g.arc    === t.arc    },
   { key:'bounty', label:'Prime',     fn: c => formatBounty(c.bounty),                        check: (g,t) => g.bounty === t.bounty },
 ];
 
@@ -869,7 +869,7 @@ const HINT_COLS = [
   { key:'fruit',  label:'Fruit du Démon', fn: c => c.fruit || 'Aucun' },
   { key:'haki',   label:'Haki',           fn: c => c.haki.length ? c.haki.join(', ') : 'Aucun' },
   { key:'status', label:'Statut',         fn: c => c.status },
-  { key:'arc',    label:'1er Arc',        fn: c => ARCS[c.arc - 1] },
+  { key:'arc',    label:'1er Arc',        fn: c => ARCS[c.arc] },
   { key:'bounty', label:'Prime',          fn: c => formatBounty(c.bounty) },
 ];
 
@@ -1025,8 +1025,8 @@ const SIL_SCALES  = [3.2, 2.9, 2.6, 2.3, 2.0, 1.75, 1.5, 1.3, 1.15, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=217`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=217`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=223`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=223`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1827,9 +1827,23 @@ function finEmoji(won) {
 const AUDIO_DURATIONS = [1, 2, 4, 7, 11, 16]; // secondes par essai
 const MAX_AU_GUESSES  = AUDIO_DURATIONS.length; // 6
 const SCORE_PENALTY_AUDIO = 1500;
+const AU_OFFSET_SALT  = 59; // salt dédié au point de départ aléatoire (≠ 53 de la cible)
 
 let _auPlaying = false;
 let _auTimer   = null;
+
+// Point de départ aléatoire du jour : au lieu de partir du début du morceau, on
+// démarre à un endroit tiré déterministement (seed date + salt). Fraction de la
+// plage jouable = durée du morceau moins le plus long extrait (16 s), pour que le
+// dernier essai ne déborde jamais la fin. Tous les essais partent du MÊME point
+// (révélation progressive). Identique pour tous les joueurs, stable au rechargement.
+function auStartOffset(audio) {
+  if (!audio || !isFinite(audio.duration) || audio.duration <= 0) return 0;
+  const longest  = AUDIO_DURATIONS[AUDIO_DURATIONS.length - 1];
+  const maxStart = Math.max(0, audio.duration - longest);
+  const frac     = dailySeed(AU_OFFSET_SALT) / 4294967296; // [0, 1[
+  return frac * maxStart;
+}
 
 function initAudioMode() {
   document.getElementById('audio-guesses').innerHTML = '';
@@ -1843,9 +1857,18 @@ function initAudioMode() {
   } else {
     document.getElementById('au-reveal').classList.add('hidden');
   }
-  // Sync volume
+  // Sync volume + pré-chargement des métadonnées (durée) pour connaître le point
+  // de départ aléatoire dès le 1er clic → play() reste synchrone dans le geste.
   const audio = document.getElementById('au-audio');
-  if (audio) audio.volume = parseFloat(document.getElementById('au-volume').value);
+  if (audio) {
+    audio.volume = parseFloat(document.getElementById('au-volume').value);
+    const src = `${ASSET_BASE}audio/Opening${TARGET_AU.id}.mp3`;
+    if (audio.src !== new URL(src, location.href).href) {
+      audio.preload = 'metadata';
+      audio.src = src;
+      audio.load();
+    }
+  }
   // Reset barre
   const fill = document.getElementById('au-bar-fill');
   if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; }
@@ -1877,33 +1900,45 @@ function playSnippet() {
   const snippetIdx = auOver ? AUDIO_DURATIONS.length - 1 : Math.min(auGuesses.length, AUDIO_DURATIONS.length - 1);
   const duration   = AUDIO_DURATIONS[snippetIdx];
 
-  audio.src     = `${ASSET_BASE}audio/Opening${TARGET_AU.id}.mp3`;
-  audio.currentTime = 0;
+  const src = `${ASSET_BASE}audio/Opening${TARGET_AU.id}.mp3`;
+  if (audio.src !== new URL(src, location.href).href) {
+    audio.preload = 'metadata';
+    audio.src = src;
+  }
   audio.volume  = parseFloat(document.getElementById('au-volume').value);
 
   const btn  = document.getElementById('au-play-btn');
   const fill = document.getElementById('au-bar-fill');
 
-  audio.play().then(() => {
-    _auPlaying = true;
-    if (btn)  btn.textContent = '⏹ Stop';
-    if (fill) {
-      fill.style.transition = 'none';
-      fill.style.width = '0%';
-      requestAnimationFrame(() => {
-        fill.style.transition = `width ${duration}s linear`;
-        fill.style.width = '100%';
-      });
-    }
-    _auTimer = setTimeout(() => {
-      audio.pause(); audio.currentTime = 0;
-      _auPlaying = false; _auTimer = null;
-      if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '0%'; }
-      if (btn)  btn.textContent = '▶ Réécouter';
-    }, duration * 1000);
-  }).catch(() => {
-    if (btn) btn.textContent = '▶ Écouter';
-  });
+  // Le décalage dépend de la durée du morceau. Les métadonnées sont normalement
+  // déjà préchargées (initAudioMode) → start() synchrone dans le geste. Sinon, on
+  // attend loadedmetadata. L'extrait dure toujours `duration` s à partir du décalage.
+  const start = () => {
+    audio.currentTime = auStartOffset(audio);
+    audio.play().then(() => {
+      _auPlaying = true;
+      if (btn)  btn.textContent = '⏹ Stop';
+      if (fill) {
+        fill.style.transition = 'none';
+        fill.style.width = '0%';
+        requestAnimationFrame(() => {
+          fill.style.transition = `width ${duration}s linear`;
+          fill.style.width = '100%';
+        });
+      }
+      _auTimer = setTimeout(() => {
+        audio.pause(); audio.currentTime = auStartOffset(audio);
+        _auPlaying = false; _auTimer = null;
+        if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '0%'; }
+        if (btn)  btn.textContent = '▶ Réécouter';
+      }, duration * 1000);
+    }).catch(() => {
+      if (btn) btn.textContent = '▶ Écouter';
+    });
+  };
+
+  if (audio.readyState >= 1 /* HAVE_METADATA */) start();
+  else { audio.addEventListener('loadedmetadata', start, { once: true }); audio.load(); }
 }
 
 function setAudioVolume(val) {
@@ -2480,6 +2515,12 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '6.2', date: 'Juillet 2026', items: [
+    '🎵 Mode Opening : l\'extrait ne démarre plus au début du générique mais à un endroit tiré au hasard dans le morceau — plus corsé à reconnaître',
+    '🎬 Nouvelle catégorie « Films & Filler » (arc hors-série) avec sa zone dédiée sur la carte de Grand Line, pour les personnages de films',
+    '⭐ Personnages de films ajoutés : Douglas Bullet (Stampede), Zephyr (Film Z) et Gild Tesoro (Film Gold) — jouables dans tous les modes',
+    '🍎 Deux nouveaux fruits du démon devinables : le Gasha Gasha no Mi (Douglas Bullet) et le Gol Gol no Mi (Gild Tesoro)',
+  ] },
   { v: '6.1', date: 'Juillet 2026', items: [
     '😀 Mode Émoji : grande refonte du contenu — des emojis bien plus distinctifs et fidèles pour chaque personnage (fini les combinaisons génériques interchangeables)',
     '💬 Infobulles d\'emojis complétées et entièrement traduites en français',
