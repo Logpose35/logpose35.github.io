@@ -142,6 +142,8 @@
   white-space: nowrap;
   font-family: 'Barlow Condensed', sans-serif;
 }
+/* Pin trop près du haut du cadre : l'infobulle bascule SOUS la pastille */
+.jm-tip--below { transform: translate(-50%, 14px); }
 .jm-tip-arc { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(232,213,176,0.5); }
 .jm-tip strong { font-size: .98rem; color: var(--gold-bright, #ffd84d); }
 .jm-tip-state { font-size: .76rem; color: rgba(232,213,176,0.7); }

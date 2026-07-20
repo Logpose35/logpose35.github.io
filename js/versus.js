@@ -72,7 +72,7 @@
   // Paliers visuels des modes wanted/silhouette/tome — copies du daily (app.js
   // n'est pas chargé ici ; BLUR_STEPS vient de data.js). wrongCount (serveur,
   // erreurs cumulées des DEUX joueurs) pilote flou et dézoom.
-  const V_SIL_SCALES  = [3.2, 2.9, 2.6, 2.3, 2.0, 1.75, 1.5, 1.3, 1.15, 1];
+  const V_SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
   const V_SIL_HINT_AT = 5;   // disque couleur automatique à partir de 5 erreurs
   const V_TOME_SCALES = [8, 5.3, 3.5, 2.3, 1.5, 1];
   const tomeMax = () => (typeof TOMES !== 'undefined' && TOMES.length) ? Math.max(...TOMES) : 112;
@@ -108,7 +108,7 @@
       // Coupure inattendue en cours de lobby → tentative de resume (grace 90 s côté serveur)
       const saved = savedResume();
       if (saved && !supersededFlag && retryCount < 20) {
-        banner('⚓ Connexion perdue — reconnexion en cours…');
+        banner('⚓ Connexion perdue, reconnexion en cours…');
         retryTimer = setTimeout(() => { retryCount++; connect(); send('resume', { code: saved.code, resumeToken: saved.token }); }, 2000);
       }
     };
@@ -153,7 +153,7 @@
         recordVersusStat(payload.winner === me);
         break;
       case 'opponent_disconnected':
-        banner(`⚓ Adversaire déconnecté — partie en pause (${Math.round(payload.graceMs / 1000)} s de grâce)…`);
+        banner(`⚓ Adversaire déconnecté, partie en pause (${Math.round(payload.graceMs / 1000)} s de grâce)…`);
         break;
       case 'opponent_reconnected':
         banner(null); toast('Adversaire de retour !', 'info');
@@ -238,7 +238,7 @@
       $('v-scorebar').innerHTML = s.players.map((p, i) => `
         <span class="${i === me ? 'me' : 'op'}">${esc(p.name)}${i === me ? ' (toi)' : ''} : ${s.scores[i] ?? 0}
           <span class="v-strikes">${'✖'.repeat(s.strikes[i] || 0)}</span></span>`)
-        .join(`<span> · manche ${s.round}/${s.options.bestOf} — ${modeChip(s.mode)} · </span>`);
+        .join(`<span> · manche ${s.round}/${s.options.bestOf} · ${modeChip(s.mode)} · </span>`);
       $('v-gridtitle-me').textContent = `${s.players[me]?.name || 'Toi'} (toi)`;
       $('v-gridtitle-op').textContent = s.players[op]?.name || 'Adversaire';
       if (s.turnOf !== null) applyTurn(s.turnOf, s.remainingMs);
@@ -264,8 +264,8 @@
         pr.hidden = false;
       } else pr.hidden = true;
       $('v-post-rounds').innerHTML = (s.roundsHistory || []).map((r, i) =>
-        `Manche ${i + 1} ${modeChip(r.mode)} : <b>${esc(r.targetName)}</b>${r.fruitName ? ` — ${esc(r.fruitName)}` : ''} — ${esc(s.players[r.winner]?.name || '?')} (${r.tries} essai${r.tries > 1 ? 's' : ''})`).join('<br>');
-      $('v-post-score').textContent = `${esc(s.players[me]?.name)} ${s.scores[me]} — ${s.scores[op]} ${esc(s.players[op]?.name)}`;
+        `Manche ${i + 1} ${modeChip(r.mode)} : <b>${esc(r.targetName)}</b>${r.fruitName ? ` · ${esc(r.fruitName)}` : ''} · ${esc(s.players[r.winner]?.name || '?')} (${r.tries} essai${r.tries > 1 ? 's' : ''})`).join('<br>');
+      $('v-post-score').textContent = `${esc(s.players[me]?.name)} ${s.scores[me]} - ${s.scores[op]} ${esc(s.players[op]?.name)}`;
       const meWants = s.players[me]?.wantsRematch, opWants = s.players[op]?.wantsRematch;
       $('v-rematch').disabled = !!meWants;
       $('v-rematch-wait').hidden = !meWants || opWants;
@@ -344,7 +344,7 @@
     if (!snap || snap.state !== 'IN_GAME') return;
     const line = $('v-turnline');
     if (snap.turnOf === null) {  // entre round_end et le countdown suivant
-      line.textContent = '🔍 Réponse révélée — manche suivante dans quelques secondes…';
+      line.textContent = '🔍 Réponse révélée, manche suivante dans quelques secondes…';
       line.classList.remove('mine');
       return;
     }
@@ -372,7 +372,7 @@
     $('v-grid-me').innerHTML = ''; $('v-grid-op').innerHTML = '';
     rendered = new Set(); guessed = new Set();
     $('v-roundover').hidden = true;
-    $('v-countround').innerHTML = `Manche ${p.round} — ${modeChip(curMode)}`;
+    $('v-countround').innerHTML = `Manche ${p.round} · ${modeChip(curMode)}`;
     $('v-count').hidden = false;
     let n = p.seconds;
     $('v-countnum').textContent = n;
@@ -507,7 +507,7 @@
     const genderTxt = char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu';
     const hakiTxt = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun';
     const arcTxt = (typeof ARCS !== 'undefined' && ARCS[char.arc]) || '?';
-    const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))} — ${STATE_FR[state]}${extra}"`;
+    const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))}, ${STATE_FR[state]}${extra}"`;
     row.innerHTML = `
       <div class="cell cell-char">
         ${char.imgFile
@@ -551,7 +551,7 @@
       <div>
         <div class="v-rtitle">${mine ? '🏆 Manche gagnée !' : `💀 Manche pour ${esc(wName)}`}</div>
         <div class="v-rname">C'était <b>${esc(p.target.name)}</b>${p.fruitName ? ` (${esc(p.fruitName)})` : ''}</div>
-        <div class="v-rsub">trouvé en ${p.tries} essai${p.tries > 1 ? 's' : ''} · Score : ${p.scores.join(' — ')}</div>
+        <div class="v-rsub">trouvé en ${p.tries} essai${p.tries > 1 ? 's' : ''} · Score : ${p.scores.join(' · ')}</div>
       </div>`;
     $('v-roundover').hidden = false;
   }

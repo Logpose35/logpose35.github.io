@@ -484,7 +484,7 @@ function buildYesterdayBar() {
   const tomeBit = (data.tome != null)
     ? ` &nbsp;|&nbsp; <svg class="ic ic-inline mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome : <strong>${esc(String(data.tome))}</strong>` : '';
   el.innerHTML =
-    `Hier &nbsp;—&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Silhouette : <strong>${esc(data.silhouette || '?')}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
+    `Hier &nbsp;·&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Silhouette : <strong>${esc(data.silhouette || '?')}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
     `<br><span class="yesterday-op"><svg class="ic ic-inline mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg>Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
     `<br><span class="yesterday-community" id="yesterday-community"></span>`;
 }
@@ -582,16 +582,16 @@ function switchMode(mode) {
   // Auto-focus du champ de saisie si le mode n'est pas terminé
   if (!over) setTimeout(() => { input.focus(); }, 80);
   const TITLES = {
-    classic: 'LogPose · Classique — Devine le personnage One Piece',
-    wanted:  'LogPose · Wanted — Reconnais l\'avis de recherche',
-    silhouette: 'LogPose · Silhouette — Devine le personnage à sa forme',
-    fruit:   'LogPose · Fruit du Démon — Trouve le détenteur',
-    emoji:   'LogPose · Émoji — Devine le personnage One Piece',
-    audio:   'LogPose · Opening — Devine l\'opening One Piece',
-    tome:    'LogPose · Tome — Devine le tome One Piece',
-    inf:     'LogPose · Classique Infini — Entraînement sans limite',
+    classic: 'LogPose · Classique : Devine le personnage One Piece',
+    wanted:  'LogPose · Wanted : Reconnais l\'avis de recherche',
+    silhouette: 'LogPose · Silhouette : Devine le personnage à sa forme',
+    fruit:   'LogPose · Fruit du Démon : Trouve le détenteur',
+    emoji:   'LogPose · Émoji : Devine le personnage One Piece',
+    audio:   'LogPose · Opening : Devine l\'opening One Piece',
+    tome:    'LogPose · Tome : Devine le tome One Piece',
+    inf:     'LogPose · Classique Infini : Entraînement sans limite',
   };
-  document.title = TITLES[mode] || 'LogPose — 7 défis One Piece quotidiens';
+  document.title = TITLES[mode] || 'LogPose · 7 défis One Piece quotidiens';
 
   // Cleanup FLIP : fige animation:none pour neutraliser sectionIn (ne PAS remettre '' — ça le retriggerait)
   if (_flipEl) {
@@ -797,7 +797,7 @@ function buildGuessRow(char, T) {
   const genderTxt = char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu';
   const hakiTxt   = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun';
   const arcTxt    = ARCS[char.arc] || '?';   // ARCS[0]='Filler', arc 1→32 = arcs canoniques
-  const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))} — ${STATE_FR[state]}${extra}"`;
+  const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))}, ${STATE_FR[state]}${extra}"`;
   row.innerHTML = `
     <div class="cell cell-char">
       ${getImgFile(char)
@@ -950,7 +950,7 @@ function updateHint() {
   const left = MAX_GUESSES - wGuesses.length;
   if (wOver)            el.textContent = wGuesses.some(g => g.name === TARGET_W.name) ? '🎉 Trouvé !' : '💀 Perdu !';
   else if (blurPx === 0) el.textContent = 'Image parfaitement nette !';
-  else                  el.textContent = `Flou : ${blurPx}px — ${left} essai(s) restant(s)`;
+  else                  el.textContent = `Flou : ${blurPx}px · ${left} essai(s) restant(s)`;
 }
 
 function toggleColor(checked) {
@@ -1021,12 +1021,12 @@ function finWanted(won) {
 // ===== MODE SILHOUETTE (gros plan sur un bord → dézoom + pan) =====
 const MAX_SIL_GUESSES = 10;
 // départ serré (gros plan sur une arête) → dézoom complet (silhouette entière) en 10 essais
-const SIL_SCALES  = [3.2, 2.9, 2.6, 2.3, 2.0, 1.75, 1.5, 1.3, 1.15, 1];
+const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=223`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=223`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=233`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=233`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1359,7 +1359,7 @@ function renderVersusStats() {
       <div class="stat-card"><div class="stat-val">${l}</div><div class="stat-label">Défaites</div></div>
       <div class="stat-card"><div class="stat-val">${pct}%</div><div class="stat-label">Taux de victoire</div></div>
     </div>`;
-  if (played === 0) html += `<div class="stats-empty">Aucun duel joué — défie un ami depuis l'onglet Versus !</div>`;
+  if (played === 0) html += `<div class="stats-empty">Aucun duel joué. Défie un ami depuis l'onglet Versus !</div>`;
   html += `<button class="stats-next-btn" onclick="location.href='versus.html'">Lancer un duel <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-versus"></use></svg> →</button>`;
   document.getElementById('stats-content').innerHTML = html;
 }
@@ -1539,7 +1539,7 @@ function renderFruitHints() {
     status.style.color = won ? 'var(--correct)' : 'var(--red)';
   } else {
     const left = MAX_FRU_GUESSES - frGuesses.length;
-    status.textContent = `${left} essai(s) restant(s) — des indices se débloquent à chaque erreur`;
+    status.textContent = `${left} essai(s) restant(s), des indices se débloquent à chaque erreur`;
     status.style.color = '';
   }
 }
@@ -1712,7 +1712,7 @@ function updateEmojiStatus() {
     el.style.color = won ? 'var(--green-l)' : 'var(--red)';
   } else {
     const left = MAX_EM_GUESSES - emGuesses.length;
-    el.textContent = `${left} essai${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''} — un nouvel indice emoji se débloque à chaque erreur`;
+    el.textContent = `${left} essai${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''}, un nouvel indice emoji se débloque à chaque erreur`;
     el.style.color = '';
   }
 }
@@ -1966,14 +1966,14 @@ function updateAudioStatus() {
   if (auOver) {
     const won = auGuesses.some(g => g.name === TARGET_AU.name);
     el.textContent = won
-      ? `🎉 Bravo ! C'était bien "${TARGET_AU.name}" — Opening ${TARGET_AU.id} !`
-      : `💀 Perdu ! C'était "${TARGET_AU.name}" — Opening ${TARGET_AU.id} par ${TARGET_AU.artist}`;
+      ? `🎉 Bravo ! C'était bien "${TARGET_AU.name}", Opening ${TARGET_AU.id} !`
+      : `💀 Perdu ! C'était "${TARGET_AU.name}", Opening ${TARGET_AU.id} par ${TARGET_AU.artist}`;
     el.style.color = won ? 'var(--green-l)' : 'var(--red)';
   } else {
     const snippetIdx = Math.min(auGuesses.length, AUDIO_DURATIONS.length - 1);
     const dur  = AUDIO_DURATIONS[snippetIdx];
     const left = MAX_AU_GUESSES - auGuesses.length;
-    el.textContent = `Essai ${auGuesses.length + 1}/${MAX_AU_GUESSES} — ${dur} seconde${dur > 1 ? 's' : ''} révélée${dur > 1 ? 's' : ''}`;
+    el.textContent = `Essai ${auGuesses.length + 1}/${MAX_AU_GUESSES} · ${dur} seconde${dur > 1 ? 's' : ''} révélée${dur > 1 ? 's' : ''}`;
     el.style.color = '';
   }
 }
@@ -1998,7 +1998,7 @@ function showAudioReveal() {
     iframe.allow           = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;
     iframe.loading         = 'lazy';
-    iframe.title           = `${TARGET_AU.name} — One Piece Opening ${TARGET_AU.id}`;
+    iframe.title           = `${TARGET_AU.name} · One Piece Opening ${TARGET_AU.id}`;
     wrap.appendChild(iframe);
 
     // Lien de secours sous l'iframe (si erreur 153 ou autre)
@@ -2423,7 +2423,7 @@ function showWhatsNew() {
   ov.className = 'wn-overlay';
   ov.setAttribute('role', 'dialog');
   ov.setAttribute('aria-modal', 'true');
-  ov.setAttribute('aria-label', 'Nouveautés LogPose v6.0 — mode Versus 1v1');
+  ov.setAttribute('aria-label', 'Nouveautés LogPose v6.0 : mode Versus 1v1');
   ov.innerHTML =
       '<div class="wn-gazette" role="document">'
     +   '<button class="wn-close" type="button" aria-label="Fermer">×</button>'
@@ -2433,14 +2433,14 @@ function showWhatsNew() {
     +       '<div class="wn-tagline">« Toutes les nouvelles de Grand Line »</div>'
     +     '</div>'
     +     '<div class="wn-dateline"><span>Édition spéciale · v6.0</span><span>' + esc(today) + '</span></div>'
-    +     '<div class="wn-kicker">— Deux navires se rangent bord à bord —</div>'
+    +     '<div class="wn-kicker">Deux navires se rangent bord à bord</div>'
     +     '<h2 class="wn-headline">Le mode Versus 1v1 <span class="wn-headline-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></span></h2>'
-    +     '<p class="wn-lede">Défie un ami en duel, au tour par tour&nbsp;: crée un salon, partage ton code à 5 lettres, et devinez le même personnage mystère — le premier qui le trouve remporte la manche.</p>'
+    +     '<p class="wn-lede">Défie un ami en duel, au tour par tour&nbsp;: crée un salon, partage ton code à 5 lettres, et devinez le même personnage mystère : le premier qui le trouve remporte la manche.</p>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
     +     '<div class="wn-cols">'
-    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></div><div class="wn-col-h">Bo1, Bo3 ou Bo5</div><div class="wn-col-p">Chacun choisit le mode de sa manche — Classique, Wanted, Silhouette, Fruit, Émoji ou Tome — et la manche décisive est tirée au sort.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></div><div class="wn-col-h">Bo1, Bo3 ou Bo5</div><div class="wn-col-p">Chacun choisit le mode de sa manche (Classique, Wanted, Silhouette, Fruit, Émoji ou Tome) et la manche décisive est tirée au sort.</div></div>'
     +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-hourglass"></use></svg></div><div class="wn-col-h">Au tour par tour</div><div class="wn-col-p">30, 60 ou 120 secondes par tour (ou sans limite). Les indices se dévoilent à chaque erreur… pour les deux équipages.</div></div>'
-    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-chart"></use></svg></div><div class="wn-col-h">Bilan de duels</div><div class="wn-col-p">Victoires, défaites et taux de victoire rejoignent tes statistiques — et la revanche est à un clic.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-chart"></use></svg></div><div class="wn-col-h">Bilan de duels</div><div class="wn-col-p">Victoires, défaites et taux de victoire rejoignent tes statistiques, et la revanche est à un clic.</div></div>'
     +     '</div>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
     +     '<p class="wn-brief">Rendez-vous dans l\'onglet Versus, juste à droite du mode Infini.</p>'
@@ -2515,25 +2515,32 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '6.3', date: 'Juillet 2026', items: [
+    '⚜️ Deux nouveaux personnages : Saint Killingham et Saint Sommers, les Chevaliers Divins croisés à Elbaf',
+    '🏴‍☠️ Scopper Gaban mis à jour : nouveau portrait, épithète « Missionnaire de l\'amour », les trois Haki et première apparition à Elbaf',
+    '🍎 Deux nouveaux fruits du démon devinables : l\'Iba Iba no Mi (Fruit des Épines) et le Ryu Ryu no Mi, modèle Kirin',
+    '🏴‍☠️ Trois personnages de plus : Makino (Romance Dawn), Gaimon (Syrup Village) et Hannyabal (Impel Down)',
+    '👤 Mode Silhouette assoupli : l\'image se dézoome plus vite à chaque essai, la forme devient reconnaissable plus tôt',
+  ] },
   { v: '6.2', date: 'Juillet 2026', items: [
-    '🎵 Mode Opening : l\'extrait ne démarre plus au début du générique mais à un endroit tiré au hasard dans le morceau — plus corsé à reconnaître',
+    '🎵 Mode Opening : l\'extrait ne démarre plus au début du générique mais à un endroit tiré au hasard dans le morceau. Plus corsé à reconnaître !',
     '🎬 Nouvelle catégorie « Films & Filler » (arc hors-série) avec sa zone dédiée sur la carte de Grand Line, pour les personnages de films',
-    '⭐ Personnages de films ajoutés : Douglas Bullet (Stampede), Zephyr (Film Z) et Gild Tesoro (Film Gold) — jouables dans tous les modes',
+    '⭐ Personnages de films ajoutés : Douglas Bullet (Stampede), Zephyr (Film Z) et Gild Tesoro (Film Gold), jouables dans tous les modes',
     '🍎 Deux nouveaux fruits du démon devinables : le Gasha Gasha no Mi (Douglas Bullet) et le Gol Gol no Mi (Gild Tesoro)',
   ] },
   { v: '6.1', date: 'Juillet 2026', items: [
-    '😀 Mode Émoji : grande refonte du contenu — des emojis bien plus distinctifs et fidèles pour chaque personnage (fini les combinaisons génériques interchangeables)',
+    '😀 Mode Émoji : grande refonte du contenu, avec des emojis bien plus distinctifs et fidèles pour chaque personnage (fini les combinaisons génériques interchangeables)',
     '💬 Infobulles d\'emojis complétées et entièrement traduites en français',
     '🏴‍☠️ Mode Classique : les équipages de la Grande Flotte (Happou Navy, Tontatta…) comptent désormais comme correspondance partielle (case orange)',
   ] },
   { v: '6.0', date: 'Juillet 2026', items: [
-    '⚔️ Nouveau mode Versus 1v1 — défie un ami en duel au tour par tour (salon privé, code à partager)',
+    '⚔️ Nouveau mode Versus 1v1 : défie un ami en duel au tour par tour (salon privé, code à partager)',
     '🎲 Bo1 / Bo3 / Bo5 : chacun choisit le mode de sa manche parmi 6, la manche décisive est tirée au sort',
     '📊 Bilan de duels (victoires, défaites, % de victoire) dans tes statistiques',
-    '🚀 Images, silhouettes et openings servis par un serveur dédié — chargements plus rapides',
+    '🚀 Images, silhouettes et openings servis par un serveur dédié, pour des chargements plus rapides',
   ] },
   { v: '5.2', date: 'Juillet 2026', items: [
-    '👤 Nouveau mode Silhouette — devine le pirate à son ombre (remplace Pavillon)',
+    '👤 Nouveau mode Silhouette : devine le pirate à son ombre (remplace Pavillon)',
     '🎨 Indice couleur à mi-partie + révélation en couleur en fin de partie',
   ] },
   { v: '5.1', date: 'Juin 2026', items: [
@@ -2543,7 +2550,7 @@ const CHANGELOG = [
     '➕ 2 nouveaux Chevaliers Divins : Shamrock & Gunko (246 persos)',
   ] },
   { v: '5.0', date: 'Juin 2026', items: [
-    '📕 Nouveau mode Tome — devine le tome à sa couverture',
+    '📕 Nouveau mode Tome : devine le tome à sa couverture',
     '🗺️ Carte de Grand Line : 32 îles, carnet de capture & fiches perso',
     '🏴‍☠️ Rang de pirate + Jolly Roger personnel généré',
     '🖼️ Image de partage récap (avec ton pavillon)',
@@ -3013,10 +3020,10 @@ function playWinAudio() {
   try {
     await loadGameData();
   } catch(e) {
-    console.error('LogPose — échec du chargement des données :', e);
+    console.error('LogPose · échec du chargement des données :', e);
     document.body.insertAdjacentHTML('afterbegin',
       '<div style="padding:1rem;background:#c82020;color:#fff;text-align:center;font-family:sans-serif">' +
-      '⚠️ Erreur de chargement — rechargez la page ou vérifiez votre connexion.</div>');
+      '⚠️ Erreur de chargement, rechargez la page ou vérifiez votre connexion.</div>');
     return;
   }
   saveTodayTargets();

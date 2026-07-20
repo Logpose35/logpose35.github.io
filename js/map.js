@@ -153,12 +153,25 @@
     tip.innerHTML = unlocked
       ? `<span class="jm-tip-arc">${arcLabel}</span><strong>${esc(name)}</strong><span class="jm-tip-state jm-tip-state--on">☠ Débloquée</span>`
       : `<span class="jm-tip-arc">${arcLabel}</span><strong>${esc(name)}</strong><span class="jm-tip-state">🔒 ${seuil.toLocaleString('fr-FR')} pts cumulés</span>`;
-    // position en pixels écran relative au stage (tient compte du zoom via getBoundingClientRect)
+    // Position en pixels écran relative au stage (tient compte du zoom via
+    // getBoundingClientRect). Le stage est en overflow:hidden → l'infobulle doit
+    // rester DANS le cadre, sinon elle est rognée (cas des pins près d'un bord).
+    tip.hidden = false;                        // visible d'abord : sinon non mesurable
+    tip.classList.remove('jm-tip--below');
     const sr = stage.getBoundingClientRect();
     const gr = g.getBoundingClientRect();
-    tip.style.left = (gr.left - sr.left + gr.width / 2) + 'px';
-    tip.style.top  = (gr.top  - sr.top) + 'px';
-    tip.hidden = false;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    // Horizontal : centrée sur la pastille, mais bornée aux bords du cadre
+    const cx = gr.left - sr.left + gr.width / 2;
+    tip.style.left = Math.max(tw / 2 + 4, Math.min(sr.width - tw / 2 - 4, cx)) + 'px';
+    // Vertical : au-dessus par défaut, bascule en dessous s'il n'y a pas la place
+    const above = gr.top - sr.top;
+    if (above - th - 14 < 0) {
+      tip.classList.add('jm-tip--below');
+      tip.style.top = (gr.bottom - sr.top) + 'px';
+    } else {
+      tip.style.top = above + 'px';
+    }
   }
   function hideTip() { if (_tip) _tip.hidden = true; }
 
@@ -349,7 +362,7 @@
         : `<div class="jm-char-noimg">☠</div>`;
       return `<div class="jm-char ${on ? 'jm-char--on' : 'jm-char--off'}"`
            + (on ? ` data-name="${esc(c.name)}" tabindex="0" role="button"` : '')
-           + ` title="${on ? esc(c.name) : 'Non capturé — trouve-le en jeu pour révéler sa fiche'}">`
+           + ` title="${on ? esc(c.name) : 'Non capturé, trouve-le en jeu pour révéler sa fiche'}">`
            + media
            + `<span class="jm-char-name">${on ? esc(c.name) : '? ? ?'}</span>`
            + `</div>`;

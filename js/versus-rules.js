@@ -38,11 +38,18 @@
   const GRAND_FLEET = new Set(['Grande Flotte', 'Happou Navy', 'Tontatta',
                                'Nouveaux Géants Guerriers', 'Barto Club']);
 
+  // Affiliations rattachées au Gouvernement Mondial : deux d'entre elles (même
+  // différentes) comptent comme correspondance PARTIELLE — les Chevaliers Divins
+  // sont une branche du Gouvernement Mondial, donc « presque ». Sans cette règle
+  // la comparaison par mots ne trouverait aucun terme commun (→ rouge à tort).
+  const WORLD_GOV = new Set(['Gouvernement Mondial', 'Chevaliers Divins']);
+
   // Mots trop génériques à ignorer dans la comparaison d'affiliation
   const AFFIL_STOP = new Set(['pirates','pirate','de','du','des','les','la','le','d','l','et','the','of','grand','new']);
   function cmpAffil(a, b) {
     if (a === b) return 'correct';
     if (GRAND_FLEET.has(a) && GRAND_FLEET.has(b)) return 'partial';
+    if (WORLD_GOV.has(a) && WORLD_GOV.has(b)) return 'partial';
     const wordsA = a.toLowerCase().split(/[\s\-–]+/).filter(w => w.length > 3 && !AFFIL_STOP.has(w));
     if (!wordsA.length) return 'wrong';
     const lowerB = b.toLowerCase();
@@ -118,6 +125,6 @@
     return pool.find(c => fold(c.name) === t) || null;
   }
 
-  return { cmpHaki, cmpArc, cmpBounty, cmpOrigin, cmpAffil, AFFIL_STOP, GRAND_FLEET,
+  return { cmpHaki, cmpArc, cmpBounty, cmpOrigin, cmpAffil, AFFIL_STOP, GRAND_FLEET, WORLD_GOV,
            fruitLabel, computeVerdicts, getMatchHint, charMatchesQuery, fold, resolveName };
 });
