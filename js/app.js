@@ -1025,8 +1025,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=233`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=233`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=236`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=236`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2837,7 +2837,14 @@ function startCountdown() {
 // (startCountdown est appelé dans initGame ci-dessous)
 
 // ===== CONFETTIS =====
+// Canvas plein écran redessiné à chaque frame : c'est le point le plus lourd du
+// jeu sans accélération matérielle. Trois garde-fous ci-dessous : respect du
+// réglage « animations réduites », disques non pivotés (un disque tourné est
+// identique, autant éviter la matrice), et réduction adaptative du nombre de
+// particules si les frames traînent.
 function launchConfetti(variant) {
+  // L'utilisateur a demandé moins d'animations (OS/navigateur) : on s'abstient.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
   document.body.appendChild(canvas);
@@ -2861,31 +2868,54 @@ function launchConfetti(variant) {
     shape:     Math.random() < 0.5 ? 'rect' : 'circle',
   }));
 
-  const FRAMES = 200;
-  let frame = 0;
+  // Durée en MILLISECONDES, pas en frames : sinon une machine lente subit
+  // l'effet (et le ralentissement) beaucoup plus longtemps qu'une machine rapide.
+  const DURATION   = 3300;
+  const MIN_PIECES = 30;      // plancher : en dessous l'effet ne se voit plus
+  const startTs    = performance.now();
+  let slowFrames = 0, lastTs = startTs;
 
   function draw() {
+    // Mesure du temps réel entre frames : au-delà de ~32 ms (moins de 30 fps),
+    // on divise le nombre de particules plutôt que de faire ramer toute la page.
+    const now = performance.now();
+    const dt  = now - lastTs;
+    lastTs    = now;
+    if (dt > 32) {
+      if (++slowFrames >= 5 && pieces.length > MIN_PIECES) {
+        pieces.length = Math.max(MIN_PIECES, pieces.length >> 1);
+        slowFrames = 0;
+      }
+    } else if (slowFrames) slowFrames--;
+
+    // Déplacement proportionnel au temps écoulé (borné) : la chute garde la même
+    // vitesse à l'écran quel que soit le nombre d'images par seconde.
+    const k = Math.min(dt / 16.7, 3);
+    const t = (now - startTs) / DURATION;      // progression 0 → 1
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const fade = frame < FRAMES * 0.65 ? 1 : 1 - (frame - FRAMES * 0.65) / (FRAMES * 0.35);
+    const fade = t < 0.65 ? 1 : 1 - (t - 0.65) / 0.35;
     ctx.globalAlpha = Math.max(0, fade);
 
     pieces.forEach(p => {
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.angle);
       ctx.fillStyle = p.color;
       if (p.shape === 'rect') {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
         ctx.fillRect(-p.r, -p.r * 0.5, p.r * 2, p.r);
+        ctx.restore();
       } else {
+        // Un disque pivoté est visuellement identique : on se passe de la
+        // matrice (save/translate/rotate/restore) pour la moitié des particules.
         ctx.beginPath();
-        ctx.arc(0, 0, p.r * 0.65, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.r * 0.65, 0, Math.PI * 2);
         ctx.fill();
       }
-      ctx.restore();
 
-      p.y     += p.speed;
-      p.x     += p.drift;
-      p.angle += p.spin;
+      p.y     += p.speed * k;
+      p.x     += p.drift * k;
+      p.angle += p.spin  * k;
       if (p.y > canvas.height + 20) {
         p.y = -10;
         p.x = Math.random() * canvas.width;
@@ -2893,11 +2923,13 @@ function launchConfetti(variant) {
     });
 
     ctx.globalAlpha = 1;
-    frame++;
-    if (frame < FRAMES) requestAnimationFrame(draw);
+    if (t < 1) requestAnimationFrame(draw);
     else canvas.remove();
   }
   requestAnimationFrame(draw);
+  // Filet de sécurité : si requestAnimationFrame se fige (onglet en arrière-plan,
+  // renderer bloqué), le canvas plein écran resterait posé sur le jeu à jamais.
+  setTimeout(() => canvas.remove(), DURATION + 1500);
 }
 
 // (loadDailyCounter est appelé dans initGame ci-dessous)
@@ -3013,6 +3045,31 @@ function playWinAudio() {
   const num = document.getElementById('au-reveal-num');
   if (num) num.classList.add('anim-num-big');
 }
+
+// ===== PAUSE DES ANIMATIONS PENDANT LES MODALES (perf sans GPU) =====
+// Tout ce qui bouge derrière un overlay force le navigateur à recomposer le plein
+// écran à chaque frame. Sans accélération matérielle (rendu logiciel), ouvrir les
+// Stats ou les Notes de version faisait ramer tout le jeu. On fige donc, le temps
+// qu'une modale soit ouverte : les animations de la barre de score (classe
+// `lp-modal-open`, cf. layout.css) et le fond 3D s'il est activé.
+// Un observateur unique : aucun des ~15 points d'ouverture de modale n'est à modifier.
+(function () {
+  const SEL = ['.modal-overlay', '.wn-overlay', '.share-popup-overlay', '.map-modal']
+    .map(s => s + ':not(.hidden)').join(', ');
+  let opened = false;
+  function sync() {
+    const now = !!document.querySelector(SEL);
+    if (now === opened) return;                 // rien à faire si l'état n'a pas changé
+    opened = now;
+    document.body.classList.toggle('lp-modal-open', now);
+    const ocean = window.LP_OCEAN_CTL;
+    if (!ocean || !ocean.built) return;         // 3D non activée : rien de plus à figer
+    if (now) { if (ocean.pause)  ocean.pause(); }
+    else     { if (ocean.resume) ocean.resume(); }
+  }
+  new MutationObserver(sync).observe(document.body,
+    { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+})();
 
 // ===== INIT ASYNCHRONE =====
 // Attend le chargement de data.json avant d'initialiser le jeu

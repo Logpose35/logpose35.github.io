@@ -156,6 +156,14 @@
   background-size: 24px 100%;
   animation: waveFlow 2.5s linear infinite;
 }
+/* Pendant qu'une modale est ouverte, on FIGE les animations d'arrière-plan.
+   Sans GPU, une animation qui tourne derrière un overlay force le navigateur à
+   recomposer le plein écran à chaque frame : c'est ce qui faisait ramer les
+   modales Stats / Notes de version (cf. pause du fond 3D dans app.js). */
+body.lp-modal-open .score-track::before,
+body.lp-modal-open .score-fill::before,
+body.lp-modal-open .score-merry { animation-play-state: paused; }
+
 @keyframes waveFlow {
   from { background-position: 0 0; }
   to   { background-position: 24px 0; }

@@ -27,6 +27,9 @@
      La classe body.ocean3d-active (posée ci-dessous) déclenche le re-skin verre
      dans ocean3d.css ; sans elle, game.html garde son fond classique d'avant. */
   var OCEAN_CTL = { built: false, pause: null, resume: null };
+  /* Exposé pour app.js : mise en pause du rendu pendant qu'une modale est ouverte
+     (sans GPU, laisser tourner la 3D derrière un overlay fait ramer tout le jeu). */
+  window.LP_OCEAN_CTL = OCEAN_CTL;
   function pageMode() {
     return (document.body && document.body.dataset) ? document.body.dataset.ocean : '';
   }
