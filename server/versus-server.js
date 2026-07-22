@@ -456,6 +456,29 @@ function onTurnTimeout(lb) {
   }
 }
 
+// ── Compteur de parties Versus terminées (total + par jour) ──
+// Non affiché côté joueur : lecture privée via la console Firebase. Rangé sous
+// `counters/` car c'est le SEUL namespace que les règles de sécurité Firebase
+// autorisent en écriture (un nœud dédié `versus-stats` est refusé). Comme les
+// compteurs quotidiens, ce chemin est donc lisible publiquement (non listé, pas
+// secret). Fire-and-forget : ne fait JAMAIS échouer une partie si Firebase tombe.
+// Désactivable par VERSUS_STATS=0 (les tests l'utilisent pour ne pas polluer).
+const FB_URL = process.env.VERSUS_FB_URL || 'https://logpose-eec08-default-rtdb.europe-west1.firebasedatabase.app';
+async function fbBump(key) {
+  try {
+    const url = `${FB_URL}/${key}.json`;
+    const raw = await (await fetch(url, { signal: AbortSignal.timeout(8000) })).json();
+    const cur = (Number.isFinite(Number(raw)) && Number(raw) >= 0) ? Math.floor(Number(raw)) : 0;
+    await fetch(url, { method: 'PUT', body: JSON.stringify(cur + 1), signal: AbortSignal.timeout(8000) });
+  } catch (e) { /* silencieux : un compteur ne doit JAMAIS casser une partie */ }
+}
+function countVersusMatch() {
+  if (process.env.VERSUS_STATS === '0') return;
+  const day = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' }); // YYYY-MM-DD
+  fbBump('counters/versus-matches');        // total cumulé
+  fbBump(`counters/versus-daily/${day}`);   // détail par jour
+}
+
 function endRound(lb, winnerIdx, why) {
   const cur = lb.cur;
   clearTimeout(cur.timer);
@@ -474,6 +497,7 @@ function endRound(lb, winnerIdx, why) {
     lb.cur = null;
     touch(lb);
     lb.players.forEach(p => send(p.ws, 'match_end', { winner: winnerIdx, scores: lb.scores.slice() }));
+    countVersusMatch();
     broadcastState(lb);
   } else {
     lb.cur = null;
@@ -585,6 +609,7 @@ function onDisconnect(lb, idx) {
       lb.cur = null; lb.paused = false;
       touch(lb);
       send(lb.players[winner]?.ws, 'match_end', { winner, scores: lb.scores.slice(), why: 'forfait (déconnexion)' });
+      countVersusMatch();
       broadcastState(lb);
     } else {
       closeLobby(lb, 'opponent_left');
