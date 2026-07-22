@@ -5,16 +5,30 @@
 // NB : distinct du numéro de cache `?v=NN` / `logpose-vNN` (cache-busting technique).
 window.APP_VERSION = 'v6.3';
 
-// Injecte la version dans tous les éléments porteurs de la classe `js-version`.
+// Adresse de contact du site — assemblée au runtime (jamais en clair dans le HTML
+// source) pour limiter l'aspiration par les robots à spam. Changer ici uniquement.
+window.SITE_CONTACT = { user: 'contact', domain: 'onepiecedle.fr' };
+
+// Boot commun aux 2 pages : injecte la version (.js-version) et le lien de
+// contact (.js-contact). Un seul passage au chargement du DOM.
 (function () {
-  function stamp() {
+  function boot() {
     document.querySelectorAll('.js-version').forEach(function (el) {
       el.textContent = window.APP_VERSION;
     });
+    var c = window.SITE_CONTACT, addr = c.user + '@' + c.domain;
+    document.querySelectorAll('.js-contact').forEach(function (el) {
+      var a = document.createElement('a');
+      a.href = 'mailto:' + addr;
+      a.textContent = addr;
+      a.className = 'contact-link';
+      el.textContent = '';
+      el.appendChild(a);
+    });
   }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', stamp);
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    stamp();
+    boot();
   }
 })();

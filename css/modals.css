@@ -318,6 +318,13 @@
 .about-legal {
   font-size: 0.77rem; color: var(--text3); line-height: 1.7;
 }
+.about-contact {
+  margin-top: 10px; font-size: 0.8rem; color: var(--text3);
+}
+.contact-link {
+  color: var(--gold-bright, #ffd84d); text-decoration: none;
+}
+.contact-link:hover { text-decoration: underline; }
 
 /* ===== POP-UP "NOUVEAUTÉS v5" — Une de gazette One Piece (premium) ===== */
 .wn-overlay {
