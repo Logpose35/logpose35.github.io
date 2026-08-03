@@ -582,16 +582,16 @@ function switchMode(mode) {
   // Auto-focus du champ de saisie si le mode n'est pas terminé
   if (!over) setTimeout(() => { input.focus(); }, 80);
   const TITLES = {
-    classic: t('LogPose · Classique : Devine le personnage One Piece'),
-    wanted:  t('LogPose · Wanted : Reconnais l\'avis de recherche'),
-    silhouette: t('LogPose · Silhouette : Devine le personnage à sa forme'),
-    fruit:   t('LogPose · Fruit du Démon : Trouve le détenteur'),
-    emoji:   t('LogPose · Émoji : Devine le personnage One Piece'),
-    audio:   t('LogPose · Opening : Devine l\'opening One Piece'),
-    tome:    t('LogPose · Tome : Devine le tome One Piece'),
-    inf:     t('LogPose · Classique Infini : Entraînement sans limite'),
+    classic: t('OnePiecedle · Classique : Devine le personnage One Piece'),
+    wanted:  t('OnePiecedle · Wanted : Reconnais l\'avis de recherche'),
+    silhouette: t('OnePiecedle · Silhouette : Devine le personnage à sa forme'),
+    fruit:   t('OnePiecedle · Fruit du Démon : Trouve le détenteur'),
+    emoji:   t('OnePiecedle · Émoji : Devine le personnage One Piece'),
+    audio:   t('OnePiecedle · Opening : Devine l\'opening One Piece'),
+    tome:    t('OnePiecedle · Tome : Devine le tome One Piece'),
+    inf:     t('OnePiecedle · Classique Infini : Entraînement sans limite'),
   };
-  document.title = TITLES[mode] || t('LogPose · 7 défis One Piece quotidiens');
+  document.title = TITLES[mode] || t('OnePiecedle · 7 défis One Piece quotidiens');
 
   // Cleanup FLIP : fige animation:none pour neutraliser sectionIn (ne PAS remettre '' — ça le retriggerait)
   if (_flipEl) {
@@ -1028,8 +1028,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=258`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=258`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=259`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=259`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
