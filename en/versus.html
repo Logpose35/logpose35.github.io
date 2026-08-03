@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LogPose · Versus 1v1</title>
-  <meta name="description" content="LogPose Versus, affronte un ami en 1v1 : même personnage One Piece mystère, chacun son tour, le premier qui trouve gagne la manche !">
+  <meta name="description" content="LogPose Versus — take on a friend 1v1: same mystery One Piece character, alternating turns, first to guess wins the round!">
   <meta name="theme-color" content="#c89408">
-  <link rel="canonical" href="https://onepiecedle.fr/versus.html">
+  <link rel="canonical" href="https://onepiecedle.fr/en/versus.html">
   <!-- Alternatives de langue (i18n) — bloc identique sur /versus.html et /en/versus.html -->
   <link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/versus.html">
   <link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/versus.html">
   <link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/versus.html">
-  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
 
   <!-- Base des assets lourds (VPS). Rollback : '' → chemins relatifs. -->
   <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
@@ -40,9 +40,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=258">
-  <link rel="stylesheet" href="css/classic.css?v=258">
-  <link rel="stylesheet" href="css/versus.css?v=258">
+  <link rel="stylesheet" href="/css/base.css?v=258">
+  <link rel="stylesheet" href="/css/classic.css?v=258">
+  <link rel="stylesheet" href="/css/versus.css?v=258">
 </head>
 <body class="versus-body">
 
@@ -114,11 +114,11 @@
 </svg>
 
 <header class="v-header">
-  <a class="v-back" href="game.html" title="Retour au jeu quotidien">
+  <a class="v-back" href="/en/game.html" title="Back to the daily game">
     <svg class="ic" aria-hidden="true"><use href="#ic-back"></use></svg>
-    <span class="v-back-label">Retour au jeu</span>
+    <span class="v-back-label">Back to game</span>
   </a>
-  <a class="v-brand" href="index.html">
+  <a class="v-brand" href="/en/">
     <svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg>
     LogPose
   </a>
@@ -127,8 +127,8 @@
     Versus 1v1
   </span>
   <span class="v-codechip" id="v-codechip" hidden></span>
-  <a id="lang-toggle" class="lang-toggle" href="/en/versus.html" onclick="i18nToggleLang();return false;" aria-label="Switch to English">EN</a>
-  <button class="v-theme" onclick="toggleTheme()" aria-label="Changer de thème" title="Changer de thème">
+  <a id="lang-toggle" class="lang-toggle" href="/versus.html" onclick="i18nToggleLang();return false;" aria-label="Passer en français">FR</a>
+  <button class="v-theme" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
     <svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg>
     <svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg>
   </button>
@@ -139,94 +139,94 @@
   <!-- ══ ACCUEIL ══ -->
   <section id="v-home" class="v-screen">
     <div class="v-hero">
-      <img class="v-hero-skull" src="images/jolly_roger.png" alt="" draggable="false">
+      <img class="v-hero-skull" src="/images/jolly_roger.png" alt="" draggable="false">
       <h1 class="v-hero-title">Versus 1v1</h1>
-      <p class="v-hero-tag">Défie un ami en duel. Même personnage mystère, chacun son tour, le premier qui trouve rafle la manche.</p>
+      <p class="v-hero-tag">Challenge a friend to a duel. Same mystery character, alternating turns, first to guess takes the round.</p>
     </div>
 
     <div class="v-card v-pseudo-card">
-      <label class="v-label" for="v-pseudo">Ton pseudo de pirate</label>
+      <label class="v-label" for="v-pseudo">Your pirate name</label>
       <input type="text" id="v-pseudo" maxlength="16" placeholder="Mugiwara" autocomplete="off">
     </div>
 
     <div class="v-duo">
       <div class="v-card">
-        <h2><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-versus"></use></svg>Créer un lobby</h2>
+        <h2><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-versus"></use></svg>Create a lobby</h2>
         <div class="v-opts">
-          <label>Manches
+          <label>Rounds
             <select id="v-bestof">
               <option value="1">Bo1</option>
               <option value="3" selected>Bo3</option>
               <option value="5">Bo5</option>
             </select>
           </label>
-          <label>Temps par tour
+          <label>Time per turn
             <select id="v-turns">
-              <option value="30">30 s</option>
-              <option value="60" selected>60 s</option>
-              <option value="120">120 s</option>
-              <option value="0">Illimité</option>
+              <option value="30">30s</option>
+              <option value="60" selected>60s</option>
+              <option value="120">120s</option>
+              <option value="0">Unlimited</option>
             </select>
           </label>
         </div>
-        <button class="v-btn v-btn-gold v-btn-wide" id="v-create"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Créer la partie</button>
+        <button class="v-btn v-btn-gold v-btn-wide" id="v-create"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Create game</button>
       </div>
       <div class="v-card">
-        <h2><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-compass"></use></svg>Rejoindre</h2>
-        <label class="v-label" for="v-code">Code reçu d'un ami</label>
+        <h2><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-compass"></use></svg>Join</h2>
+        <label class="v-label" for="v-code">Code from a friend</label>
         <input type="text" id="v-code" maxlength="5" placeholder="A B C D E" autocomplete="off" class="v-codeinput">
-        <button class="v-btn v-btn-gold v-btn-wide" id="v-join"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Rejoindre le duel</button>
+        <button class="v-btn v-btn-gold v-btn-wide" id="v-join"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Join the duel</button>
       </div>
     </div>
-    <p class="v-hint">Les essais des deux joueurs sont visibles, l'info adverse fait partie du jeu.</p>
+    <p class="v-hint">Both players' guesses are visible — reading your opponent is part of the game.</p>
   </section>
 
   <!-- ══ ATTENTE DE L'ADVERSAIRE ══ -->
   <section id="v-wait" class="v-screen" hidden>
     <div class="v-card v-center v-wait-card">
-      <h2>Lobby prêt : invite un ami !</h2>
-      <p class="v-label v-wait-lead">Partage ce code&nbsp;:</p>
-      <button class="v-bigcode" id="v-bigcode" title="Cliquer pour copier le code">·····</button>
+      <h2>Lobby ready — invite a friend!</h2>
+      <p class="v-label v-wait-lead">Share this code:</p>
+      <button class="v-bigcode" id="v-bigcode" title="Click to copy the code">·····</button>
       <div class="v-wait-opts" id="v-wait-opts"></div>
-      <button class="v-btn v-btn-gold" id="v-copylink"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-link"></use></svg>Copier le lien d'invitation</button>
-      <p class="v-hint v-waiting">En attente de l'adversaire</p>
-      <button class="v-btn v-btn-quiet" id="v-cancelwait">Annuler</button>
+      <button class="v-btn v-btn-gold" id="v-copylink"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-link"></use></svg>Copy invite link</button>
+      <p class="v-hint v-waiting">Waiting for opponent</p>
+      <button class="v-btn v-btn-quiet" id="v-cancelwait">Cancel</button>
     </div>
   </section>
 
   <!-- ══ ÉCRAN « PRÊTS ? » ══ -->
   <section id="v-ready" class="v-screen" hidden>
     <div class="v-card v-center">
-      <h2 id="v-ready-title">Prêts ?</h2>
+      <h2 id="v-ready-title">Ready?</h2>
       <div class="v-players" id="v-ready-players"></div>
       <div class="v-opts" id="v-ready-opts">
-        <label>Manches
+        <label>Rounds
           <select id="v-bestof2">
             <option value="1">Bo1</option><option value="3">Bo3</option><option value="5">Bo5</option>
           </select>
         </label>
-        <label>Temps par tour
+        <label>Time per turn
           <select id="v-turns2">
-            <option value="30">30 s</option><option value="60">60 s</option>
-            <option value="120">120 s</option><option value="0">Illimité</option>
+            <option value="30">30s</option><option value="60">60s</option>
+            <option value="120">120s</option><option value="0">Unlimited</option>
           </select>
         </label>
       </div>
-      <p class="v-hint" id="v-ready-optsinfo" hidden>Seul le créateur peut modifier les options.</p>
-      <p class="v-hint">Une fois prêts, vous bannissez et choisissez les modes tour à tour (veto).</p>
-      <button class="v-btn v-btn-gold" id="v-readybtn">Je suis prêt !</button>
-      <button class="v-btn v-btn-quiet" id="v-leaveready">Quitter le lobby</button>
+      <p class="v-hint" id="v-ready-optsinfo" hidden>Only the host can change the options.</p>
+      <p class="v-hint">Once you're both ready, you ban and pick modes in turns (veto).</p>
+      <button class="v-btn v-btn-gold" id="v-readybtn">I'm ready!</button>
+      <button class="v-btn v-btn-quiet" id="v-leaveready">Leave lobby</button>
     </div>
   </section>
 
   <!-- ══ VETO DES MODES (façon CS2) ══ -->
   <section id="v-veto" class="v-screen" hidden>
     <div class="v-card v-center">
-      <h2 id="v-veto-title">Veto des modes</h2>
+      <h2 id="v-veto-title">Mode veto</h2>
       <div class="v-veto-status" id="v-veto-status">—</div>
       <div class="v-timerwrap" id="v-veto-timerwrap"><div class="v-timerbar" id="v-veto-timerbar"></div></div>
       <div class="v-veto-board" id="v-veto-board"></div>
-      <button class="v-btn v-btn-quiet" id="v-leaveveto">Quitter le lobby</button>
+      <button class="v-btn v-btn-quiet" id="v-leaveveto">Leave lobby</button>
     </div>
   </section>
 
@@ -242,35 +242,35 @@
     <div class="v-clue v-card" id="v-clue" hidden></div>
 
     <div class="search-wrap v-search">
-      <input type="text" id="search-input" placeholder="À toi de jouer…" autocomplete="off" maxlength="120" aria-label="Tape un nom de personnage à deviner"/>
+      <input type="text" id="search-input" placeholder="Your turn…" autocomplete="off" maxlength="120" aria-label="Type a character name to guess"/>
       <div id="autocomplete" role="listbox" aria-label="Suggestions"></div>
     </div>
 
     <div class="v-gridblock">
-      <div class="v-gridtitle" id="v-gridtitle-me">Toi</div>
+      <div class="v-gridtitle" id="v-gridtitle-me">You</div>
       <div class="table-wrap"><div class="v-gridinner">
         <div class="grid-header grid-cols">
-          <div class="col-label">Personnage</div><div class="col-label">Genre</div>
-          <div class="col-label">Affiliation</div><div class="col-label">Origine</div>
-          <div class="col-label">Fruit du Démon</div><div class="col-label">Haki</div>
-          <div class="col-label">Statut</div><div class="col-label">1er Arc</div>
-          <div class="col-label">Prime (M)</div>
+          <div class="col-label">Character</div><div class="col-label">Gender</div>
+          <div class="col-label">Affiliation</div><div class="col-label">Origin</div>
+          <div class="col-label">Devil Fruit</div><div class="col-label">Haki</div>
+          <div class="col-label">Status</div><div class="col-label">First arc</div>
+          <div class="col-label">Bounty (M)</div>
         </div>
-        <div id="v-grid-me" role="list" aria-label="Tes tentatives"></div>
+        <div id="v-grid-me" role="list" aria-label="Your guesses"></div>
       </div></div>
     </div>
 
     <div class="v-gridblock">
-      <div class="v-gridtitle" id="v-gridtitle-op">Adversaire</div>
+      <div class="v-gridtitle" id="v-gridtitle-op">Opponent</div>
       <div class="table-wrap"><div class="v-gridinner">
         <div class="grid-header grid-cols">
-          <div class="col-label">Personnage</div><div class="col-label">Genre</div>
-          <div class="col-label">Affiliation</div><div class="col-label">Origine</div>
-          <div class="col-label">Fruit du Démon</div><div class="col-label">Haki</div>
-          <div class="col-label">Statut</div><div class="col-label">1er Arc</div>
-          <div class="col-label">Prime (M)</div>
+          <div class="col-label">Character</div><div class="col-label">Gender</div>
+          <div class="col-label">Affiliation</div><div class="col-label">Origin</div>
+          <div class="col-label">Devil Fruit</div><div class="col-label">Haki</div>
+          <div class="col-label">Status</div><div class="col-label">First arc</div>
+          <div class="col-label">Bounty (M)</div>
         </div>
-        <div id="v-grid-op" role="list" aria-label="Tentatives de l'adversaire"></div>
+        <div id="v-grid-op" role="list" aria-label="Opponent's guesses"></div>
       </div></div>
     </div>
   </section>
@@ -278,13 +278,13 @@
   <!-- ══ FIN DE MATCH ══ -->
   <section id="v-post" class="v-screen" hidden>
     <div class="v-card v-center">
-      <h2 id="v-post-title">Fin du match</h2>
+      <h2 id="v-post-title">Match over</h2>
       <div class="v-reveal v-post-reveal" id="v-post-reveal" hidden></div>
       <div class="v-post-score" id="v-post-score"></div>
       <div class="v-post-rounds" id="v-post-rounds"></div>
-      <button class="v-btn v-btn-gold" id="v-rematch">Revanche !</button>
-      <p class="v-hint" id="v-rematch-wait" hidden>En attente de l'adversaire<span class="v-dots">…</span></p>
-      <button class="v-btn v-btn-quiet" id="v-quit">Quitter</button>
+      <button class="v-btn v-btn-gold" id="v-rematch">Rematch!</button>
+      <p class="v-hint" id="v-rematch-wait" hidden>Waiting for opponent<span class="v-dots">…</span></p>
+      <button class="v-btn v-btn-quiet" id="v-quit">Quit</button>
     </div>
   </section>
 
@@ -296,9 +296,10 @@
 <div class="v-countoverlay" id="v-count" hidden><div class="v-countnum" id="v-countnum">3</div><div class="v-countround" id="v-countround"></div></div>
 <div class="v-toast" id="v-toast" hidden></div>
 
-<script src="js/i18n.js?v=258"></script>
-<script src="js/data.js?v=258"></script>
-<script src="js/versus-rules.js?v=258"></script>
-<script src="js/versus.js?v=258"></script>
+<script src="/i18n/en.js?v=258"></script>
+<script src="/js/i18n.js?v=258"></script>
+<script src="/js/data.js?v=258"></script>
+<script src="/js/versus-rules.js?v=258"></script>
+<script src="/js/versus.js?v=258"></script>
 </body>
 </html>

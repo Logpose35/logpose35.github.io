@@ -301,6 +301,19 @@ h1 {
   color: var(--header-t);
   line-height: 1;
 }
+/* sélecteur de langue FR/EN — même famille visuelle que le bouton thème */
+.lang-toggle {
+  display: inline-grid; place-items: center;
+  min-width: 40px; height: 40px; padding: 0 0.55rem;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(200, 148, 10, 0.3);
+  border-radius: 10px;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.95rem; letter-spacing: 0.05em;
+  color: var(--header-t); text-decoration: none; cursor: pointer;
+  transition: all 0.2s;
+}
+.lang-toggle:hover { background: rgba(200,148,10,0.16); }
 .theme-btn:hover {
   background: rgba(200, 148, 10, 0.15);
   border-color: var(--gold);

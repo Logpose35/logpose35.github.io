@@ -40,36 +40,36 @@ async function fbIncrementBy(path, delta) {
 // Verbe/action propre à chaque mode pour le compteur du jour ("X pirates ont ___ aujourd'hui").
 // fruit : null → "croqué le <nom du fruit>" (dynamique). Sert aussi à filtrer les modes éligibles (pas l'Infini).
 const COUNTER_VERBS = {
-  classic: "mené l'enquête",
-  wanted:  "scruté l'avis de recherche",
-  silhouette: 'reconnu la silhouette',
+  classic: t("mené l'enquête"),
+  wanted:  t("scruté l'avis de recherche"),
+  silhouette: t('reconnu la silhouette'),
   fruit:   null,
-  emoji:   'déchiffré les émojis',
-  audio:   "identifié l'opening",
-  tome:    'feuilleté le tome',
+  emoji:   t('déchiffré les émojis'),
+  audio:   t("identifié l'opening"),
+  tome:    t('feuilleté le tome'),
 };
 
 const WIN_TITLES = {
-  classic: '🏴‍☠️ Nakama trouvé !',
-  wanted:  '🎯 Avis de recherche résolu !',
-  silhouette: '<svg class="ic win-ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>Silhouette reconnue !',
-  fruit:   '🍎 Fruit du Démon identifié !',
-  emoji:   '😄 Nakama identifié !',
-  audio:   '🎵 Opening trouvé !',
-  tome:    '📕 Tome identifié !',
-  inf:     '🏴‍☠️ Nakama trouvé !',
+  classic: t('🏴‍☠️ Nakama trouvé !'),
+  wanted:  t('🎯 Avis de recherche résolu !'),
+  silhouette: '<svg class="ic win-ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>' + t('Silhouette reconnue !'),
+  fruit:   t('🍎 Fruit du Démon identifié !'),
+  emoji:   t('😄 Nakama identifié !'),
+  audio:   t('🎵 Opening trouvé !'),
+  tome:    t('📕 Tome identifié !'),
+  inf:     t('🏴‍☠️ Nakama trouvé !'),
 };
 
 // ===== REGISTRE DES MODES (source unique, ordre canonique) =====
 // id : identifiant interne · icon : emoji (share/landing) · label : nom affiché
 const MODES = [
-  { id: 'classic', icon: '🗺️',  svg: 'ic-compass', label: 'Classique' },
-  { id: 'wanted',  icon: '🖼️', svg: 'ic-wanted',  label: 'Wanted' },
-  { id: 'silhouette', icon: '🕵️', svg: 'ic-silhouette', label: 'Silhouette' },
-  { id: 'fruit',   icon: '🍎',  svg: 'ic-fruit',   label: 'Fruit du Démon' },
-  { id: 'emoji',   icon: '😀',  svg: 'ic-rebus',   label: 'Émoji' },
-  { id: 'audio',   icon: '🎵',  svg: 'ic-note',    label: 'Opening' },
-  { id: 'tome',    icon: '📕',  svg: 'ic-tome',    label: 'Tome' },
+  { id: 'classic', icon: '🗺️',  svg: 'ic-compass', label: t('Classique') },
+  { id: 'wanted',  icon: '🖼️', svg: 'ic-wanted',  label: t('Wanted') },
+  { id: 'silhouette', icon: '🕵️', svg: 'ic-silhouette', label: t('Silhouette') },
+  { id: 'fruit',   icon: '🍎',  svg: 'ic-fruit',   label: t('Fruit du Démon') },
+  { id: 'emoji',   icon: '😀',  svg: 'ic-rebus',   label: t('Émoji') },
+  { id: 'audio',   icon: '🎵',  svg: 'ic-note',    label: t('Opening') },
+  { id: 'tome',    icon: '📕',  svg: 'ic-tome',    label: t('Tome') },
 ];
 const MODE_IDS = MODES.map(m => m.id);
 
@@ -108,14 +108,14 @@ const LS = {
 
 // ===== RANG PIRATE =====
 const RANK_THRESHOLDS = [
-  { emoji: '⚓',  icon: 'ic-rk-anchor', title: 'Moussaillon', min: 0 },
-  { emoji: '🌊',  icon: 'ic-rk-wave',   title: 'Matelot',     min: 50_000 },
-  { emoji: '🏴‍☠️', icon: 'ic-rk-flag',   title: 'Pirate',      min: 150_000 },
-  { emoji: '⚔️',  icon: 'ic-rk-sabers', title: 'Second',      min: 350_000 },
-  { emoji: '🎩',  icon: 'ic-rk-hat',    title: 'Capitaine',   min: 700_000 },
-  { emoji: '⚜️',  icon: 'ic-rk-shield', title: 'Corsaire',    min: 1_500_000 },
-  { emoji: '🌟',  icon: 'ic-rk-star',   title: 'Amiral',      min: 3_000_000 },
-  { emoji: '👑',  icon: 'ic-rk-crown',  title: 'Yonko',       min: 6_000_000 },
+  { emoji: '⚓',  icon: 'ic-rk-anchor', title: t('Moussaillon'), min: 0 },
+  { emoji: '🌊',  icon: 'ic-rk-wave',   title: t('Matelot'),     min: 50_000 },
+  { emoji: '🏴‍☠️', icon: 'ic-rk-flag',   title: t('Pirate'),      min: 150_000 },
+  { emoji: '⚔️',  icon: 'ic-rk-sabers', title: t('Second'),      min: 350_000 },
+  { emoji: '🎩',  icon: 'ic-rk-hat',    title: t('Capitaine'),   min: 700_000 },
+  { emoji: '⚜️',  icon: 'ic-rk-shield', title: t('Corsaire'),    min: 1_500_000 },
+  { emoji: '🌟',  icon: 'ic-rk-star',   title: t('Amiral'),      min: 3_000_000 },
+  { emoji: '👑',  icon: 'ic-rk-crown',  title: t('Yonko'),       min: 6_000_000 },
 ];
 
 function getRankFromScore(score) {
@@ -133,17 +133,17 @@ function updateRankBadge() {
   const score = sanitizeNum(lsGet(LS.cumulativeScore));
   const { icon, title } = getRankFromScore(score);
   el.innerHTML = `<svg class="rank-ic" aria-hidden="true"><use href="#${icon}"></use></svg>${esc(title)}`;
-  el.title = `Score cumulé : ${score.toLocaleString('fr-FR')} pts`;
+  el.title = tf('Score cumulé : {0} pts', nfmt(score));
 }
 
 function counterPredicate(mode) {
-  return mode === 'fruit' ? `croqué le ${TARGET_FRU.name}` : COUNTER_VERBS[mode];
+  return mode === 'fruit' ? tf('croqué le {0}', TARGET_FRU.name) : COUNTER_VERBS[mode];
 }
 // "🏴‍☠️ X pirates ont <action propre au mode> aujourd'hui" (+ "· N essais moyens" si dispo)
 function counterText(count, mode, avg) {
   const pred = counterPredicate(mode);
-  let t = `🏴‍☠️ ${count.toLocaleString('fr-FR')} pirate${count > 1 ? 's ont' : ' a'} ${pred} aujourd'hui`;
-  if (avg > 0) t += ` · ${avg} essai${avg > 1 ? 's' : ''} moyen${avg > 1 ? 's' : ''}`;
+  let t = count > 1 ? tf('🏴‍☠️ {0} pirates ont {1} aujourd\'hui', nfmt(count), pred) : tf('🏴‍☠️ {0} pirate a {1} aujourd\'hui', nfmt(count), pred);
+  if (avg > 0) t += avg > 1 ? tf(' · {0} essais moyens', avg) : tf(' · {0} essai moyen', avg);
   return t;
 }
 
@@ -435,7 +435,7 @@ function closeSpoilerModal() {
 
 // ===== DATE & HIER =====
 document.getElementById('date-label').textContent =
-  new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  dfmt(new Date(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
 function seedForDate(d, salt = 1) {
   // d doit être une date Paris (depuis parisNow())
@@ -482,10 +482,10 @@ function buildYesterdayBar() {
   };
 
   const tomeBit = (data.tome != null)
-    ? ` &nbsp;|&nbsp; <svg class="ic ic-inline mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome : <strong>${esc(String(data.tome))}</strong>` : '';
+    ? ` &nbsp;|&nbsp; <svg class="ic ic-inline mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg>${t('Tome :')} <strong>${esc(String(data.tome))}</strong>` : '';
   el.innerHTML =
-    `Hier &nbsp;·&nbsp; Classique : <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; Wanted : <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; Silhouette : <strong>${esc(data.silhouette || '?')}</strong> &nbsp;|&nbsp; Fruit : <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; Émoji : <strong>${esc(data.emoji)}</strong>` +
-    `<br><span class="yesterday-op"><svg class="ic ic-inline mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg>Opening : <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
+    `${t('Hier')} &nbsp;·&nbsp; ${t('Classique :')} <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; ${t('Wanted :')} <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; ${t('Silhouette :')} <strong>${esc(data.silhouette || '?')}</strong> &nbsp;|&nbsp; ${t('Fruit :')} <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; ${t('Émoji :')} <strong>${esc(data.emoji)}</strong>` +
+    `<br><span class="yesterday-op"><svg class="ic ic-inline mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg>${t('Opening :')} <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
     `<br><span class="yesterday-community" id="yesterday-community"></span>`;
 }
 // Charge les stats communauté d'hier depuis Firebase et les affiche
@@ -504,7 +504,7 @@ async function loadYesterdayStats() {
     return `<svg class="ic ic-inline mi-${id}" aria-hidden="true"><use href="#${svg}"></use></svg>${pct}%${avg ? `&nbsp;·&nbsp;∅${avg}` : ''}`;
   }).filter(Boolean);
   if (!parts.length) return;
-  el.innerHTML = `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-flag"></use></svg>Communauté&nbsp;: ${parts.join('&emsp;')}`;
+  el.innerHTML = `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-flag"></use></svg>${t('Communauté&nbsp;:')} ${parts.join('&emsp;')}`;
 }
 
 // ===== NAVIGATION PAR ONGLETS =====
@@ -557,16 +557,16 @@ function switchMode(mode) {
              : mode === 'silhouette' ? silOver
              :                      cOver;
   input.placeholder = mode === 'classic' || mode === 'inf'
-    ? 'Tape un nom de personnage...'
+    ? t('Tape un nom de personnage...')
     : mode === 'wanted'
-    ? 'Devine le personnage sur le poster...'
+    ? t('Devine le personnage sur le poster...')
     : mode === 'fruit'
-    ? 'Devine le détenteur du fruit...'
+    ? t('Devine le détenteur du fruit...')
     : mode === 'emoji'
-    ? 'Devine le personnage...'
+    ? t('Devine le personnage...')
     : mode === 'audio'
-    ? "Devine le nom de l'opening..."
-    : 'Devine le personnage...';
+    ? t("Devine le nom de l'opening...")
+    : t('Devine le personnage...');
   input.disabled = over;
   document.getElementById('guess-btn').disabled = over;
   syncBanners();
@@ -582,16 +582,16 @@ function switchMode(mode) {
   // Auto-focus du champ de saisie si le mode n'est pas terminé
   if (!over) setTimeout(() => { input.focus(); }, 80);
   const TITLES = {
-    classic: 'LogPose · Classique : Devine le personnage One Piece',
-    wanted:  'LogPose · Wanted : Reconnais l\'avis de recherche',
-    silhouette: 'LogPose · Silhouette : Devine le personnage à sa forme',
-    fruit:   'LogPose · Fruit du Démon : Trouve le détenteur',
-    emoji:   'LogPose · Émoji : Devine le personnage One Piece',
-    audio:   'LogPose · Opening : Devine l\'opening One Piece',
-    tome:    'LogPose · Tome : Devine le tome One Piece',
-    inf:     'LogPose · Classique Infini : Entraînement sans limite',
+    classic: t('LogPose · Classique : Devine le personnage One Piece'),
+    wanted:  t('LogPose · Wanted : Reconnais l\'avis de recherche'),
+    silhouette: t('LogPose · Silhouette : Devine le personnage à sa forme'),
+    fruit:   t('LogPose · Fruit du Démon : Trouve le détenteur'),
+    emoji:   t('LogPose · Émoji : Devine le personnage One Piece'),
+    audio:   t('LogPose · Opening : Devine l\'opening One Piece'),
+    tome:    t('LogPose · Tome : Devine le tome One Piece'),
+    inf:     t('LogPose · Classique Infini : Entraînement sans limite'),
   };
-  document.title = TITLES[mode] || 'LogPose · 7 défis One Piece quotidiens';
+  document.title = TITLES[mode] || t('LogPose · 7 défis One Piece quotidiens');
 
   // Cleanup FLIP : fige animation:none pour neutraliser sectionIn (ne PAS remettre '' — ça le retriggerait)
   if (_flipEl) {
@@ -612,10 +612,10 @@ function syncBanners() {
     document.getElementById('lose-banner').classList.toggle('show', !won);
     if (won) {
       document.getElementById('win-title').textContent     = WIN_TITLES.tome;
-      document.getElementById('win-char-name').textContent = `Tome ${TARGET_TOME}`;
+      document.getElementById('win-char-name').textContent = tf('Tome {0}', TARGET_TOME);
       document.getElementById('win-attempts').textContent  = tmGuesses.length;
     } else {
-      document.getElementById('lose-char-name').textContent = `Tome ${TARGET_TOME}`;
+      document.getElementById('lose-char-name').textContent = tf('Tome {0}', TARGET_TOME);
     }
     return;
   }
@@ -632,7 +632,7 @@ function syncBanners() {
   document.getElementById('win-banner').classList.toggle('show', won);
   document.getElementById('lose-banner').classList.toggle('show', !won);
   if (won) {
-    document.getElementById('win-title').innerHTML = WIN_TITLES[currentMode] || '🏴‍☠️ Nakama trouvé !';
+    document.getElementById('win-title').innerHTML = WIN_TITLES[currentMode] || t('🏴‍☠️ Nakama trouvé !');
     document.getElementById('win-char-name').textContent = target.name;
     document.getElementById('win-attempts').textContent = guesses.length;
   } else {
@@ -648,7 +648,7 @@ function updateCounter() {
   document.getElementById('counter').style.display = 'block';
   document.getElementById('current-try').textContent = guesses.length + 1;
   document.getElementById('already-guessed-label').textContent =
-    names.size > 0 ? `Déjà essayé : ${[...names].join(', ')}` : '';
+    names.size > 0 ? tf('Déjà essayé : {0}', [...names].join(', ')) : '';
 }
 
 // ===== FORMATAGE PRIME =====
@@ -657,11 +657,11 @@ function formatBounty(b) {
   if (b >= 1000) {
     const md = b / 1000;
     const str = md % 1 === 0
-      ? md + ' Md'
-      : md.toFixed(3).replace(/\.?0+$/, '').replace('.', ',') + ' Md';
+      ? md + t(' Md')
+      : md.toFixed(3).replace(/\.?0+$/, '').replace('.', ',') + t(' Md');
     return str;
   }
-  return b + ' M';
+  return b + t(' M');
 }
 
 // ===== AUTOCOMPLETE =====
@@ -767,7 +767,7 @@ function finClassic(won) {
   }
   if (won) {
     const isBdayWin = getTodayBirthdays().some(c => c.name === TARGET_C.name);
-    document.getElementById('win-title').textContent      = isBdayWin ? '🎂 Joyeux anniversaire !' : WIN_TITLES['classic'];
+    document.getElementById('win-title').textContent      = isBdayWin ? t('🎂 Joyeux anniversaire !') : WIN_TITLES['classic'];
     document.getElementById('win-char-name').textContent  = TARGET_C.name;
     document.getElementById('win-attempts').textContent   = cGuesses.length;
     document.getElementById('win-banner').classList.add('show');
@@ -783,8 +783,8 @@ function finClassic(won) {
 // vivent dans js/versus-rules.js (SOURCE UNIQUE partagée avec le serveur Versus —
 // toute retouche de règle se fait là-bas, jamais en la dupliquant ici).
 
-const STATE_FR = { correct: 'correct', partial: 'partiel', wrong: 'incorrect' };
-const arrowFr = a => a === '⬆️' ? ', plus haut' : a === '⬇️' ? ', plus bas' : '';
+const STATE_FR = { correct: t('correct'), partial: t('partiel'), wrong: t('incorrect') };
+const arrowFr = a => a === '⬆️' ? t(', plus haut') : a === '⬇️' ? t(', plus bas') : '';
 function buildGuessRow(char, T) {
   const row = document.createElement('div');
   row.className = 'guess-row grid-cols';
@@ -794,10 +794,13 @@ function buildGuessRow(char, T) {
   const { gender: gs, affil: as, origin: os, fruit: fs, haki: hs, status: ss,
           arc: ac, bounty: bc } = computeVerdicts(char, T);
   const fl = fruitLabel(char.fruit);
-  const genderTxt = char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu';
-  const hakiTxt   = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun';
-  const arcTxt    = ARCS[char.arc] || '?';   // ARCS[0]='Filler', arc 1→32 = arcs canoniques
-  const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))}, ${STATE_FR[state]}${extra}"`;
+  const genderTxt = char.gender === 'M' ? t('Homme') : char.gender === 'F' ? t('Femme') : t('Inconnu');
+  const hakiTxt   = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.map(t).join(', ') : t('Aucun');
+  const arcTxt    = t(ARCS[char.arc] || '?');   // ARCS[0]='Filler', arc 1→32 = arcs canoniques
+  // Valeurs de données (data.json) TRADUITES POUR L'AFFICHAGE uniquement ; la comparaison
+  // (computeVerdicts) et le coloriage restent sur les valeurs BRUTES françaises (char.*).
+  const affilTxt = t(char.affil), originTxt = t(char.origin), statusTxt = t(char.status), fruitValTxt = t(fl.val);
+  const al = (label, val, state, extra = '') => `aria-label="${tf('{0} : {1}, {2}', esc(label), esc(String(val)), STATE_FR[state])}${extra}"`;
   row.innerHTML = `
     <div class="cell cell-char">
       ${getImgFile(char)
@@ -805,14 +808,14 @@ function buildGuessRow(char, T) {
         : `<span class="char-name-only">${esc(char.name)}</span>`
       }
     </div>
-    <div class="cell ${gs}" data-label="Genre" ${al('Genre', genderTxt, gs)}><span class="cell-icon" aria-hidden="true">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${genderTxt}</span></div>
-    <div class="cell ${as}" data-label="Affiliation" ${al('Affiliation', char.affil, as)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.affil)}</span></div>
-    <div class="cell ${os}" data-label="Origine" ${al('Origine', char.origin, os)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.origin)}</span></div>
-    <div class="cell ${fs}" data-label="Fruit du Démon" ${al('Fruit du Démon', fl.val, fs)}><span class="cell-icon" aria-hidden="true">${esc(fl.icon)}</span><span class="cell-val">${esc(fl.val)}</span></div>
-    <div class="cell ${hs}" data-label="Haki" ${al('Haki', hakiTxt, hs)}><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(hakiTxt)}</span></div>
-    <div class="cell ${ss}" data-label="Statut" ${al('Statut', char.status, ss)}><span class="cell-icon" aria-hidden="true">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(char.status)}</span></div>
-    <div class="cell ${ac.state}" data-label="1er Arc" ${al('Premier arc', arcTxt, ac.state, arrowFr(ac.arrow))}><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(arcTxt)}</span>${ac.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(ac.arrow)}</span>` : ''}</div>
-    <div class="cell ${bc.state}" data-label="Prime" ${al('Prime', formatBounty(char.bounty), bc.state, arrowFr(bc.arrow))}><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${bc.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(bc.arrow)}</span>` : ''}</div>
+    <div class="cell ${gs}" data-label="${t('Genre')}" ${al(t('Genre'), genderTxt, gs)}><span class="cell-icon" aria-hidden="true">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${genderTxt}</span></div>
+    <div class="cell ${as}" data-label="${t('Affiliation')}" ${al(t('Affiliation'), affilTxt, as)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(affilTxt)}</span></div>
+    <div class="cell ${os}" data-label="${t('Origine')}" ${al(t('Origine'), originTxt, os)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(originTxt)}</span></div>
+    <div class="cell ${fs}" data-label="${t('Fruit du Démon')}" ${al(t('Fruit du Démon'), fruitValTxt, fs)}><span class="cell-icon" aria-hidden="true">${esc(fl.icon)}</span><span class="cell-val">${esc(fruitValTxt)}</span></div>
+    <div class="cell ${hs}" data-label="${t('Haki')}" ${al(t('Haki'), hakiTxt, hs)}><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(hakiTxt)}</span></div>
+    <div class="cell ${ss}" data-label="${t('Statut')}" ${al(t('Statut'), statusTxt, ss)}><span class="cell-icon" aria-hidden="true">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(statusTxt)}</span></div>
+    <div class="cell ${ac.state}" data-label="${t('1er Arc')}" ${al(t('Premier arc'), arcTxt, ac.state, arrowFr(ac.arrow))}><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(arcTxt)}</span>${ac.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(ac.arrow)}</span>` : ''}</div>
+    <div class="cell ${bc.state}" data-label="${t('Prime')}" ${al(t('Prime'), formatBounty(char.bounty), bc.state, arrowFr(bc.arrow))}><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${bc.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(bc.arrow)}</span>` : ''}</div>
   `;
   // Flip animé décalé par colonne (style Wordle)
   row.querySelectorAll('.cell').forEach((cell, i) => {
@@ -828,14 +831,14 @@ function renderClassicRow(char) {
 
 // ===== RECAP =====
 const RECAP_COLS = [
-  { key:'gender', label:'Genre',     fn: c => c.gender === 'M' ? 'Homme' : c.gender === 'F' ? 'Femme' : 'Inconnu', check: (g,t) => g.gender === t.gender },
-  { key:'affil',  label:'Affil.',    fn: c => c.affil,                                       check: (g,t) => g.affil  === t.affil  },
-  { key:'origin', label:'Origine',   fn: c => c.origin,                                      check: (g,t) => g.origin === t.origin },
-  { key:'fruit',  label:'Fruit',     fn: c => c.fruit || 'Aucun',                            check: (g,t) => g.fruit  === t.fruit  },
-  { key:'haki',   label:'Haki',      fn: c => c.haki.length ? c.haki.join(', ') : 'Aucun', check: (g,t) => JSON.stringify([...g.haki].sort()) === JSON.stringify([...t.haki].sort()) },
-  { key:'status', label:'Statut',    fn: c => c.status,                                      check: (g,t) => g.status === t.status },
-  { key:'arc',    label:'1er Arc',   fn: c => ARCS[c.arc],                                   check: (g,t) => g.arc    === t.arc    },
-  { key:'bounty', label:'Prime',     fn: c => formatBounty(c.bounty),                        check: (g,t) => g.bounty === t.bounty },
+  { key:'gender', label:t('Genre'),     fn: c => c.gender === 'M' ? t('Homme') : c.gender === 'F' ? t('Femme') : t('Inconnu'), check: (g,t) => g.gender === t.gender },
+  { key:'affil',  label:t('Affil.'),    fn: c => t(c.affil),                                    check: (g,t) => g.affil  === t.affil  },
+  { key:'origin', label:t('Origine'),   fn: c => t(c.origin),                                   check: (g,t) => g.origin === t.origin },
+  { key:'fruit',  label:t('Fruit'),     fn: c => c.fruit ? t(c.fruit) : t('Aucun'),             check: (g,t) => g.fruit  === t.fruit  },
+  { key:'haki',   label:t('Haki'),      fn: c => c.haki.length ? c.haki.map(t).join(', ') : t('Aucun'), check: (g,t) => JSON.stringify([...g.haki].sort()) === JSON.stringify([...t.haki].sort()) },
+  { key:'status', label:t('Statut'),    fn: c => t(c.status),                                   check: (g,t) => g.status === t.status },
+  { key:'arc',    label:t('1er Arc'),   fn: c => t(ARCS[c.arc]),                                check: (g,t) => g.arc    === t.arc    },
+  { key:'bounty', label:t('Prime'),     fn: c => formatBounty(c.bounty),                        check: (g,t) => g.bounty === t.bounty },
 ];
 
 function updateRecap() {
@@ -863,14 +866,14 @@ function updateRecap() {
 
 // ===== INDICE =====
 const HINT_COLS = [
-  { key:'gender', label:'Genre',          fn: c => c.gender === 'M' ? 'Homme' : c.gender === 'F' ? 'Femme' : 'Inconnu' },
-  { key:'affil',  label:'Affiliation',    fn: c => c.affil },
-  { key:'origin', label:'Origine',        fn: c => c.origin },
-  { key:'fruit',  label:'Fruit du Démon', fn: c => c.fruit || 'Aucun' },
-  { key:'haki',   label:'Haki',           fn: c => c.haki.length ? c.haki.join(', ') : 'Aucun' },
-  { key:'status', label:'Statut',         fn: c => c.status },
-  { key:'arc',    label:'1er Arc',        fn: c => ARCS[c.arc] },
-  { key:'bounty', label:'Prime',          fn: c => formatBounty(c.bounty) },
+  { key:'gender', label:t('Genre'),          fn: c => c.gender === 'M' ? t('Homme') : c.gender === 'F' ? t('Femme') : t('Inconnu') },
+  { key:'affil',  label:t('Affiliation'),    fn: c => t(c.affil) },
+  { key:'origin', label:t('Origine'),        fn: c => t(c.origin) },
+  { key:'fruit',  label:t('Fruit du Démon'), fn: c => c.fruit ? t(c.fruit) : t('Aucun') },
+  { key:'haki',   label:t('Haki'),           fn: c => c.haki.length ? c.haki.map(t).join(', ') : t('Aucun') },
+  { key:'status', label:t('Statut'),         fn: c => t(c.status) },
+  { key:'arc',    label:t('1er Arc'),        fn: c => t(ARCS[c.arc]) },
+  { key:'bounty', label:t('Prime'),          fn: c => formatBounty(c.bounty) },
 ];
 
 function checkHintAvailable() {
@@ -896,13 +899,13 @@ function useHint() {
 
   const display = document.getElementById('hint-display');
   if (!unsolvedCols.length) {
-    display.innerHTML = '✅ Tu as déjà tous les attributs corrects !';
+    display.innerHTML = t('✅ Tu as déjà tous les attributs corrects !');
     display.classList.add('show');
     return;
   }
 
   const pick = unsolvedCols[cGuesses.length % unsolvedCols.length];
-  display.innerHTML = `💡 <strong>${esc(pick.label)}</strong> : ${esc(String(pick.fn(TARGET_C)))}`;
+  display.innerHTML = tf('💡 <strong>{0}</strong> : {1}', esc(pick.label), esc(String(pick.fn(TARGET_C))));
   display.classList.add('show');
   document.getElementById('hint-btn').disabled = true;
   hintUsed = true;
@@ -948,9 +951,9 @@ function updateHint() {
   const blurPx = BLUR_STEPS[Math.min(wGuesses.length, BLUR_STEPS.length - 1)];
   const el   = document.getElementById('wanted-blur-level');
   const left = MAX_GUESSES - wGuesses.length;
-  if (wOver)            el.textContent = wGuesses.some(g => g.name === TARGET_W.name) ? '🎉 Trouvé !' : '💀 Perdu !';
-  else if (blurPx === 0) el.textContent = 'Image parfaitement nette !';
-  else                  el.textContent = `Flou : ${blurPx}px · ${left} essai(s) restant(s)`;
+  if (wOver)            el.textContent = wGuesses.some(g => g.name === TARGET_W.name) ? t('🎉 Trouvé !') : t('💀 Perdu !');
+  else if (blurPx === 0) el.textContent = t('Image parfaitement nette !');
+  else                  el.textContent = tf('Flou : {0}px · {1} essai(s) restant(s)', blurPx, left);
 }
 
 function toggleColor(checked) {
@@ -970,7 +973,7 @@ function revealFull() {
   const img = document.getElementById('wanted-img');
   img.style.filter = 'blur(0) grayscale(0)';
   document.getElementById('poster-name').textContent    = TARGET_W.name;
-  document.getElementById('poster-epithet').textContent = TARGET_W.epithet ? `"${TARGET_W.epithet}"` : '';
+  document.getElementById('poster-epithet').textContent = TARGET_W.epithet ? `"${tc('ep', TARGET_W.epithet, TARGET_W.name)}"` : '';
   document.getElementById('poster-amount').textContent  = TARGET_W.bounty > 0
     ? (TARGET_W.bounty * 1_000_000).toLocaleString('en-US') : '—';
   updateDots(); updateHint();
@@ -994,7 +997,7 @@ function submitWanted() {
 function renderWantedRow(char, correct) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row';
-  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   document.getElementById('wanted-guesses').prepend(row);
 }
 
@@ -1025,8 +1028,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=238`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=238`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=258`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=258`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1106,8 +1109,8 @@ function updateSilStatus() {
   const left = MAX_SIL_GUESSES - silGuesses.length;
   if (st) {
     st.textContent = silOver
-      ? (silGuesses.some(g => g.name === TARGET_SIL.name) ? '🎉 Trouvé !' : `💀 Perdu ! C'était ${TARGET_SIL.name}.`)
-      : `${left} essai${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''}`;
+      ? (silGuesses.some(g => g.name === TARGET_SIL.name) ? t('🎉 Trouvé !') : tf("💀 Perdu ! C'était {0}.", TARGET_SIL.name))
+      : (left > 1 ? tf('{0} essais restants', left) : tf('{0} essai restant', left));
   }
   if (bar) bar.classList.toggle('hidden', !(!silOver && !silHintUsed && silGuesses.length >= SIL_HINT_AT));
 }
@@ -1115,7 +1118,7 @@ function updateSilStatus() {
 function renderSilGuess(char, correct, fresh = true) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row' + (fresh ? ' fresh' : '');
-  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   document.getElementById('sil-guesses').prepend(row);
 }
 
@@ -1354,13 +1357,13 @@ function renderVersusStats() {
   const pct = played === 0 ? 0 : Math.round((w / played) * 100);
   let html = `
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-val">${played}</div><div class="stat-label">Duels joués</div></div>
-      <div class="stat-card"><div class="stat-val">${w}</div><div class="stat-label">Victoires</div></div>
-      <div class="stat-card"><div class="stat-val">${l}</div><div class="stat-label">Défaites</div></div>
-      <div class="stat-card"><div class="stat-val">${pct}%</div><div class="stat-label">Taux de victoire</div></div>
+      <div class="stat-card"><div class="stat-val">${played}</div><div class="stat-label">${t('Duels joués')}</div></div>
+      <div class="stat-card"><div class="stat-val">${w}</div><div class="stat-label">${t('Victoires')}</div></div>
+      <div class="stat-card"><div class="stat-val">${l}</div><div class="stat-label">${t('Défaites')}</div></div>
+      <div class="stat-card"><div class="stat-val">${pct}%</div><div class="stat-label">${t('Taux de victoire')}</div></div>
     </div>`;
-  if (played === 0) html += `<div class="stats-empty">Aucun duel joué. Défie un ami depuis l'onglet Versus !</div>`;
-  html += `<button class="stats-next-btn" onclick="location.href='versus.html'">Lancer un duel <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-versus"></use></svg> →</button>`;
+  if (played === 0) html += `<div class="stats-empty">${t("Aucun duel joué. Défie un ami depuis l'onglet Versus !")}</div>`;
+  html += `<button class="stats-next-btn" onclick="location.href='versus.html'">${t('Lancer un duel')} <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-versus"></use></svg> →</button>`;
   document.getElementById('stats-content').innerHTML = html;
 }
 
@@ -1385,17 +1388,17 @@ function renderStatsContent(mode) {
   const todayScores = safeParseJSON(lsGet(LS.score(todayKey())), {});
   const rawMode     = Object.prototype.hasOwnProperty.call(todayScores, mode) ? sanitizeNum(todayScores[mode]) : undefined;
   const totalScore  = Object.values(todayScores).reduce((a, b) => a + sanitizeNum(b), 0);
-  const modeLabels  = { classic:'Classique', wanted:'Wanted', silhouette:'Silhouette', fruit:'Fruit du Démon', emoji:'Émoji' };
+  const modeLabels  = { classic:t('Classique'), wanted:t('Wanted'), silhouette:t('Silhouette'), fruit:t('Fruit du Démon'), emoji:t('Émoji') };
   const scoreHtml   = rawMode !== undefined ? `
     <div class="stats-score-row">
       <div class="stats-score-item">
-        <span class="stats-score-label">Score ${modeLabels[mode] || mode}</span>
-        <span class="stats-score-val">${rawMode.toLocaleString('fr-FR')} pts</span>
+        <span class="stats-score-label">${tf('Score {0}', modeLabels[mode] || mode)}</span>
+        <span class="stats-score-val">${tf('{0} pts', nfmt(rawMode))}</span>
       </div>
       <div class="stats-score-sep">⚓</div>
       <div class="stats-score-item">
-        <span class="stats-score-label">Total du jour</span>
-        <span class="stats-score-val">${totalScore.toLocaleString('fr-FR')} <span class="stats-score-max">/ 70 000</span></span>
+        <span class="stats-score-label">${t('Total du jour')}</span>
+        <span class="stats-score-val">${nfmt(totalScore)} <span class="stats-score-max">/ ${nfmt(70000)}</span></span>
       </div>
     </div>` : '';
 
@@ -1411,7 +1414,7 @@ function renderStatsContent(mode) {
         <div class="jr-badge" id="jr-badge"></div>
         <div class="stats-rank-info">
           <div class="stats-rank-title">${esc(rankEmoji)} ${esc(rankTitle)}</div>
-          <div class="stats-rank-sub">${cumulScore.toLocaleString('fr-FR')} pts cumulés${rankNext ? ` · prochain : ${rankNext.title} (${rankNext.min.toLocaleString('fr-FR')})` : ' · Rang maximal atteint !'}</div>
+          <div class="stats-rank-sub">${tf('{0} pts cumulés', nfmt(cumulScore))}${rankNext ? tf(' · prochain : {0} ({1})', rankNext.title, nfmt(rankNext.min)) : t(' · Rang maximal atteint !')}</div>
           <div class="stats-rank-bar-track"><div class="stats-rank-bar" style="width:${rankPct}%"></div></div>
           <div class="jr-label" id="jr-label"></div>
         </div>
@@ -1420,17 +1423,17 @@ function renderStatsContent(mode) {
 
   let html = rankHtml + scoreHtml + `
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-val">${played}</div><div class="stat-label">Parties jouées</div></div>
-      <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-label">Victoires</div></div>
-      <div class="stat-card"><div class="stat-val">${streak}</div><div class="stat-label">Série actuelle</div></div>
-      <div class="stat-card"><div class="stat-val">${maxStr}</div><div class="stat-label">Meilleure série</div></div>
-      <div class="stat-card"><div class="stat-val">${avgTriesTxt}</div><div class="stat-label">Essais moyen</div></div>
+      <div class="stat-card"><div class="stat-val">${played}</div><div class="stat-label">${t('Parties jouées')}</div></div>
+      <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-label">${t('Victoires')}</div></div>
+      <div class="stat-card"><div class="stat-val">${streak}</div><div class="stat-label">${t('Série actuelle')}</div></div>
+      <div class="stat-card"><div class="stat-val">${maxStr}</div><div class="stat-label">${t('Meilleure série')}</div></div>
+      <div class="stat-card"><div class="stat-val">${avgTriesTxt}</div><div class="stat-label">${t('Essais moyen')}</div></div>
     </div>
-    <div class="dist-title">Distribution des essais</div>
+    <div class="dist-title">${t('Distribution des essais')}</div>
   `;
 
   if (played === 0) {
-    html += `<div class="stats-empty">Aucune partie jouée pour ce mode.</div>`;
+    html += `<div class="stats-empty">${t('Aucune partie jouée pour ce mode.')}</div>`;
   } else {
     for (let i = 1; i <= maxDist; i++) {
       const count   = sanitizeNum(stats.distribution[i]);
@@ -1449,14 +1452,14 @@ function renderStatsContent(mode) {
     }
   }
 
-  html += `<button class="stats-share-btn" onclick="closeStats(); shareDaily()">📋 Partager mon récap</button>`;
+  html += `<button class="stats-share-btn" onclick="closeStats(); shareDaily()">${t('📋 Partager mon récap')}</button>`;
 
   // Bouton "mode suivant" — uniquement si un mode non joué existe
   const nextMode = getNextUnplayedMode(mode);
   if (nextMode) {
     const nm = MODES.find(m => m.id === nextMode);
     const nextLabel = nm ? `<svg class="ic ic-inline mi-${nm.id}" aria-hidden="true"><use href="#${nm.svg}"></use></svg>${esc(nm.label)}` : esc(nextMode);
-    html += `<button class="stats-next-btn" onclick="closeStats(); switchMode('${nextMode}')">Jouer : ${nextLabel} →</button>`;
+    html += `<button class="stats-next-btn" onclick="closeStats(); switchMode('${nextMode}')">${tf('Jouer : {0} →', nextLabel)}</button>`;
   }
 
   document.getElementById('stats-content').innerHTML = html;
@@ -1478,7 +1481,7 @@ function renderStatsContent(mode) {
 }
 
 function resetStats(mode) {
-  if (!confirm(`Réinitialiser les statistiques du mode "${mode}" ?`)) return;
+  if (!confirm(tf('Réinitialiser les statistiques du mode "{0}" ?', mode))) return;
   lsRemove(LS.stats(mode));
   renderStatsContent(mode);
 }
@@ -1517,10 +1520,10 @@ function renderFruitHints() {
     box.classList.toggle('available', available && !revealed);
 
     if (!available) {
-      sub.textContent = `Dans ${threshold - wrongCount} essai(s)`;
+      sub.textContent = tf('Dans {0} essai(s)', threshold - wrongCount);
       box.onclick = null;
     } else if (!revealed) {
-      sub.textContent = '👁 Cliquer pour révéler';
+      sub.textContent = t('👁 Cliquer pour révéler');
       box.onclick = () => revealHint(hintNum);
     } else {
       sub.textContent = value;
@@ -1528,18 +1531,18 @@ function renderFruitHints() {
     }
   }
 
-  applyHint('fr-hint1', 'fr-h1-sub', FRU_HINT1_AT, TARGET_FRU.type, 1);
-  applyHint('fr-hint2', 'fr-h2-sub', FRU_HINT2_AT, TARGET_FRU.translated, 2);
-  applyHint('fr-hint3', 'fr-h3-sub', FRU_HINT3_AT, TARGET_FRU.description, 3);
+  applyHint('fr-hint1', 'fr-h1-sub', FRU_HINT1_AT, t(TARGET_FRU.type), 1);
+  applyHint('fr-hint2', 'fr-h2-sub', FRU_HINT2_AT, t(TARGET_FRU.translated), 2);
+  applyHint('fr-hint3', 'fr-h3-sub', FRU_HINT3_AT, t(TARGET_FRU.description), 3);
 
   const status = document.getElementById('fruit-status');
   if (frOver) {
     const won = frGuesses.some(g => g.name === TARGET_FRU.holder);
-    status.textContent = won ? '🎉 Trouvé !' : `💀 C'était ${TARGET_FRU.holder} !`;
+    status.textContent = won ? t('🎉 Trouvé !') : tf('💀 C\'était {0} !', TARGET_FRU.holder);
     status.style.color = won ? 'var(--correct)' : 'var(--red)';
   } else {
     const left = MAX_FRU_GUESSES - frGuesses.length;
-    status.textContent = `${left} essai(s) restant(s), des indices se débloquent à chaque erreur`;
+    status.textContent = tf('{0} essai(s) restant(s), des indices se débloquent à chaque erreur', left);
     status.style.color = '';
   }
 }
@@ -1567,7 +1570,7 @@ function submitFruit() {
 function renderFruitRow(char, correct) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row';
-  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   document.getElementById('fruit-guesses').prepend(row);
 }
 
@@ -1683,7 +1686,7 @@ function updateEmojiStrip(freshIndex = -1) {
       box.className = 'emoji-box revealed' + (i === freshIndex ? ' fresh' : '');
       box.textContent = emojis[i];
       const eName = (typeof EMOJI_NAMES !== 'undefined' && EMOJI_NAMES[emojis[i]])
-        ? EMOJI_NAMES[emojis[i]]
+        ? t(EMOJI_NAMES[emojis[i]])   // nom d'emoji traduit à l'affichage (infobulle)
         : emojis[i];
       box.title = eName;
       box.dataset.idx = i + 1;
@@ -1696,9 +1699,9 @@ function updateEmojiStrip(freshIndex = -1) {
 
   const label = document.getElementById('emoji-progress-label');
   if (emOver) {
-    label.textContent = `${total} / ${total} indices révélés`;
+    label.textContent = tf('{0} / {1} indices révélés', total, total);
   } else {
-    label.textContent = `${revealed} / ${total} indice${revealed > 1 ? 's' : ''} révélé${revealed > 1 ? 's' : ''}`;
+    label.textContent = tf('{0} / {1} indice{2} révélé{3}', revealed, total, revealed > 1 ? 's' : '', revealed > 1 ? 's' : '');
   }
 }
 
@@ -1707,12 +1710,12 @@ function updateEmojiStatus() {
   if (emOver) {
     const won = emGuesses.some(g => g.name === emTarget.name);
     el.textContent = won
-      ? `🎉 Bravo ! C'était bien ${emTarget.name} !`
-      : `💀 Perdu ! C'était ${emTarget.name}.`;
+      ? tf('🎉 Bravo ! C\'était bien {0} !', emTarget.name)
+      : tf('💀 Perdu ! C\'était {0}.', emTarget.name);
     el.style.color = won ? 'var(--green-l)' : 'var(--red)';
   } else {
     const left = MAX_EM_GUESSES - emGuesses.length;
-    el.textContent = `${left} essai${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''}, un nouvel indice emoji se débloque à chaque erreur`;
+    el.textContent = tf('{0} essai{1} restant{2}, un nouvel indice emoji se débloque à chaque erreur', left, left > 1 ? 's' : '', left > 1 ? 's' : '');
     el.style.color = '';
   }
 }
@@ -1735,13 +1738,13 @@ function updateEmojiDebutHint() {
 
   if (!available) {
     const left = EM_HINT_AT - wrongCount;
-    el.innerHTML = `🔒 Indice « 1ʳᵉ apparition » dans ${left} essai${left > 1 ? 's' : ''}`;
+    el.innerHTML = tf('🔒 Indice « 1ʳᵉ apparition » dans {0} essai{1}', left, left > 1 ? 's' : '');
     el.onclick = null;
   } else if (!revealed) {
-    el.innerHTML = `👁 Révéler l'indice « 1ʳᵉ apparition » <span class="em-hint-cost">(−score)</span>`;
+    el.innerHTML = t(`👁 Révéler l'indice « 1ʳᵉ apparition » <span class="em-hint-cost">(−score)</span>`);
     el.onclick = revealEmojiHint;
   } else {
-    el.innerHTML = `💡 <strong>1ʳᵉ apparition</strong> : ${esc(debut)}`;
+    el.innerHTML = tf('💡 <strong>1ʳᵉ apparition</strong> : {0}', esc(debut));
     el.onclick = null;
   }
 }
@@ -1780,7 +1783,7 @@ function submitEmoji() {
 function renderEmojiGuess(char, correct, prepend = true) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row';
-  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   const container = document.getElementById('emoji-guesses');
   if (prepend) container.prepend(row);
   else         container.appendChild(row);
@@ -1873,7 +1876,7 @@ function initAudioMode() {
   const fill = document.getElementById('au-bar-fill');
   if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; }
   const btn = document.getElementById('au-play-btn');
-  if (btn) btn.textContent = auOver ? '▶ Réécouter' : '▶ Écouter';
+  if (btn) btn.textContent = auOver ? t('▶ Réécouter') : t('▶ Écouter');
 }
 
 function updateAudioBarLabel() {
@@ -1893,7 +1896,7 @@ function playSnippet() {
     _auPlaying = false;
     const fill = document.getElementById('au-bar-fill');
     if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '0%'; }
-    document.getElementById('au-play-btn').textContent = '▶ Réécouter';
+    document.getElementById('au-play-btn').textContent = t('▶ Réécouter');
     return;
   }
 
@@ -1917,7 +1920,7 @@ function playSnippet() {
     audio.currentTime = auStartOffset(audio);
     audio.play().then(() => {
       _auPlaying = true;
-      if (btn)  btn.textContent = '⏹ Stop';
+      if (btn)  btn.textContent = t('⏹ Stop');
       if (fill) {
         fill.style.transition = 'none';
         fill.style.width = '0%';
@@ -1930,10 +1933,10 @@ function playSnippet() {
         audio.pause(); audio.currentTime = auStartOffset(audio);
         _auPlaying = false; _auTimer = null;
         if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '0%'; }
-        if (btn)  btn.textContent = '▶ Réécouter';
+        if (btn)  btn.textContent = t('▶ Réécouter');
       }, duration * 1000);
     }).catch(() => {
-      if (btn) btn.textContent = '▶ Écouter';
+      if (btn) btn.textContent = t('▶ Écouter');
     });
   };
 
@@ -1966,14 +1969,14 @@ function updateAudioStatus() {
   if (auOver) {
     const won = auGuesses.some(g => g.name === TARGET_AU.name);
     el.textContent = won
-      ? `🎉 Bravo ! C'était bien "${TARGET_AU.name}", Opening ${TARGET_AU.id} !`
-      : `💀 Perdu ! C'était "${TARGET_AU.name}", Opening ${TARGET_AU.id} par ${TARGET_AU.artist}`;
+      ? tf(`🎉 Bravo ! C'était bien "{0}", Opening {1} !`, TARGET_AU.name, TARGET_AU.id)
+      : tf(`💀 Perdu ! C'était "{0}", Opening {1} par {2}`, TARGET_AU.name, TARGET_AU.id, TARGET_AU.artist);
     el.style.color = won ? 'var(--green-l)' : 'var(--red)';
   } else {
     const snippetIdx = Math.min(auGuesses.length, AUDIO_DURATIONS.length - 1);
     const dur  = AUDIO_DURATIONS[snippetIdx];
     const left = MAX_AU_GUESSES - auGuesses.length;
-    el.textContent = `Essai ${auGuesses.length + 1}/${MAX_AU_GUESSES} · ${dur} seconde${dur > 1 ? 's' : ''} révélée${dur > 1 ? 's' : ''}`;
+    el.textContent = tf('Essai {0}/{1} · {2} seconde{3} révélée{4}', auGuesses.length + 1, MAX_AU_GUESSES, dur, dur > 1 ? 's' : '', dur > 1 ? 's' : '');
     el.style.color = '';
   }
 }
@@ -1981,7 +1984,7 @@ function updateAudioStatus() {
 function showAudioReveal() {
   document.getElementById('au-reveal-num').textContent    = TARGET_AU.id;
   document.getElementById('au-reveal-name').textContent   = TARGET_AU.name;
-  document.getElementById('au-reveal-artist').textContent = 'par ' + TARGET_AU.artist;
+  document.getElementById('au-reveal-artist').textContent = t('par ') + TARGET_AU.artist;
 
   const wrap = document.getElementById('au-yt-wrap');
   wrap.innerHTML = '';
@@ -2007,7 +2010,7 @@ function showAudioReveal() {
     link.href       = `https://www.youtube.com/watch?v=${safeYTId}`;
     link.target     = '_blank';
     link.rel        = 'noopener noreferrer';
-    link.textContent = '▶ Regarder sur YouTube';
+    link.textContent = t('▶ Regarder sur YouTube');
     wrap.appendChild(link);
   } else {
     // Pas d'ID connu → bouton recherche
@@ -2016,7 +2019,7 @@ function showAudioReveal() {
     btn.href        = ytSearchUrl;
     btn.target      = '_blank';
     btn.rel         = 'noopener noreferrer';
-    btn.textContent = '▶ Écouter sur YouTube';
+    btn.textContent = t('▶ Écouter sur YouTube');
     wrap.appendChild(btn);
   }
 }
@@ -2043,7 +2046,7 @@ function submitAudio() {
 function renderAudioGuess(op, correct, prepend = true) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row';
-  row.innerHTML = `<span class="wg-name">${esc(op.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(op.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   const container = document.getElementById('audio-guesses');
   if (prepend) container.prepend(row); else container.appendChild(row);
 }
@@ -2059,7 +2062,7 @@ function finAudio(won) {
   showAudioReveal();
   updateAudioBarLabel();
   const btn = document.getElementById('au-play-btn');
-  if (btn) btn.textContent = '▶ Réécouter';
+  if (btn) btn.textContent = t('▶ Réécouter');
   if (won) {
     document.getElementById('win-title').textContent     = WIN_TITLES['audio'];
     document.getElementById('win-char-name').textContent = TARGET_AU.name;
@@ -2112,14 +2115,14 @@ function updateTomeHint() {
   if (!el) return;
   if (tmOver) {
     const won = tmGuesses.includes(TARGET_TOME);
-    el.textContent = won ? `🎉 C'était le Tome ${TARGET_TOME} !`
-                         : `💀 Perdu ! C'était le Tome ${TARGET_TOME}.`;
+    el.textContent = won ? tf(`🎉 C'était le Tome {0} !`, TARGET_TOME)
+                         : tf(`💀 Perdu ! C'était le Tome {0}.`, TARGET_TOME);
     return;
   }
   const left = MAX_TOME_GUESSES - tmGuesses.length;
   const last = tmGuesses.length ? tmGuesses[tmGuesses.length - 1] : null;
-  const dir  = last == null ? '' : (last < TARGET_TOME ? ' · 📈 plus haut' : ' · 📉 plus bas');
-  el.textContent = `${left} essai${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''}${dir}`;
+  const dir  = last == null ? '' : (last < TARGET_TOME ? t(' · 📈 plus haut') : t(' · 📉 plus bas'));
+  el.textContent = tf('{0} essai{1} restant{2}{3}', left, left > 1 ? 's' : '', left > 1 ? 's' : '', dir);
 }
 
 function renderTomeGuess(n, correct, fresh = true) {
@@ -2127,8 +2130,8 @@ function renderTomeGuess(n, correct, fresh = true) {
   if (!cont) return;
   const row = document.createElement('div');
   row.className = 'tome-guess-row' + (fresh ? ' fresh' : '');
-  const verdict = correct ? '✅ TROUVÉ !' : (n < TARGET_TOME ? '📈 Plus haut' : '📉 Plus bas');
-  row.innerHTML = `<span class="tg-num">Tome ${n}</span><span class="tg-res ${correct ? 'correct' : 'wrong'}">${verdict}</span>`;
+  const verdict = correct ? t('✅ TROUVÉ !') : (n < TARGET_TOME ? t('📈 Plus haut') : t('📉 Plus bas'));
+  row.innerHTML = `<span class="tg-num">${tf('Tome {0}', n)}</span><span class="tg-res ${correct ? 'correct' : 'wrong'}">${verdict}</span>`;
   cont.prepend(row);
 }
 
@@ -2161,12 +2164,12 @@ function finTome(won) {
   updateTomeHint();
   if (won) {
     document.getElementById('win-title').textContent     = WIN_TITLES['tome'];
-    document.getElementById('win-char-name').textContent = `Tome ${TARGET_TOME}`;
+    document.getElementById('win-char-name').textContent = tf('Tome {0}', TARGET_TOME);
     document.getElementById('win-attempts').textContent  = tmGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     if (!_restoring) launchConfetti();
   } else {
-    document.getElementById('lose-char-name').textContent = `Tome ${TARGET_TOME}`;
+    document.getElementById('lose-char-name').textContent = tf('Tome {0}', TARGET_TOME);
     document.getElementById('lose-banner').classList.add('show');
   }
   onGameEnd('tome', won, tmGuesses.length, won ? calcModeScore('tome', tmGuesses.length, false, 0) : 0);
@@ -2260,6 +2263,12 @@ function restoreAllStates() {
 
   _restoring = false;
   input.value = '';
+
+  // Les bannières victoire/défaite sont des éléments DOM UNIQUES partagés par les 7 modes.
+  // La restauration rejoue chaque mode, donc chacun a pu y écrire et les afficher : sans
+  // ce resync on se retrouvait avec les DEUX bannières visibles, celle de victoire portant
+  // le contenu du dernier mode restauré (ex. « Tome identifié » sur l'onglet Classique).
+  syncBanners();
 }
 
 function saveModeScore(mode, pts) {
@@ -2337,6 +2346,19 @@ function onGameEnd(mode, won, tries, score, extra) {
 
 let _shareText = '';
 
+// Longueur telle que X (Twitter) la compte : une URL vaut 23 quoi qu'il arrive et
+// les emojis valent 2 par point de code. Sert à garantir que le partage tient en 280
+// (au-delà, X grise le bouton « Post » et le partage est impossible).
+function xShareLen(s) {
+  let n = 0;
+  for (const c of s.replace(/https?:\/\/\S+/g, 'x'.repeat(23))) {
+    const o = c.codePointAt(0);
+    n += (o <= 0x10FF || (o >= 0x2000 && o <= 0x200D) ||
+          (o >= 0x2010 && o <= 0x201F) || (o >= 0x2032 && o <= 0x2037)) ? 1 : 2;
+  }
+  return n;
+}
+
 function buildShareText() {
   const dk      = todayKey();
   const scores  = safeParseJSON(lsGet(LS.score(dk)),  {});
@@ -2344,7 +2366,8 @@ function buildShareText() {
   const total   = Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
 
   const [y, m, d] = dk.split('-');
-  let lines = [`LogPose · ${d}/${m}`, ''];
+  // Date localisée : JJ/MM en FR, MM/JJ en EN
+  let lines = [`LogPose · ${dfmt(new Date(+y, +m - 1, +d), { day: '2-digit', month: '2-digit' })}`, ''];
 
   MODES.forEach(({ id, icon }) => {
     const res = results[id];
@@ -2352,29 +2375,36 @@ function buildShareText() {
     if (!res) {
       lines.push(`${icon} —`);
     } else if (res.won) {
-      const essai = res.tries > 1 ? 'essais' : 'essai';
-      lines.push(`${icon} ✅ ${res.tries} ${essai} · ${pts.toLocaleString('fr-FR')} pts`);
+      const essai = res.tries > 1 ? t('essais') : t('essai');
+      // « pts » n'est PAS répété ici : l'unité est donnée une fois sur la ligne ⭐.
+      // Répété 7 fois, il faisait dépasser la limite de 280 de X les jours à 7/7.
+      lines.push(`${icon} ✅ ${res.tries} ${essai} · ${nfmt(pts)}`);
     } else {
-      lines.push(`${icon} ❌ · 0 pts`);
+      lines.push(`${icon} ❌ · 0`);
     }
   });
 
-  // Mention anniversaire si un perso fête son anniv aujourd'hui
+  // Mention anniversaire si un perso fête son anniv aujourd'hui (ligne OPTIONNELLE :
+  // retirée plus bas si elle fait dépasser la limite de X — noms parfois très longs).
   const bdays = getTodayBirthdays();
-  if (bdays.length) {
-    const names = bdays.map(c => c.name).join(' & ');
-    lines.push(`🎂 Anniversaire de ${names} !`);
-  }
+  const bdayLine = bdays.length
+    ? tf(`🎂 Anniversaire de {0} !`, bdays.map(c => c.name).join(' & '))
+    : null;
+  if (bdayLine) lines.push(bdayLine);
   lines.push('');
-  lines.push(`⭐ ${total.toLocaleString('fr-FR')} / 70 000 pts`);
-  const cumul = sanitizeNum(lsGet(LS.cumulativeScore));
-  if (cumul > 0) {
-    const { title: rankTitle } = getRankFromScore(cumul);
-    const streak = sanitizeNum(loadStats('classic').currentStreak);
-    lines.push(`⚔️ ${rankTitle} · Série ${streak}j · ${cumul.toLocaleString('fr-FR')} pts cumulés`);
-  }
+  lines.push(`⭐ ${nfmt(total)} / ${nfmt(70000)} pts`);
+  // Pas de ligne rang/série/score cumulé ici : elle coûtait ~52 caractères et faisait
+  // dépasser la limite de 280 de X (le partage était bloqué). Elle reste sur l'image
+  // de partage (canvas-share.js), qui n'a aucune limite de longueur.
   lines.push('#OnePiecedle · https://onepiecedle.fr');
-  return lines.join('\n');
+
+  let out = lines.join('\n');
+  // Filet de sécurité : si ça dépasse malgré tout (nom d'anniversaire à rallonge),
+  // on sacrifie la ligne anniversaire — le récap de partie, lui, n'est jamais tronqué.
+  if (bdayLine && xShareLen(out) > 280) {
+    out = lines.filter(l => l !== bdayLine).join('\n');
+  }
+  return out;
 }
 
 function shareDaily() {
@@ -2417,34 +2447,34 @@ function closeWhatsNew() {
 }
 function showWhatsNew() {
   if (document.getElementById('whatsnew-overlay')) return;
-  const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  const today = dfmt(new Date(), { day: '2-digit', month: 'long', year: 'numeric' });
   const ov = document.createElement('div');
   ov.id = 'whatsnew-overlay';
   ov.className = 'wn-overlay';
   ov.setAttribute('role', 'dialog');
   ov.setAttribute('aria-modal', 'true');
-  ov.setAttribute('aria-label', 'Nouveautés LogPose v6.0 : mode Versus 1v1');
+  ov.setAttribute('aria-label', t('Nouveautés LogPose v6.0 : mode Versus 1v1'));
   ov.innerHTML =
       '<div class="wn-gazette" role="document">'
-    +   '<button class="wn-close" type="button" aria-label="Fermer">×</button>'
+    +   '<button class="wn-close" type="button" aria-label="' + t('Fermer') + '">×</button>'
     +   '<div class="wn-frame">'
     +     '<div class="wn-masthead">'
-    +       '<div class="wn-paper-name"><span class="wn-orn">☠</span>La Gazette du Log Pose<span class="wn-orn">☠</span></div>'
-    +       '<div class="wn-tagline">« Toutes les nouvelles de Grand Line »</div>'
+    +       '<div class="wn-paper-name"><span class="wn-orn">☠</span>' + t('La Gazette du Log Pose') + '<span class="wn-orn">☠</span></div>'
+    +       '<div class="wn-tagline">' + t('« Toutes les nouvelles de Grand Line »') + '</div>'
     +     '</div>'
-    +     '<div class="wn-dateline"><span>Édition spéciale · v6.0</span><span>' + esc(today) + '</span></div>'
-    +     '<div class="wn-kicker">Deux navires se rangent bord à bord</div>'
-    +     '<h2 class="wn-headline">Le mode Versus 1v1 <span class="wn-headline-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></span></h2>'
-    +     '<p class="wn-lede">Défie un ami en duel, au tour par tour&nbsp;: crée un salon, partage ton code à 5 lettres, et devinez le même personnage mystère : le premier qui le trouve remporte la manche.</p>'
+    +     '<div class="wn-dateline"><span>' + t('Édition spéciale · v6.0') + '</span><span>' + esc(today) + '</span></div>'
+    +     '<div class="wn-kicker">' + t('Deux navires se rangent bord à bord') + '</div>'
+    +     '<h2 class="wn-headline">' + t('Le mode Versus 1v1') + ' <span class="wn-headline-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></span></h2>'
+    +     '<p class="wn-lede">' + t('Défie un ami en duel, au tour par tour&nbsp;: crée un salon, partage ton code à 5 lettres, et devinez le même personnage mystère : le premier qui le trouve remporte la manche.') + '</p>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
     +     '<div class="wn-cols">'
-    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></div><div class="wn-col-h">Bo1, Bo3 ou Bo5</div><div class="wn-col-p">Chacun choisit le mode de sa manche (Classique, Wanted, Silhouette, Fruit, Émoji ou Tome) et la manche décisive est tirée au sort.</div></div>'
-    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-hourglass"></use></svg></div><div class="wn-col-h">Au tour par tour</div><div class="wn-col-p">30, 60 ou 120 secondes par tour (ou sans limite). Les indices se dévoilent à chaque erreur… pour les deux équipages.</div></div>'
-    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-chart"></use></svg></div><div class="wn-col-h">Bilan de duels</div><div class="wn-col-p">Victoires, défaites et taux de victoire rejoignent tes statistiques, et la revanche est à un clic.</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg></div><div class="wn-col-h">' + t('Bo1, Bo3 ou Bo5') + '</div><div class="wn-col-p">' + t('Chacun choisit le mode de sa manche (Classique, Wanted, Silhouette, Fruit, Émoji ou Tome) et la manche décisive est tirée au sort.') + '</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-hourglass"></use></svg></div><div class="wn-col-h">' + t('Au tour par tour') + '</div><div class="wn-col-p">' + t('30, 60 ou 120 secondes par tour (ou sans limite). Les indices se dévoilent à chaque erreur… pour les deux équipages.') + '</div></div>'
+    +       '<div class="wn-col"><div class="wn-col-ico"><svg class="ic" aria-hidden="true"><use href="#ic-chart"></use></svg></div><div class="wn-col-h">' + t('Bilan de duels') + '</div><div class="wn-col-p">' + t('Victoires, défaites et taux de victoire rejoignent tes statistiques, et la revanche est à un clic.') + '</div></div>'
     +     '</div>'
     +     '<div class="wn-fleuron">✦ ✦ ✦</div>'
-    +     '<p class="wn-brief">Rendez-vous dans l\'onglet Versus, juste à droite du mode Infini.</p>'
-    +     '<div class="wn-cta-wrap"><button class="wn-cta" type="button">Croiser le fer ⚔</button></div>'
+    +     '<p class="wn-brief">' + t('Rendez-vous dans l\'onglet Versus, juste à droite du mode Infini.') + '</p>'
+    +     '<div class="wn-cta-wrap"><button class="wn-cta" type="button">' + t('Croiser le fer ⚔') + '</button></div>'
     +   '</div>'
     + '</div>';
   ov.addEventListener('click', e => { if (e.target === ov) closeWhatsNew(); });
@@ -2473,7 +2503,7 @@ function exportSave() {
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
   } catch (e) {
-    alert('Échec de l\'export de la sauvegarde.');
+    alert(t('Échec de l\'export de la sauvegarde.'));
   }
 }
 
@@ -2486,26 +2516,26 @@ function importSaveFile(event) {
   const file = event.target && event.target.files && event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onerror = () => alert('Impossible de lire le fichier.');
+  reader.onerror = () => alert(t('Impossible de lire le fichier.'));
   reader.onload = () => {
     let obj;
     try { obj = JSON.parse(reader.result); }
-    catch (e) { alert('Fichier invalide : ce n\'est pas une sauvegarde LogPose lisible.'); return; }
+    catch (e) { alert(t('Fichier invalide : ce n\'est pas une sauvegarde LogPose lisible.')); return; }
     if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
-      alert('Fichier invalide : format inattendu.'); return;
+      alert(t('Fichier invalide : format inattendu.')); return;
     }
     // On ne retient QUE les clés "op-" à valeur texte (on ignore tout le reste du fichier)
     const entries = Object.entries(obj).filter(([k, v]) => k.startsWith('op-') && typeof v === 'string');
     if (!entries.length) {
-      alert('Aucune donnée LogPose (clés « op- ») trouvée dans ce fichier.'); return;
+      alert(t('Aucune donnée LogPose (clés « op- ») trouvée dans ce fichier.')); return;
     }
-    if (!confirm(`Importer cette sauvegarde ? Cela remplacera ta progression actuelle (${entries.length} entrée${entries.length > 1 ? 's' : ''}).`)) return;
+    if (!confirm(tf('Importer cette sauvegarde ? Cela remplacera ta progression actuelle ({0} entrée{1}).', entries.length, entries.length > 1 ? 's' : ''))) return;
     try {
       // On ne touche QU'AUX clés "op-" : on retire les anciennes, puis on pose celles du fichier
       Object.keys(localStorage).filter(k => k.startsWith('op-')).forEach(k => localStorage.removeItem(k));
       entries.forEach(([k, v]) => localStorage.setItem(k, v));
     } catch (e) {
-      alert('Échec de l\'import (stockage plein ?).'); return;
+      alert(t('Échec de l\'import (stockage plein ?).')); return;
     }
     location.reload();
   };
@@ -2515,52 +2545,61 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
-  { v: '6.3', date: 'Juillet 2026', items: [
-    '⚜️ Deux nouveaux personnages : Saint Killingham et Saint Sommers, les Chevaliers Divins croisés à Elbaf',
-    '🏴‍☠️ Scopper Gaban mis à jour : nouveau portrait, épithète « Missionnaire de l\'amour », les trois Haki et première apparition à Elbaf',
-    '🍎 Deux nouveaux fruits du démon devinables : l\'Iba Iba no Mi (Fruit des Épines) et le Ryu Ryu no Mi, modèle Kirin',
-    '🏴‍☠️ Trois personnages de plus : Makino (Romance Dawn), Gaimon (Syrup Village) et Hannyabal (Impel Down)',
-    '👤 Mode Silhouette assoupli : l\'image se dézoome plus vite à chaque essai, la forme devient reconnaissable plus tôt',
+  { v: '6.4', date: t('Août 2026'), items: [
+    t('🇬🇧 LogPose est maintenant disponible en anglais : bascule FR/EN d\'un clic depuis l\'en-tête'),
+    t('🌍 Traduction complète : les 7 modes du jour, le Versus 1v1, la carte de Grand Line, les épithètes, les fruits du démon et les indices emoji'),
+    t('🔗 Adresse dédiée onepiecedle.fr/en/ à partager avec les joueurs anglophones — le personnage mystère reste le même pour tout le monde'),
+    t('🏴‍☠️ Deux nouveaux personnages : Saint Garling Figarland, le Dieu guerrier de la Science et de la Défense (Reverie), et Morgans, le patron du World Economic Journal (Zou)'),
+    t('🍎 Un nouveau fruit du démon devinable : le Tori Tori no Mi, modèle Albatros, croqué par Morgans'),
+    t('🏛️ Correction : les Cinq Doyens ont désormais Jaya comme premier arc, leur véritable première apparition'),
+    t('🔧 Partage sur X (Twitter) réparé : le récap dépassait la limite de caractères et la publication restait bloquée, en particulier les jours où les 7 modes étaient réussis'),
   ] },
-  { v: '6.2', date: 'Juillet 2026', items: [
-    '🎵 Mode Opening : l\'extrait ne démarre plus au début du générique mais à un endroit tiré au hasard dans le morceau. Plus corsé à reconnaître !',
-    '🎬 Nouvelle catégorie « Films & Filler » (arc hors-série) avec sa zone dédiée sur la carte de Grand Line, pour les personnages de films',
-    '⭐ Personnages de films ajoutés : Douglas Bullet (Stampede), Zephyr (Film Z) et Gild Tesoro (Film Gold), jouables dans tous les modes',
-    '🍎 Deux nouveaux fruits du démon devinables : le Gasha Gasha no Mi (Douglas Bullet) et le Gol Gol no Mi (Gild Tesoro)',
+  { v: '6.3', date: t('Juillet 2026'), items: [
+    t('⚜️ Deux nouveaux personnages : Saint Killingham et Saint Sommers, les Chevaliers Divins croisés à Elbaf'),
+    t('🏴‍☠️ Scopper Gaban mis à jour : nouveau portrait, épithète « Missionnaire de l\'amour », les trois Haki et première apparition à Elbaf'),
+    t('🍎 Deux nouveaux fruits du démon devinables : l\'Iba Iba no Mi (Fruit des Épines) et le Ryu Ryu no Mi, modèle Kirin'),
+    t('🏴‍☠️ Trois personnages de plus : Makino (Romance Dawn), Gaimon (Syrup Village) et Hannyabal (Impel Down)'),
+    t('👤 Mode Silhouette assoupli : l\'image se dézoome plus vite à chaque essai, la forme devient reconnaissable plus tôt'),
   ] },
-  { v: '6.1', date: 'Juillet 2026', items: [
-    '😀 Mode Émoji : grande refonte du contenu, avec des emojis bien plus distinctifs et fidèles pour chaque personnage (fini les combinaisons génériques interchangeables)',
-    '💬 Infobulles d\'emojis complétées et entièrement traduites en français',
-    '🏴‍☠️ Mode Classique : les équipages de la Grande Flotte (Happou Navy, Tontatta…) comptent désormais comme correspondance partielle (case orange)',
+  { v: '6.2', date: t('Juillet 2026'), items: [
+    t('🎵 Mode Opening : l\'extrait ne démarre plus au début du générique mais à un endroit tiré au hasard dans le morceau. Plus corsé à reconnaître !'),
+    t('🎬 Nouvelle catégorie « Films & Filler » (arc hors-série) avec sa zone dédiée sur la carte de Grand Line, pour les personnages de films'),
+    t('⭐ Personnages de films ajoutés : Douglas Bullet (Stampede), Zephyr (Film Z) et Gild Tesoro (Film Gold), jouables dans tous les modes'),
+    t('🍎 Deux nouveaux fruits du démon devinables : le Gasha Gasha no Mi (Douglas Bullet) et le Gol Gol no Mi (Gild Tesoro)'),
   ] },
-  { v: '6.0', date: 'Juillet 2026', items: [
-    '⚔️ Nouveau mode Versus 1v1 : défie un ami en duel au tour par tour (salon privé, code à partager)',
-    '🎲 Bo1 / Bo3 / Bo5 : chacun choisit le mode de sa manche parmi 6, la manche décisive est tirée au sort',
-    '📊 Bilan de duels (victoires, défaites, % de victoire) dans tes statistiques',
-    '🚀 Images, silhouettes et openings servis par un serveur dédié, pour des chargements plus rapides',
+  { v: '6.1', date: t('Juillet 2026'), items: [
+    t('😀 Mode Émoji : grande refonte du contenu, avec des emojis bien plus distinctifs et fidèles pour chaque personnage (fini les combinaisons génériques interchangeables)'),
+    t('💬 Infobulles d\'emojis complétées et entièrement traduites en français'),
+    t('🏴‍☠️ Mode Classique : les équipages de la Grande Flotte (Happou Navy, Tontatta…) comptent désormais comme correspondance partielle (case orange)'),
   ] },
-  { v: '5.2', date: 'Juillet 2026', items: [
-    '👤 Nouveau mode Silhouette : devine le pirate à son ombre (remplace Pavillon)',
-    '🎨 Indice couleur à mi-partie + révélation en couleur en fin de partie',
+  { v: '6.0', date: t('Juillet 2026'), items: [
+    t('⚔️ Nouveau mode Versus 1v1 : défie un ami en duel au tour par tour (salon privé, code à partager)'),
+    t('🎲 Bo1 / Bo3 / Bo5 : chacun choisit le mode de sa manche parmi 6, la manche décisive est tirée au sort'),
+    t('📊 Bilan de duels (victoires, défaites, % de victoire) dans tes statistiques'),
+    t('🚀 Images, silhouettes et openings servis par un serveur dédié, pour des chargements plus rapides'),
   ] },
-  { v: '5.1', date: 'Juin 2026', items: [
-    '🌊 Refonte visuelle « nuit en mer » : fond 3D océan & île',
-    '🧭 Nouvelle page d\'accueil en rose des vents',
-    '🎨 Icônes du jeu redessinées + couleur de signature par mode',
-    '➕ 2 nouveaux Chevaliers Divins : Shamrock & Gunko (246 persos)',
+  { v: '5.2', date: t('Juillet 2026'), items: [
+    t('👤 Nouveau mode Silhouette : devine le pirate à son ombre (remplace Pavillon)'),
+    t('🎨 Indice couleur à mi-partie + révélation en couleur en fin de partie'),
   ] },
-  { v: '5.0', date: 'Juin 2026', items: [
-    '📕 Nouveau mode Tome : devine le tome à sa couverture',
-    '🗺️ Carte de Grand Line : 32 îles, carnet de capture & fiches perso',
-    '🏴‍☠️ Rang de pirate + Jolly Roger personnel généré',
-    '🖼️ Image de partage récap (avec ton pavillon)',
-    '🎂 Anniversaires des personnages · 📊 stats de la communauté',
-    '💾 Export / import de ta sauvegarde',
-    '➕ 11 nouveaux personnages (244 au total)',
+  { v: '5.1', date: t('Juin 2026'), items: [
+    t('🌊 Refonte visuelle « nuit en mer » : fond 3D océan & île'),
+    t('🧭 Nouvelle page d\'accueil en rose des vents'),
+    t('🎨 Icônes du jeu redessinées + couleur de signature par mode'),
+    t('➕ 2 nouveaux Chevaliers Divins : Shamrock & Gunko (246 persos)'),
   ] },
-  { v: '4.7', date: 'Mai 2026', items: [
-    '😀 Grand audit des émojis (60 personnages)',
-    '⚡ Popup de fin de partie accélérée',
+  { v: '5.0', date: t('Juin 2026'), items: [
+    t('📕 Nouveau mode Tome : devine le tome à sa couverture'),
+    t('🗺️ Carte de Grand Line : 32 îles, carnet de capture & fiches perso'),
+    t('🏴‍☠️ Rang de pirate + Jolly Roger personnel généré'),
+    t('🖼️ Image de partage récap (avec ton pavillon)'),
+    t('🎂 Anniversaires des personnages · 📊 stats de la communauté'),
+    t('💾 Export / import de ta sauvegarde'),
+    t('➕ 11 nouveaux personnages (244 au total)'),
+  ] },
+  { v: '4.7', date: t('Mai 2026'), items: [
+    t('😀 Grand audit des émojis (60 personnages)'),
+    t('⚡ Popup de fin de partie accélérée'),
   ] },
 ];
 
@@ -2583,11 +2622,11 @@ function showPatchNotes() {
   ov.className = 'modal-overlay';
   ov.setAttribute('role', 'dialog');
   ov.setAttribute('aria-modal', 'true');
-  ov.setAttribute('aria-label', 'Notes de version');
+  ov.setAttribute('aria-label', t('Notes de version'));
   ov.innerHTML =
       '<div class="modal-box pn-box">'
-    +   '<button class="modal-close" type="button" aria-label="Fermer" onclick="closePatchNotes()">×</button>'
-    +   '<div class="modal-title">📜 Notes de version</div>'
+    +   '<button class="modal-close" type="button" aria-label="' + t('Fermer') + '" onclick="closePatchNotes()">×</button>'
+    +   '<div class="modal-title">' + t('📜 Notes de version') + '</div>'
     +   `<div class="pn-list">${entries}</div>`
     + '</div>';
   ov.addEventListener('click', e => { if (e.target === ov) closePatchNotes(); });
@@ -2599,7 +2638,7 @@ function shareVia(platform) {
   if (platform === 'copy') {
     const btn = document.querySelector('.share-via-copy');
     const done = () => {
-      if (btn) { btn.textContent = '✅ Copié !'; setTimeout(() => { btn.textContent = '📋 Copier'; }, 2200); }
+      if (btn) { btn.textContent = t('✅ Copié !'); setTimeout(() => { btn.textContent = t('📋 Copier'); }, 2200); }
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(_shareText).then(done).catch(() => fallbackCopy(_shareText, done));
@@ -2617,7 +2656,7 @@ function shareVia(platform) {
     // Desktop : copie le texte puis ouvre Discord web — l'utilisateur n'a qu'à coller
     const btn = document.querySelector('.share-via-discord');
     const done = () => {
-      if (btn) { btn.textContent = '✅ Copié !'; setTimeout(() => { btn.textContent = '💬 Discord'; }, 2200); }
+      if (btn) { btn.textContent = t('✅ Copié !'); setTimeout(() => { btn.textContent = '💬 Discord'; }, 2200); }
       window.open('https://discord.com/channels/@me', '_blank', 'noopener,noreferrer');
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2674,23 +2713,24 @@ function toggleScoreBreakdown(e) {
     const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
     // Libellés courts spécifiques à la pastille compacte (≠ registre global).
     const rows = [
-      { key:'classic', icon:'🗺️',  label:'Classique' },
-      { key:'wanted',  icon:'🖼️', label:'Wanted'    },
-      { key:'silhouette', icon:'🕵️', label:'Silhouette' },
-      { key:'fruit',   icon:'🍎',  label:'Fruit'     },
-      { key:'emoji',   icon:'😀',  label:'Émoji'     },
-      { key:'audio',   icon:'🎵',  label:'Opening'   },
+      { key:'classic', icon:'🗺️',  label:t('Classique') },
+      { key:'wanted',  icon:'🖼️', label:t('Wanted')    },
+      { key:'silhouette', icon:'🕵️', label:t('Silhouette') },
+      { key:'fruit',   icon:'🍎',  label:t('Fruit')     },
+      { key:'emoji',   icon:'😀',  label:t('Émoji')     },
+      { key:'audio',   icon:'🎵',  label:t('Opening')   },
+	  { key:'tome',    icon:'📕',  label:'Tome'   }, 
     ];
     let html = '';
     rows.forEach(({ key, icon, label }) => {
       const pts    = Object.prototype.hasOwnProperty.call(scores, key) ? sanitizeNum(scores[key]) : undefined;
       const res    = results[key];
       const status = !res ? 'sb-pending' : res.won ? 'sb-won' : 'sb-lost';
-      const valStr = pts !== undefined ? pts.toLocaleString('fr-FR') + ' pts' : '—';
+      const valStr = pts !== undefined ? nfmt(pts) + ' pts' : '—';
       html += `<div class="sb-row ${status}"><span>${icon} ${label}</span><span>${valStr}</span></div>`;
     });
     const total = Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
-    html += `<div class="sb-divider"></div><div class="sb-row sb-total"><span>⭐ Total</span><span>${total.toLocaleString('fr-FR')} pts</span></div>`;
+    html += `<div class="sb-divider"></div><div class="sb-row sb-total"><span>${t('⭐ Total')}</span><span>${nfmt(total)} pts</span></div>`;
     el.innerHTML = html;
     // Position fixe sous la barre de score
     const track = document.getElementById('score-track');
@@ -2717,7 +2757,7 @@ function updateScoreBar() {
   const label    = document.getElementById('score-total');
   const shareBtn = document.getElementById('share-daily-btn');
   if (fill)  fill.style.width = pct + '%';
-  if (label) label.textContent = total.toLocaleString('fr-FR');
+  if (label) label.textContent = nfmt(total);
   if (shareBtn) {
     const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
     shareBtn.classList.toggle('hidden', Object.keys(results).length === 0);
@@ -2738,7 +2778,7 @@ function updateStreakDisplay() {
   const s = stats.currentStreak;
   if (s <= 1) { el.classList.add('hidden'); return; }
   el.classList.remove('hidden');
-  el.textContent = `🔥 Série Classique · ${s} jours consécutifs · Record : ${stats.maxStreak}`;
+  el.textContent = tf('🔥 Série Classique · {0} jours consécutifs · Record : {1}', s, stats.maxStreak);
 }
 
 function launchPerfectDay() {
@@ -2749,8 +2789,8 @@ function launchPerfectDay() {
     <canvas class="perfect-canvas" id="perfect-canvas"></canvas>
     <div class="perfect-content">
       <div class="perfect-emoji">🏴‍☠️</div>
-      <div class="perfect-sub">70 000 / 70 000 pts</div>
-      <div class="perfect-sub2">Tu as réussi tous les défis du jour !</div>
+      <div class="perfect-sub">${t('70 000 / 70 000 pts')}</div>
+      <div class="perfect-sub2">${t('Tu as réussi tous les défis du jour !')}</div>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -3000,7 +3040,7 @@ function playWinWanted() {
   const stamp = document.createElement('div');
   stamp.id = 'win-stamp';
   stamp.className = 'anim-stamp';
-  stamp.textContent = 'TROUVÉ !';
+  stamp.textContent = t('TROUVÉ !');
   box.appendChild(stamp);
 }
 
@@ -3076,11 +3116,12 @@ function playWinAudio() {
 (async function initGame() {
   try {
     await loadGameData();
+    if (window.__i18nReady) await window.__i18nReady;   // dico EN chargé avant tout rendu dynamique (no-op en FR)
   } catch(e) {
     console.error('LogPose · échec du chargement des données :', e);
     document.body.insertAdjacentHTML('afterbegin',
       '<div style="padding:1rem;background:#c82020;color:#fff;text-align:center;font-family:sans-serif">' +
-      '⚠️ Erreur de chargement, rechargez la page ou vérifiez votre connexion.</div>');
+      t('⚠️ Erreur de chargement, rechargez la page ou vérifiez votre connexion.') + '</div>');
     return;
   }
   saveTodayTargets();
@@ -3098,6 +3139,7 @@ function playWinAudio() {
   try { updateScoreBar();    } catch(e) { console.warn('updateScoreBar init:', e); }
   try { updateRankBadge();   } catch(e) { console.warn('updateRankBadge init:', e); }
   try { restoreAllStates();  } catch(e) { console.warn('restoreAllStates init:', e); }
+  try { syncBanners();       } catch(e) { console.warn('syncBanners init:', e); }  // filet si la restauration a jeté
   startCountdown();
   updateCounter();
   initSilhouetteMode();

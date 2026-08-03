@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LogPose : Le jeu One Piece du jour · 7 défis quotidiens</title>
+  <title>LogPose: The Daily One Piece Game · 7 Daily Challenges</title>
 
   <!-- SEO -->
-  <meta name="description" content="LogPose · Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères chaque jour.">
-  <meta name="keywords" content="LogPose, One Piece, Wordle, jeu, devinette, personnage, manga, anime, quotidien">
+  <meta name="description" content="LogPose · The daily One Piece Wordle game! 7 daily modes: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume. Guess the mystery characters every day.">
+  <meta name="keywords" content="LogPose, One Piece, Wordle, game, guessing game, character, manga, anime, daily">
   <meta name="author" content="LogPose">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#c89408">
-  <link rel="canonical" href="https://onepiecedle.fr/">
+  <link rel="canonical" href="https://onepiecedle.fr/en/">
   <!-- Alternatives de langue (i18n) — bloc identique sur / et /en/ (cluster hreflang) -->
   <link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/">
   <link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/">
@@ -20,11 +20,11 @@
   <meta name="google-site-verification" content="i0vh5Ns4PHg6NJDlxaqo-uQZ2qaM-HRbuoVM-Gz3BYg">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="LogPose · 7 défis One Piece quotidiens">
-  <meta property="og:description" content="7 défis One Piece par jour : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Un nouveau défi chaque jour !">
+  <meta property="og:title" content="LogPose · 7 Daily One Piece Challenges">
+  <meta property="og:description" content="7 One Piece challenges a day: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume. A new challenge every day!">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://onepiecedle.fr/">
-  <meta property="og:locale" content="fr_FR">
+  <meta property="og:url" content="https://onepiecedle.fr/en/">
+  <meta property="og:locale" content="en_US">
   <meta property="og:image" content="https://onepiecedle.fr/images/og_preview.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -32,12 +32,12 @@
 
   <!-- Twitter / X Cards -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LogPose · 7 défis One Piece quotidiens">
-  <meta name="twitter:description" content="Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome. Un nouveau défi chaque jour !">
+  <meta name="twitter:title" content="LogPose · 7 Daily One Piece Challenges">
+  <meta name="twitter:description" content="Classic · Wanted · Silhouette · Devil Fruit · Emoji · Opening · Volume. A new challenge every day!">
   <meta name="twitter:image" content="https://onepiecedle.fr/images/og_preview.jpg">
 
   <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="/manifest.en.json">
 
   <!-- JSON-LD Schema -->
   <script type="application/ld+json">
@@ -45,28 +45,28 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "LogPose",
-    "url": "https://onepiecedle.fr/",
-    "description": "7 défis One Piece quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome",
+    "url": "https://onepiecedle.fr/en/",
+    "description": "7 daily One Piece challenges: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume",
     "applicationCategory": "Game",
     "genre": "Word Game",
-    "inLanguage": "fr",
+    "inLanguage": "en",
     "operatingSystem": "Any",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
     "image": "https://onepiecedle.fr/images/og_preview.jpg"
   }
   </script>
 
-  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
 
   <!-- Base des assets lourds (VPS). Rollback : '' → chemins relatifs, re-couverts par le SW. -->
   <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=258">
-  <link rel="stylesheet" href="css/landing.css?v=258">
-  <link rel="stylesheet" href="css/modals.css?v=258">
-  <link rel="stylesheet" href="css/ocean3d.css?v=258">
+  <link rel="stylesheet" href="/css/base.css?v=258">
+  <link rel="stylesheet" href="/css/landing.css?v=258">
+  <link rel="stylesheet" href="/css/modals.css?v=258">
+  <link rel="stylesheet" href="/css/ocean3d.css?v=258">
 </head>
 <body class="landing-body layout-rose" data-ocean="landing">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -154,18 +154,18 @@
 </svg>
 
 <!-- ===== NAV — N5 pill flottant ===== -->
-<nav class="lp-nav" aria-label="Navigation principale">
-  <a class="lp-nav__brand" href="index.html">
+<nav class="lp-nav" aria-label="Main navigation">
+  <a class="lp-nav__brand" href="/en/">
     <svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg>
     LogPose
   </a>
   <div class="lp-nav__actions">
-    <a class="lp-play" href="game.html">
+    <a class="lp-play" href="/en/game.html">
       <svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg>
-      Jouer
+      Play
     </a>
-    <a id="lang-toggle" class="lp-lang" href="/en/" onclick="i18nToggleLang();return false;" aria-label="Switch to English">EN</a>
-    <button class="lp-theme" onclick="toggleTheme()" aria-label="Changer de thème">
+    <a id="lang-toggle" class="lp-lang" href="/" onclick="i18nToggleLang();return false;" aria-label="Passer en français">FR</a>
+    <button class="lp-theme" onclick="toggleTheme()" aria-label="Toggle theme">
       <svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg>
       <svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg>
     </button>
@@ -174,95 +174,95 @@
 
 <!-- ===== HÉROS — calé à gauche (desktop) / centré (mobile), sur l'océan ===== -->
 <section class="lp-hero">
-  <img class="lp-skull" src="images/jolly_roger.png" alt="Jolly Roger One Piece">
+  <img class="lp-skull" src="/images/jolly_roger.png" alt="One Piece Jolly Roger">
   <h1 class="lp-title">LogPose</h1>
-  <p class="lp-tagline">Le jeu One Piece du jour.</p>
-  <p class="lp-line">Sept énigmes, une nouvelle par jour. Devine les personnages mystères.</p>
-  <a class="lp-cta" href="game.html">
+  <p class="lp-tagline">The daily One Piece game.</p>
+  <p class="lp-line">Seven puzzles, a new one every day. Guess the mystery characters.</p>
+  <a class="lp-cta" href="/en/game.html">
     <svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg>
-    Jouer maintenant
+    Play now
   </a>
 </section>
 
 <!-- ===== LES 7 DOUBLONS — ROSE DES VENTS (modes) ===== -->
 <section class="lp-block reveal modes-section" aria-labelledby="b-modes">
-  <h2 class="lp-h" id="b-modes">Les sept épreuves du jour</h2>
-  <p class="lp-sub">Chaque mode cache un personnage différent. À chaque essai, les indices (vert, orange, flèches) resserrent l'étau.</p>
+  <h2 class="lp-h" id="b-modes">The seven trials of the day</h2>
+  <p class="lp-sub">Each mode hides a different character. With every guess, the clues (green, orange, arrows) tighten the net.</p>
   <div class="coins">
     <div class="rose-center" aria-hidden="true">
       <svg class="ic"><use href="#ic-compass"></use></svg>
     </div>
-    <a class="coin" href="game.html" style="--i:0">
+    <a class="coin" href="/en/game.html" style="--i:0">
       <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg></span>
-      <span class="coin__name">Classique</span>
+      <span class="coin__name">Classic</span>
     </a>
-    <a class="coin" href="game.html" style="--i:1">
+    <a class="coin" href="/en/game.html" style="--i:1">
       <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-wanted"></use></svg></span>
       <span class="coin__name">Wanted</span>
     </a>
-    <a class="coin" href="game.html" style="--i:2">
+    <a class="coin" href="/en/game.html" style="--i:2">
       <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg></span>
       <span class="coin__name">Silhouette</span>
     </a>
-    <a class="coin" href="game.html" style="--i:3">
+    <a class="coin" href="/en/game.html" style="--i:3">
       <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-fruit"></use></svg></span>
-      <span class="coin__name">Fruit du Démon</span>
+      <span class="coin__name">Devil Fruit</span>
     </a>
-    <a class="coin" href="game.html" style="--i:4">
+    <a class="coin" href="/en/game.html" style="--i:4">
       <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-rebus"></use></svg></span>
-      <span class="coin__name">Émoji</span>
+      <span class="coin__name">Emoji</span>
     </a>
-    <a class="coin" href="game.html" style="--i:5">
+    <a class="coin" href="/en/game.html" style="--i:5">
       <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-note"></use></svg></span>
       <span class="coin__name">Opening</span>
     </a>
-    <a class="coin" href="game.html" style="--i:6">
+    <a class="coin" href="/en/game.html" style="--i:6">
       <span class="coin__disc"><svg class="ic" aria-hidden="true"><use href="#ic-tome"></use></svg></span>
-      <span class="coin__name">Tome</span>
+      <span class="coin__name">Volume</span>
     </a>
   </div>
 </section>
 
 <!-- ===== VERSUS — mode bonus 1v1 (hors défi quotidien), section sobre alignée à gauche ===== -->
 <section class="lp-block reveal lp-versus-block" aria-labelledby="b-versus">
-  <h2 class="lp-h" id="b-versus">Défie tes amis en Versus 1v1</h2>
-  <p class="lp-sub">Un lobby privé par code, deux joueurs, le même personnage mystère. Chacun son tour, les essais des deux sont visibles, le premier qui trouve rafle la manche. Séries en Bo3 ou Bo5, plusieurs modes de jeu.</p>
-  <a class="lp-cta" href="versus.html">
+  <h2 class="lp-h" id="b-versus">Challenge your friends in 1v1 Versus</h2>
+  <p class="lp-sub">A private code-based lobby, two players, the same mystery character. Take turns — both players' guesses are on show, and whoever nails it first takes the round. Best-of-3 or Best-of-5 series, across several game modes.</p>
+  <a class="lp-cta" href="/en/versus.html">
     <svg class="ic" aria-hidden="true"><use href="#ic-versus"></use></svg>
-    Lancer un duel
+    Start a duel
   </a>
 </section>
 
 <!-- ===== AU-DELÀ DE LA PARTIE (nouveautés v5) ===== -->
 <section class="lp-block reveal" aria-labelledby="b-plus">
-  <h2 class="lp-h" id="b-plus">Au-delà de la partie</h2>
-  <p class="lp-sub">Chaque partie nourrit ta traversée de Grand Line : tu explores, tu progresses, tu arbores tes couleurs.</p>
+  <h2 class="lp-h" id="b-plus">Beyond the game</h2>
+  <p class="lp-sub">Every game fuels your voyage across the Grand Line: you explore, you rank up, you fly your colors.</p>
   <div class="trio">
     <div class="trio__item">
       <svg class="ic" aria-hidden="true"><use href="#ic-map"></use></svg>
-      <h3>Carte de Grand Line</h3>
-      <p>32 îles à débloquer en jouant.</p>
+      <h3>Grand Line map</h3>
+      <p>32 islands to unlock as you play.</p>
     </div>
     <div class="trio__item">
       <svg class="ic" aria-hidden="true"><use href="#ic-rank"></use></svg>
-      <h3>Rang de pirate</h3>
-      <p>De Moussaillon à Empereur.</p>
+      <h3>Pirate rank</h3>
+      <p>From Deckhand to Emperor.</p>
     </div>
     <div class="trio__item">
       <svg class="ic" aria-hidden="true"><use href="#ic-jolly"></use></svg>
-      <h3>Ton Jolly Roger</h3>
-      <p>Un pavillon unique à ton parcours.</p>
+      <h3>Your Jolly Roger</h3>
+      <p>A flag as unique as your journey.</p>
     </div>
   </div>
 </section>
 
 <!-- ===== CHIFFRES (honnête) ===== -->
 <section class="lp-block reveal" aria-labelledby="b-chiffres">
-  <h2 class="lp-h" id="b-chiffres">L'équipage en chiffres</h2>
+  <h2 class="lp-h" id="b-chiffres">The crew in numbers</h2>
   <div class="ribbon">
     <div class="ribbon__item">
       <div class="ribbon__num" id="stat-today">0</div>
-      <div class="ribbon__label">Parties aujourd'hui</div>
+      <div class="ribbon__label">Games today</div>
     </div>
     <div class="ribbon__item">
       <div class="ribbon__num">7</div>
@@ -270,44 +270,44 @@
     </div>
     <div class="ribbon__item">
       <div class="ribbon__num">258</div>
-      <div class="ribbon__label">Personnages</div>
+      <div class="ribbon__label">Characters</div>
     </div>
     <div class="ribbon__item">
       <div class="ribbon__num">29</div>
       <div class="ribbon__label">Openings</div>
     </div>
-    <p class="ribbon__note">Le compteur tourne en direct, rejoins les équipages déjà en mer aujourd'hui.</p>
+    <p class="ribbon__note">The counter runs live — join the crews already out at sea today.</p>
   </div>
 </section>
 
 <!-- ===== FAQ : contenu SEO (OnePiecedle) ; balisage FAQPage plus bas ===== -->
 <section class="lp-block reveal" aria-labelledby="b-faq">
-  <h2 class="lp-h" id="b-faq">OnePiecedle : questions fréquentes</h2>
-  <p class="lp-sub">Tout ce qu'il faut savoir sur LogPose, le jeu One Piece du jour.</p>
+  <h2 class="lp-h" id="b-faq">OnePiecedle: frequently asked questions</h2>
+  <p class="lp-sub">Everything you need to know about LogPose, the daily One Piece game.</p>
   <div class="lp-faq">
     <details class="lp-faq__item">
-      <summary>Qu'est-ce que LogPose (OnePiecedle) ?</summary>
-      <p>LogPose, souvent cherché sous le nom « OnePiecedle », est un jeu de devinettes quotidien et gratuit inspiré de Wordle, dédié à l'univers One Piece d'Eiichiro Oda. Chaque jour, tu dois deviner des personnages mystères à travers sept modes de jeu.</p>
+      <summary>What is LogPose (OnePiecedle)?</summary>
+      <p>LogPose, often searched as “OnePiecedle”, is a free daily guessing game inspired by Wordle and set in Eiichiro Oda's One Piece universe. Every day, you guess mystery characters across seven game modes.</p>
     </details>
     <details class="lp-faq__item">
-      <summary>Comment jouer à OnePiecedle ?</summary>
-      <p>Choisis un mode, propose un personnage de One Piece, puis analyse les indices dévoilés à chaque essai : affiliation, origine, prime, fruit du démon, haki… Les couleurs (vert, orange) et les flèches te rapprochent de la solution du jour. Le nombre d'essais est limité.</p>
+      <summary>How do you play OnePiecedle?</summary>
+      <p>Pick a mode, guess a One Piece character, then read the clues revealed with each try: affiliation, origin, bounty, Devil Fruit, Haki… The colors (green, orange) and arrows bring you closer to the day's answer. You only get so many guesses.</p>
     </details>
     <details class="lp-faq__item">
-      <summary>Le jeu est-il gratuit ?</summary>
-      <p>Oui, LogPose est 100 % gratuit, sans inscription ni téléchargement. Il se joue directement dans le navigateur, aussi bien sur mobile que sur ordinateur.</p>
+      <summary>Is the game free?</summary>
+      <p>Yes — LogPose is 100% free, with no sign-up and no download. It plays right in your browser, on mobile and desktop alike.</p>
     </details>
     <details class="lp-faq__item">
-      <summary>Combien y a-t-il de personnages et de modes ?</summary>
-      <p>Le jeu compte 258 personnages de One Piece et sept modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Chaque mode propose un nouveau défi chaque jour.</p>
+      <summary>How many characters and modes are there?</summary>
+      <p>The game features 258 One Piece characters and seven daily modes: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume. Each mode serves up a new challenge every day.</p>
     </details>
     <details class="lp-faq__item">
-      <summary>Y a-t-il un nouveau personnage à deviner chaque jour ?</summary>
-      <p>Oui. Chaque mode propose un nouveau personnage mystère par jour, identique pour tous les joueurs. Compare ton résultat avec tes amis et reviens chaque jour pour entretenir ta série.</p>
+      <summary>Is there a new character to guess every day?</summary>
+      <p>Yes. Each mode has a new mystery character daily, the same for every player. Compare your result with friends and come back each day to keep your streak alive.</p>
     </details>
     <details class="lp-faq__item">
-      <summary>Peut-on jouer à OnePiecedle à plusieurs ?</summary>
-      <p>Oui, le mode Versus 1v1 permet de défier un ami dans un salon privé, sur le même personnage mystère, en Bo1, Bo3 ou Bo5.</p>
+      <summary>Can you play OnePiecedle with friends?</summary>
+      <p>Yes — the 1v1 Versus mode lets you challenge a friend in a private room on the same mystery character, in Best-of-1, Best-of-3 or Best-of-5.</p>
     </details>
   </div>
 </section>
@@ -320,33 +320,33 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Qu'est-ce que LogPose (OnePiecedle) ?",
-      "acceptedAnswer": { "@type": "Answer", "text": "LogPose, souvent cherché sous le nom « OnePiecedle », est un jeu de devinettes quotidien et gratuit inspiré de Wordle, dédié à l'univers One Piece d'Eiichiro Oda. Chaque jour, tu dois deviner des personnages mystères à travers sept modes de jeu." }
+      "name": "What is LogPose (OnePiecedle)?",
+      "acceptedAnswer": { "@type": "Answer", "text": "LogPose, often searched as “OnePiecedle”, is a free daily guessing game inspired by Wordle and set in Eiichiro Oda's One Piece universe. Every day, you guess mystery characters across seven game modes." }
     },
     {
       "@type": "Question",
-      "name": "Comment jouer à OnePiecedle ?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Choisis un mode, propose un personnage de One Piece, puis analyse les indices dévoilés à chaque essai : affiliation, origine, prime, fruit du démon, haki… Les couleurs (vert, orange) et les flèches te rapprochent de la solution du jour. Le nombre d'essais est limité." }
+      "name": "How do you play OnePiecedle?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Pick a mode, guess a One Piece character, then read the clues revealed with each try: affiliation, origin, bounty, Devil Fruit, Haki… The colors (green, orange) and arrows bring you closer to the day's answer. You only get so many guesses." }
     },
     {
       "@type": "Question",
-      "name": "Le jeu est-il gratuit ?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Oui, LogPose est 100 % gratuit, sans inscription ni téléchargement. Il se joue directement dans le navigateur, aussi bien sur mobile que sur ordinateur." }
+      "name": "Is the game free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — LogPose is 100% free, with no sign-up and no download. It plays right in your browser, on mobile and desktop alike." }
     },
     {
       "@type": "Question",
-      "name": "Combien y a-t-il de personnages et de modes ?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Le jeu compte 258 personnages de One Piece et sept modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Chaque mode propose un nouveau défi chaque jour." }
+      "name": "How many characters and modes are there?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The game features 258 One Piece characters and seven daily modes: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume. Each mode serves up a new challenge every day." }
     },
     {
       "@type": "Question",
-      "name": "Y a-t-il un nouveau personnage à deviner chaque jour ?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Oui. Chaque mode propose un nouveau personnage mystère par jour, identique pour tous les joueurs. Compare ton résultat avec tes amis et reviens chaque jour pour entretenir ta série." }
+      "name": "Is there a new character to guess every day?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Each mode has a new mystery character daily, the same for every player. Compare your result with friends and come back each day to keep your streak alive." }
     },
     {
       "@type": "Question",
-      "name": "Peut-on jouer à OnePiecedle à plusieurs ?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Oui, le mode Versus 1v1 permet de défier un ami dans un salon privé, sur le même personnage mystère, en Bo1, Bo3 ou Bo5." }
+      "name": "Can you play OnePiecedle with friends?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — the 1v1 Versus mode lets you challenge a friend in a private room on the same mystery character, in Best-of-1, Best-of-3 or Best-of-5." }
     }
   ]
 }
@@ -354,16 +354,16 @@
 
 <!-- ===== FOOTER — Ft5 statement ===== -->
 <footer class="lp-foot">
-  <p class="lp-foot__line">Le Log Pose est réglé. À toi de tracer le cap.</p>
-  <a class="lp-cta" href="game.html">
+  <p class="lp-foot__line">The Log Pose is set. Now chart your course.</p>
+  <a class="lp-cta" href="/en/game.html">
     <svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg>
-    Jouer maintenant
+    Play now
   </a>
   <div class="lp-foot__meta">
     <span class="lp-foot__brand">LogPose</span>
-    <span class="lp-foot__ver"><button class="lp-about-btn" onclick="openAbout()">À propos</button>&nbsp;<span class="js-version"></span></span>
+    <span class="lp-foot__ver"><button class="lp-about-btn" onclick="openAbout()">About</button>&nbsp;<span class="js-version"></span></span>
   </div>
-  <p class="lp-foot__legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation.</p>
+  <p class="lp-foot__legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · unofficial fan project, no affiliation.</p>
 </footer>
 
 <!-- ===== MODALE À PROPOS (identique à game.html) ===== -->
@@ -372,50 +372,48 @@
     <button class="modal-close" onclick="closeAbout()">✕</button>
     <div class="modal-title">
       <svg class="ic" aria-hidden="true" style="width:1.1em;height:1.1em;vertical-align:-0.15em"><use href="#ic-anchor"></use></svg>
-      À propos
+      About
     </div>
 
     <div class="about-logo-wrap">
-      <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
+      <img src="/images/jolly_roger.png" alt="LogPose" class="about-jolly">
       <div class="about-version-badge js-version"></div>
     </div>
 
-    <p class="about-desc" data-i18n-html="about.desc">
-      Jeu de devinettes quotidien basé sur l'univers de <strong>One Piece</strong>.
-      Sept défis renouvelés chaque jour à minuit (heure de Paris).
-    </p>
+    <p class="about-desc" data-i18n-html="about.desc">A daily guessing game set in the world of <strong>One Piece</strong>. Seven fresh challenges every day at midnight (Paris time).</p>
 
     <div class="about-modes-grid">
-      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg> Classique</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg> Classic</div>
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-wanted"></use></svg> Wanted</div>
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg> Silhouette</div>
-      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-fruit"></use></svg> Fruit du Démon</div>
-      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-rebus"></use></svg> Émoji</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-fruit"></use></svg> Devil Fruit</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-rebus"></use></svg> Emoji</div>
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-note"></use></svg> Opening</div>
-      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-tome"></use></svg> Tome</div>
+      <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-tome"></use></svg> Volume</div>
     </div>
-    <div class="about-inf-row"><svg class="ic" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em;color:var(--mode-versus)"><use href="#ic-versus"></use></svg> Versus 1v1 : défie un ami en duel au tour par tour</div>
+    <div class="about-inf-row"><svg class="ic" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em;color:var(--mode-versus)"><use href="#ic-versus"></use></svg> Versus 1v1: challenge a friend to a turn-based duel</div>
 
     <div class="about-stats-row">
       <span class="about-stat"><svg class="ic" aria-hidden="true"><use href="#ic-note"></use></svg> 29 openings</span>
-      <span class="about-stat"><svg class="ic" aria-hidden="true"><use href="#ic-flag"></use></svg> Mis à jour jusqu'à l'arc Elbaf</span>
+      <span class="about-stat"><svg class="ic" aria-hidden="true"><use href="#ic-flag"></use></svg> Updated through the Elbaf arc</span>
     </div>
 
     <div class="about-divider"></div>
 
     <p class="about-legal">
       One Piece © Eiichiro Oda · Shueisha · Toei Animation<br>
-      LogPose est un projet fan non officiel, sans affiliation.
+      LogPose is an unofficial fan project, with no affiliation.
     </p>
 
-    <p class="about-contact">Un bug, une idée ? <span class="js-contact"></span></p>
+    <p class="about-contact">Found a bug or an idea? <span class="js-contact"></span></p>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/i18n.js?v=258"></script>
-<script src="js/version.js?v=258"></script>
-<script src="js/ocean3d.js?v=258"></script>
-<script src="js/landing.js?v=258"></script>
+<script src="/i18n/en.js?v=258"></script>
+<script src="/js/i18n.js?v=258"></script>
+<script src="/js/version.js?v=258"></script>
+<script src="/js/ocean3d.js?v=258"></script>
+<script src="/js/landing.js?v=258"></script>
 </body>
 </html>

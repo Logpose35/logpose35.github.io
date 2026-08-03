@@ -1926,7 +1926,7 @@
       fc.drawImage(jr, 64, 16, 128, 128);
       flagTex.needsUpdate = true;
     };
-    jr.src = 'images/jolly_roger.png';
+    jr.src = '/images/jolly_roger.png';
 
     var flagMat = new T.ShaderMaterial({
       vertexShader: FLAG_VERT, fragmentShader: FLAG_FRAG,
@@ -2183,7 +2183,7 @@
       shipBase.x = LAND_SHIP_PATH[0].x;
       shipBase.z = LAND_SHIP_PATH[0].z;
     }
-    new T.TextureLoader().load('images/going_merry.png', function (tex) {
+    new T.TextureLoader().load('/images/going_merry.png', function (tex) {
       tex.colorSpace = T.SRGBColorSpace;
       var mat = new T.SpriteMaterial({ map: tex, color: 0x7287a8, fog: true });
       ship = new T.Sprite(mat);

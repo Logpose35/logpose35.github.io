@@ -101,13 +101,13 @@
       pins += `<g class="${cls}" data-arc="${isl.arc}" data-name="${esc(isl.name)}" `
             + `data-seuil="${isl.seuil}" data-unlocked="${unlocked ? 1 : 0}" `
             + `transform="translate(${cx} ${cy})" tabindex="0" role="button" `
-            + `aria-label="${esc(isl.name)}${unlocked ? '' : ' (verrouillée)'}">`
+            + `aria-label="${esc(isl.name)}${unlocked ? '' : t(' (verrouillée)')}">`
             + `<circle class="jm-halo" r="${r + 6}"></circle>`
             + `<circle class="jm-dot" r="${r}"></circle>`
             + (unlocked
                 ? `<text class="jm-flag" y="1.5" text-anchor="middle">☠</text>`
                 : `<text class="jm-lock" y="3" text-anchor="middle">🔒</text>`)
-            + (isLast ? `<image class="jm-boat" href="images/going_merry.png" x="-21" y="-38" width="42" height="28" preserveAspectRatio="xMidYMid meet"/>` : '')
+            + (isLast ? `<image class="jm-boat" href="/images/going_merry.png" x="-21" y="-38" width="42" height="28" preserveAspectRatio="xMidYMid meet"/>` : '')
             + `</g>`;
     });
 
@@ -149,10 +149,10 @@
     const arc  = g.getAttribute('data-arc');
     const unlocked = g.getAttribute('data-unlocked') === '1';
     const seuil = parseInt(g.getAttribute('data-seuil'), 10);
-    const arcLabel = arc === '0' ? 'Hors-série' : `Arc ${esc(arc)}`;
+    const arcLabel = arc === '0' ? t('Hors-série') : tf('Arc {0}', esc(arc));
     tip.innerHTML = unlocked
-      ? `<span class="jm-tip-arc">${arcLabel}</span><strong>${esc(name)}</strong><span class="jm-tip-state jm-tip-state--on">☠ Débloquée</span>`
-      : `<span class="jm-tip-arc">${arcLabel}</span><strong>${esc(name)}</strong><span class="jm-tip-state">🔒 ${seuil.toLocaleString('fr-FR')} pts cumulés</span>`;
+      ? `<span class="jm-tip-arc">${arcLabel}</span><strong>${esc(name)}</strong><span class="jm-tip-state jm-tip-state--on">☠ ${t('Débloquée')}</span>`
+      : `<span class="jm-tip-arc">${arcLabel}</span><strong>${esc(name)}</strong><span class="jm-tip-state">${tf('🔒 {0} pts cumulés', nfmt(seuil))}</span>`;
     // Position en pixels écran relative au stage (tient compte du zoom via
     // getBoundingClientRect). Le stage est en overflow:hidden → l'infobulle doit
     // rester DANS le cadre, sinon elle est rognée (cas des pins près d'un bord).
@@ -286,10 +286,10 @@
       const n = lastIdx + 1;
       const cur = lastIdx >= 0 ? ISLANDS[lastIdx].name : '—';
       const nextIsl = ISLANDS[lastIdx + 1];
-      sub.innerHTML = `<strong>${n} / 32 îles</strong> · ${esc(cur)}`
+      sub.innerHTML = `<strong>${tf('{0} / 32 îles', n)}</strong> · ${esc(cur)}`
         + (nextIsl
-            ? ` · prochaine : ${esc(nextIsl.name)} (${nextIsl.seuil.toLocaleString('fr-FR')} pts)`
-            : ` · Route de Laugh Tale tracée !`);
+            ? tf(' · prochaine : {0} ({1} pts)', esc(nextIsl.name), nfmt(nextIsl.seuil))
+            : t(' · Route de Laugh Tale tracée !'));
     }
 
     // Interactions : survol = tooltip ; tap/clic = dossier (géré dans pointerup) ; clavier
@@ -362,7 +362,7 @@
         : `<div class="jm-char-noimg">☠</div>`;
       return `<div class="jm-char ${on ? 'jm-char--on' : 'jm-char--off'}"`
            + (on ? ` data-name="${esc(c.name)}" tabindex="0" role="button"` : '')
-           + ` title="${on ? esc(c.name) : 'Non capturé, trouve-le en jeu pour révéler sa fiche'}">`
+           + ` title="${on ? esc(c.name) : t('Non capturé, trouve-le en jeu pour révéler sa fiche')}">`
            + media
            + `<span class="jm-char-name">${on ? esc(c.name) : '? ? ?'}</span>`
            + `</div>`;
@@ -370,18 +370,18 @@
 
     panel.innerHTML =
         '<div class="jm-dossier-head">'
-      +   '<button class="jm-dossier-back" type="button">← Carte</button>'
+      +   '<button class="jm-dossier-back" type="button">' + t('← Carte') + '</button>'
       +   '<div class="jm-dossier-titles">'
-      +     '<div class="jm-dossier-arc">' + (isl.arc === 0 ? 'Hors-série' : 'Arc ' + isl.arc) + '</div>'
+      +     '<div class="jm-dossier-arc">' + (isl.arc === 0 ? t('Hors-série') : tf('Arc {0}', isl.arc)) + '</div>'
       +     '<div class="jm-dossier-title">' + esc(isl.name) + '</div>'
       +   '</div>'
       + '</div>'
       + '<div class="jm-dossier-meta">'
-      +   '<span class="jm-dossier-capture">🎯 ' + nCap + ' / ' + chars.length + ' capturés</span>'
+      +   '<span class="jm-dossier-capture">' + tf('🎯 {0} / {1} capturés', nCap, chars.length) + '</span>'
       +   '<span class="jm-dossier-community" id="jm-community">👥 …</span>'
       + '</div>'
       + '<div class="jm-dossier-grid">'
-      +   (cards || '<div class="jm-dossier-empty">Aucun personnage référencé pour cet arc.</div>')
+      +   (cards || ('<div class="jm-dossier-empty">' + t('Aucun personnage référencé pour cet arc.') + '</div>'))
       + '</div>';
 
     panel.querySelector('.jm-dossier-back').addEventListener('click', closeDossier);
@@ -414,8 +414,8 @@
       fbGet('island-reach/' + isl.arc).then(v => {
         const n = parseInt(v, 10) || 0;
         commEl.textContent = n > 0
-          ? `👥 ${n.toLocaleString('fr-FR')} navigateur${n > 1 ? 's ont' : ' a'} atteint cette île`
-          : '👥 Sois le premier à planter ton pavillon ici';
+          ? (n > 1 ? tf('👥 {0} navigateurs ont atteint cette île', nfmt(n)) : tf('👥 {0} navigateur a atteint cette île', nfmt(n)))
+          : t('👥 Sois le premier à planter ton pavillon ici');
       }).catch(() => { commEl.textContent = ''; });
     }
   }
@@ -444,14 +444,14 @@
     const emojis = Array.isArray(c.emoji) ? c.emoji.join(' ') : '';
 
     sheet.innerHTML =
-        '<div class="jm-cs-head"><button class="jm-cs-back" type="button">← Retour au dossier</button></div>'
+        '<div class="jm-cs-head"><button class="jm-cs-back" type="button">' + t('← Retour au dossier') + '</button></div>'
       + '<div class="jm-cs-body">'
       +   '<div class="jm-cs-media">' + media + '</div>'
       +   '<div class="jm-cs-main">'
       +     '<div class="jm-cs-name">' + esc(c.name) + '</div>'
-      +     (c.epithet ? '<div class="jm-cs-epithet">« ' + esc(c.epithet) + ' »</div>' : '')
+      +     (c.epithet ? '<div class="jm-cs-epithet">« ' + esc(tc('ep', c.epithet, c.name)) + ' »</div>' : '')
       +     '<div class="jm-cs-rows">' + rows + '</div>'
-      +     (emojis ? '<div class="jm-cs-emoji" title="Indices du mode Émoji">' + emojis + '</div>' : '')
+      +     (emojis ? '<div class="jm-cs-emoji" title="' + t('Indices du mode Émoji') + '">' + emojis + '</div>' : '')
       +   '</div>'
       + '</div>';
 

@@ -27,7 +27,9 @@
     return 'wrong';
   }
   function fruitLabel(f) {
-    if (!f) return { icon:'❌', val:'Aucun' };
+    // 'Aucun' est un libellé AFFICHÉ → traduit côté navigateur. Garde `typeof t` :
+    // ce module est aussi requis par le serveur Node (où t() n'existe pas) → comportement inchangé.
+    if (!f) return { icon:'❌', val: (typeof t === 'function' ? t('Aucun') : 'Aucun') };
     return { icon: { Paramecia:'🌀', Logia:'🌊', Zoan:'🐾', Mythique:'✨' }[f] || '❓', val: f };
   }
 

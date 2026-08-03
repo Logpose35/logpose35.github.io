@@ -53,7 +53,7 @@ async function generateShareCanvas() {
       jrImg = await _csLoadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
     }
   } catch (e) { jrImg = null; }
-  if (!jrImg) { jrImg = await _csLoadImg('images/jolly_roger.png'); jrAlpha = 0.06; }
+  if (!jrImg) { jrImg = await _csLoadImg('/images/jolly_roger.png'); jrAlpha = 0.06; }
   if (jrImg) {
     const size = 300;
     const dx = W - size - 60;
@@ -83,7 +83,8 @@ async function generateShareCanvas() {
   ctx.font = '600 15px "Barlow Condensed", sans-serif';
   ctx.fillStyle = TDIM;
   ctx.textAlign = 'right';
-  ctx.fillText(`${dd}/${mm}/${yy}`, RX, 52);
+  // Date localisée : JJ/MM/AAAA en FR, MM/JJ/AAAA en EN (dfmt suit la langue de la page)
+  ctx.fillText(dfmt(new Date(+yy, +mm - 1, +dd), { day: '2-digit', month: '2-digit', year: 'numeric' }), RX, 52);
 
   // ── 5. Séparateur haut ──
   ctx.save();
@@ -111,26 +112,25 @@ async function generateShareCanvas() {
       // Non joué
       ctx.font = '500 18px "Barlow Condensed", sans-serif';
       ctx.fillStyle = TDIM;
-      ctx.fillText('—  Non joué', LX + 38, ry);
+      ctx.fillText(t('—  Non joué'), LX + 38, ry);
     } else if (res.won) {
       // Victoire
       ctx.font = '20px sans-serif';
       ctx.fillText('✅', LX + 36, ry);
-      const essai = res.tries === 1 ? 'essai' : 'essais';
       ctx.font = '600 18px "Barlow Condensed", sans-serif';
       ctx.fillStyle = TXT;
-      ctx.fillText(`${res.tries} ${essai}`, LX + 74, ry);
+      ctx.fillText(res.tries === 1 ? tf('{0} essai', res.tries) : tf('{0} essais', res.tries), LX + 74, ry);
       ctx.font = '700 18px "Barlow Condensed", sans-serif';
       ctx.fillStyle = GOLDB;
       ctx.textAlign = 'right';
-      ctx.fillText(`${pts.toLocaleString('fr-FR')} pts`, RX, ry);
+      ctx.fillText(tf('{0} pts', nfmt(pts)), RX, ry);
     } else {
       // Défaite
       ctx.font = '20px sans-serif';
       ctx.fillText('❌', LX + 36, ry);
       ctx.font = '500 18px "Barlow Condensed", sans-serif';
       ctx.fillStyle = TDIM;
-      ctx.fillText('0 pts', LX + 74, ry);
+      ctx.fillText(t('0 pts'), LX + 74, ry);
     }
 
     ctx.textAlign = 'left';
@@ -151,7 +151,7 @@ async function generateShareCanvas() {
   ctx.font = '700 24px "Barlow Condensed", sans-serif';
   ctx.fillStyle = GOLDB;
   ctx.textAlign = 'left';
-  ctx.fillText(`⭐ ${total.toLocaleString('fr-FR')} / 70 000 pts`, LX, ry + 22);
+  ctx.fillText(tf('⭐ {0} / {1} pts', nfmt(total), nfmt(70000)), LX, ry + 22);
   ry += 38;
 
   // ── 9. Rang + Série ──
@@ -160,7 +160,7 @@ async function generateShareCanvas() {
   const streak = sanitizeNum(loadStats('classic').currentStreak);
   ctx.font = '600 19px "Barlow Condensed", sans-serif';
   ctx.fillStyle = TXT;
-  ctx.fillText(`${re} ${rt}   ·   🔥 Série ${streak}j`, LX, ry + 20);
+  ctx.fillText(`${re} ${rt}   ·   ${tf('🔥 Série {0}j', streak)}`, LX, ry + 20);
   ry += 34;
 
   // ── 10. Anniversaire (si applicable) ──
@@ -169,7 +169,7 @@ async function generateShareCanvas() {
     const names = bdays.map(c => c.name).join(' & ');
     ctx.font = '600 17px "Barlow Condensed", sans-serif';
     ctx.fillStyle = '#ff85c2';
-    ctx.fillText(`🎂 Anniversaire de ${names} !`, LX, ry + 18);
+    ctx.fillText(tf('🎂 Anniversaire de {0} !', names), LX, ry + 18);
   }
 
   // ── 11. URL ──

@@ -83,6 +83,19 @@ html, .landing-body { overflow-x: clip; }
 [data-theme="light"] .lp-theme .ic-sun  { display: inline; }
 [data-theme="light"] .lp-theme .ic-moon { display: none; }
 
+/* sélecteur de langue FR/EN — même famille visuelle que le bouton thème */
+.lp-lang {
+  display: inline-grid; place-items: center;
+  height: 40px; min-width: 40px; padding: 0 0.6rem;
+  border-radius: var(--r-pill); text-decoration: none;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.95rem; letter-spacing: 0.06em;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid var(--lb-hair);
+  color: var(--lb-gold); cursor: pointer;
+  transition: transform var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+}
+.lp-lang:hover { transform: scale(1.08); background: rgba(232, 192, 48, 0.16); border-color: var(--lb-hair-2); }
+
 /* ============================================================
    CTA partagé (centré) — grand bouton « Jouer »
    ============================================================ */

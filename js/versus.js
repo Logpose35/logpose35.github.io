@@ -26,8 +26,8 @@
     }
     return b + ' M';
   }
-  const STATE_FR = { correct: 'correct', partial: 'partiel', wrong: 'incorrect' };
-  const arrowFr = a => a === '⬆️' ? ', plus haut' : a === '⬇️' ? ', plus bas' : '';
+  const STATE_FR = { correct: t('correct'), partial: t('partiel'), wrong: t('incorrect') };
+  const arrowFr = a => a === '⬆️' ? t(', plus haut') : a === '⬇️' ? t(', plus bas') : '';
   const $ = id => document.getElementById(id);
 
   // Dev : localhost ou IP privée (test téléphone sur le réseau local) → serveur local
@@ -36,17 +36,17 @@
   const WS_URL = isDevHost ? `ws://${location.hostname}:8765` : 'wss://multi.onepiecedle.fr';
 
   const ERR_FR = {
-    BAD_CODE: 'Code de lobby introuvable.', LOBBY_FULL: 'Ce lobby est déjà complet.',
-    GAME_IN_PROGRESS: 'La partie a déjà commencé.', NOT_YOUR_TURN: 'Ce n’est pas ton tour !',
-    UNKNOWN_CHAR: 'Personnage inconnu.', ALREADY_GUESSED: 'Déjà proposé dans cette manche !',
-    NOT_CREATOR: 'Seul le créateur peut modifier les options.', RATE_LIMITED: 'Doucement, moussaillon !',
-    SERVER_FULL: 'Serveur complet, réessaie plus tard.', BAD_OPTIONS: 'Options invalides.',
-    PAUSED: 'Partie en pause (adversaire déconnecté).',
+    BAD_CODE: t('Code de lobby introuvable.'), LOBBY_FULL: t('Ce lobby est déjà complet.'),
+    GAME_IN_PROGRESS: t('La partie a déjà commencé.'), NOT_YOUR_TURN: t('Ce n’est pas ton tour !'),
+    UNKNOWN_CHAR: t('Personnage inconnu.'), ALREADY_GUESSED: t('Déjà proposé dans cette manche !'),
+    NOT_CREATOR: t('Seul le créateur peut modifier les options.'), RATE_LIMITED: t('Doucement, moussaillon !'),
+    SERVER_FULL: t('Serveur complet, réessaie plus tard.'), BAD_OPTIONS: t('Options invalides.'),
+    PAUSED: t('Partie en pause (adversaire déconnecté).'),
   };
   const CLOSED_FR = {
-    opponent_left: 'Ton adversaire a quitté le lobby.', expired: 'Lobby expiré (inactivité).',
-    superseded: 'Partie reprise dans un autre onglet.', server_restart: 'Le serveur a redémarré.',
-    creator_left: 'Le créateur a quitté le lobby.',
+    opponent_left: t('Ton adversaire a quitté le lobby.'), expired: t('Lobby expiré (inactivité).'),
+    superseded: t('Partie reprise dans un autre onglet.'), server_restart: t('Le serveur a redémarré.'),
+    creator_left: t('Le créateur a quitté le lobby.'),
   };
 
   // ── État client ──
@@ -62,12 +62,12 @@
   let curMode = 'classic';         // mode de la manche en cours (classic | wanted | silhouette | fruit | emoji | tome)
   // Icônes + couleurs signature = les mêmes que game.html (registre MODES / vars --mode-*)
   const MODE_META = {
-    classic:    { label: 'Classique',      svg: 'ic-compass',    color: 'var(--mode-classic)' },
-    wanted:     { label: 'Wanted',         svg: 'ic-wanted',     color: 'var(--mode-wanted)' },
-    silhouette: { label: 'Silhouette',     svg: 'ic-silhouette', color: 'var(--mode-silhouette)' },
-    fruit:      { label: 'Fruit du Démon', svg: 'ic-fruit',      color: 'var(--mode-fruit)' },
-    emoji:      { label: 'Émoji',          svg: 'ic-rebus',      color: 'var(--mode-emoji)' },
-    tome:       { label: 'Tome',           svg: 'ic-tome',       color: 'var(--mode-tome)' },
+    classic:    { label: t('Classique'),      svg: 'ic-compass',    color: 'var(--mode-classic)' },
+    wanted:     { label: t('Wanted'),         svg: 'ic-wanted',     color: 'var(--mode-wanted)' },
+    silhouette: { label: t('Silhouette'),     svg: 'ic-silhouette', color: 'var(--mode-silhouette)' },
+    fruit:      { label: t('Fruit du Démon'), svg: 'ic-fruit',      color: 'var(--mode-fruit)' },
+    emoji:      { label: t('Émoji'),          svg: 'ic-rebus',      color: 'var(--mode-emoji)' },
+    tome:       { label: t('Tome'),           svg: 'ic-tome',       color: 'var(--mode-tome)' },
   };
   // Paliers visuels des modes wanted/silhouette/tome — copies du daily (app.js
   // n'est pas chargé ici ; BLUR_STEPS vient de data.js). wrongCount (serveur,
@@ -83,7 +83,7 @@
   function setModeAccent(m) {
     document.body.style.setProperty('--vmode', MODE_META[m] ? MODE_META[m].color : 'var(--gold)');
   }
-  const turnLabel = s => s === 0 ? 'Tour illimité' : `${s} s / tour`;
+  const turnLabel = s => s === 0 ? t('Tour illimité') : tf('{0} s / tour', s);
   const optionPills = o => o
     ? `<span class="v-optpill">Bo${o.bestOf}</span><span class="v-optpill">${turnLabel(o.turnSeconds)}</span>`
     : '';
@@ -108,7 +108,7 @@
       // Coupure inattendue en cours de lobby → tentative de resume (grace 90 s côté serveur)
       const saved = savedResume();
       if (saved && !supersededFlag && retryCount < 20) {
-        banner('⚓ Connexion perdue, reconnexion en cours…');
+        banner(t('⚓ Connexion perdue, reconnexion en cours…'));
         retryTimer = setTimeout(() => { retryCount++; connect(); send('resume', { code: saved.code, resumeToken: saved.token }); }, 2000);
       }
     };
@@ -137,15 +137,15 @@
         break;
       case 'lobby_state':
       case 'resume_ok':
-        if (type === 'resume_ok') { banner(null); toast('Partie reprise !', 'info'); }
+        if (type === 'resume_ok') { banner(null); toast(t('Partie reprise !'), 'info'); }
         render(payload);
         break;
       case 'countdown':      onCountdown(payload); break;
       case 'turn':           onTurn(payload); break;
       case 'guess_result':   addGuess(payload); if (payload.clue) renderClue(payload.clue); break;
       case 'turn_timeout':
-        toast(payload.player === me ? `⏳ Temps écoulé ! Strike ${payload.strikes}/3`
-                                    : `L’adversaire a laissé filer son tour (strike ${payload.strikes}/3)`, 'info');
+        toast(payload.player === me ? tf('⏳ Temps écoulé ! Strike {0}/3', payload.strikes)
+                                    : tf('L’adversaire a laissé filer son tour (strike {0}/3)', payload.strikes), 'info');
         break;
       case 'round_end':      onRoundEnd(payload); break;
       case 'match_end':
@@ -153,15 +153,15 @@
         recordVersusStat(payload.winner === me);
         break;
       case 'opponent_disconnected':
-        banner(`⚓ Adversaire déconnecté, partie en pause (${Math.round(payload.graceMs / 1000)} s de grâce)…`);
+        banner(tf('⚓ Adversaire déconnecté, partie en pause ({0} s de grâce)…', Math.round(payload.graceMs / 1000)));
         break;
       case 'opponent_reconnected':
-        banner(null); toast('Adversaire de retour !', 'info');
+        banner(null); toast(t('Adversaire de retour !'), 'info');
         break;
       case 'lobby_closed':
         if (payload.reason === 'superseded') supersededFlag = true;
         purgeResume(); clearTimeout(retryTimer);
-        toast(CLOSED_FR[payload.reason] || 'Lobby fermé.', 'info');
+        toast(CLOSED_FR[payload.reason] || t('Lobby fermé.'), 'info');
         resetToHome();
         break;
       case 'error':          onError(payload); break;
@@ -173,7 +173,7 @@
   function onError(p) {
     if (p.code === 'BAD_RESUME') { purgeResume(); clearTimeout(retryTimer); banner(null); resetToHome(); return; }
     if (p.code === 'BAD_CODE' && savedResume()) { purgeResume(); banner(null); resetToHome(); return; }
-    toast(ERR_FR[p.code] || `Erreur : ${p.code}`);
+    toast(ERR_FR[p.code] || tf('Erreur : {0}', p.code));
   }
 
   // ── Rendu piloté par snapshot (idempotent) ──
@@ -205,21 +205,21 @@
       $('v-roundover').hidden = true;
       $('v-ready-players').innerHTML = s.players.map((p, i) => `
         <div class="v-player ${p.ready ? 'ready' : ''} ${p.connected ? '' : 'off'}">
-          <span class="v-pname">${esc(p.name)}${i === me ? ' (toi)' : ''}</span>
-          <span class="v-pstate">${p.connected ? (p.ready ? 'Prêt ✔' : 'Pas prêt') : 'déconnecté…'}</span>
+          <span class="v-pname">${esc(p.name)}${i === me ? t(' (toi)') : ''}</span>
+          <span class="v-pstate">${p.connected ? (p.ready ? t('Prêt ✔') : t('Pas prêt')) : t('déconnecté…')}</span>
         </div>`).join('');
       $('v-bestof2').value = String(s.options.bestOf);
       $('v-turns2').value = String(s.options.turnSeconds);
       const isCreator = me === 0;
       $('v-bestof2').disabled = !isCreator; $('v-turns2').disabled = !isCreator;
       $('v-ready-optsinfo').hidden = isCreator;
-      $('v-readybtn').textContent = s.players[me]?.ready ? 'Annuler « prêt »' : 'Je suis prêt !';
+      $('v-readybtn').textContent = s.players[me]?.ready ? t('Annuler « prêt »') : t('Je suis prêt !');
       screen('v-ready');
       return;
     }
     if (s.state === 'VETO') {
       renderVeto(s);
-      if (s.paused) banner('⚓ Veto en pause (adversaire déconnecté)…'); else banner(null);
+      if (s.paused) banner(t('⚓ Veto en pause (adversaire déconnecté)…')); else banner(null);
       screen('v-veto');
       return;
     }
@@ -236,13 +236,13 @@
         s.guesses.forEach(addGuess);
       }
       $('v-scorebar').innerHTML = s.players.map((p, i) => `
-        <span class="${i === me ? 'me' : 'op'}">${esc(p.name)}${i === me ? ' (toi)' : ''} : ${s.scores[i] ?? 0}
+        <span class="${i === me ? 'me' : 'op'}">${esc(p.name)}${i === me ? t(' (toi)') : ''} : ${s.scores[i] ?? 0}
           <span class="v-strikes">${'✖'.repeat(s.strikes[i] || 0)}</span></span>`)
-        .join(`<span> · manche ${s.round}/${s.options.bestOf} · ${modeChip(s.mode)} · </span>`);
-      $('v-gridtitle-me').textContent = `${s.players[me]?.name || 'Toi'} (toi)`;
-      $('v-gridtitle-op').textContent = s.players[op]?.name || 'Adversaire';
+        .join(`<span> · ${tf('manche {0}/{1}', s.round, s.options.bestOf)} · ${modeChip(s.mode)} · </span>`);
+      $('v-gridtitle-me').textContent = tf('{0} (toi)', s.players[me]?.name || t('Toi'));
+      $('v-gridtitle-op').textContent = s.players[op]?.name || t('Adversaire');
       if (s.turnOf !== null) applyTurn(s.turnOf, s.remainingMs);
-      if (s.paused) banner('⚓ Partie en pause…');
+      if (s.paused) banner(t('⚓ Partie en pause…'));
       screen('v-game');
       return;
     }
@@ -251,20 +251,20 @@
       const winner = lastWinner !== null ? lastWinner
         : s.scores.indexOf(Math.max(...s.scores));
       const iWon = winner === me;
-      const winnerName = esc(s.players[winner]?.name || 'Vainqueur');
+      const winnerName = esc(s.players[winner]?.name || t('Vainqueur'));
       $('v-post-title').innerHTML =
-        `<span class="v-post-verdict">${iWon ? '🏆 Victoire !' : '💀 Défaite…'}</span>` +
-        `<span class="v-post-winner">${winnerName} remporte le duel${iWon ? ' (toi)' : ''}</span>`;
+        `<span class="v-post-verdict">${iWon ? t('🏆 Victoire !') : t('💀 Défaite…')}</span>` +
+        `<span class="v-post-winner">${tf('{0} remporte le duel{1}', winnerName, iWon ? t(' (toi)') : '')}</span>`;
       // Réponse de la dernière manche + récap de toutes les manches
       const pr = $('v-post-reveal');
       if (lastRound && lastRound.target) {
         pr.innerHTML = `${revealImgTag(lastRound.target)}
-          <div><div class="v-rtitle">C'était ${esc(lastRound.target.name)}${lastRound.fruitName ? ` (${esc(lastRound.fruitName)})` : ''}</div>
-          <div class="v-rsub">trouvé en ${lastRound.tries} essai${lastRound.tries > 1 ? 's' : ''}</div></div>`;
+          <div><div class="v-rtitle">${tf("C'était {0}", esc(lastRound.target.name))}${lastRound.fruitName ? ` (${esc(lastRound.fruitName)})` : ''}</div>
+          <div class="v-rsub">${lastRound.tries > 1 ? tf('trouvé en {0} essais', lastRound.tries) : tf('trouvé en {0} essai', lastRound.tries)}</div></div>`;
         pr.hidden = false;
       } else pr.hidden = true;
       $('v-post-rounds').innerHTML = (s.roundsHistory || []).map((r, i) =>
-        `Manche ${i + 1} ${modeChip(r.mode)} : <b>${esc(r.targetName)}</b>${r.fruitName ? ` · ${esc(r.fruitName)}` : ''} · ${esc(s.players[r.winner]?.name || '?')} (${r.tries} essai${r.tries > 1 ? 's' : ''})`).join('<br>');
+        `${tf('Manche {0}', i + 1)} ${modeChip(r.mode)} : <b>${esc(r.targetName)}</b>${r.fruitName ? ` · ${esc(r.fruitName)}` : ''} · ${esc(s.players[r.winner]?.name || '?')} (${r.tries > 1 ? tf('{0} essais', r.tries) : tf('{0} essai', r.tries)})`).join('<br>');
       $('v-post-score').textContent = `${esc(s.players[me]?.name)} ${s.scores[me]} - ${s.scores[op]} ${esc(s.players[op]?.name)}`;
       const meWants = s.players[me]?.wantsRematch, opWants = s.players[op]?.wantsRematch;
       $('v-rematch').disabled = !!meWants;
@@ -282,13 +282,13 @@
     setModeAccent('classic'); document.body.style.setProperty('--vmode', 'var(--gold)');
     const myTurn = v.turnOf === me;
     const isBan = v.action === 'ban';
-    $('v-veto-title').textContent = `Veto des modes · ${v.stepIdx}/${v.total}`;
+    $('v-veto-title').textContent = tf('Veto des modes · {0}/{1}', v.stepIdx, v.total);
     const stt = $('v-veto-status');
     if (myTurn) {
-      stt.innerHTML = isBan ? '🚫 <b>Bannis</b> un mode' : '✅ <b>Choisis</b> un mode à jouer';
+      stt.innerHTML = isBan ? t('🚫 <b>Bannis</b> un mode') : t('✅ <b>Choisis</b> un mode à jouer');
       stt.className = 'v-veto-status mine ' + (isBan ? 'ban' : 'pick');
     } else {
-      stt.innerHTML = `L'adversaire ${isBan ? 'bannit' : 'choisit'} un mode<span class="v-dots">…</span>`;
+      stt.innerHTML = `${tf("L'adversaire {0} un mode", isBan ? t('bannit') : t('choisit'))}<span class="v-dots">…</span>`;
       stt.className = 'v-veto-status';
     }
     $('v-veto-board').innerHTML = VETO_ORDER.map(m => {
@@ -303,8 +303,8 @@
       if (picked) cls.push('picked');
       if (avail && !myTurn) cls.push('waiting');
       if (clickable) cls.push('selectable', isBan ? 'act-ban' : 'act-pick');
-      const tag = banned ? '<span class="v-vtag ban">banni</span>'
-        : picked ? `<span class="v-vtag pick">manche ${pIdx + 1}</span>` : '';
+      const tag = banned ? `<span class="v-vtag ban">${t('banni')}</span>`
+        : picked ? `<span class="v-vtag pick">${tf('manche {0}', pIdx + 1)}</span>` : '';
       return `<button class="${cls.join(' ')}" data-mode="${m}" ${clickable ? '' : 'disabled'} style="--mc:${meta.color}">
         <svg class="ic" aria-hidden="true"><use href="#${meta.svg}"></use></svg>
         <span class="v-vname">${esc(meta.label)}</span>${tag}</button>`;
@@ -326,8 +326,8 @@
     if (curMode === 'tome') input.setAttribute('inputmode', 'numeric');
     else input.removeAttribute('inputmode');
     input.placeholder = mine
-      ? (curMode === 'tome' ? `Numéro du tome (1–${tomeMax()})…` : 'À toi de jouer…')
-      : `Tour de ${snap.players[turnOf]?.name || '…'}`;
+      ? (curMode === 'tome' ? tf('Numéro du tome (1–{0})…', tomeMax()) : t('À toi de jouer…'))
+      : tf('Tour de {0}', snap.players[turnOf]?.name || '…');
     if (mine) input.focus();
     $('v-gridtitle-me').classList.toggle('turn-me', mine);
     $('v-gridtitle-op').classList.toggle('turn', !mine);
@@ -344,7 +344,7 @@
     if (!snap || snap.state !== 'IN_GAME') return;
     const line = $('v-turnline');
     if (snap.turnOf === null) {  // entre round_end et le countdown suivant
-      line.textContent = '🔍 Réponse révélée, manche suivante dans quelques secondes…';
+      line.textContent = t('🔍 Réponse révélée, manche suivante dans quelques secondes…');
       line.classList.remove('mine');
       return;
     }
@@ -354,9 +354,9 @@
       const total = snap.options.turnSeconds * 1000;
       $('v-timerbar').style.width = `${(rem / total) * 100}%`;
       $('v-timerbar').classList.toggle('urgent', rem < 10_000);
-      line.textContent = (mine ? '🎯 À toi de jouer ' : `Tour de ${snap.players[snap.turnOf]?.name || '…'} `) + `(${Math.ceil(rem / 1000)} s)`;
+      line.textContent = (mine ? t('🎯 À toi de jouer') + ' ' : tf('Tour de {0}', snap.players[snap.turnOf]?.name || '…') + ' ') + tf('({0} s)', Math.ceil(rem / 1000));
     } else {
-      line.textContent = mine ? '🎯 À toi de jouer' : `Tour de ${snap.players[snap.turnOf]?.name || '…'}`;
+      line.textContent = mine ? t('🎯 À toi de jouer') : tf('Tour de {0}', snap.players[snap.turnOf]?.name || '…');
     }
     line.classList.toggle('mine', mine);
   }, 200);
@@ -372,7 +372,7 @@
     $('v-grid-me').innerHTML = ''; $('v-grid-op').innerHTML = '';
     rendered = new Set(); guessed = new Set();
     $('v-roundover').hidden = true;
-    $('v-countround').innerHTML = `Manche ${p.round} · ${modeChip(curMode)}`;
+    $('v-countround').innerHTML = tf('Manche {0} · {1}', p.round, modeChip(curMode));
     $('v-count').hidden = false;
     let n = p.seconds;
     $('v-countnum').textContent = n;
@@ -398,15 +398,15 @@
                                    : `<span class="lock">${esc(label)} 🔒</span>`;
       el.innerHTML = `<div class="v-clue-fruit">
         <div class="v-fruitname"><svg class="ic ic-inline" aria-hidden="true" style="color:var(--mode-fruit)"><use href="#ic-fruit"></use></svg>${esc(clue.fruitName)}</div>
-        <div class="v-fruithints">${line('Type', H.type)} · ${line('Traduction', H.translated)}<br>${line('Description', H.description)}</div>
+        <div class="v-fruithints">${line(t('Type'), H.type)} · ${line(t('Traduction'), H.translated)}<br>${line(t('Description'), H.description)}</div>
       </div>`;
     } else if (clue.img) {          // wanted : portrait flouté, défloute à chaque erreur
       const blur = BLUR_STEPS[Math.min(clue.wrongCount, BLUR_STEPS.length - 1)];
       let img = el.querySelector('.v-frame-wanted img');
       if (!img || img.dataset.key !== clue.img) {
-        el.innerHTML = `<div class="v-clue-frame v-frame-wanted"><img data-key="${esc(clue.img)}" src="${AB}images/${esc(clue.img)}.jpg" alt="Portrait mystère" draggable="false"></div>
+        el.innerHTML = `<div class="v-clue-frame v-frame-wanted"><img data-key="${esc(clue.img)}" src="${AB}images/${esc(clue.img)}.jpg" alt="${t('Portrait mystère')}" draggable="false"></div>
           <div class="v-clue-sub"></div>
-          <label class="color-toggle v-wcolor"><input type="checkbox" id="v-wcolor-cb"><div class="toggle-track"><div class="toggle-knob"></div></div>Couleur</label>`;
+          <label class="color-toggle v-wcolor"><input type="checkbox" id="v-wcolor-cb"><div class="toggle-track"><div class="toggle-knob"></div></div>${t('Couleur')}</label>`;
         img = el.querySelector('.v-frame-wanted img');
         const cb = el.querySelector('#v-wcolor-cb');
         cb.checked = wantedColor;
@@ -414,12 +414,12 @@
       }
       el.dataset.blur = blur;
       applyWantedFilter();
-      el.querySelector('.v-clue-sub').textContent = blur === 0 ? 'Image parfaitement nette !' : `Flou : ${blur}px`;
+      el.querySelector('.v-clue-sub').textContent = blur === 0 ? t('Image parfaitement nette !') : tf('Flou : {0}px', blur);
     } else if (clue.silKey) {       // silhouette : pan + dézoom depuis le point de contour
       let frame = el.querySelector('.v-frame-sil');
       if (!frame || frame.dataset.key !== clue.silKey) {
         el.innerHTML = `<div class="v-clue-frame v-frame-sil" data-key="${esc(clue.silKey)}">
-          <img class="v-sil-black" src="${AB}silhouettes/${esc(clue.silKey)}.png" alt="Silhouette mystère" draggable="false">
+          <img class="v-sil-black" src="${AB}silhouettes/${esc(clue.silKey)}.png" alt="${t('Silhouette mystère')}" draggable="false">
           <img class="v-sil-color" src="${AB}silhouettes/color/${esc(clue.silKey)}.png" alt="" draggable="false">
         </div><div class="v-clue-sub"></div>`;
         frame = el.querySelector('.v-frame-sil');
@@ -432,19 +432,19 @@
       const col = frame.querySelector('.v-sil-color');
       col.style.opacity = colorOn ? '1' : '0';
       col.style.clipPath = colorOn ? `circle(7% at ${(cc.x * 100).toFixed(2)}% ${(cc.y * 100).toFixed(2)}%)` : 'none';
-      el.querySelector('.v-clue-sub').textContent = (colorOn ? '🎨 Indice couleur débloqué · ' : '')
-        + (cc.s === 1 ? 'Silhouette entière !' : 'Dézoome à chaque erreur…');
+      el.querySelector('.v-clue-sub').textContent = (colorOn ? t('🎨 Indice couleur débloqué · ') : '')
+        + (cc.s === 1 ? t('Silhouette entière !') : t('Dézoome à chaque erreur…'));
     } else if (clue.cover) {        // tome : couverture zoomée → dézoom
       let frame = el.querySelector('.v-frame-tome');
       if (!frame || frame.dataset.key !== String(clue.cover)) {
-        el.innerHTML = `<div class="v-clue-frame v-frame-tome" data-key="${clue.cover}"><img src="${AB}images/cover/Tome_${clue.cover}.webp" alt="Couverture mystère" draggable="false"></div><div class="v-clue-sub"></div>`;
+        el.innerHTML = `<div class="v-clue-frame v-frame-tome" data-key="${clue.cover}"><img src="${AB}images/cover/Tome_${clue.cover}.webp" alt="${t('Couverture mystère')}" draggable="false"></div><div class="v-clue-sub"></div>`;
         frame = el.querySelector('.v-frame-tome');
       }
       const s = V_TOME_SCALES[Math.min(clue.wrongCount, V_TOME_SCALES.length - 1)];
       const img = frame.querySelector('img');
       if (clue.zoom) img.style.transformOrigin = `${clue.zoom.x}% ${clue.zoom.y}%`;
       img.style.transform = `scale(${s})`;
-      el.querySelector('.v-clue-sub').textContent = s === 1 ? 'Couverture entière !' : 'Dézoome à chaque erreur…';
+      el.querySelector('.v-clue-sub').textContent = s === 1 ? t('Couverture entière !') : t('Dézoome à chaque erreur…');
     } else { el.hidden = true; return; }
     el.hidden = false;
   }
@@ -483,8 +483,8 @@
   function buildTomeRow(n, v) {
     const row = document.createElement('div');
     row.className = 'v-simple-row';
-    const res = v.win ? '✅ TROUVÉ !' : v.dir === 'higher' ? '📈 Plus haut' : '📉 Plus bas';
-    row.innerHTML = `<span class="nm">Tome ${n}</span><span class="res ${v.win ? 'correct' : 'wrong'}">${res}</span>`;
+    const res = v.win ? t('✅ TROUVÉ !') : v.dir === 'higher' ? t('📈 Plus haut') : t('📉 Plus bas');
+    row.innerHTML = `<span class="nm">${tf('Tome {0}', n)}</span><span class="res ${v.win ? 'correct' : 'wrong'}">${res}</span>`;
     return row;
   }
 
@@ -495,7 +495,7 @@
     row.innerHTML = `
       ${char.imgFile ? `<img src="${AB}images/${esc(char.imgFile)}.jpg" alt="" loading="lazy" onerror="this.remove()">` : ''}
       <span class="nm">${esc(char.name)}</span>
-      <span class="res ${v.win ? 'correct' : 'wrong'}">${v.win ? '✅ TROUVÉ !' : '❌ Raté'}</span>`;
+      <span class="res ${v.win ? 'correct' : 'wrong'}">${v.win ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
     return row;
   }
 
@@ -504,9 +504,11 @@
     row.className = 'guess-row grid-cols';
     row.setAttribute('role', 'listitem');
     const fl = fruitLabel(char.fruit);
-    const genderTxt = char.gender === 'M' ? 'Homme' : char.gender === 'F' ? 'Femme' : 'Inconnu';
-    const hakiTxt = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.join(', ') : 'Aucun';
-    const arcTxt = (typeof ARCS !== 'undefined' && ARCS[char.arc]) || '?';
+    const genderTxt = char.gender === 'M' ? t('Homme') : char.gender === 'F' ? t('Femme') : t('Inconnu');
+    const hakiTxt = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.map(t).join(', ') : t('Aucun');
+    const arcTxt = t((typeof ARCS !== 'undefined' && ARCS[char.arc]) || '?');
+    // Valeurs data.json traduites POUR L'AFFICHAGE ; verdicts (v.*) et coloriage sur les données brutes.
+    const affilTxt = t(char.affil), originTxt = t(char.origin), statusTxt = t(char.status), fruitValTxt = t(fl.val);
     const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))}, ${STATE_FR[state]}${extra}"`;
     row.innerHTML = `
       <div class="cell cell-char">
@@ -514,14 +516,14 @@
           ? `<img class="char-thumb" src="${AB}images/${esc(char.imgFile)}.jpg" alt="${esc(char.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(char.name)}</span>`
           : `<span class="char-name-only">${esc(char.name)}</span>`}
       </div>
-      <div class="cell ${v.gender}" data-label="Genre" ${al('Genre', genderTxt, v.gender)}><span class="cell-icon" aria-hidden="true">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${genderTxt}</span></div>
-      <div class="cell ${v.affil}" data-label="Affiliation" ${al('Affiliation', char.affil, v.affil)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.affil)}</span></div>
-      <div class="cell ${v.origin}" data-label="Origine" ${al('Origine', char.origin, v.origin)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(char.origin)}</span></div>
-      <div class="cell ${v.fruit}" data-label="Fruit du Démon" ${al('Fruit du Démon', fl.val, v.fruit)}><span class="cell-icon" aria-hidden="true">${esc(fl.icon)}</span><span class="cell-val">${esc(fl.val)}</span></div>
-      <div class="cell ${v.haki}" data-label="Haki" ${al('Haki', hakiTxt, v.haki)}><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(hakiTxt)}</span></div>
-      <div class="cell ${v.status}" data-label="Statut" ${al('Statut', char.status, v.status)}><span class="cell-icon" aria-hidden="true">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(char.status)}</span></div>
-      <div class="cell ${v.arc.state}" data-label="1er Arc" ${al('Premier arc', arcTxt, v.arc.state, arrowFr(v.arc.arrow))}><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(arcTxt)}</span>${v.arc.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(v.arc.arrow)}</span>` : ''}</div>
-      <div class="cell ${v.bounty.state}" data-label="Prime" ${al('Prime', formatBounty(char.bounty), v.bounty.state, arrowFr(v.bounty.arrow))}><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${v.bounty.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(v.bounty.arrow)}</span>` : ''}</div>
+      <div class="cell ${v.gender}" data-label="${t('Genre')}" ${al(t('Genre'), genderTxt, v.gender)}><span class="cell-icon" aria-hidden="true">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${genderTxt}</span></div>
+      <div class="cell ${v.affil}" data-label="${t('Affiliation')}" ${al(t('Affiliation'), affilTxt, v.affil)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(affilTxt)}</span></div>
+      <div class="cell ${v.origin}" data-label="${t('Origine')}" ${al(t('Origine'), originTxt, v.origin)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(originTxt)}</span></div>
+      <div class="cell ${v.fruit}" data-label="${t('Fruit du Démon')}" ${al(t('Fruit du Démon'), fruitValTxt, v.fruit)}><span class="cell-icon" aria-hidden="true">${esc(fl.icon)}</span><span class="cell-val">${esc(fruitValTxt)}</span></div>
+      <div class="cell ${v.haki}" data-label="${t('Haki')}" ${al(t('Haki'), hakiTxt, v.haki)}><span class="cell-val" style="font-size:0.72rem;line-height:1.4">${esc(hakiTxt)}</span></div>
+      <div class="cell ${v.status}" data-label="${t('Statut')}" ${al(t('Statut'), statusTxt, v.status)}><span class="cell-icon" aria-hidden="true">${char.status === 'Vivant' ? '💚' : '💀'}</span><span class="cell-val">${esc(statusTxt)}</span></div>
+      <div class="cell ${v.arc.state}" data-label="${t('1er Arc')}" ${al(t('Premier arc'), arcTxt, v.arc.state, arrowFr(v.arc.arrow))}><span class="cell-val" style="font-size:0.74rem;line-height:1.3">${esc(arcTxt)}</span>${v.arc.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(v.arc.arrow)}</span>` : ''}</div>
+      <div class="cell ${v.bounty.state}" data-label="${t('Prime')}" ${al(t('Prime'), formatBounty(char.bounty), v.bounty.state, arrowFr(v.bounty.arrow))}><span class="cell-val">${esc(formatBounty(char.bounty))}</span>${v.bounty.arrow ? `<span class="cell-arrow" aria-hidden="true">${esc(v.bounty.arrow)}</span>` : ''}</div>
     `;
     row.querySelectorAll('.cell').forEach((cell, i) => {
       cell.style.setProperty('--delay', `${i * 55}ms`);
@@ -549,9 +551,9 @@
     $('v-roundover-card').innerHTML = `
       ${revealImgTag(p.target)}
       <div>
-        <div class="v-rtitle">${mine ? '🏆 Manche gagnée !' : `💀 Manche pour ${esc(wName)}`}</div>
-        <div class="v-rname">C'était <b>${esc(p.target.name)}</b>${p.fruitName ? ` (${esc(p.fruitName)})` : ''}</div>
-        <div class="v-rsub">trouvé en ${p.tries} essai${p.tries > 1 ? 's' : ''} · Score : ${p.scores.join(' · ')}</div>
+        <div class="v-rtitle">${mine ? t('🏆 Manche gagnée !') : tf('💀 Manche pour {0}', esc(wName))}</div>
+        <div class="v-rname">${t("C'était")} <b>${esc(p.target.name)}</b>${p.fruitName ? ` (${esc(p.fruitName)})` : ''}</div>
+        <div class="v-rsub">${tf('trouvé en {0} essai{1} · Score : {2}', p.tries, p.tries > 1 ? 's' : '', p.scores.join(' · '))}</div>
       </div>`;
     $('v-roundover').hidden = false;
   }
@@ -584,7 +586,7 @@
     if (!name) return;
     if (curMode === 'tome') {   // numéro de tome, pas un personnage
       const n = parseInt(name, 10);
-      if (!Number.isInteger(n) || n < 1 || n > tomeMax()) return toast(`Un numéro de tome entre 1 et ${tomeMax()} !`);
+      if (!Number.isInteger(n) || n < 1 || n > tomeMax()) return toast(tf('Un numéro de tome entre 1 et {0} !', tomeMax()));
       if (guessed.has(`tome-${n}`)) return toast(ERR_FR.ALREADY_GUESSED);
       send('guess', { name: String(n) });
       input().value = '';
@@ -627,7 +629,7 @@
     $('v-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinFromInput(); });
     function joinFromInput() {
       const code = $('v-code').value.trim().toUpperCase();
-      if (code.length !== 5) return toast('Le code fait 5 caractères.');
+      if (code.length !== 5) return toast(t('Le code fait 5 caractères.'));
       const pseudo = $('v-pseudo').value.trim() || 'Pirate';
       localStorage.setItem(K_PSEUDO, pseudo);
       supersededFlag = false;
@@ -637,16 +639,16 @@
 
     $('v-copylink').addEventListener('click', async () => {
       const url = `${location.origin}${location.pathname}?code=${snap?.code || ''}`;
-      try { await navigator.clipboard.writeText(url); toast('Lien copié !', 'info'); }
+      try { await navigator.clipboard.writeText(url); toast(t('Lien copié !'), 'info'); }
       catch { toast(url, 'info'); }
     });
     $('v-bigcode').addEventListener('click', async () => {
       const el = $('v-bigcode');
       try {
         await navigator.clipboard.writeText(snap?.code || el.textContent);
-        el.classList.add('copied'); toast('Code copié !', 'info');
+        el.classList.add('copied'); toast(t('Code copié !'), 'info');
         setTimeout(() => el.classList.remove('copied'), 1500);
-      } catch { toast('Code : ' + (snap?.code || ''), 'info'); }
+      } catch { toast(t('Code : ') + (snap?.code || ''), 'info'); }
     });
     $('v-cancelwait').addEventListener('click', () => { send('leave_lobby'); purgeResume(); resetToHome(); });
     $('v-leaveready').addEventListener('click', () => { send('leave_lobby'); purgeResume(); resetToHome(); });
@@ -690,8 +692,8 @@
     }
   }
 
-  loadGameData().then(init).catch(e => {
+  Promise.all([loadGameData(), window.__i18nReady || Promise.resolve()]).then(init).catch(e => {
     console.error(e);
-    toast('Impossible de charger les données du jeu.');
+    toast(t('Impossible de charger les données du jeu.'));
   });
 })();

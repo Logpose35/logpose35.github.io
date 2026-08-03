@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LogPose · 7 défis One Piece quotidiens</title>
+  <title>LogPose · 7 Daily One Piece Challenges</title>
 
   <!-- SEO -->
-  <meta name="description" content="LogPose · Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères en analysant leurs caractéristiques.">
-  <meta name="keywords" content="LogPose, One Piece, Wordle, jeu, devinette, personnage, manga, anime, quotidien">
+  <meta name="description" content="LogPose · The daily One Piece Wordle game! 7 daily modes: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume. Guess the mystery characters by reading their traits.">
+  <meta name="keywords" content="LogPose, One Piece, Wordle, game, guessing game, character, manga, anime, daily">
   <meta name="author" content="LogPose">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#c89408">
-  <link rel="canonical" href="https://onepiecedle.fr/game.html">
+  <link rel="canonical" href="https://onepiecedle.fr/en/game.html">
   <!-- Alternatives de langue (i18n) — bloc identique sur /game.html et /en/game.html -->
   <link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/game.html">
   <link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/game.html">
@@ -20,11 +20,11 @@
   <meta name="google-site-verification" content="i0vh5Ns4PHg6NJDlxaqo-uQZ2qaM-HRbuoVM-Gz3BYg">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="LogPose · 7 défis One Piece quotidiens">
-  <meta property="og:description" content="7 défis One Piece par jour : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Un nouveau défi chaque jour !">
+  <meta property="og:title" content="LogPose · 7 Daily One Piece Challenges">
+  <meta property="og:description" content="7 One Piece challenges a day: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume. A new challenge every day!">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://onepiecedle.fr/game.html">
-  <meta property="og:locale" content="fr_FR">
+  <meta property="og:url" content="https://onepiecedle.fr/en/game.html">
+  <meta property="og:locale" content="en_US">
   <meta property="og:image" content="https://onepiecedle.fr/images/og_preview.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -32,12 +32,12 @@
 
   <!-- Twitter / X Cards -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LogPose · 7 défis One Piece quotidiens">
-  <meta name="twitter:description" content="Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome. Un nouveau défi chaque jour !">
+  <meta name="twitter:title" content="LogPose · 7 Daily One Piece Challenges">
+  <meta name="twitter:description" content="Classic · Wanted · Silhouette · Devil Fruit · Emoji · Opening · Volume. A new challenge every day!">
   <meta name="twitter:image" content="https://onepiecedle.fr/images/og_preview.jpg">
 
   <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="/manifest.en.json">
 
   <!-- JSON-LD Schema -->
   <script type="application/ld+json">
@@ -45,39 +45,39 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "LogPose",
-    "url": "https://onepiecedle.fr/game.html",
-    "description": "7 défis One Piece quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome",
+    "url": "https://onepiecedle.fr/en/game.html",
+    "description": "7 daily One Piece challenges: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume",
     "applicationCategory": "Game",
     "genre": "Word Game",
-    "inLanguage": "fr",
+    "inLanguage": "en",
     "operatingSystem": "Any",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
     "image": "https://onepiecedle.fr/images/og_preview.jpg"
   }
   </script>
 
-  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
 
   <!-- Base des assets lourds (VPS). Rollback : '' → chemins relatifs, re-couverts par le SW. -->
   <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=258">
-  <link rel="stylesheet" href="css/layout.css?v=258">
-  <link rel="stylesheet" href="css/modals.css?v=258">
-  <link rel="stylesheet" href="css/classic.css?v=258">
-  <link rel="stylesheet" href="css/wanted.css?v=258">
-  <link rel="stylesheet" href="css/silhouette.css?v=258">
-  <link rel="stylesheet" href="css/fruit.css?v=258">
-  <link rel="stylesheet" href="css/inf.css?v=258">
-  <link rel="stylesheet" href="css/emoji.css?v=258">
-  <link rel="stylesheet" href="css/misc.css?v=258">
-  <link rel="stylesheet" href="css/audio.css?v=258">
-  <link rel="stylesheet" href="css/animations.css?v=258">
-  <link rel="stylesheet" href="css/map.css?v=258">
-  <link rel="stylesheet" href="css/tome.css?v=258">
-  <link rel="stylesheet" href="css/ocean3d.css?v=258">
+  <link rel="stylesheet" href="/css/base.css?v=258">
+  <link rel="stylesheet" href="/css/layout.css?v=258">
+  <link rel="stylesheet" href="/css/modals.css?v=258">
+  <link rel="stylesheet" href="/css/classic.css?v=258">
+  <link rel="stylesheet" href="/css/wanted.css?v=258">
+  <link rel="stylesheet" href="/css/silhouette.css?v=258">
+  <link rel="stylesheet" href="/css/fruit.css?v=258">
+  <link rel="stylesheet" href="/css/inf.css?v=258">
+  <link rel="stylesheet" href="/css/emoji.css?v=258">
+  <link rel="stylesheet" href="/css/misc.css?v=258">
+  <link rel="stylesheet" href="/css/audio.css?v=258">
+  <link rel="stylesheet" href="/css/animations.css?v=258">
+  <link rel="stylesheet" href="/css/map.css?v=258">
+  <link rel="stylesheet" href="/css/tome.css?v=258">
+  <link rel="stylesheet" href="/css/ocean3d.css?v=258">
 </head>
 <body data-ocean="game">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -273,75 +273,75 @@
 <header>
   <div class="header-inner">
     <div class="settings-wrap">
-      <button class="theme-btn" id="settings-btn" onclick="toggleSettings()" title="Paramètres" aria-label="Paramètres" aria-haspopup="true" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="#ic-gear"></use></svg></button>
-      <div class="settings-panel hidden" id="settings-panel" role="menu" aria-label="Paramètres">
+      <button class="theme-btn" id="settings-btn" onclick="toggleSettings()" title="Settings" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="#ic-gear"></use></svg></button>
+      <div class="settings-panel hidden" id="settings-panel" role="menu" aria-label="Settings">
         <div class="sp-section">
-          <div class="sp-label" id="sp-size-label">Taille de l'interface</div>
+          <div class="sp-label" id="sp-size-label">Interface size</div>
           <div class="sp-size-row" role="group" aria-labelledby="sp-size-label">
-            <button class="size-btn" id="sz-p" onclick="setSize('small')">Petit</button>
-            <button class="size-btn" id="sz-m" onclick="setSize('medium')">Moyen</button>
-            <button class="size-btn" id="sz-g" onclick="setSize('large')">Grand</button>
+            <button class="size-btn" id="sz-p" onclick="setSize('small')">Small</button>
+            <button class="size-btn" id="sz-m" onclick="setSize('medium')">Medium</button>
+            <button class="size-btn" id="sz-g" onclick="setSize('large')">Large</button>
           </div>
         </div>
         <div class="sp-divider"></div>
         <div class="sp-section">
-          <div class="sp-label">Accessibilité</div>
+          <div class="sp-label">Accessibility</div>
           <label class="sp-toggle">
-            <span>Mode daltonien</span>
+            <span>Colorblind mode</span>
             <input type="checkbox" id="cb-toggle" onchange="setCbMode(this.checked)">
             <span class="sp-switch" aria-hidden="true"></span>
           </label>
           <label class="sp-toggle">
-            <span>Sons</span>
+            <span>Sound</span>
             <input type="checkbox" id="sfx-toggle" onchange="setSfx(this.checked)">
             <span class="sp-switch" aria-hidden="true"></span>
           </label>
           <label class="sp-toggle">
-            <span>Fond 3D animé</span>
+            <span>Animated 3D background</span>
             <input type="checkbox" id="ocean-toggle" onchange="setOcean3d(this.checked)">
             <span class="sp-switch" aria-hidden="true"></span>
           </label>
         </div>
         <div class="sp-divider"></div>
-        <button class="sp-stats-btn" onclick="showStats(); toggleSettings()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-chart"></use></svg>Statistiques</button>
-        <button class="sp-stats-btn" onclick="showPatchNotes(); toggleSettings()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-scroll"></use></svg>Notes de version</button>
+        <button class="sp-stats-btn" onclick="showStats(); toggleSettings()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-chart"></use></svg>Statistics</button>
+        <button class="sp-stats-btn" onclick="showPatchNotes(); toggleSettings()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-scroll"></use></svg>Patch notes</button>
         <div class="sp-divider"></div>
         <div class="sp-section">
-          <div class="sp-label">Sauvegarde</div>
-          <button class="sp-stats-btn" onclick="exportSave()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-save"></use></svg>Exporter ma sauvegarde</button>
-          <button class="sp-stats-btn" onclick="importSavePrompt()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-import"></use></svg>Importer une sauvegarde</button>
+          <div class="sp-label">Save data</div>
+          <button class="sp-stats-btn" onclick="exportSave()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-save"></use></svg>Export my save</button>
+          <button class="sp-stats-btn" onclick="importSavePrompt()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-import"></use></svg>Import a save</button>
           <input type="file" id="import-save-input" accept="application/json" hidden onchange="importSaveFile(event)">
         </div>
       </div>
     </div>
     <div class="header-center">
-      <a href="index.html" title="Retour à l'accueil" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit">
-        <img class="skull-jolly" src="images/jolly_roger.png" alt="Jolly Roger"/>
+      <a href="/en/" title="Back to home" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit">
+        <img class="skull-jolly" src="/images/jolly_roger.png" alt="Jolly Roger"/>
         <h1>LogPose</h1>
       </a>
-      <span class="subtitle">7 défis quotidiens · Teste ta connaissance One Piece</span>
-      <div id="pirate-rank-badge" class="pirate-rank-badge" aria-label="Rang pirate"></div>
+      <span class="subtitle">7 daily challenges · Test your One Piece knowledge</span>
+      <div id="pirate-rank-badge" class="pirate-rank-badge" aria-label="Pirate rank"></div>
     </div>
     <div class="header-right" style="display:flex;align-items:center;gap:8px">
-      <button class="map-header-btn" onclick="openMap()" title="Carte de Grand Line" aria-label="Carte de Grand Line"><svg class="ic" aria-hidden="true"><use href="#ic-map"></use></svg></button>
-      <a id="lang-toggle" class="lang-toggle" href="/en/game.html" onclick="i18nToggleLang();return false;" aria-label="Switch to English">EN</a>
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer de thème" aria-label="Changer de thème clair/sombre"><svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg><svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg></button>
+      <button class="map-header-btn" onclick="openMap()" title="Grand Line map" aria-label="Grand Line map"><svg class="ic" aria-hidden="true"><use href="#ic-map"></use></svg></button>
+      <a id="lang-toggle" class="lang-toggle" href="/game.html" onclick="i18nToggleLang();return false;" aria-label="Passer en français">FR</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle theme" aria-label="Toggle light/dark theme"><svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg><svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg></button>
     </div>
   </div>
 </header>
 
-<div class="mode-tabs" role="tablist" aria-label="Modes de jeu quotidiens">
-  <button class="mode-tab active" id="tab-classic" onclick="switchMode('classic')" role="tab" aria-selected="true"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classique</button>
+<div class="mode-tabs" role="tablist" aria-label="Daily game modes">
+  <button class="mode-tab active" id="tab-classic" onclick="switchMode('classic')" role="tab" aria-selected="true"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classic</button>
   <button class="mode-tab" id="tab-wanted" onclick="switchMode('wanted')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-wanted"></use></svg>Wanted</button>
   <button class="mode-tab" id="tab-silhouette" onclick="switchMode('silhouette')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>Silhouette</button>
-  <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Fruit du Démon</button>
-  <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
+  <button class="mode-tab" id="tab-fruit" onclick="switchMode('fruit')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Devil Fruit</button>
+  <button class="mode-tab" id="tab-emoji" onclick="switchMode('emoji')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Emoji</button>
   <button class="mode-tab" id="tab-audio" onclick="switchMode('audio')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-note"></use></svg>Opening</button>
-  <button class="mode-tab" id="tab-tome" onclick="switchMode('tome')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome</button>
+  <button class="mode-tab" id="tab-tome" onclick="switchMode('tome')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Volume</button>
 </div>
 <div class="mode-tabs-inf">
-  <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-shuffle"></use></svg>Mode Infini</button>
-  <a class="mode-tab mode-tab-inf mode-tab-versus" id="tab-versus" href="versus.html"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-versus"></use></svg>Versus 1v1</a>
+  <button class="mode-tab mode-tab-inf" id="tab-inf" onclick="switchMode('inf')" role="tab" aria-selected="false"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-shuffle"></use></svg>Infinite Mode</button>
+  <a class="mode-tab mode-tab-inf mode-tab-versus" id="tab-versus" href="/en/versus.html"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-versus"></use></svg>Versus 1v1</a>
 </div>
 
 <!-- PUB MOBILE — sous les onglets -->
@@ -357,17 +357,17 @@
 <div class="score-bar-section">
   <div class="score-bar-inner">
     <span class="score-anchor"><svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg></span>
-    <div class="score-track" id="score-track" onclick="toggleScoreBreakdown(event)" title="Voir le détail par mode" style="cursor:pointer">
+    <div class="score-track" id="score-track" onclick="toggleScoreBreakdown(event)" title="See breakdown by mode" style="cursor:pointer">
       <div class="score-fill" id="score-fill">
-        <img class="score-merry" src="images/going_merry.png" alt="Vogue Merry">
+        <img class="score-merry" src="/images/going_merry.png" alt="Vogue Merry">
       </div>
     </div>
     <span class="score-text">
       <span id="score-total">0</span>
       <span class="score-max"> / 70 000</span>
     </span>
-    <button class="share-daily-btn hidden" id="share-daily-btn" onclick="shareDaily()" title="Partager mon récap du jour">
-      <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>Partager
+    <button class="share-daily-btn hidden" id="share-daily-btn" onclick="shareDaily()" title="Share my daily recap">
+      <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>Share
     </button>
   </div>
   <div class="streak-bar hidden" id="streak-bar"></div>
@@ -379,24 +379,24 @@
   <div class="daily-counter" id="daily-counter"></div>
 
   <div id="win-banner" role="status" aria-live="polite">
-    <h2 id="win-title">🏴‍☠️ Nakama trouvé !</h2>
-    <p data-i18n-html="win.line">Tu as identifié <span class="answer" id="win-char-name"></span> en <span class="attempts" id="win-attempts"></span> essai(s) !</p>
+    <h2 id="win-title">🏴‍☠️ Nakama found!</h2>
+    <p data-i18n-html="win.line">You identified <span class="answer" id="win-char-name"></span> in <span class="attempts" id="win-attempts"></span> guess(es)!</p>
   </div>
   <div id="lose-banner" role="status" aria-live="polite">
-    <h2>☠️ Défaite !</h2>
-    <p data-i18n-html="lose.line">Le personnage était : <span class="answer" id="lose-char-name"></span>. Reviens demain !</p>
+    <h2>☠️ Defeat!</h2>
+    <p data-i18n-html="lose.line">The character was: <span class="answer" id="lose-char-name"></span>. Come back tomorrow!</p>
   </div>
 
   <div class="search-area">
     <div class="search-wrap">
-      <input type="text" id="search-input" placeholder="Tape un nom de personnage..." autocomplete="off" maxlength="120" aria-label="Tape un nom de personnage à deviner"/>
+      <input type="text" id="search-input" placeholder="Type a character name..." autocomplete="off" maxlength="120" aria-label="Type a character name to guess"/>
       <div id="autocomplete" role="listbox" aria-label="Suggestions"></div>
     </div>
-    <button id="guess-btn">Deviner</button>
+    <button id="guess-btn">Guess</button>
   </div>
 
   <div class="counter" id="counter" style="display:none">
-    Essai <span id="current-try">1</span> &nbsp;·&nbsp; <span id="already-guessed-label"></span>
+    Guess <span id="current-try">1</span> &nbsp;·&nbsp; <span id="already-guessed-label"></span>
   </div>
 
   <!-- MODE CLASSIQUE -->
@@ -406,32 +406,32 @@
       <div class="classic-reveal-name" id="classic-reveal-name"></div>
     </div>
     <div class="hint-area" id="hint-area" style="display:none">
-      <button id="hint-btn" onclick="useHint()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-bulb"></use></svg>Indice</button>
+      <button id="hint-btn" onclick="useHint()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-bulb"></use></svg>Hint</button>
       <div id="hint-display"></div>
     </div>
     <div class="table-scroll"><div class="table-inner">
       <div id="recap-bar" style="display:none">
-        <div class="recap-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>Ce qu'on sait</div>
+        <div class="recap-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>What we know</div>
         <div class="recap-grid" id="recap-grid"></div>
       </div>
       <div class="grid-header grid-cols">
-        <div class="col-label">Personnage</div>
-        <div class="col-label">Genre</div>
+        <div class="col-label">Character</div>
+        <div class="col-label">Gender</div>
         <div class="col-label">Affiliation</div>
-        <div class="col-label">Origine</div>
-        <div class="col-label">Fruit du Démon</div>
+        <div class="col-label">Origin</div>
+        <div class="col-label">Devil Fruit</div>
         <div class="col-label">Haki</div>
-        <div class="col-label">Statut</div>
-        <div class="col-label">1er Arc</div>
-        <div class="col-label">Prime (M)</div>
+        <div class="col-label">Status</div>
+        <div class="col-label">First arc</div>
+        <div class="col-label">Bounty (M)</div>
       </div>
-      <div id="guesses-container" role="list" aria-label="Tes tentatives"></div>
+      <div id="guesses-container" role="list" aria-label="Your guesses"></div>
     </div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot correct"></div> Correct</div>
-      <div class="legend-item"><div class="legend-dot partial"></div> Partiel / Proche</div>
-      <div class="legend-item"><div class="legend-dot wrong"></div> Faux</div>
-      <div class="legend-item">⬆️ Plus haut &nbsp; ⬇️ Plus bas</div>
+      <div class="legend-item"><div class="legend-dot partial"></div> Partial / Close</div>
+      <div class="legend-item"><div class="legend-dot wrong"></div> Wrong</div>
+      <div class="legend-item">⬆️ Higher &nbsp; ⬇️ Lower</div>
     </div>
   </div>
 
@@ -439,18 +439,18 @@
   <div id="tome-section">
     <div class="tome-layout">
       <div class="tome-frame">
-        <img id="tome-img" src="" alt="Couverture de tome (gros plan)"/>
+        <img id="tome-img" src="" alt="Volume cover (close-up)"/>
       </div>
       <div class="tome-controls">
         <div class="tome-input-row">
           <input type="number" id="tome-input" min="1" max="112" inputmode="numeric"
-                 placeholder="N° du tome (1–112)" autocomplete="off"
-                 aria-label="Numéro du tome"
+                 placeholder="Volume no. (1–112)" autocomplete="off"
+                 aria-label="Volume number"
                  onkeydown="if(event.key==='Enter')submitTome()"/>
-          <button id="tome-btn" onclick="submitTome()">Deviner</button>
+          <button id="tome-btn" onclick="submitTome()">Guess</button>
         </div>
         <div class="tome-hint" id="tome-hint"></div>
-        <div class="tome-guesses" id="tome-guesses" role="list" aria-label="Tes tentatives"></div>
+        <div class="tome-guesses" id="tome-guesses" role="list" aria-label="Your guesses"></div>
       </div>
     </div>
   </div>
@@ -469,7 +469,7 @@
             <div class="poster-no-img" id="wanted-no-img" style="display:none">❓</div>
 
             <!-- Vrai template PNG avec zone photo transparente -->
-            <img class="poster-frame" src="images/wanted_frame.png" alt=""/>
+            <img class="poster-frame" src="/images/wanted_frame.png" alt=""/>
 
             <!-- Textes dynamiques + séparateurs -->
             <div class="poster-overlay-texts">
@@ -494,14 +494,14 @@
         <label class="color-toggle">
           <input type="checkbox" id="color-toggle-cb" onchange="toggleColor(this.checked)"/>
           <div class="toggle-track"><div class="toggle-knob"></div></div>
-          Couleur
+          Color
         </label>
       </div>
 
       <div class="wanted-right">
         <div class="wanted-hint">
-          <strong id="wanted-blur-level">Flou maximum</strong>
-          Devine le personnage, l'image se déflouttera à chaque mauvaise réponse
+          <strong id="wanted-blur-level">Max blur</strong>
+          Guess the character — the image sharpens with each wrong answer
         </div>
         <div id="wanted-guesses"></div>
       </div>
@@ -512,14 +512,14 @@
   <div id="silhouette-section">
     <div class="sil-layout">
       <div class="sil-frame">
-        <img id="sil-img" src="" alt="Silhouette du personnage à deviner"/>
+        <img id="sil-img" src="" alt="Silhouette of the character to guess"/>
         <img id="sil-color" src="" alt=""/>
       </div>
       <div class="sil-status" id="sil-status"></div>
       <div class="sil-hint-bar hidden" id="sil-hint-bar">
         <button class="sil-hint-btn" id="sil-hint-btn" type="button" onclick="useSilHint()">
           <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-eye"></use></svg>
-          Indice couleur <span class="sil-hint-cost">(−½ score)</span>
+          Color hint <span class="sil-hint-cost">(−½ score)</span>
         </button>
       </div>
       <div id="sil-guesses"></div>
@@ -536,7 +536,7 @@
           <div class="emoji-reveal-name" id="emoji-reveal-name"></div>
         </div>
         <div class="emoji-card">
-          <div class="emoji-question">Quel personnage se cache derrière ces indices ?</div>
+          <div class="emoji-question">Which character is hiding behind these clues?</div>
           <div class="emoji-strip" id="emoji-strip">
             <!-- Rempli par JS -->
           </div>
@@ -546,7 +546,7 @@
       </div>
 
       <div class="emoji-right">
-        <div class="emoji-status-box" id="emoji-status">Devine le personnage, un nouvel indice emoji se débloque à chaque mauvaise réponse</div>
+        <div class="emoji-status-box" id="emoji-status">Guess the character — a new emoji clue unlocks with each wrong answer</div>
         <div id="emoji-guesses"></div>
       </div>
 
@@ -557,47 +557,47 @@
   <div id="inf-section">
     <div class="inf-streak-bar">
       <div class="inf-streak-item">
-        <div class="inf-streak-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-fire"></use></svg>Série en cours</div>
+        <div class="inf-streak-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-fire"></use></svg>Current streak</div>
         <div class="inf-streak-val" id="inf-streak">0</div>
       </div>
       <div class="inf-streak-sep"></div>
       <div class="inf-streak-item">
-        <div class="inf-streak-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-trophy"></use></svg>Record</div>
+        <div class="inf-streak-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-trophy"></use></svg>Best</div>
         <div class="inf-streak-val" id="inf-record">0</div>
       </div>
     </div>
     <div class="table-scroll"><div class="table-inner">
       <div class="grid-header grid-cols">
-        <div class="col-label">Personnage</div>
-        <div class="col-label">Genre</div>
+        <div class="col-label">Character</div>
+        <div class="col-label">Gender</div>
         <div class="col-label">Affiliation</div>
-        <div class="col-label">Origine</div>
-        <div class="col-label">Fruit du Démon</div>
+        <div class="col-label">Origin</div>
+        <div class="col-label">Devil Fruit</div>
         <div class="col-label">Haki</div>
-        <div class="col-label">Statut</div>
-        <div class="col-label">1er Arc</div>
-        <div class="col-label">Prime (M)</div>
+        <div class="col-label">Status</div>
+        <div class="col-label">First arc</div>
+        <div class="col-label">Bounty (M)</div>
       </div>
       <div id="inf-guesses-container"></div>
     </div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot correct"></div> Correct</div>
-      <div class="legend-item"><div class="legend-dot partial"></div> Partiel / Proche</div>
-      <div class="legend-item"><div class="legend-dot wrong"></div> Faux</div>
-      <div class="legend-item">⬆️ Plus haut &nbsp; ⬇️ Plus bas</div>
+      <div class="legend-item"><div class="legend-dot partial"></div> Partial / Close</div>
+      <div class="legend-item"><div class="legend-dot wrong"></div> Wrong</div>
+      <div class="legend-item">⬆️ Higher &nbsp; ⬇️ Lower</div>
     </div>
     <div class="inf-replay-wrap hidden" id="inf-replay-wrap">
-      <button class="inf-replay-btn" onclick="replayInf()">🔀 Nouvelle partie</button>
+      <button class="inf-replay-btn" onclick="replayInf()">🔀 New game</button>
     </div>
   </div>
 
   <!-- MODE AUDIO -->
   <div id="audio-section">
     <div class="audio-card">
-      <div class="audio-question">🎵 Quel est cet opening One Piece ?</div>
+      <div class="audio-question">🎵 Which One Piece opening is this?</div>
 
       <div class="audio-player">
-        <button class="audio-play-btn" id="au-play-btn" onclick="playSnippet()">▶ Écouter</button>
+        <button class="audio-play-btn" id="au-play-btn" onclick="playSnippet()">▶ Listen</button>
         <div class="audio-bar-wrap">
           <div class="audio-bar-track">
             <div class="audio-bar-fill" id="au-bar-fill"></div>
@@ -614,7 +614,7 @@
       </div>
 
       <div class="au-dots" id="au-dots"></div>
-      <div class="audio-status" id="au-status">Essai 1/6 · 1 seconde révélée</div>
+      <div class="audio-status" id="au-status">Guess 1/6 · 1 second revealed</div>
     </div>
 
     <div class="audio-reveal hidden" id="au-reveal">
@@ -633,7 +633,7 @@
     <div class="fruit-layout">
       <div class="fruit-left">
         <div class="fruit-card">
-          <div class="fruit-question">Quel personnage détient ce fruit du démon ?</div>
+          <div class="fruit-question">Which character has this Devil Fruit?</div>
           <div class="fruit-name-display">" <span id="fr-fruit-name">???</span> "</div>
           <div class="fruit-reveal" id="fruit-reveal">
             <img id="fruit-reveal-img" src="" alt=""/>
@@ -642,24 +642,24 @@
           <div class="fruit-hints-row">
             <div class="fruit-hint-box" id="fr-hint1">
               <div class="fh-icon"><svg class="ic" aria-hidden="true"><use href="#ic-atom"></use></svg></div>
-              <div class="fh-label">INDICE DE TYPE</div>
-              <div class="fh-sub" id="fr-h1-sub">DANS 3 ESSAIS</div>
+              <div class="fh-label">TYPE HINT</div>
+              <div class="fh-sub" id="fr-h1-sub">IN 3 GUESSES</div>
             </div>
             <div class="fruit-hint-box" id="fr-hint2">
               <div class="fh-icon"><svg class="ic" aria-hidden="true"><use href="#ic-globe"></use></svg></div>
-              <div class="fh-label">NOM TRADUIT</div>
-              <div class="fh-sub" id="fr-h2-sub">DANS 5 ESSAIS</div>
+              <div class="fh-label">TRANSLATED NAME</div>
+              <div class="fh-sub" id="fr-h2-sub">IN 5 GUESSES</div>
             </div>
             <div class="fruit-hint-box" id="fr-hint3">
               <div class="fh-icon"><svg class="ic" aria-hidden="true"><use href="#ic-help"></use></svg></div>
-              <div class="fh-label">POUVOIR</div>
-              <div class="fh-sub" id="fr-h3-sub">DANS 8 ESSAIS</div>
+              <div class="fh-label">POWER</div>
+              <div class="fh-sub" id="fr-h3-sub">IN 8 GUESSES</div>
             </div>
           </div>
         </div>
       </div>
       <div class="fruit-right">
-        <div class="fruit-status" id="fruit-status">Devine le personnage, des indices se débloquent à chaque mauvaise réponse</div>
+        <div class="fruit-status" id="fruit-status">Guess the character — clues unlock with each wrong answer</div>
         <div id="fruit-guesses"></div>
       </div>
     </div>
@@ -678,16 +678,16 @@
 </div>
 
 <div class="next-puzzle">
-  <span class="next-puzzle-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-hourglass"></use></svg>Prochains défis dans</span>
+  <span class="next-puzzle-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-hourglass"></use></svg>Next challenges in</span>
   <span class="next-puzzle-timer" id="next-puzzle-timer">--:--:--</span>
 </div>
 
 <footer>
-  LogPose · Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome
+  LogPose · Classic · Wanted · Silhouette · Devil Fruit · Emoji · Opening · Volume
   <br>
-  One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation
+  One Piece © Eiichiro Oda · Shueisha · Toei Animation · unofficial fan project, no affiliation
   <br>
-  <button class="footer-about-btn" onclick="openAbout()">À propos</button>
+  <button class="footer-about-btn" onclick="openAbout()">About</button>
   <span class="footer-version js-version"></span>
 </footer>
 
@@ -695,16 +695,16 @@
 <div class="modal-overlay hidden" id="spoiler-modal">
   <div class="modal-box spoiler-box">
     <div class="spoiler-skull"><svg class="ic" aria-hidden="true"><use href="#ic-skull"></use></svg></div>
-    <div class="modal-title">Attention : Spoilers !</div>
+    <div class="modal-title">Warning: Spoilers!</div>
     <p class="spoiler-text">
-      LogPose est mis à jour jusqu'au <strong>dernier chapitre publié</strong> de One Piece.<br><br>
-      Des personnages, affiliations et événements récents sont inclus dans le jeu.<br>
-      En continuant, tu acceptes le risque d'être spoilé.
+      LogPose is updated up to the <strong>latest published chapter</strong> of One Piece.<br><br>
+      Recent characters, affiliations and events are included in the game.<br>
+      By continuing, you accept the risk of being spoiled.
     </p>
     <div class="spoiler-actions">
-      <button class="spoiler-btn-accept" onclick="closeSpoilerModal()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Je comprends, allons-y !</button>
+      <button class="spoiler-btn-accept" onclick="closeSpoilerModal()"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Got it, let's go!</button>
       <label class="spoiler-remember">
-        <input type="checkbox" id="spoiler-no-show" checked/> Ne plus afficher
+        <input type="checkbox" id="spoiler-no-show" checked/> Don't show again
       </label>
     </div>
   </div>
@@ -714,10 +714,10 @@
 <div class="share-popup-overlay hidden" id="share-popup" onclick="handleShareOverlayClick(event)">
   <div class="share-popup-box">
     <button class="share-popup-close" onclick="closeSharePopup()">✕</button>
-    <div class="share-popup-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Partager mon récap</div>
+    <div class="share-popup-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Share my recap</div>
     <pre id="share-popup-preview" class="share-popup-preview"></pre>
     <div class="share-popup-btns">
-      <button class="share-via-btn share-via-copy"      onclick="shareVia('copy')"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>Copier</button>
+      <button class="share-via-btn share-via-copy"      onclick="shareVia('copy')"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-clipboard"></use></svg>Copy</button>
       <button class="share-via-btn share-via-discord"   onclick="shareVia('discord')">💬 Discord</button>
       <button class="share-via-btn share-via-twitter"   onclick="shareVia('twitter')">𝕏 Twitter</button>
       <button class="share-via-btn share-via-facebook"  onclick="shareVia('facebook')">📘 Facebook</button>
@@ -727,10 +727,10 @@
 
     <!-- Preview canvas (généré à la demande) -->
     <div id="share-canvas-wrap" style="display:none">
-      <img id="share-canvas-img" alt="Récap LogPose">
+      <img id="share-canvas-img" alt="LogPose recap">
       <div class="share-canvas-actions">
-        <button class="share-via-btn share-canvas-dl-btn"     onclick="downloadShareImage()">💾 Télécharger</button>
-        <button class="share-via-btn share-canvas-share-btn"  onclick="shareImageNative()" id="share-canvas-native-btn" style="display:none">📤 Partager</button>
+        <button class="share-via-btn share-canvas-dl-btn"     onclick="downloadShareImage()">💾 Download</button>
+        <button class="share-via-btn share-canvas-share-btn"  onclick="shareImageNative()" id="share-canvas-native-btn" style="display:none">📤 Share</button>
       </div>
     </div>
 
@@ -741,16 +741,16 @@
 <div class="modal-overlay hidden" id="stats-modal" onclick="handleModalClick(event)">
   <div class="modal-box">
     <button class="modal-close" onclick="closeStats()">✕</button>
-    <div class="modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-chart"></use></svg>Statistiques</div>
+    <div class="modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-chart"></use></svg>Statistics</div>
 
     <div class="modal-mode-tabs">
-      <button class="modal-mode-tab active" id="stab-classic" onclick="switchStatsTab('classic')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classique</button>
+      <button class="modal-mode-tab active" id="stab-classic" onclick="switchStatsTab('classic')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-compass"></use></svg>Classic</button>
       <button class="modal-mode-tab" id="stab-wanted"  onclick="switchStatsTab('wanted')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-wanted"></use></svg>Wanted</button>
       <button class="modal-mode-tab" id="stab-silhouette" onclick="switchStatsTab('silhouette')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-silhouette"></use></svg>Silhouette</button>
-      <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Démon</button>
-      <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Émoji</button>
+      <button class="modal-mode-tab" id="stab-fruit"   onclick="switchStatsTab('fruit')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-fruit"></use></svg>Devil Fruit</button>
+      <button class="modal-mode-tab" id="stab-emoji"   onclick="switchStatsTab('emoji')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-rebus"></use></svg>Emoji</button>
       <button class="modal-mode-tab" id="stab-audio"   onclick="switchStatsTab('audio')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-note"></use></svg>Opening</button>
-      <button class="modal-mode-tab" id="stab-tome"    onclick="switchStatsTab('tome')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Tome</button>
+      <button class="modal-mode-tab" id="stab-tome"    onclick="switchStatsTab('tome')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-tome"></use></svg>Volume</button>
       <button class="modal-mode-tab" id="stab-versus"  onclick="switchStatsTab('versus')"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-versus"></use></svg>Versus 1v1</button>
     </div>
 
@@ -770,43 +770,40 @@
 <div class="modal-overlay hidden" id="about-modal" onclick="handleAboutOverlayClick(event)">
   <div class="modal-box about-box">
     <button class="modal-close" onclick="closeAbout()">✕</button>
-    <div class="modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>À propos</div>
+    <div class="modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>About</div>
 
     <div class="about-logo-wrap">
-      <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
+      <img src="/images/jolly_roger.png" alt="LogPose" class="about-jolly">
       <div class="about-version-badge js-version"></div>
     </div>
 
-    <p class="about-desc" data-i18n-html="about.desc">
-      Jeu de devinettes quotidien basé sur l'univers de <strong>One Piece</strong>.
-      Sept défis renouvelés chaque jour à minuit (heure de Paris).
-    </p>
+    <p class="about-desc" data-i18n-html="about.desc">A daily guessing game set in the world of <strong>One Piece</strong>. Seven fresh challenges every day at midnight (Paris time).</p>
 
     <div class="about-modes-grid">
-      <div class="about-mode-item"><svg class="ic mi-classic" aria-hidden="true"><use href="#ic-compass"></use></svg> Classique</div>
+      <div class="about-mode-item"><svg class="ic mi-classic" aria-hidden="true"><use href="#ic-compass"></use></svg> Classic</div>
       <div class="about-mode-item"><svg class="ic mi-wanted" aria-hidden="true"><use href="#ic-wanted"></use></svg> Wanted</div>
       <div class="about-mode-item"><svg class="ic mi-flag" aria-hidden="true"><use href="#ic-silhouette"></use></svg> Silhouette</div>
-      <div class="about-mode-item"><svg class="ic mi-fruit" aria-hidden="true"><use href="#ic-fruit"></use></svg> Fruit du Démon</div>
-      <div class="about-mode-item"><svg class="ic mi-emoji" aria-hidden="true"><use href="#ic-rebus"></use></svg> Émoji</div>
+      <div class="about-mode-item"><svg class="ic mi-fruit" aria-hidden="true"><use href="#ic-fruit"></use></svg> Devil Fruit</div>
+      <div class="about-mode-item"><svg class="ic mi-emoji" aria-hidden="true"><use href="#ic-rebus"></use></svg> Emoji</div>
       <div class="about-mode-item"><svg class="ic mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg> Opening</div>
-      <div class="about-mode-item"><svg class="ic mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg> Tome</div>
+      <div class="about-mode-item"><svg class="ic mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg> Volume</div>
     </div>
-    <div class="about-inf-row">🔀 Classique Infini : entraînement sans limite</div>
-    <div class="about-inf-row"><svg class="ic ic-inline" aria-hidden="true" style="color:var(--mode-versus)"><use href="#ic-versus"></use></svg> Versus 1v1 : défie un ami en duel au tour par tour</div>
+    <div class="about-inf-row">🔀 Infinite Classic: unlimited practice</div>
+    <div class="about-inf-row"><svg class="ic ic-inline" aria-hidden="true" style="color:var(--mode-versus)"><use href="#ic-versus"></use></svg> Versus 1v1: challenge a friend to a turn-based duel</div>
 
     <div class="about-stats-row">
       <span class="about-stat">🎵 29 openings</span>
-      <span class="about-stat">🏴‍☠️ Mis à jour jusqu'à l'arc Elbaf</span>
+      <span class="about-stat">🏴‍☠️ Updated through the Elbaf arc</span>
     </div>
 
     <div class="about-divider"></div>
 
     <p class="about-legal">
       One Piece © Eiichiro Oda · Shueisha · Toei Animation<br>
-      LogPose est un projet fan non officiel, sans affiliation.
+      LogPose is an unofficial fan project, with no affiliation.
     </p>
 
-    <p class="about-contact">Un bug, une idée ? <span class="js-contact"></span></p>
+    <p class="about-contact">Found a bug or an idea? <span class="js-contact"></span></p>
   </div>
 </div>
 
@@ -823,39 +820,40 @@
 </script>
 
 <!-- Modale Carte de Grand Line (P6) -->
-<div id="map-modal" class="map-modal hidden" role="dialog" aria-modal="true" aria-label="Carte de Grand Line">
+<div id="map-modal" class="map-modal hidden" role="dialog" aria-modal="true" aria-label="Grand Line map">
   <div class="map-modal-head">
     <div>
-      <div class="map-modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-map"></use></svg>Carte de Grand Line</div>
+      <div class="map-modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-map"></use></svg>Grand Line map</div>
       <div id="map-progress"></div>
     </div>
-    <button id="map-close-btn" class="map-close-btn" onclick="closeMap()" aria-label="Fermer la carte">✕</button>
+    <button id="map-close-btn" class="map-close-btn" onclick="closeMap()" aria-label="Close map">✕</button>
   </div>
   <div class="map-stage">
     <div id="map-canvas"></div>
     <div class="map-zoom-ctrls">
-      <button id="map-zoom-in" type="button" aria-label="Zoomer">＋</button>
-      <button id="map-zoom-out" type="button" aria-label="Dézoomer">−</button>
-      <button id="map-zoom-reset" type="button" aria-label="Réinitialiser le zoom">⟲</button>
+      <button id="map-zoom-in" type="button" aria-label="Zoom in">＋</button>
+      <button id="map-zoom-out" type="button" aria-label="Zoom out">−</button>
+      <button id="map-zoom-reset" type="button" aria-label="Reset zoom">⟲</button>
     </div>
   </div>
-  <div class="map-hint">Molette/pincement pour zoomer · glisser pour déplacer · clique une île débloquée pour ouvrir son dossier</div>
+  <div class="map-hint">Scroll/pinch to zoom · drag to pan · click an unlocked island to open its dossier</div>
   <!-- Dossier d'arc (B + E) : injecté par map.js, masqué par défaut -->
-  <div id="map-dossier" class="map-dossier hidden" role="dialog" aria-label="Dossier d'arc"></div>
+  <div id="map-dossier" class="map-dossier hidden" role="dialog" aria-label="Arc dossier"></div>
   <!-- Fiche personnage : injectée par map.js, masquée par défaut -->
-  <div id="map-charsheet" class="map-charsheet hidden" role="dialog" aria-label="Fiche personnage"></div>
+  <div id="map-charsheet" class="map-charsheet hidden" role="dialog" aria-label="Character sheet"></div>
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/i18n.js?v=258"></script>
-<script src="js/version.js?v=258"></script>
-<script src="js/ocean3d.js?v=258"></script>
-<script src="js/data.js?v=258"></script>
-<script src="js/jolly-roger.js?v=258"></script>
-<script src="js/versus-rules.js?v=258"></script>
-<script src="js/app.js?v=258"></script>
-<script src="js/canvas-share.js?v=258"></script>
-<script src="js/map.js?v=258"></script>
+<script src="/i18n/en.js?v=258"></script>
+<script src="/js/i18n.js?v=258"></script>
+<script src="/js/version.js?v=258"></script>
+<script src="/js/ocean3d.js?v=258"></script>
+<script src="/js/data.js?v=258"></script>
+<script src="/js/jolly-roger.js?v=258"></script>
+<script src="/js/versus-rules.js?v=258"></script>
+<script src="/js/app.js?v=258"></script>
+<script src="/js/canvas-share.js?v=258"></script>
+<script src="/js/map.js?v=258"></script>
 </body>
 </html>
