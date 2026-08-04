@@ -63,22 +63,25 @@
   <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=260">
-  <link rel="stylesheet" href="/css/layout.css?v=260">
-  <link rel="stylesheet" href="/css/modals.css?v=260">
-  <link rel="stylesheet" href="/css/classic.css?v=260">
-  <link rel="stylesheet" href="/css/wanted.css?v=260">
-  <link rel="stylesheet" href="/css/silhouette.css?v=260">
-  <link rel="stylesheet" href="/css/fruit.css?v=260">
-  <link rel="stylesheet" href="/css/inf.css?v=260">
-  <link rel="stylesheet" href="/css/emoji.css?v=260">
-  <link rel="stylesheet" href="/css/misc.css?v=260">
-  <link rel="stylesheet" href="/css/audio.css?v=260">
-  <link rel="stylesheet" href="/css/animations.css?v=260">
-  <link rel="stylesheet" href="/css/map.css?v=260">
-  <link rel="stylesheet" href="/css/tome.css?v=260">
-  <link rel="stylesheet" href="/css/ocean3d.css?v=260">
+  <link rel="stylesheet" href="/css/base.css?v=270">
+  <link rel="stylesheet" href="/css/layout.css?v=270">
+  <link rel="stylesheet" href="/css/modals.css?v=270">
+  <link rel="stylesheet" href="/css/classic.css?v=270">
+  <link rel="stylesheet" href="/css/wanted.css?v=270">
+  <link rel="stylesheet" href="/css/silhouette.css?v=270">
+  <link rel="stylesheet" href="/css/fruit.css?v=270">
+  <link rel="stylesheet" href="/css/inf.css?v=270">
+  <link rel="stylesheet" href="/css/emoji.css?v=270">
+  <link rel="stylesheet" href="/css/misc.css?v=270">
+  <link rel="stylesheet" href="/css/audio.css?v=270">
+  <link rel="stylesheet" href="/css/animations.css?v=270">
+  <link rel="stylesheet" href="/css/map.css?v=270">
+  <link rel="stylesheet" href="/css/tome.css?v=270">
+  <link rel="stylesheet" href="/css/ocean3d.css?v=270">
+  <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
+  <link rel="stylesheet" href="/css/mobile.css?v=270">
 </head>
 <body data-ocean="game">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -317,7 +320,7 @@
     </div>
     <div class="header-center">
       <a href="/en/" title="Back to home" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit">
-        <img class="skull-jolly" src="/images/jolly_roger.png" alt="Jolly Roger"/>
+        <img class="skull-jolly" src="/images/jolly_roger_sm.webp" alt="Jolly Roger"/>
         <h1>LogPose</h1>
       </a>
       <span class="subtitle">7 daily challenges · Test your One Piece knowledge</span>
@@ -360,7 +363,7 @@
     <span class="score-anchor"><svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg></span>
     <div class="score-track" id="score-track" onclick="toggleScoreBreakdown(event)" title="See breakdown by mode" style="cursor:pointer">
       <div class="score-fill" id="score-fill">
-        <img class="score-merry" src="/images/going_merry.png" alt="Vogue Merry">
+        <img class="score-merry" src="/images/going_merry_sm.webp" alt="Vogue Merry">
       </div>
     </div>
     <span class="score-text">
@@ -390,7 +393,7 @@
 
   <div class="search-area">
     <div class="search-wrap">
-      <input type="text" id="search-input" placeholder="Type a character name..." autocomplete="off" maxlength="120" aria-label="Type a character name to guess"/>
+      <input type="text" id="search-input" placeholder="Type a character name..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" maxlength="120" aria-label="Type a character name to guess"/>
       <div id="autocomplete" role="listbox" aria-label="Suggestions"></div>
     </div>
     <button id="guess-btn">Guess</button>
@@ -470,7 +473,7 @@
             <div class="poster-no-img" id="wanted-no-img" style="display:none">❓</div>
 
             <!-- Vrai template PNG avec zone photo transparente -->
-            <img class="poster-frame" src="/images/wanted_frame.png" alt=""/>
+            <img class="poster-frame" src="/images/wanted_frame.webp" alt="" loading="lazy" decoding="async"/>
 
             <!-- Textes dynamiques + séparateurs -->
             <div class="poster-overlay-texts">
@@ -774,7 +777,7 @@
     <div class="modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>About</div>
 
     <div class="about-logo-wrap">
-      <img src="/images/jolly_roger.png" alt="LogPose" class="about-jolly">
+      <img src="/images/jolly_roger_sm.webp" alt="LogPose" class="about-jolly" loading="lazy">
       <div class="about-version-badge js-version"></div>
     </div>
 
@@ -837,7 +840,7 @@
       <button id="map-zoom-reset" type="button" aria-label="Reset zoom">⟲</button>
     </div>
   </div>
-  <div class="map-hint">Scroll/pinch to zoom · drag to pan · click an unlocked island to open its dossier</div>
+  <div class="map-hint">Pinch or scroll to zoom · drag to move · an unlocked island opens its file</div>
   <!-- Dossier d'arc (B + E) : injecté par map.js, masqué par défaut -->
   <div id="map-dossier" class="map-dossier hidden" role="dialog" aria-label="Arc dossier"></div>
   <!-- Fiche personnage : injectée par map.js, masquée par défaut -->
@@ -845,16 +848,16 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="/i18n/en.js?v=260"></script>
-<script src="/js/i18n.js?v=260"></script>
-<script src="/js/version.js?v=260"></script>
-<script src="/js/ocean3d.js?v=260"></script>
-<script src="/js/data.js?v=260"></script>
-<script src="/js/jolly-roger.js?v=260"></script>
-<script src="/js/versus-rules.js?v=260"></script>
-<script src="/js/app.js?v=260"></script>
-<script src="/js/canvas-share.js?v=260"></script>
-<script src="/js/map.js?v=260"></script>
+<script src="/i18n/en.js?v=270"></script>
+<script src="/js/i18n.js?v=270"></script>
+<script src="/js/version.js?v=270"></script>
+<!-- Fond 3D : three.js + ocean3d.js chargés à la demande (cf. js/ocean3d-boot.js) -->
+<script src="/js/ocean3d-boot.js?v=270"></script>
+<script src="/js/data.js?v=270"></script>
+<script src="/js/jolly-roger.js?v=270"></script>
+<script src="/js/versus-rules.js?v=270"></script>
+<script src="/js/app.js?v=270"></script>
+<script src="/js/canvas-share.js?v=270"></script>
+<script src="/js/map.js?v=270"></script>
 </body>
 </html>

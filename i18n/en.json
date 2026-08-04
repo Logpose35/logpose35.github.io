@@ -143,7 +143,6 @@
   "Démon": "Devil Fruit",
   "🔀 Classique Infini : entraînement sans limite": "🔀 Infinite Classic: unlimited practice",
   "🏴‍☠️ Mis à jour jusqu'à l'arc Elbaf": "🏴‍☠️ Updated through the Elbaf arc",
-  "Molette/pincement pour zoomer · glisser pour déplacer · clique une île débloquée pour ouvrir son dossier": "Scroll/pinch to zoom · drag to pan · click an unlocked island to open its dossier",
   "Fermer la carte": "Close map",
   "Zoomer": "Zoom in",
   "Dézoomer": "Zoom out",
@@ -1574,5 +1573,12 @@
   "OnePiecedle — 7 défis One Piece quotidiens · LogPose": "OnePiecedle — 7 Daily One Piece Challenges · LogPose",
   "OnePiecedle (LogPose) · Le jeu Wordle One Piece du jour ! 7 modes quotidiens : Classique, Wanted, Silhouette, Fruit du Démon, Émoji, Opening et Tome. Devine les personnages mystères en analysant leurs caractéristiques.": "OnePiecedle (LogPose) · The daily One Piece Wordle game! 7 daily modes: Classic, Wanted, Silhouette, Devil Fruit, Emoji, Opening and Volume. Guess the mystery characters by reading their traits.",
   "OnePiecedle Versus 1v1 — Duel One Piece · LogPose": "OnePiecedle Versus 1v1 — One Piece Duel · LogPose",
-  "OnePiecedle Versus (LogPose), affronte un ami en 1v1 : même personnage One Piece mystère, chacun son tour, le premier qui trouve gagne la manche !": "OnePiecedle Versus (LogPose) — take on a friend 1v1: same mystery One Piece character, alternating turns, first to guess wins the round!"
+  "OnePiecedle Versus (LogPose), affronte un ami en 1v1 : même personnage One Piece mystère, chacun son tour, le premier qui trouve gagne la manche !": "OnePiecedle Versus (LogPose) — take on a friend 1v1: same mystery One Piece character, alternating turns, first to guess wins the round!",
+  "Les réponses d'hier": "Yesterday's answers",
+  "Pincement ou molette pour zoomer · glisser pour déplacer · une île débloquée ouvre son dossier": "Pinch or scroll to zoom · drag to move · an unlocked island opens its file",
+  "📱 Refonte de l'affichage mobile : le champ de saisie et les indices sont visibles dès l'ouverture, sans avoir à faire défiler la page": "📱 Mobile layout rebuilt: the guess field and the clues are visible as soon as the page opens, with no scrolling needed",
+  "🧭 Les sept modes du jour restent affichés en haut de l'écran pendant la partie — passer de l'un à l'autre ne demande plus de remonter": "🧭 The seven daily modes stay pinned at the top during play — switching between them no longer means scrolling back up",
+  "🍎 Correction : en mode Fruit du Démon, la carte du fruit était coupée sur les écrans étroits": "🍎 Fix: in Devil Fruit mode, the fruit card was cut off on narrow screens",
+  "📖 La liste des réponses de la veille se replie, et se déplie d'une pression": "📖 Yesterday's answers are folded away, and unfold with a tap",
+  "🔍 Suggestions de noms plus confortables au doigt : liste plus haute, défilement interne, et le clavier ne les recouvre plus": "🔍 Name suggestions are easier to tap: taller list, internal scrolling, and the keyboard no longer covers them"
 }

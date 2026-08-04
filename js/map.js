@@ -107,7 +107,7 @@
             + (unlocked
                 ? `<text class="jm-flag" y="1.5" text-anchor="middle">☠</text>`
                 : `<text class="jm-lock" y="3" text-anchor="middle">🔒</text>`)
-            + (isLast ? `<image class="jm-boat" href="/images/going_merry.png" x="-21" y="-38" width="42" height="28" preserveAspectRatio="xMidYMid meet"/>` : '')
+            + (isLast ? `<image class="jm-boat" href="/images/going_merry_sm.webp" x="-21" y="-38" width="42" height="28" preserveAspectRatio="xMidYMid meet"/>` : '')
             + `</g>`;
     });
 
@@ -186,8 +186,16 @@
   }
   function clampView() {
     const stage = stageEl(); if (!stage) return;
-    const w = stage.clientWidth, h = stage.clientHeight;
-    const minTx = w * (1 - _view.scale), minTy = h * (1 - _view.scale);
+    const canvas = document.getElementById('map-canvas');
+    const sw = stage.clientWidth, sh = stage.clientHeight;
+    // Le canvas n'a plus forcément la taille du stage : sur mobile la fenêtre
+    // est plus haute que large et le canvas (2/1) déborde horizontalement, ce
+    // qui rend les îles lisibles. On borne donc sur la taille RÉELLE du canvas.
+    // Quand canvas == stage, sw - cw*s == sw*(1-s) : comportement inchangé.
+    const cw = canvas ? canvas.offsetWidth  : sw;
+    const ch = canvas ? canvas.offsetHeight : sh;
+    const minTx = Math.min(0, sw - cw * _view.scale);
+    const minTy = Math.min(0, sh - ch * _view.scale);
     _view.tx = Math.min(0, Math.max(minTx, _view.tx));
     _view.ty = Math.min(0, Math.max(minTy, _view.ty));
   }

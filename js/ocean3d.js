@@ -2534,9 +2534,12 @@
   /* ============================================================
      INIT
      ============================================================ */
-  document.addEventListener('DOMContentLoaded', function () {
+  /* Depuis la v6.5, ce fichier est injecté à la demande par js/ocean3d-boot.js :
+     à ce moment-là DOMContentLoaded est déjà passé, donc on ne peut plus se
+     contenter de l'écouter — d'où la bascule sur readyState en bas. */
+  function initOcean() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    initCardTilt();
+    if (!window.__lpTiltDone) { window.__lpTiltDone = 1; initCardTilt(); }
     if (!window.THREE) return;
     var mode = document.body.dataset.ocean;
     var canvas = document.getElementById('ocean-canvas');
@@ -2568,5 +2571,11 @@
         if (OCEAN_CTL.pause) OCEAN_CTL.pause();
       }
     });
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initOcean);
+  } else {
+    initOcean();
+  }
 })();

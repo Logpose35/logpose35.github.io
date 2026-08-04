@@ -1,0 +1,511 @@
+/* ============================================================
+   ONEPIECEDLE — COUCHE MOBILE (v6.5)
+   ------------------------------------------------------------
+   Fichier chargé EN DERNIER : il ne contient que des surcharges
+   sous @media (max-width: 760px). Le desktop n'est jamais touché.
+   Rollback complet = supprimer le <link> qui charge ce fichier.
+
+   Pari retenu : « cockpit collant ».
+   La barre de titre et la rangée d'onglets restent visibles en
+   permanence (les 7 modes + les réglages à un doigt, à tout moment),
+   tout le chrome décoratif est comprimé, et le champ de saisie
+   remonte de ~722 px à ~235 px — donc visible sans scroll.
+   ============================================================ */
+
+@media (max-width: 760px) {
+
+  /* --- Repères de hauteur du cockpit (servent aux offsets sticky) --- */
+  :root {
+    --m-bar:  52px;   /* barre supérieure collante */
+    --m-tabs: 46px;   /* rangée d'onglets collante */
+    --m-cockpit: 98px;
+  }
+
+  /* `overflow-x: hidden` sur <body> en fait un conteneur de défilement,
+     ce qui neutralise `position: sticky` de ses enfants. `clip` coupe le
+     débordement SANS créer de conteneur : le sticky continue de fonctionner. */
+  body {
+    overflow-x: clip;
+  }
+
+  /* ==========================================================
+     1. BARRE SUPÉRIEURE — 202 px → 52 px, collante
+     ========================================================== */
+  /* Sélecteur scopé à game.html : versus.html a aussi un <header>
+     (.v-header) qui ne doit pas hériter de ce cockpit. */
+  body[data-ocean="game"] header {
+    position: sticky;
+    top: 0;
+    padding: 0 10px;
+    /* La surface océan doit rester opaque : du contenu passe dessous. */
+    background:
+      linear-gradient(180deg, var(--ocean-1) 0%, var(--ocean-2) 100%);
+    box-shadow: 0 2px 12px rgba(2, 8, 16, 0.5);
+  }
+  /* L'étoile décorative ✦ (11rem) n'a plus la place dans 52 px */
+  body[data-ocean="game"] header::before { display: none; }
+
+  .header-inner {
+    /* annule le `flex-direction: column` de misc.css qui empilait
+       les 3 rangées et coûtait 150 px */
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: var(--m-bar);
+    padding: 0;
+  }
+
+  .header-center {
+    gap: 8px;
+    min-width: 0;          /* autorise la troncature — corrige le débordement à 320 px */
+    flex: 1 1 auto;
+  }
+  .header-center h1 {
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    text-shadow: 0 0 14px rgba(200, 148, 10, 0.45);
+  }
+  .skull-jolly {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+  /* Le rang pirate quitte la barre : il reste lisible dans les Statistiques,
+     et c'est lui qui faisait déborder .header-center à 320 px (332 px de large). */
+  #pirate-rank-badge { display: none; }
+
+  .header-right {
+    gap: 4px !important;
+    flex-shrink: 0;
+  }
+  /* Cibles tactiles homogènes à 40 px (44 px avec la marge optique) */
+  .header-right .map-header-btn,
+  .header-right .theme-btn,
+  .header-right .lang-toggle,
+  #settings-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+  }
+  .header-right .lang-toggle { font-size: 0.72rem; }
+
+  /* Le panneau de réglages suit la barre collante : accessible à tout moment,
+     et non plus seulement quand on est remonté en haut du document. */
+  .settings-panel {
+    position: fixed;
+    top: calc(var(--m-bar) + 6px);
+    left: 8px;
+    right: 8px;
+    max-height: calc(100dvh - var(--m-bar) - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    min-width: 0;
+  }
+
+  /* Sous 360 px, le mot « LogPose » cède la place aux commandes */
+  @media (max-width: 359px) {
+    .header-center h1 { display: none; }
+  }
+
+  /* ==========================================================
+     2. ONGLETS — 173 px sur 4 rangées → 46 px sur 1 rangée collante
+     ========================================================== */
+  /* Les 7 modes forment un BLOC : tout est visible d'un coup, rien à faire
+     défiler. Grille de 4 colonnes -> 2 rangées (4 + 3), la seconde centrée. */
+  .mode-tabs {
+    position: sticky;
+    top: var(--m-bar);
+    z-index: 98;                       /* sous le header (100), au-dessus du contenu */
+    /* flex + wrap plutôt que grid : la rangée incomplète (Émoji/Opening/Tome)
+       se centre d'elle-même SANS que ses pastilles rétrécissent. */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    gap: 4px;
+    padding: 6px 8px 4px;
+    min-height: 0;
+    overflow: visible;
+    background: var(--ocean-2);
+  }
+  .mode-tabs .mode-tab { flex: 0 0 calc(25% - 3px); }
+
+  .mode-tabs .mode-tab,
+  .mode-tabs-inf .mode-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 30px;
+    padding: 4px 6px;
+    font-size: 0.56rem;
+    letter-spacing: 0.03em;
+    line-height: 1.05;
+    text-align: center;
+    white-space: normal;               /* « Fruit du Démon » peut passer sur 2 lignes */
+    border-width: 1.5px;
+  }
+  .mode-tabs .tab-ic { flex-shrink: 0; width: 13px; height: 13px; }
+
+  /* Plus de défilement horizontal : les pastilles ✓/✕ peuvent ressortir */
+  .mode-tabs .mode-tab.tab-done::after,
+  .mode-tabs .mode-tab.tab-lost::after {
+    top: -5px;
+    right: -4px;
+    width: 13px;
+    height: 13px;
+    font-size: 0.5rem;
+  }
+
+  /* Infini + Versus : dans le bloc au repos, mais PAS collants.
+     Ce sont des destinations, pas des modes entre lesquels on bascule en
+     cours de partie : les épingler coûterait 36 px d'écran en permanence. */
+  .mode-tabs-inf {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 8px 6px;
+    background: var(--ocean-2);
+  }
+  /* L'ombre portée vit sur la dernière bande collante */
+  .mode-tabs { box-shadow: 0 3px 10px rgba(2, 8, 16, 0.35); }
+  .mode-tabs-inf .mode-tab-inf { border-style: dashed; flex: 0 1 calc(37% - 2px); }
+
+  /* ==========================================================
+     3. EMPLACEMENTS PUBLICITAIRES — 160 px récupérés
+     ------------------------------------------------------------
+     AdSense n'est pas branché (data-ad-client = ca-pub-XXXXXXXXXXXXXXXX,
+     aucun script adsbygoogle.js chargé) : ces deux blocs ne réservaient
+     que du vide, et uniquement sur mobile. Ils restent dans le DOM.
+     Pour les réactiver le jour où AdSense est configuré :
+     supprimer ce bloc de règles.
+     ========================================================== */
+  .ad-mobile { display: none; }
+
+  /* ==========================================================
+     4. BARRE DE SCORE — 43 px → 30 px
+     ========================================================== */
+  .score-bar-section {
+    padding: 5px 10px 6px;
+    border-bottom-width: 2px;
+  }
+  /* Gouttière à gauche : à 0 point, le Vogue Merry est ancré au départ de la
+     piste et débordait de 14 px hors de l'écran. */
+  .score-bar-inner { gap: 8px; padding-left: 26px; }
+  .score-anchor { display: none; }
+  .score-track { height: 14px; }
+  .score-merry { height: 24px; right: -14px; }
+  .score-text { font-size: 0.78rem; min-width: 0; }
+  .share-daily-btn { padding: 4px 10px; font-size: 0.72rem; }
+
+  /* ==========================================================
+     5. BARRE « HIER » — 155 px → 34 px, dépliable au doigt
+     ------------------------------------------------------------
+     Le contenu est intact : il est simplement replié par défaut.
+     Le bouton et l'état sont posés par app.js (initMobileYesterday).
+     ========================================================== */
+  .yesterday {
+    padding: 0;
+    border-top: none;
+    text-align: left;
+  }
+  .yesterday.is-collapsible {
+    border-top: 1px solid var(--border2);
+    border-bottom: 1px solid var(--border2);
+  }
+  .yest-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;       /* centré comme le reste des bandeaux du jeu */
+    gap: 6px;
+    width: 100%;
+    min-height: 36px;
+    padding: 7px 12px;
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  /* Le chevron colle au libellé : rejeté à droite, la barre repliée avait
+     l'air d'une ligne vide au lieu d'un bouton. */
+  .yest-toggle .yest-caret {
+    transition: transform 0.22s var(--ease, ease);
+    font-size: 0.62rem;
+    opacity: 0.75;
+  }
+  .yesterday.is-open .yest-toggle .yest-caret { transform: rotate(180deg); }
+  .yest-body {
+    padding: 0 12px 10px;
+    text-align: center;
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+  .yesterday:not(.is-open) .yest-body { display: none; }
+
+  /* ==========================================================
+     6. DATE, COMPTEUR, ZONE DE JEU
+     ========================================================== */
+  main { padding-left: 12px; padding-right: 12px; }
+  .date-badge { margin-bottom: 4px; font-size: 0.68rem; }
+  .daily-counter { margin-bottom: 8px; font-size: 0.76rem; }
+
+  /* ==========================================================
+     7. SAISIE + AUTOCOMPLÉTION
+     ------------------------------------------------------------
+     Avec le clavier virtuel la hauteur utile tombe à ~420 px : la liste
+     doit se limiter et défiler à l'intérieur, pas déborder sous le pli.
+     ========================================================== */
+  .search-area {
+    margin-bottom: 12px;
+    /* le champ ne doit pas atterrir sous le cockpit collant quand iOS
+       le fait défiler à la prise de focus */
+    scroll-margin-top: calc(var(--m-cockpit) + 12px);
+  }
+  #search-input { padding: 13px 15px; }
+  #guess-btn { padding: 13px 18px; font-size: 0.86rem; letter-spacing: 0.08em; }
+
+  /* --vvh = hauteur RÉELLEMENT visible, posée par app.js depuis visualViewport.
+     Indispensable sur iOS : à l'ouverture du clavier, vh et dvh ne bougent pas,
+     donc une liste dimensionnée en vh dépasse sous le clavier. */
+  #autocomplete {
+    max-height: min(calc(var(--vvh, 100vh) - 170px), 300px);
+    overflow-y: auto;
+    overscroll-behavior: contain;      /* le scroll ne fuit pas vers la page */
+    -webkit-overflow-scrolling: touch;
+  }
+  .ac-item {
+    min-height: 44px;                  /* cible tactile — était à 41 px */
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 15px;
+  }
+
+  /* ==========================================================
+     7 bis. COLONNES DES MODES — largeurs fixes rendues fluides
+     ------------------------------------------------------------
+     Classique (classic.css:416), Émoji (emoji.css:155) et Versus
+     (versus.css:242) avaient déjà leur garde-fou ; le mode Fruit n'en
+     avait aucun : `.fruit-left { width: 460px; flex-shrink: 0 }`
+     débordait de 70 px dès 390 px de large et étirait <main> à 484 px.
+     Le débordement était invisible (masqué par overflow-x) mais la
+     carte du fruit était bel et bien coupée.
+     ========================================================== */
+  .fruit-layout,
+  .emoji-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .fruit-left,
+  .fruit-right,
+  .emoji-left,
+  .emoji-right {
+    width: 100%;
+    max-width: 100%;
+    flex-shrink: 1;
+  }
+  .fruit-card { padding: 20px 16px 18px; }
+  /* Le poster Wanted (360 px fixes) déborde sous 384 px */
+  .op-poster { width: 100%; max-width: 360px; }
+
+  /* ==========================================================
+     7 ter. CARTE DE GRAND LINE
+     ------------------------------------------------------------
+     La carte est en 2/1 (paysage) dans une fenêtre large de 100 % :
+     sur un téléphone en portrait ça donnait ~370×175 px, îles illisibles.
+     On donne à la fenêtre une hauteur digne et on laisse le canvas (qui
+     garde son ratio 2/1, donc l'image et les coordonnées d'îles restent
+     justes) déborder horizontalement — le glissement latéral fait le reste.
+     Le clamp de js/map.js a été repris pour borner sur la taille du canvas.
+     ========================================================== */
+  .map-stage {
+    height: min(56vh, 430px);
+    cursor: default;
+  }
+  .map-stage #map-canvas {
+    width: auto;
+    height: 100%;
+  }
+  /* Zoom : cibles tactiles à 44 px */
+  .map-zoom-ctrls button { width: 44px; height: 44px; font-size: 1.25rem; }
+  .map-hint { font-size: 0.68rem; line-height: 1.35; }
+
+  /* ==========================================================
+     8. MODALES — collision titre/croix + cibles tactiles
+     ========================================================== */
+  .modal-title {
+    padding-right: 46px;               /* la croix ne chevauche plus le titre */
+    font-size: 1.45rem;
+  }
+  .modal-close,
+  .wn-close {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-box {
+    max-height: calc(100dvh - 32px);
+  }
+
+  /* ==========================================================
+     9. HAUTEURS DE FENÊTRE
+     ------------------------------------------------------------
+     100vh ignore la barre d'URL mobile et déborde d'environ 100 px.
+     100dvh suit la hauteur réellement visible.
+     ========================================================== */
+  body { min-height: 100vh; min-height: 100dvh; }
+  .versus-body { min-height: 100vh; min-height: 100dvh; }
+  .landing-body { min-height: 100vh; min-height: 100dvh; }
+
+  /* ==========================================================
+     10. CONFORT TACTILE GÉNÉRAL
+     ========================================================== */
+  .mode-tab,
+  #guess-btn,
+  .modal-close,
+  .wn-close,
+  .ac-item,
+  .theme-btn,
+  .map-header-btn,
+  .lang-toggle {
+    -webkit-tap-highlight-color: rgba(200, 148, 10, 0.18);
+  }
+  /* Le survol n'existe pas au doigt : ces effets restaient « collés »
+     après un tap sur mobile. */
+  @media (hover: none) {
+    .mode-tab:hover {
+      border-color: rgba(200, 148, 10, 0.3);
+      color: rgba(232, 192, 48, 0.6);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: none;
+    }
+    .mode-tab.active:hover {
+      background: var(--gold);
+      color: #04090f;
+      border-color: var(--gold);
+    }
+    #guess-btn:hover { transform: none; filter: none; }
+    .share-daily-btn:hover { transform: none; }
+  }
+}
+
+/* ============================================================
+   LANDING SANS 3D — « nuit en mer » en CSS pur
+   ------------------------------------------------------------
+   Depuis la v6.5, le fond WebGL ne se charge plus sur mobile (827 Ko et une
+   chauffe de GPU pour un décor). Or tout le décor de la landing avait été
+   délégué au canvas : sans lui, la page tombait sur un aplat gris qui ne
+   ressemblait plus au site.
+   Ce bloc redonne l'océan en dégradés + vagues SVG inline : zéro requête,
+   zéro octet, et il suit les deux thèmes. Il ne s'applique QUE si la 3D
+   n'a pas été chargée (body sans .ocean3d-active).
+   ============================================================ */
+@media (max-width: 760px) {
+
+  .landing-body:not(.ocean3d-active) {
+    /* Ciel nocturne -> halo d'or à l'horizon -> eau profonde */
+    background:
+      radial-gradient(58% 26% at 74% 40%, rgba(232, 192, 48, 0.20), transparent 70%),
+      linear-gradient(180deg,
+        #04101f   0%,
+        #0a1f38  34%,
+        #123553  52%,
+        #0a2440  60%,
+        #04101f  82%,
+        #020b18 100%);
+    background-attachment: fixed;
+  }
+
+  /* Étoiles : trois calques de points, aucun fichier */
+  .landing-body:not(.ocean3d-active)::before {
+    content: '' !important;
+    display: block !important;
+    position: fixed;
+    inset: 0 0 46% 0;              /* uniquement au-dessus de l'horizon */
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.4px 1.4px at 12% 18%, rgba(255,246,214,0.85), transparent),
+      radial-gradient(1.1px 1.1px at 78% 12%, rgba(255,246,214,0.70), transparent),
+      radial-gradient(1.6px 1.6px at 46% 30%, rgba(255,246,214,0.60), transparent),
+      radial-gradient(1.1px 1.1px at 88% 34%, rgba(255,246,214,0.55), transparent),
+      radial-gradient(1.3px 1.3px at 28% 44%, rgba(255,246,214,0.45), transparent),
+      radial-gradient(1px   1px   at 62% 22%, rgba(255,246,214,0.65), transparent),
+      radial-gradient(1px   1px   at 6%  38%, rgba(255,246,214,0.50), transparent);
+    opacity: 0.9;
+  }
+
+  /* Trains de vagues à l'horizon — mêmes courbes que le fond du jeu */
+  .landing-body:not(.ocean3d-active)::after {
+    content: '';
+    position: fixed;
+    inset: 46% 0 0 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath d='M0 50 Q180 15 360 50 Q540 85 720 50 Q900 15 1080 50 Q1260 85 1440 50 L1440 100 L0 100 Z' fill='rgba(200%2C148%2C10%2C0.13)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 960 70'%3E%3Cpath d='M0 35 Q120 8 240 35 Q360 62 480 35 Q600 8 720 35 Q840 62 960 35 L960 70 L0 70 Z' fill='rgba(200%2C148%2C10%2C0.09)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 50'%3E%3Cpath d='M0 25 Q90 5 180 25 Q270 45 360 25 Q450 5 540 25 Q630 45 720 25 L720 50 L0 50 Z' fill='rgba(200%2C148%2C10%2C0.06)'/%3E%3C/svg%3E");
+    background-size: 1440px 100px, 960px 70px, 720px 50px;
+    background-repeat: repeat-x, repeat-x, repeat-x;
+    background-position: left top 4px, left top 40px, left top 84px;
+  }
+
+  /* ── Thème clair : même scène, en plein jour ── */
+  html[data-theme="light"] .landing-body:not(.ocean3d-active) {
+    background:
+      radial-gradient(58% 26% at 74% 38%, rgba(255, 236, 176, 0.55), transparent 70%),
+      linear-gradient(180deg,
+        #9fc9ec   0%,
+        #c9e3f6  32%,
+        #eaf4fd  48%,
+        #7fb4dc  56%,
+        #2e7fb4  74%,
+        #0b4671 100%);
+    background-attachment: fixed;
+  }
+  html[data-theme="light"] .landing-body:not(.ocean3d-active)::before { opacity: 0; }
+  html[data-theme="light"] .landing-body:not(.ocean3d-active)::after {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath d='M0 50 Q180 15 360 50 Q540 85 720 50 Q900 15 1080 50 Q1260 85 1440 50 L1440 100 L0 100 Z' fill='rgba(255%2C255%2C255%2C0.30)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 960 70'%3E%3Cpath d='M0 35 Q120 8 240 35 Q360 62 480 35 Q600 8 720 35 Q840 62 960 35 L960 70 L0 70 Z' fill='rgba(255%2C255%2C255%2C0.20)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 50'%3E%3Cpath d='M0 25 Q90 5 180 25 Q270 45 360 25 Q450 5 540 25 Q630 45 720 25 L720 50 L0 50 Z' fill='rgba(255%2C255%2C255%2C0.14)'/%3E%3C/svg%3E");
+    background-size: 1440px 100px, 960px 70px, 720px 50px;
+    background-repeat: repeat-x, repeat-x, repeat-x;
+    background-position: left top 4px, left top 40px, left top 84px;
+  }
+
+  /* Le héros se pose au-dessus de la scène */
+  .landing-body:not(.ocean3d-active) .lp-main,
+  .landing-body:not(.ocean3d-active) .hero { position: relative; z-index: 1; }
+}
+
+/* ============================================================
+   PAGE VERSUS — même cockpit compact
+   ============================================================ */
+@media (max-width: 760px) {
+  .v-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    gap: 10px;
+    padding: 8px 12px;
+  }
+}

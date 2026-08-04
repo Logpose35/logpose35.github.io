@@ -86,6 +86,7 @@ const LS = {
   v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue (historique)
   wnSilSeen: 'op-wn-sil-seen', // pop-up "Gazette · mode Silhouette (v5.2)" déjà vue (historique)
   wnVersusSeen: 'op-wn-versus-seen', // pop-up "Gazette · mode Versus 1v1 (v6.0)" déjà vue
+  yestOpen:  'op-yest-open',   // mobile : barre "Hier" dépliée ('1') ou repliée (défaut)
   // Mode Infini
   infStreak: 'op-inf-streak',
   infRecord: 'op-inf-record',
@@ -1028,8 +1029,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=260`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=260`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=270`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=270`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2545,6 +2546,13 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '6.5', date: t('Août 2026'), items: [
+    t('📱 Refonte de l\'affichage mobile : le champ de saisie et les indices sont visibles dès l\'ouverture, sans avoir à faire défiler la page'),
+    t('🧭 Les sept modes du jour restent affichés en haut de l\'écran pendant la partie — passer de l\'un à l\'autre ne demande plus de remonter'),
+    t('🍎 Correction : en mode Fruit du Démon, la carte du fruit était coupée sur les écrans étroits'),
+    t('📖 La liste des réponses de la veille se replie, et se déplie d\'une pression'),
+    t('🔍 Suggestions de noms plus confortables au doigt : liste plus haute, défilement interne, et le clavier ne les recouvre plus'),
+  ] },
   { v: '6.4', date: t('Août 2026'), items: [
     t('🇬🇧 LogPose est maintenant disponible en anglais : bascule FR/EN d\'un clic depuis l\'en-tête'),
     t('🌍 Traduction complète : les 7 modes du jour, le Versus 1v1, la carte de Grand Line, les épithètes, les fruits du démon et les indices emoji'),
@@ -3111,6 +3119,137 @@ function playWinAudio() {
     { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
 })();
 
+// ===== COUCHE MOBILE (v6.5) =====
+// Deux comportements qui n'existent que sous 760 px, en complément de css/mobile.css.
+// Tout est additif : sur desktop, rien de ce bloc ne s'exécute.
+const MOBILE_MQ = window.matchMedia('(max-width: 760px)');
+
+/* Replie la barre « Hier » derrière un bouton. Le contenu construit par
+   buildYesterdayBar() est déplacé tel quel dans .yest-body — #yesterday-community
+   reste donc dans le DOM et loadYesterdayStats() continue de le retrouver. */
+function initMobileYesterday() {
+  const el = document.getElementById('yesterday-bar');
+  if (!el || !MOBILE_MQ.matches || el.classList.contains('is-collapsible')) return;
+
+  const body = document.createElement('div');
+  body.className = 'yest-body';
+  while (el.firstChild) body.appendChild(el.firstChild);
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'yest-toggle';
+  btn.setAttribute('aria-controls', 'yesterday-bar');
+  btn.innerHTML =
+    `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-scroll"></use></svg>` +
+    `<span>${t('Les réponses d\'hier')}</span><span class="yest-caret" aria-hidden="true">▾</span>`;
+
+  el.classList.add('is-collapsible');
+  el.appendChild(btn);
+  el.appendChild(body);
+
+  const apply = open => {
+    el.classList.toggle('is-open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  apply(lsGet(LS.yestOpen) === '1');   // replié par défaut
+
+  btn.addEventListener('click', () => {
+    const open = !el.classList.contains('is-open');
+    apply(open);
+    lsSet(LS.yestOpen, open ? '1' : '0');
+  });
+}
+
+/* Hauteurs réelles du cockpit collant → --m-tabs / --m-cockpit.
+   Le bloc des 7 modes change de hauteur selon que les libellés passent à la
+   ligne — ce qui dépend de la largeur ET de la langue (« Fruit du Démon » ≠
+   « Devil Fruit »). Coder l'offset en dur faisait chevaucher la rangée
+   Infini/Versus par-dessus la dernière rangée de modes. */
+(function mesurerCockpit() {
+  const tabs = document.querySelector('.mode-tabs');
+  const inf  = document.querySelector('.mode-tabs-inf');
+  if (!tabs) return;
+  const maj = () => {
+    const root = document.documentElement.style;
+    root.setProperty('--m-tabs', tabs.offsetHeight + 'px');
+    root.setProperty('--m-cockpit',
+      (tabs.offsetHeight + (inf ? inf.offsetHeight : 0) + 52) + 'px');
+  };
+  maj();
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(maj);
+    ro.observe(tabs);
+    if (inf) ro.observe(inf);
+  }
+  window.addEventListener('resize', maj);
+  window.addEventListener('load', maj);
+})();
+
+/* Hauteur réellement visible → --vvh.
+   Sur iOS, l'ouverture du clavier ne change ni innerHeight ni 100dvh : seule
+   visualViewport.height rétrécit. Sans ça, la liste d'autocomplétion se
+   dimensionne sur la fenêtre entière et la moitié passe sous le clavier. */
+(function suivreVisualViewport() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  let raf = 0;
+  const maj = () => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      document.documentElement.style.setProperty('--vvh', vv.height + 'px');
+    });
+  };
+  maj();
+  vv.addEventListener('resize', maj);
+  vv.addEventListener('scroll', maj);
+})();
+
+/* À la prise de focus, on remonte la zone de saisie juste sous le cockpit
+   collant (scroll-margin-top de css/mobile.css) : le maximum de place reste
+   disponible sous le champ pour la liste de suggestions. */
+(function saisieEnVue() {
+  const inp = document.getElementById('search-input');
+  if (!inp) return;
+  inp.addEventListener('focus', () => {
+    if (!MOBILE_MQ.matches) return;
+    // laisser le clavier finir de s'ouvrir avant de mesurer
+    setTimeout(() => {
+      const zone = inp.closest('.search-area') || inp;
+      // défilement instantané : pendant que le clavier s'ouvre, un scroll animé
+      // se fait rattraper par le navigateur et donne un rendu saccadé
+      zone.scrollIntoView({ block: 'start', behavior: 'auto' });
+    }, 260);
+  });
+})();
+
+/* La rangée d'onglets est collante et défile en x : on garde l'onglet actif
+   centré pour qu'il reste toujours visible et que les voisins soient atteignables.
+   Un observateur suffit — aucun des points d'appel de switchMode() n'est à modifier. */
+(function centrerOngletActif() {
+  const row = document.querySelector('.mode-tabs');
+  if (!row) return;
+
+  const center = smooth => {
+    if (!MOBILE_MQ.matches) return;
+    const tab = row.querySelector('.mode-tab.active');
+    if (!tab) return;
+    const target = tab.offsetLeft - (row.clientWidth - tab.offsetWidth) / 2;
+    const max = row.scrollWidth - row.clientWidth;
+    row.scrollTo({
+      left: Math.max(0, Math.min(target, max)),
+      behavior: smooth && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'smooth' : 'auto',
+    });
+  };
+
+  new MutationObserver(() => center(true)).observe(row, {
+    subtree: true, attributes: true, attributeFilter: ['class'],
+  });
+  // Position de départ (sans animation) une fois la mise en page stabilisée
+  window.addEventListener('load', () => center(false));
+  MOBILE_MQ.addEventListener('change', () => center(false));
+})();
+
 // ===== INIT ASYNCHRONE =====
 // Attend le chargement de data.json avant d'initialiser le jeu
 (async function initGame() {
@@ -3126,6 +3265,7 @@ function playWinAudio() {
   }
   saveTodayTargets();
   buildYesterdayBar();
+  try { initMobileYesterday(); } catch(e) { console.warn('initMobileYesterday:', e); }
   loadYesterdayStats(); // fire-and-forget, remplit #yesterday-community quand Firebase répond
   // Badge anniversaire
   (function() {

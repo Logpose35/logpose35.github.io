@@ -19,14 +19,16 @@ body.ocean3d-active[data-ocean="game"] #ocean-canvas { opacity: 0.62; }
 
 /* ===== NEUTRALISATIONS (le 3D remplace les décors CSS) =====
    Le fond classique (vagues SVG de base.css) n'est masqué QUE là où la 3D
-   tourne réellement : toujours sur la landing, et sur le jeu seulement si le
-   fond 3D est activé (classe .ocean3d-active posée par ocean3d.js). Sinon,
-   game.html retrouve à l'identique son fond classique d'avant. */
-body[data-ocean="landing"]::before,
+   tourne RÉELLEMENT — c'est-à-dire quand ocean3d.js a posé .ocean3d-active.
+   Depuis la v6.5 la landing n'a plus systématiquement sa 3D (mobile et
+   appareils modestes : cf. js/ocean3d-boot.js) ; sans cette condition, elle
+   perdait à la fois le décor 3D ET son décor CSS de remplacement, et se
+   retrouvait sur un aplat gris. */
+body.ocean3d-active[data-ocean="landing"]::before,
 body.ocean3d-active[data-ocean="game"]::before { display: none !important; }  /* vagues SVG du fond */
-.landing-body .hero { background: none !important; }     /* dégradé du héros   */
-.landing-body .hero::before { display: none; }           /* fausses étoiles    */
-.landing-body .hero-sea { display: none; }               /* Merry CSS -> Merry 3D */
+body.ocean3d-active .hero { background: none !important; }   /* dégradé du héros   */
+body.ocean3d-active .hero::before { display: none; }         /* fausses étoiles    */
+body.ocean3d-active .hero-sea { display: none; }             /* Merry CSS -> Merry 3D */
 
 /* ===== PROFONDEUR / EMPILEMENT =====
    Le canvas est à z-index 0 : tout le contenu remonte à 10+. */

@@ -63,11 +63,14 @@
   <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=260">
-  <link rel="stylesheet" href="css/landing.css?v=260">
-  <link rel="stylesheet" href="css/modals.css?v=260">
-  <link rel="stylesheet" href="css/ocean3d.css?v=260">
+  <link rel="stylesheet" href="css/base.css?v=270">
+  <link rel="stylesheet" href="css/landing.css?v=270">
+  <link rel="stylesheet" href="css/modals.css?v=270">
+  <link rel="stylesheet" href="css/ocean3d.css?v=270">
+  <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
+  <link rel="stylesheet" href="css/mobile.css?v=270">
 </head>
 <body class="landing-body layout-rose" data-ocean="landing">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -175,7 +178,7 @@
 
 <!-- ===== HÉROS — calé à gauche (desktop) / centré (mobile), sur l'océan ===== -->
 <section class="lp-hero">
-  <img class="lp-skull" src="images/jolly_roger.png" alt="Jolly Roger One Piece">
+  <img class="lp-skull" src="images/jolly_roger_sm.webp" alt="Jolly Roger One Piece">
   <h1 class="lp-title">LogPose</h1>
   <p class="lp-tagline">OnePiecedle — le jeu One Piece du jour.</p>
   <p class="lp-line">Sept énigmes, une nouvelle par jour. Devine les personnages mystères.</p>
@@ -377,7 +380,7 @@
     </div>
 
     <div class="about-logo-wrap">
-      <img src="images/jolly_roger.png" alt="LogPose" class="about-jolly">
+      <img src="images/jolly_roger_sm.webp" alt="LogPose" class="about-jolly" loading="lazy">
       <div class="about-version-badge js-version"></div>
     </div>
 
@@ -413,10 +416,10 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="js/i18n.js?v=260"></script>
-<script src="js/version.js?v=260"></script>
-<script src="js/ocean3d.js?v=260"></script>
-<script src="js/landing.js?v=260"></script>
+<script src="js/i18n.js?v=270"></script>
+<script src="js/version.js?v=270"></script>
+<!-- Fond 3D : three.js + ocean3d.js chargés à la demande (cf. js/ocean3d-boot.js) -->
+<script src="js/ocean3d-boot.js?v=270"></script>
+<script src="js/landing.js?v=270"></script>
 </body>
 </html>
