@@ -119,6 +119,29 @@
     return false;
   }
 
+  // Pertinence d'une suggestion : plus le score est BAS, plus elle remonte.
+  // Sans classement, les suggestions sortaient dans l'ordre de data.json : taper
+  // « sai » affichait d'abord Gecko Moria (épithète « Corsaire ») et les cinq
+  // « Saint … » avant le personnage nommé Sai, pourtant la saisie exacte.
+  function matchRank(c, q, aliases = {}) {
+    q = fold(q);
+    const name = fold(c.name);
+    if (name === q) return 0;
+    if (name.startsWith(q)) return 1;
+    if (name.split(/[\s.'’\-]+/).some(w => w.startsWith(q))) return 2;   // « zoro » → Roronoa Zoro
+    const al = Object.entries(aliases).filter(([, n]) => n === c.name).map(([a]) => fold(a));
+    if (al.some(a => a === q)) return 3;
+    if (al.some(a => a.startsWith(q))) return 4;
+    if (name.includes(q)) return 5;                                       // « sai » dans « Saint … »
+    return 6;                                                            // épithète, capitaine, artiste
+  }
+
+  // Trie une liste de suggestions déjà filtrée. Le tri de JS étant stable, deux
+  // suggestions de même rang gardent l'ordre du pool (= l'ordre de data.json).
+  function sortSuggestions(list, q, aliases = {}) {
+    return list.sort((a, b) => matchRank(a, q, aliases) - matchRank(b, q, aliases));
+  }
+
   // Résout un texte saisi vers le personnage correspondant du pool, en tolérant
   // les accents manquants (nom exact plié). Sert aux soumissions (daily + versus).
   function resolveName(pool, typed) {
@@ -128,5 +151,6 @@
   }
 
   return { cmpHaki, cmpArc, cmpBounty, cmpOrigin, cmpAffil, AFFIL_STOP, GRAND_FLEET, WORLD_GOV,
-           fruitLabel, computeVerdicts, getMatchHint, charMatchesQuery, fold, resolveName };
+           fruitLabel, computeVerdicts, getMatchHint, charMatchesQuery, fold, resolveName,
+           matchRank, sortSuggestions };
 });

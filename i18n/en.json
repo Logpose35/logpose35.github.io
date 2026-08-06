@@ -1580,5 +1580,8 @@
   "🧭 Les sept modes du jour restent affichés en haut de l'écran pendant la partie — passer de l'un à l'autre ne demande plus de remonter": "🧭 The seven daily modes stay pinned at the top during play — switching between them no longer means scrolling back up",
   "🍎 Correction : en mode Fruit du Démon, la carte du fruit était coupée sur les écrans étroits": "🍎 Fix: in Devil Fruit mode, the fruit card was cut off on narrow screens",
   "📖 La liste des réponses de la veille se replie, et se déplie d'une pression": "📖 Yesterday's answers are folded away, and unfold with a tap",
-  "🔍 Suggestions de noms plus confortables au doigt : liste plus haute, défilement interne, et le clavier ne les recouvre plus": "🔍 Name suggestions are easier to tap: taller list, internal scrolling, and the keyboard no longer covers them"
+  "🔍 Suggestions de noms plus confortables au doigt : liste plus haute, défilement interne, et le clavier ne les recouvre plus": "🔍 Name suggestions are easier to tap: taller list, internal scrolling, and the keyboard no longer covers them",
+  "📋 Relecture complète des fiches de personnages : origine, prime, haki, fruit du démon et arc d'apparition ont été repris un à un et confrontés aux sources officielles, puis corrigés": "📋 Full review of every character sheet: origin, bounty, Haki, Devil Fruit and debut arc were each checked against the official sources and fixed",
+  "🔍 Suggestions de noms mieux classées : le personnage dont le nom correspond à la saisie arrive désormais en tête de liste": "🔍 Smarter name suggestions: the character whose name matches what you type now shows up first",
+  "✉️ Une erreur subsiste dans une fiche ? Les signalements sont les bienvenus à {contact}": "✉️ Still spotted a mistake on a character sheet? Reports are very welcome at {contact}"
 }

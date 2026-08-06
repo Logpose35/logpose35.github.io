@@ -684,7 +684,8 @@ input.addEventListener('input', () => {
   else if (currentMode === 'audio')   { pool = OPENINGS;     used = auNames; }
   else if (currentMode === 'inf')     { pool = CHARACTERS;   used = infNames; }
   else                                { pool = CHARACTERS;   used = silNames; }  // silhouette
-  acFilt = pool.filter(c => !used.has(c.name) && charMatchesQuery(c, q, ALIASES)).slice(0, 8);
+  acFilt = sortSuggestions(pool.filter(c => !used.has(c.name) && charMatchesQuery(c, q, ALIASES)),
+                           q, ALIASES).slice(0, 8);
   if (!acFilt.length) { acBox.classList.remove('open'); return; }
   acBox.innerHTML = acFilt.map((c, i) => {
     const hint = getMatchHint(c, q, ALIASES);
@@ -1029,8 +1030,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=270`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=270`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=272`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=272`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2546,6 +2547,11 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '6.6', date: t('Août 2026'), items: [
+    t('📋 Relecture complète des fiches de personnages : origine, prime, haki, fruit du démon et arc d\'apparition ont été repris un à un et confrontés aux sources officielles, puis corrigés'),
+    t('🔍 Suggestions de noms mieux classées : le personnage dont le nom correspond à la saisie arrive désormais en tête de liste'),
+    t('✉️ Une erreur subsiste dans une fiche ? Les signalements sont les bienvenus à {contact}'),
+  ] },
   { v: '6.5', date: t('Août 2026'), items: [
     t('📱 Refonte de l\'affichage mobile : le champ de saisie et les indices sont visibles dès l\'ouverture, sans avoir à faire défiler la page'),
     t('🧭 Les sept modes du jour restent affichés en haut de l\'écran pendant la partie — passer de l\'un à l\'autre ne demande plus de remonter'),
@@ -2617,12 +2623,21 @@ function closePatchNotes() {
   if (o) o.remove();
   document.removeEventListener('keydown', _pnEsc);
 }
+// Une note de version peut citer l'adresse de contact via le jeton {contact} :
+// elle est assemblée au rendu (même principe que version.js) pour ne jamais
+// figurer en clair dans le source, où les robots à spam la ramasseraient.
+function withContact(html) {
+  if (!html.includes('{contact}')) return html;
+  const c = window.SITE_CONTACT || { user: 'contact', domain: 'onepiecedle.fr' };
+  const addr = c.user + '@' + c.domain;
+  return html.replace('{contact}', `<a class="contact-link" href="mailto:${addr}">${addr}</a>`);
+}
 function showPatchNotes() {
   if (document.getElementById('patchnotes-overlay')) return;
   const entries = CHANGELOG.map(e =>
       '<div class="pn-entry">'
     +   `<div class="pn-ver">v${esc(e.v)}<span class="pn-date"> · ${esc(e.date)}</span></div>`
-    +   `<ul class="pn-items">${e.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`
+    +   `<ul class="pn-items">${e.items.map(i => `<li>${withContact(esc(i))}</li>`).join('')}</ul>`
     + '</div>'
   ).join('');
   const ov = document.createElement('div');

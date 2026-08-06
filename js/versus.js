@@ -571,7 +571,8 @@
       : (curMode === 'wanted' && typeof WANTED_CHARS !== 'undefined' && WANTED_CHARS.length) ? WANTED_CHARS
       : (curMode === 'silhouette' && typeof SIL_POOL !== 'undefined' && SIL_POOL.length) ? SIL_POOL
       : CHARACTERS;
-    acFilt = pool.filter(c => !guessed.has(c.name) && charMatchesQuery(c, q, ALIASES)).slice(0, 8);
+    acFilt = sortSuggestions(pool.filter(c => !guessed.has(c.name) && charMatchesQuery(c, q, ALIASES)),
+                             q, ALIASES).slice(0, 8);
     if (!acFilt.length) { acBox().classList.remove('open'); return; }
     acBox().innerHTML = acFilt.map((c, i) => {
       const hint = getMatchHint(c, q, ALIASES);
