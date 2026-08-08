@@ -1591,5 +1591,8 @@
   "Opening inconnu": "Unknown opening",
   "Extrait de {0} s": "{0}s clip",
   "Opening {0}": "Opening {0}",
-  "Titre ou numéro de l'opening…": "Opening title or number…"
+  "Titre ou numéro de l'opening…": "Opening title or number…",
+  "{0} pts en moyenne · {1} pirates": "{0} pts on average · {1} pirates",
+  "{0} pts en moyenne · {1} pirate": "{0} pts on average · {1} pirate",
+  "Score total moyen par joueur sur la journée d'hier, tous modes confondus": "Average total score per player for yesterday, all modes combined"
 }
