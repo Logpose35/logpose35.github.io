@@ -487,28 +487,25 @@ function buildYesterdayBar() {
     ? ` &nbsp;|&nbsp; <svg class="ic ic-inline mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg>${t('Tome :')} <strong>${esc(String(data.tome))}</strong>` : '';
   el.innerHTML =
     `${t('Hier')} &nbsp;·&nbsp; ${t('Classique :')} <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; ${t('Wanted :')} <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; ${t('Silhouette :')} <strong>${esc(data.silhouette || '?')}</strong> &nbsp;|&nbsp; ${t('Fruit :')} <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; ${t('Émoji :')} <strong>${esc(data.emoji)}</strong>` +
-    `<br><span class="yesterday-op"><svg class="ic ic-inline mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg>${t('Opening :')} <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>` +
-    `<br><span class="yesterday-community" id="yesterday-community"></span>`;
+    `<br><span class="yesterday-op"><svg class="ic ic-inline mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg>${t('Opening :')} <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>`;
 }
-// Charge le score de la communauté d'hier depuis Firebase et l'affiche.
-// Une seule lecture : l'agrégat du jour vit dans le nœud `_day`, à côté des nœuds par mode
-// (`classic`, `wanted`…) sous la même date — les deux sont écrits par onGameEnd().
-// score_sum / players = score TOTAL moyen d'un joueur sur la journée (tous modes confondus).
-async function loadYesterdayStats() {
-  const d = parisNow(); d.setDate(d.getDate() - 1);
-  // Même format (non zéro-paddé) que todayKey(), sinon la clé ne matche pas l'écriture de daily-stats
-  const yKey = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-  const stats = await fbGet(`daily-stats/${yKey}`);
-  const el = document.getElementById('yesterday-community');
-  if (!el || !stats || !stats._day) return;
-  const players = sanitizeNum(stats._day.players);
-  const sum     = sanitizeNum(stats._day.score_sum);
-  if (!players) return;   // journée antérieure à l'agrégat : la ligne reste masquée (:empty)
+// Score TOTAL moyen d'un joueur sur la journée EN COURS, tous modes confondus, sous le compteur
+// du jour. Source : le nœud d'agrégat `_day` de daily-stats/{date} (players = +1 par joueur et
+// par jour, score_sum = les points), écrit par onGameEnd() — qui rappelle cette fonction ensuite,
+// donc la partie qui vient de se terminer y est déjà comptée. Ligne masquée tant que players = 0.
+async function loadDailyAverage() {
+  const el = document.getElementById('daily-average');
+  if (!el) return;
+  const day     = await fbGet(`daily-stats/${todayKey()}/_day`);
+  const players = sanitizeNum(day && day.players);
+  const sum     = sanitizeNum(day && day.score_sum);
+  if (!players) { el.innerHTML = ''; return; }
   const avg = Math.round(sum / players);
-  el.title = t('Score total moyen par joueur sur la journée d\'hier, tous modes confondus');
-  el.innerHTML = `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-flag"></use></svg>${t('Communauté&nbsp;:')} ` +
-    (players > 1 ? tf('{0} pts en moyenne · {1} pirates', nfmt(avg), nfmt(players))
-                 : tf('{0} pts en moyenne · {1} pirate',  nfmt(avg), nfmt(players)));
+  el.title = t('Score total moyen par joueur aujourd\'hui, tous modes confondus');
+  const pts = `<strong>${nfmt(avg)}</strong>`;   // le chiffre porte la ligne (accentué en CSS)
+  el.innerHTML = `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-chest"></use></svg>${t('Communauté&nbsp;:')} ` +
+    (players > 1 ? tf('{0} pts en moyenne · {1} pirates', pts, nfmt(players))
+                 : tf('{0} pts en moyenne · {1} pirate',  pts, nfmt(players)));
 }
 
 // ===== NAVIGATION PAR ONGLETS =====
@@ -1033,8 +1030,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=279`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=279`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=281`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=281`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2338,12 +2335,12 @@ function onGameEnd(mode, won, tries, score, extra) {
     _statWrites.push(fbIncrement(`daily-stats/${_dk}/${mode}/wins`));
     if (tries > 0) _statWrites.push(fbIncrementBy(`daily-stats/${_dk}/${mode}/tries_sum`, tries));
   }
-  // Agrégat du jour (nœud `_day`) : alimente le score total moyen affiché dans la barre « Hier ».
-  // Hors du lot ci-dessus : ces écritures ne sont relues que le lendemain, rien ne les attend.
-  countDayPlayer(_dk);
-  if (won && score > 0) fbIncrementBy(`daily-stats/${_dk}/_day/score_sum`, score);
-  // compteur public (navigation + gagnants/essais moyens), rafraîchi après les écritures
-  Promise.allSettled(_statWrites).then(() => incrementDailyCounter(mode));
+  // Agrégat du jour (nœud `_day`) : alimente le score total moyen de la journée en cours.
+  _statWrites.push(countDayPlayer(_dk));
+  if (won && score > 0) _statWrites.push(fbIncrementBy(`daily-stats/${_dk}/_day/score_sum`, score));
+  // compteur public (navigation + gagnants/essais moyens) et moyenne du jour, rafraîchis après
+  // les écritures
+  Promise.allSettled(_statWrites).then(() => { incrementDailyCounter(mode); loadDailyAverage(); });
   if (won) {
     saveModeScore(mode, score);
     const prev = sanitizeNum(lsGet(LS.cumulativeScore));
@@ -2568,6 +2565,7 @@ const CHANGELOG = [
   { v: '6.7', date: t('Août 2026'), items: [
     t('🎵 Le mode Opening arrive en Versus : les 7 modes du jeu sont désormais jouables en duel'),
     t('🔊 Réglage du volume intégré au duel, mémorisé d\'une manche à l\'autre'),
+    t('💰 Nouvelle ligne « Communauté » au-dessus du compteur : le score total moyen des joueurs sur la journée, tous modes confondus, réactualisé à chaque partie terminée'),
   ] },
   { v: '6.6', date: t('Août 2026'), items: [
     t('📋 Relecture complète des fiches de personnages : origine, prime, haki, fruit du démon et arc d\'apparition ont été repris un à un et confrontés aux sources officielles, puis corrigés'),
@@ -3162,8 +3160,8 @@ function playWinAudio() {
 const MOBILE_MQ = window.matchMedia('(max-width: 760px)');
 
 /* Replie la barre « Hier » derrière un bouton. Le contenu construit par
-   buildYesterdayBar() est déplacé tel quel dans .yest-body — #yesterday-community
-   reste donc dans le DOM et loadYesterdayStats() continue de le retrouver. */
+   buildYesterdayBar() est déplacé tel quel dans .yest-body — rien d'autre ne le
+   manipule (la moyenne du jour vit hors de cette barre, dans #daily-average). */
 function initMobileYesterday() {
   const el = document.getElementById('yesterday-bar');
   if (!el || !MOBILE_MQ.matches || el.classList.contains('is-collapsible')) return;
@@ -3303,7 +3301,7 @@ function initMobileYesterday() {
   saveTodayTargets();
   buildYesterdayBar();
   try { initMobileYesterday(); } catch(e) { console.warn('initMobileYesterday:', e); }
-  loadYesterdayStats(); // fire-and-forget, remplit #yesterday-community quand Firebase répond
+  loadDailyAverage(); // fire-and-forget, remplit #daily-average quand Firebase répond
   // Badge anniversaire
   (function() {
     const bdays = getTodayBirthdays();

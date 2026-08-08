@@ -262,6 +262,7 @@
   main { padding-left: 12px; padding-right: 12px; }
   .date-badge { margin-bottom: 4px; font-size: 0.68rem; }
   .daily-counter { margin-bottom: 8px; font-size: 0.76rem; }
+  .daily-average { margin: 0 0 2px; font-size: 0.76rem; }
 
   /* ==========================================================
      7. SAISIE + AUTOCOMPLÉTION

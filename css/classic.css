@@ -43,6 +43,26 @@ main {
   min-height: 1.4em;
   position: relative;
 }
+/* Score moyen de la communauté sur la journée — première des deux lignes du jour,
+   juste au-dessus du compteur par mode (qui garde sa propre marge basse). */
+.daily-average {
+  text-align: center;
+  margin: 0 0 3px;
+  font-size: var(--fs-sm);
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+/* Le chiffre porte la ligne : plus gros et plus gras. La couleur reste l'or du thème
+   CLAIR (--gold-l y est plus pâle que --gold = moins lisible) ; en thème sombre, où le
+   fond est foncé, l'or clair ressort au contraire. */
+.daily-average strong {
+  font-weight: 700;
+  font-size: 1.12em;
+}
+[data-theme="dark"] .daily-average strong { color: var(--gold-l); }
+.daily-average:empty { display: none; }
+
 /* Shimmer pendant le chargement Firebase */
 .daily-counter.loading { color: transparent !important; }
 .daily-counter.loading::after {

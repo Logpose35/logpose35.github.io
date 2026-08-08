@@ -239,17 +239,6 @@ body.lp-modal-open .score-merry { animation-play-state: paused; }
   font-size: 0.9em;
 }
 
-/* ===== YESTERDAY BAR — Stats communauté ===== */
-.yesterday-community {
-  display: block;
-  margin-top: 5px;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  color: var(--gold);
-  opacity: 0.65;
-}
-.yesterday-community:empty { display: none; }
-
 /* Remplissage : juste la ligne de vague, pas de fond solide */
 .score-fill {
   position: absolute;

@@ -1594,5 +1594,6 @@
   "Titre ou numéro de l'opening…": "Opening title or number…",
   "{0} pts en moyenne · {1} pirates": "{0} pts on average · {1} pirates",
   "{0} pts en moyenne · {1} pirate": "{0} pts on average · {1} pirate",
-  "Score total moyen par joueur sur la journée d'hier, tous modes confondus": "Average total score per player for yesterday, all modes combined"
+  "Score total moyen par joueur aujourd'hui, tous modes confondus": "Average total score per player today, all modes combined",
+  "💰 Nouvelle ligne « Communauté » au-dessus du compteur : le score total moyen des joueurs sur la journée, tous modes confondus, réactualisé à chaque partie terminée": "💰 New \"Community\" line above the counter: the average total score of the day's players, all modes combined, refreshed after every finished game"
 }
