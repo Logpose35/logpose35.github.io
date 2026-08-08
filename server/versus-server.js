@@ -45,11 +45,13 @@ const MAX_STRIKES = 3;                      // 3 timeouts consécutifs = forfait
 const VALID_BEST_OF = [1, 3, 5];
 const VALID_TURN_S = FAST ? null : [30, 60, 120, 0]; // 0 = ∞ ; null = libre (dev)
 
-// Modes jouables en versus. Les modes visuels (wanted/silhouette/tome) envoient
-// la référence de leur asset au client : l'URL révèle la cible en console —
-// assumé (jeu fun entre amis, pas d'anti-triche — décision du 09/07/2026).
-// Opening attendra (partage de flux audio plus lourd).
-const MODES_V = ['classic', 'wanted', 'silhouette', 'fruit', 'emoji', 'tome'];
+// Modes jouables en versus. Les modes à asset (wanted/silhouette/tome/audio)
+// envoient la référence de leur asset au client : l'URL révèle la cible en
+// console — assumé (jeu fun entre amis, pas d'anti-triche — décision du 09/07/2026).
+const MODES_V = ['classic', 'wanted', 'silhouette', 'fruit', 'emoji', 'tome', 'audio'];
+// Paliers du mode Opening (identiques au daily) : durée d'extrait par nombre d'erreurs.
+// Dupliqués côté client (versus.js), comme les paliers visuels des autres modes.
+const AUDIO_DURATIONS_V = [1, 2, 4, 7, 11, 16];
 // Seuils d'indices du mode Fruit (identiques au daily : type @3, traduction @5, description @8)
 const FRU_HINTS_AT = { type: 3, translated: 5, description: 8 };
 
@@ -58,7 +60,7 @@ const FRU_HINTS_AT = { type: 3, translated: 5, description: 8 };
 // joueurs sans git pull) ; fallback froid : la copie du repo.
 let CHARACTERS = [], ALIASES = {}, DATA_VERSION = 'inconnue';
 let EMOJI_POOL = [], FRUITS_V = [];   // pools dérivés (mêmes règles que data.js/le daily)
-let WANTED_POOL = [], SIL_POOL_S = [], TOMES_V = [];  // pools wanted/silhouette/tome
+let WANTED_POOL = [], SIL_POOL_S = [], TOMES_V = [], OPENINGS_V = [];  // pools wanted/silhouette/tome/audio
 let SIL_FOCUS = {};                   // focus.json (source du pool silhouette, comme le daily)
 let lastDataRefetch = 0;
 const FOCUS_URL = process.env.VERSUS_FOCUS_URL || 'https://onepiecedle.fr/silhouettes/focus.json';
@@ -74,9 +76,11 @@ function loadDataFromText(txt, source) {
   FRUITS_V = (d.FRUITS || []).filter(f => f.holder && CHARACTERS.some(c => c.name === f.holder));
   WANTED_POOL = CHARACTERS.filter(c => c.img !== null && c.img !== undefined);
   TOMES_V = Array.isArray(d.TOMES) ? d.TOMES : [];
+  // Openings : il faut un id (nom du MP3) ET un nom (ce que le joueur tape)
+  OPENINGS_V = (d.OPENINGS || []).filter(o => Number.isInteger(o.id) && typeof o.name === 'string');
   rebuildSilPool();
   DATA_VERSION = crypto.createHash('sha256').update(txt).digest('hex').slice(0, 12);
-  console.log(`[data] ${CHARACTERS.length} persos chargés (${source}, version ${DATA_VERSION}) — pools : ${EMOJI_POOL.length} émoji, ${FRUITS_V.length} fruits, ${WANTED_POOL.length} wanted, ${SIL_POOL_S.length} silhouettes, ${TOMES_V.length} tomes`);
+  console.log(`[data] ${CHARACTERS.length} persos chargés (${source}, version ${DATA_VERSION}) — pools : ${EMOJI_POOL.length} émoji, ${FRUITS_V.length} fruits, ${WANTED_POOL.length} wanted, ${SIL_POOL_S.length} silhouettes, ${TOMES_V.length} tomes, ${OPENINGS_V.length} openings`);
 }
 
 // Le pool silhouette dépend de DEUX sources (data.json × focus.json) — reconstruit
@@ -189,7 +193,7 @@ function makeLobby(code, options) {
 function poolForMode(m) {
   return m === 'emoji' ? EMOJI_POOL : m === 'fruit' ? FRUITS_V
        : m === 'wanted' ? WANTED_POOL : m === 'silhouette' ? SIL_POOL_S
-       : m === 'tome' ? TOMES_V : CHARACTERS;
+       : m === 'tome' ? TOMES_V : m === 'audio' ? OPENINGS_V : CHARACTERS;
 }
 const modeAvailable = m => MODES_V.includes(m) && poolForMode(m).length > 0;
 
@@ -291,6 +295,12 @@ function clueFor(lb) {
   }
   if (cur.mode === 'tome') {
     return { cover: cur.target.tome, zoom: cur.tomeZoom, wrongCount: cur.wrongCount };
+  }
+  if (cur.mode === 'audio') {
+    const i = Math.min(cur.wrongCount, AUDIO_DURATIONS_V.length - 1);
+    return { openingId: cur.target.id, offsetFrac: cur.audioFrac,
+             seconds: AUDIO_DURATIONS_V[i], longest: AUDIO_DURATIONS_V[AUDIO_DURATIONS_V.length - 1],
+             wrongCount: cur.wrongCount };
   }
   return null; // classic : pas d'indice, les verdicts suffisent
 }
@@ -394,7 +404,7 @@ function startRound(lb) {
   let mode = lb.roundModes[lb.round - 1] || 'classic';
   if (!modeAvailable(mode)) mode = 'classic';  // pool devenu vide (ex : focus.json perdu au re-fetch)
   // Cible par mode — aléa crypto, jamais le seed quotidien
-  let target, fruit = null, emojiOrder = null, tomeZoom = null;
+  let target, fruit = null, emojiOrder = null, tomeZoom = null, audioFrac = null;
   if (mode === 'emoji') {
     target = EMOJI_POOL[crypto.randomInt(EMOJI_POOL.length)];
     emojiOrder = cryptoShuffle(target.emoji);
@@ -409,12 +419,19 @@ function startRound(lb) {
     const n = TOMES_V[crypto.randomInt(TOMES_V.length)];
     target = { name: `Tome ${n}`, tome: n };  // pseudo-fiche : .name suffit à endRound/history
     tomeZoom = { x: 18 + crypto.randomInt(64), y: 18 + crypto.randomInt(64) }; // comme le daily : centre bridé loin des bords
+  } else if (mode === 'audio') {
+    target = OPENINGS_V[crypto.randomInt(OPENINGS_V.length)];  // {id, name, artist} : .name suffit à endRound/history
+    // Point de départ de l'extrait, en FRACTION de la plage jouable. Le serveur ne
+    // télécharge jamais le MP3 : c'est le client qui fait frac × (durée − extrait le
+    // plus long). Envoyer une fraction plutôt que des secondes garantit que les deux
+    // joueurs entendent exactement le même passage, quelle que soit la durée du morceau.
+    audioFrac = crypto.randomInt(100_000) / 100_000;
   } else {
     target = CHARACTERS[crypto.randomInt(CHARACTERS.length)];
   }
   const firstPlayer = lb.turnOrder[(lb.round - 1) % 2];
   lb.cur = {
-    mode, target, fruit, emojiOrder, tomeZoom, wrongCount: 0,
+    mode, target, fruit, emojiOrder, tomeZoom, audioFrac, wrongCount: 0,
     guesses: [], guessedNames: new Set(),
     turnOf: firstPlayer,
     deadline: null, remainingOnPause: null,
@@ -531,6 +548,28 @@ function handleGuess(lb, idx, name) {
     const clue = clueFor(lb);
     lb.players.forEach(pp => send(pp.ws, 'guess_result', { ...entry, clue }));
     if (win) endRound(lb, idx, 'tome trouvé');
+    else { beginTurn(lb, otherIdx(idx)); broadcastState(lb); }
+    return;
+  }
+
+  // Mode Opening : on devine un GÉNÉRIQUE, pas un personnage
+  if (cur.mode === 'audio') {
+    const op = OPENINGS_V.find(o => rules.fold(o.name) === rules.fold(name));
+    if (!op) {
+      throttledRefetch();
+      return send(p.ws, 'error', { code: 'UNKNOWN_CHAR', message: name });
+    }
+    if (cur.guessedNames.has(op.name)) return send(p.ws, 'error', { code: 'ALREADY_GUESSED' });
+    cur.guessedNames.add(op.name);
+    cur.strikes[idx] = 0;
+    const win = op.id === cur.target.id;
+    if (!win) cur.wrongCount++;
+    const entry = { by: idx, opening: { id: op.id, name: op.name, artist: op.artist || '' }, verdicts: { win } };
+    cur.guesses.push(entry);
+    touch(lb);
+    const clue = clueFor(lb);
+    lb.players.forEach(pp => send(pp.ws, 'guess_result', { ...entry, clue }));
+    if (win) endRound(lb, idx, 'opening trouvé');
     else { beginTurn(lb, otherIdx(idx)); broadcastState(lb); }
     return;
   }

@@ -185,6 +185,36 @@
 .v-sil-color    { opacity: 0; transition: opacity .45s ease, transform .55s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important; }
 .v-frame-tome   { width: min(70vw, 220px); aspect-ratio: 0.66; background: #0a1422; }
 .v-frame-tome img { transform-origin: 50% 50%; }
+/* Mode Opening : pas d'image, un bouton d'écoute + une barre de progression qui
+   se remplit sur la durée de l'extrait (mêmes paliers que le daily). */
+.v-frame-audio {
+  width: min(80vw, 300px); padding: 18px 16px 16px; background: #0a1422;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.v-au-btn {
+  font-family: inherit; font-size: 1rem; font-weight: 600; letter-spacing: .04em;
+  color: #0a1422; background: var(--mode-audio, #3a8fcf); border: none;
+  border-radius: 8px; padding: 10px 22px; cursor: pointer;
+  transition: filter .18s ease, transform .12s ease;
+}
+.v-au-btn:hover  { filter: brightness(1.12); }
+.v-au-btn:active { transform: translateY(1px); }
+.v-au-bar  { width: 100%; height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+.v-au-fill { height: 100%; width: 0; border-radius: 99px; background: var(--mode-audio, #3a8fcf); }
+.v-au-vol  { display: flex; align-items: center; gap: 10px; width: 100%; }
+.v-au-volicon { font-size: 1rem; line-height: 1; user-select: none; }
+.v-au-slider {
+  flex: 1; height: 4px; border-radius: 99px; appearance: none; -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.18); cursor: pointer;
+}
+.v-au-slider::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--mode-audio, #3a8fcf); border: none; cursor: pointer;
+}
+.v-au-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--mode-audio, #3a8fcf); border: none; cursor: pointer;
+}
 .v-clue-sub { margin-top: 10px; color: var(--text3); font-size: .85rem; text-align: center; }
 @media (prefers-reduced-motion: reduce) { .v-clue-frame img { transition: none; } }
 
@@ -249,6 +279,9 @@
 .v-reveal img { width: 74px; height: 74px; object-fit: cover; border-radius: 10px; border: 2px solid var(--gold); }
 .v-reveal .v-rtitle { font-weight: 900; font-size: 1.05rem; }
 .v-reveal .v-rsub { color: var(--text3); font-size: .88rem; }
+/* Modes sans vignette (Opening) : le bloc texte est seul dans le flex, on le centre
+   au lieu de le laisser calé à gauche dans une carte par ailleurs centrée. */
+.v-reveal.v-noimg, .v-roundover-card.v-noimg { justify-content: center; text-align: center; }
 
 /* ── Overlay de fin de manche : la réponse en GRAND au centre (comme le daily) ── */
 .v-roundover-card {

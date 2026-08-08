@@ -1583,5 +1583,13 @@
   "🔍 Suggestions de noms plus confortables au doigt : liste plus haute, défilement interne, et le clavier ne les recouvre plus": "🔍 Name suggestions are easier to tap: taller list, internal scrolling, and the keyboard no longer covers them",
   "📋 Relecture complète des fiches de personnages : origine, prime, haki, fruit du démon et arc d'apparition ont été repris un à un et confrontés aux sources officielles, puis corrigés": "📋 Full review of every character sheet: origin, bounty, Haki, Devil Fruit and debut arc were each checked against the official sources and fixed",
   "🔍 Suggestions de noms mieux classées : le personnage dont le nom correspond à la saisie arrive désormais en tête de liste": "🔍 Smarter name suggestions: the character whose name matches what you type now shows up first",
-  "✉️ Une erreur subsiste dans une fiche ? Les signalements sont les bienvenus à {contact}": "✉️ Still spotted a mistake on a character sheet? Reports are very welcome at {contact}"
+  "✉️ Une erreur subsiste dans une fiche ? Les signalements sont les bienvenus à {contact}": "✉️ Still spotted a mistake on a character sheet? Reports are very welcome at {contact}",
+  "🎵 Le mode Opening arrive en Versus : les 7 modes du jeu sont désormais jouables en duel": "🎵 Opening mode comes to Versus: all 7 game modes can now be played in a duel",
+  "🎧 Les deux joueurs entendent exactement le même extrait, qui s'allonge à chaque erreur — de 1 à 16 secondes": "🎧 Both players hear the exact same clip, which gets longer with every wrong answer — from 1 to 16 seconds",
+  "🔊 Réglage du volume intégré au duel, mémorisé d'une manche à l'autre": "🔊 Built-in volume control for duels, remembered from one round to the next",
+  "🔢 Les suggestions indiquent le numéro de l'opening, pour distinguer les titres qui se ressemblent": "🔢 Suggestions now show the opening number, so similar titles are easy to tell apart",
+  "Opening inconnu": "Unknown opening",
+  "Extrait de {0} s": "{0}s clip",
+  "Opening {0}": "Opening {0}",
+  "Titre ou numéro de l'opening…": "Opening title or number…"
 }

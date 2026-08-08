@@ -11,6 +11,7 @@
   const K_RESUME = 'op-versus-resume';   // { code, token } — survit à un F5/onglet fermé
   const K_PSEUDO = 'op-versus-pseudo';
   const K_STATS  = 'op-versus-stats';    // { w, l } — lu par l'onglet stats du jeu (LS.versusStats d'app.js)
+  const K_VOL    = 'op-versus-volume';   // volume du mode Opening — mémorisé (le daily, lui, repart à 0.7)
 
   // ── Copies locales de helpers d'affichage (app.js n'est pas chargé ici) ──
   const AB = window.ASSET_BASE || '';
@@ -68,6 +69,7 @@
     fruit:      { label: t('Fruit du Démon'), svg: 'ic-fruit',      color: 'var(--mode-fruit)' },
     emoji:      { label: t('Émoji'),          svg: 'ic-rebus',      color: 'var(--mode-emoji)' },
     tome:       { label: t('Tome'),           svg: 'ic-tome',       color: 'var(--mode-tome)' },
+    audio:      { label: t('Opening'),        svg: 'ic-note',       color: 'var(--mode-audio)' },
   };
   // Paliers visuels des modes wanted/silhouette/tome — copies du daily (app.js
   // n'est pas chargé ici ; BLUR_STEPS vient de data.js). wrongCount (serveur,
@@ -75,6 +77,13 @@
   const V_SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
   const V_SIL_HINT_AT = 5;   // disque couleur automatique à partir de 5 erreurs
   const V_TOME_SCALES = [8, 5.3, 3.5, 2.3, 1.5, 1];
+  // Mode Opening : le serveur envoie la durée d'extrait et la fraction de départ ;
+  // seule la conversion fraction → secondes se fait ici, car elle a besoin de la
+  // durée réelle du MP3 que seul le navigateur connaît.
+  // auClue = DERNIER indice reçu. Le bouton doit le lire au clic et non le capturer
+  // à la création : sinon il rejoue à vie la durée du premier rendu, alors que le
+  // libellé, lui, s'actualise (l'extrait semble ne jamais s'allonger).
+  let auEl = null, auTimer = null, auPlaying = false, auClue = null;
   const tomeMax = () => (typeof TOMES !== 'undefined' && TOMES.length) ? Math.max(...TOMES) : 112;
   let wantedColor = false;   // toggle couleur du mode Wanted (N&B par défaut, comme le daily)
   const modeChip = m => MODE_META[m]
@@ -258,7 +267,11 @@
       // Réponse de la dernière manche + récap de toutes les manches
       const pr = $('v-post-reveal');
       if (lastRound && lastRound.target) {
-        pr.innerHTML = `${revealImgTag(lastRound.target)}
+        const img = revealImgTag(lastRound.target);
+        // Sans vignette (mode Opening), le bloc est seul dans le flex : on le centre,
+        // sinon il reste collé à gauche dans une carte par ailleurs centrée.
+        pr.classList.toggle('v-noimg', !img);
+        pr.innerHTML = `${img}
           <div><div class="v-rtitle">${tf("C'était {0}", esc(lastRound.target.name))}${lastRound.fruitName ? ` (${esc(lastRound.fruitName)})` : ''}</div>
           <div class="v-rsub">${lastRound.tries > 1 ? tf('trouvé en {0} essais', lastRound.tries) : tf('trouvé en {0} essai', lastRound.tries)}</div></div>`;
         pr.hidden = false;
@@ -275,7 +288,7 @@
   }
 
   // ── Veto des modes (façon CS2) : ban/pick tour à tour jusqu'au décideur ──
-  const VETO_ORDER = ['classic', 'wanted', 'silhouette', 'fruit', 'emoji', 'tome']; // ordre canonique d'affichage
+  const VETO_ORDER = ['classic', 'wanted', 'silhouette', 'fruit', 'emoji', 'tome', 'audio']; // ordre canonique d'affichage
   function renderVeto(s) {
     const v = s.veto;
     if (!v) return;
@@ -326,7 +339,9 @@
     if (curMode === 'tome') input.setAttribute('inputmode', 'numeric');
     else input.removeAttribute('inputmode');
     input.placeholder = mine
-      ? (curMode === 'tome' ? tf('Numéro du tome (1–{0})…', tomeMax()) : t('À toi de jouer…'))
+      ? (curMode === 'tome'  ? tf('Numéro du tome (1–{0})…', tomeMax())
+       : curMode === 'audio' ? t('Titre ou numéro de l\'opening…')
+       : t('À toi de jouer…'))
       : tf('Tour de {0}', snap.players[turnOf]?.name || '…');
     if (mine) input.focus();
     $('v-gridtitle-me').classList.toggle('turn-me', mine);
@@ -366,6 +381,7 @@
     if (p.round === 1) lastRound = null;  // nouveau match (revanche incluse)
     // Nouvelle manche : grilles, indice et état de manche remis à zéro
     curMode = p.mode || 'classic';
+    stopAudio(); auEl = null;      // une manche Opening qui s'enchaîne ne doit pas garder l'extrait précédent
     setModeAccent(curMode);
     document.querySelectorAll('.v-gridblock').forEach(g => g.classList.toggle('simple', curMode !== 'classic'));
     $('v-clue').hidden = true;
@@ -434,6 +450,32 @@
       col.style.clipPath = colorOn ? `circle(7% at ${(cc.x * 100).toFixed(2)}% ${(cc.y * 100).toFixed(2)}%)` : 'none';
       el.querySelector('.v-clue-sub').textContent = (colorOn ? t('🎨 Indice couleur débloqué · ') : '')
         + (cc.s === 1 ? t('Silhouette entière !') : t('Dézoome à chaque erreur…'));
+    } else if (clue.openingId) {    // opening : extrait qui s'allonge à chaque erreur
+      auClue = clue;                // à jour AVANT tout clic (voir commentaire de auClue)
+      let frame = el.querySelector('.v-frame-audio');
+      if (!frame || frame.dataset.key !== String(clue.openingId)) {
+        stopAudio();
+        el.innerHTML = `<div class="v-clue-frame v-frame-audio" data-key="${clue.openingId}">
+            <button type="button" class="v-au-btn">${t('▶ Écouter')}</button>
+            <div class="v-au-bar"><div class="v-au-fill"></div></div>
+            <div class="v-au-vol">
+              <span class="v-au-volicon">🔊</span>
+              <input type="range" class="v-au-slider" min="0" max="1" step="0.05"
+                     value="${auVol()}" aria-label="${t('Volume')}">
+            </div>
+          </div><div class="v-clue-sub"></div>`;
+        frame = el.querySelector('.v-frame-audio');
+        auEl = new Audio(`${AB}audio/Opening${clue.openingId}.mp3`);
+        auEl.preload = 'metadata';   // la durée est nécessaire pour placer l'extrait
+        auEl.volume = auVol();
+        frame.querySelector('.v-au-btn').addEventListener('click', () => toggleAudio(auClue));
+        frame.querySelector('.v-au-slider').addEventListener('input', e => setAuVolume(e.target.value));
+        setAuVolume(auVol());        // aligne l'icône sur la valeur mémorisée
+      }
+      frame.querySelector('.v-au-btn').textContent = auPlaying ? t('⏹ Stop') : t('▶ Écouter');
+      el.querySelector('.v-clue-sub').textContent = tf('Extrait de {0} s', clue.seconds);
+      el.hidden = false;
+      return;
     } else if (clue.cover) {        // tome : couverture zoomée → dézoom
       let frame = el.querySelector('.v-frame-tome');
       if (!frame || frame.dataset.key !== String(clue.cover)) {
@@ -466,15 +508,74 @@
     return { x: f.x + (0.5 - f.x) * t, y: f.y + (0.5 - f.y) * t, s };
   }
 
+  // ── Mode Opening : lecture de l'extrait ──────────────────────────────────
+  // Le décalage vient du serveur en FRACTION : les deux joueurs entendent le même
+  // passage, alors que seul le navigateur connaît la durée réelle du morceau.
+  // Volume mémorisé entre les manches et les parties (0.6 par défaut : en Versus on
+  // réécoute beaucoup plus souvent que dans le quotidien).
+  function auVol() {
+    const v = parseFloat(localStorage.getItem(K_VOL));
+    return isFinite(v) && v >= 0 && v <= 1 ? v : 0.6;
+  }
+  function setAuVolume(val) {
+    const v = Math.min(1, Math.max(0, parseFloat(val) || 0));
+    if (auEl) auEl.volume = v;
+    try { localStorage.setItem(K_VOL, String(v)); } catch {}
+    const icon = $('v-clue').querySelector('.v-au-volicon');
+    if (icon) icon.textContent = v === 0 ? '🔇' : v < 0.5 ? '🔉' : '🔊';
+  }
+
+  function audioStart(clue) {
+    if (!auEl || !isFinite(auEl.duration) || auEl.duration <= 0) return 0;
+    return (clue.offsetFrac || 0) * Math.max(0, auEl.duration - (clue.longest || 16));
+  }
+  function stopAudio() {
+    clearTimeout(auTimer); auTimer = null; auPlaying = false;
+    if (auEl) { try { auEl.pause(); } catch {} }
+    const fill = $('v-clue').querySelector('.v-au-fill');
+    if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; }
+    const btn = $('v-clue').querySelector('.v-au-btn');
+    if (btn) btn.textContent = t('▶ Écouter');
+  }
+  function toggleAudio(clue) {
+    if (!auEl || !clue) return;
+    if (auPlaying) return stopAudio();
+    const btn  = $('v-clue').querySelector('.v-au-btn');
+    const fill = $('v-clue').querySelector('.v-au-fill');
+    const secs = clue.seconds || 1;
+    const go = () => {
+      auEl.currentTime = audioStart(clue);
+      auEl.play().then(() => {
+        auPlaying = true;
+        if (btn) btn.textContent = t('⏹ Stop');
+        if (fill) {
+          fill.style.transition = 'none'; fill.style.width = '0%';
+          requestAnimationFrame(() => {
+            fill.style.transition = `width ${secs}s linear`;
+            fill.style.width = '100%';
+          });
+        }
+        auTimer = setTimeout(stopAudio, secs * 1000);
+      }).catch(() => stopAudio());   // autoplay refusé : on retombe sur l'état arrêté
+    };
+    // La durée peut ne pas être encore connue (1er clic) : on attend les métadonnées.
+    if (isFinite(auEl.duration) && auEl.duration > 0) go();
+    else auEl.addEventListener('loadedmetadata', go, { once: true });
+  }
+
   // ── Lignes d'essai (rendu depuis les verdicts REÇUS — zéro calcul local) ──
   function addGuess(entry) {
-    const isTome = entry.tome != null;   // mode tome : un numéro, pas de fiche perso
-    const key = isTome ? `${entry.by}:tome-${entry.tome}` : `${entry.by}:${entry.char.name}`;
+    const isTome = entry.tome != null;      // mode tome : un numéro, pas de fiche perso
+    const isOp   = entry.opening != null;   // mode opening : un générique
+    const key = isTome ? `${entry.by}:tome-${entry.tome}`
+              : isOp  ? `${entry.by}:op-${entry.opening.id}`
+              : `${entry.by}:${entry.char.name}`;
     if (rendered.has(key)) return;
     rendered.add(key);
-    guessed.add(isTome ? `tome-${entry.tome}` : entry.char.name);
+    guessed.add(isTome ? `tome-${entry.tome}` : isOp ? entry.opening.name : entry.char.name);
     const grid = entry.by === me ? $('v-grid-me') : $('v-grid-op');
     grid.prepend(isTome ? buildTomeRow(entry.tome, entry.verdicts)
+               : isOp  ? buildOpeningRow(entry.opening, entry.verdicts)
                : curMode === 'classic' ? buildRow(entry.char, entry.verdicts)
                : buildSimpleRow(entry.char, entry.verdicts));
   }
@@ -485,6 +586,15 @@
     row.className = 'v-simple-row';
     const res = v.win ? t('✅ TROUVÉ !') : v.dir === 'higher' ? t('📈 Plus haut') : t('📉 Plus bas');
     row.innerHTML = `<span class="nm">${tf('Tome {0}', n)}</span><span class="res ${v.win ? 'correct' : 'wrong'}">${res}</span>`;
+    return row;
+  }
+
+  // Ligne du mode Opening : numéro + titre du générique
+  function buildOpeningRow(op, v) {
+    const row = document.createElement('div');
+    row.className = 'v-simple-row';
+    row.innerHTML = `<span class="nm">${tf('Opening {0}', op.id)} · ${esc(op.name)}</span>`
+      + `<span class="res ${v.win ? 'correct' : 'wrong'}">${v.win ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
     return row;
   }
 
@@ -543,13 +653,16 @@
   // du daily), le temps de l'inter-manche — masquée au countdown suivant ──
   function onRoundEnd(p) {
     deadline = null;
+    stopAudio();                   // la réponse est révélée : on coupe l'extrait en cours
     lastRound = p;
     if (snap) snap.turnOf = null;   // fige le bandeau sur « réponse révélée »
     $('search-input').disabled = true;
     const wName = snap?.players[p.winner]?.name || '…';
     const mine = p.winner === me;
+    const roImg = revealImgTag(p.target);
+    $('v-roundover-card').classList.toggle('v-noimg', !roImg);   // idem : centré sans vignette
     $('v-roundover-card').innerHTML = `
-      ${revealImgTag(p.target)}
+      ${roImg}
       <div>
         <div class="v-rtitle">${mine ? t('🏆 Manche gagnée !') : tf('💀 Manche pour {0}', esc(wName))}</div>
         <div class="v-rname">${t("C'était")} <b>${esc(p.target.name)}</b>${p.fruitName ? ` (${esc(p.fruitName)})` : ''}</div>
@@ -567,7 +680,8 @@
     const q = input().value.trim().toLowerCase();
     if (!q) { acFilt = []; acBox().classList.remove('open'); return; }
     // Pool par mode = celui du daily (aligné sur le contrôle NOT_IN_POOL serveur)
-    const pool = (curMode === 'emoji' && typeof EMOJI_POOL !== 'undefined' && EMOJI_POOL.length) ? EMOJI_POOL
+    const pool = (curMode === 'audio' && typeof OPENINGS !== 'undefined' && OPENINGS.length) ? OPENINGS
+      : (curMode === 'emoji' && typeof EMOJI_POOL !== 'undefined' && EMOJI_POOL.length) ? EMOJI_POOL
       : (curMode === 'wanted' && typeof WANTED_CHARS !== 'undefined' && WANTED_CHARS.length) ? WANTED_CHARS
       : (curMode === 'silhouette' && typeof SIL_POOL !== 'undefined' && SIL_POOL.length) ? SIL_POOL
       : CHARACTERS;
@@ -575,7 +689,9 @@
                              q, ALIASES).slice(0, 8);
     if (!acFilt.length) { acBox().classList.remove('open'); return; }
     acBox().innerHTML = acFilt.map((c, i) => {
-      const hint = getMatchHint(c, q, ALIASES);
+      // Mode Opening : on affiche TOUJOURS le numéro, y compris quand c'est le titre
+      // qui a matché — sinon rien ne dit à quel générique correspond le titre.
+      const hint = curMode === 'audio' ? tf('Opening {0}', c.id) : getMatchHint(c, q, ALIASES);
       return `<div class="ac-item" data-i="${i}">${esc(c.name)}${hint ? ` <span class="ac-hint">${esc(hint)}</span>` : ''}</div>`;
     }).join('');
     acBox().classList.add('open'); acSel = -1;
@@ -591,6 +707,18 @@
       if (guessed.has(`tome-${n}`)) return toast(ERR_FR.ALREADY_GUESSED);
       send('guess', { name: String(n) });
       input().value = '';
+      return;
+    }
+    if (curMode === 'audio') {   // titre de générique, pas un personnage
+      const pool = (typeof OPENINGS !== 'undefined' && OPENINGS.length) ? OPENINGS : [];
+      // titre exact, ou numéro seul / « op12 » comme dans le daily
+      const num = String(name).trim().match(/^(?:op(?:ening)?\s*)?(\d{1,2})$/i);
+      const o = resolveName(pool, name) || (num ? pool.find(x => x.id === parseInt(num[1], 10)) : null);
+      if (!o) return toast(t('Opening inconnu'));
+      if (guessed.has(o.name)) return toast(ERR_FR.ALREADY_GUESSED);
+      send('guess', { name: o.name });
+      input().value = '';
+      acBox().classList.remove('open');
       return;
     }
     const c = resolveName(CHARACTERS, name);

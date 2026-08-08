@@ -135,7 +135,7 @@ async function main() {
     console.log('— Manche —');
     A.send('set_ready', { ready: true });
     B.send('set_ready', { ready: true });
-    await driveVeto([A, B], 'classic');   // veto (Bo1 : 5 bans) → laisse Classique comme décideur
+    await driveVeto([A, B], 'classic');   // veto (Bo1 : tous les modes bannis sauf un) → laisse Classique comme décideur
     await A.waitFor('countdown');
     const turn1 = (await A.waitFor('turn')).payload;
     await B.waitFor('turn');

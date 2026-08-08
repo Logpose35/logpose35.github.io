@@ -1,4 +1,4 @@
-// ===== TEST DES MODES VERSUS (veto CS2 + 6 modes + décideur) =====
+// ===== TEST DES MODES VERSUS (veto CS2 + 7 modes + décideur) =====
 // `node test-modes.js` — spawn le serveur en mode rapide et joue :
 //   1. un Bo3 où le veto force émoji + fruit (indices émoji/fruit)
 //   2. un Bo3 où le veto force wanted + silhouette (indices visuels)
@@ -24,10 +24,11 @@ let SIL_FOCUS = {};
 try { SIL_FOCUS = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'silhouettes', 'focus.json'), 'utf8')); } catch {}
 const SIL_NAMES = ALL.filter(c => imgKey(c) && SIL_FOCUS[imgKey(c)]).map(c => c.name);
 const TOME_MAX = Math.max(...(DATA.TOMES || [112]));
+const OPENING_NAMES = (DATA.OPENINGS || []).map(o => o.name);
 
 function poolNamesFor(mode) {
   return mode === 'emoji' ? EMOJI_NAMES : mode === 'wanted' ? WANTED_NAMES
-       : mode === 'silhouette' ? SIL_NAMES : ALL_NAMES;
+       : mode === 'silhouette' ? SIL_NAMES : mode === 'audio' ? OPENING_NAMES : ALL_NAMES;
 }
 
 let passed = 0, failed = 0;
@@ -134,7 +135,9 @@ async function playMatch(socks, bestOf, onClue) {
       } else {
         while (guessed.has(pool[nameIdx])) nameIdx++;
         pick = pool[nameIdx]; guessed.add(pick);
-        pred = x => x.type !== 'guess_result' || x.payload.char.name === pick;
+        pred = mode === 'audio'
+          ? x => x.type !== 'guess_result' || x.payload.opening.name === pick
+          : x => x.type !== 'guess_result' || x.payload.char.name === pick;
       }
       sock.purge(['guess_result', 'turn', 'lobby_state', 'countdown', 'turn_timeout']);
       sock.send('guess', { name: pick });
@@ -184,7 +187,10 @@ async function main() {
     const s0 = await makeLobby('MecA', 'MecB', { bestOf: 3, turnSeconds: 60 });
     s0[0].send('set_ready', { ready: true }); s0[1].send('set_ready', { ready: true });
     let v0; do { v0 = (await s0[0].waitFor('lobby_state')).payload; } while (v0.state !== 'VETO');
-    ok(v0.veto && v0.veto.total === 5 && v0.veto.action === 'ban', `veto démarré : 5 actions, ouvre par un ban`);
+    // Le veto élimine/attribue tous les modes sauf un (le décideur) : total = modes - 1,
+    // quel que soit le format. Dérivé plutôt que codé en dur, pour survivre à l'ajout d'un mode.
+    ok(v0.veto && v0.veto.total === v0.veto.avail.length - 1 && v0.veto.action === 'ban',
+       `veto démarré : ${v0.veto.total} actions sur ${v0.veto.avail.length} modes, ouvre par un ban`);
     const wrong = v0.veto.turnOf === 0 ? 1 : 0;
     s0[wrong].send('veto_action', { mode: v0.veto.avail[0] });
     ok((await s0[wrong].waitFor('error')).payload.code === 'NOT_YOUR_TURN', 'action hors-tour → NOT_YOUR_TURN');
@@ -197,7 +203,7 @@ async function main() {
     console.log('\n— Scénario 1 : Bo3 veto → émoji / fruit —');
     const s1 = await makeLobby('VetoA', 'VetoB', { bestOf: 3, turnSeconds: 60 });
     await readyAndVeto(s1, ['emoji', 'fruit'], v => {
-      ok(v.total === 5, `Bo3 : veto de 5 actions`);
+      ok(v.total === v.avail.length - 1, `Bo3 : veto de ${v.total} actions`);
     });
     let emojiChecks = false, fruitChecks = false;
     const m1 = await playMatch(s1, 3, (mode, wrongs, clue) => {
@@ -240,7 +246,7 @@ async function main() {
     console.log('\n— Scénario 3 : Bo1 veto → tome (décideur) —');
     const s3 = await makeLobby('TomeA', 'TomeB', { bestOf: 1, turnSeconds: 60 });
     await readyAndVeto(s3, ['tome'], v => {
-      ok(v.total === 5 && v.action === 'ban', `Bo1 : 5 bans (motif ${v.total} actions)`);
+      ok(v.total === v.avail.length - 1 && v.action === 'ban', `Bo1 : ${v.total} bans, que des bans`);
     });
     let tomeClue = false, tomeEnd = null, tomeWasPlayed = false;
     const m3 = await playMatch(s3, 1, (mode, wrongs, clue) => {
@@ -255,6 +261,36 @@ async function main() {
     ok(!!m3 && Math.max(...m3.scores) === 1, `match_end Bo1 : scores ${m3 && m3.scores.join(':')}`);
     ok(!tomeEnd || /^Tome \d+$/.test(tomeEnd.target.name), `décideur = tome : ${tomeEnd ? tomeEnd.target.name : '(gagné du 1er coup)'}`);
     s3[0].kill(); s3[1].kill();
+    await new Promise(r => setTimeout(r, 300));
+
+    // ── Scénario 4 : Bo1, veto force l'opening comme décideur ──
+    console.log('\n— Scénario 4 : Bo1 veto → opening (décideur) —');
+    const s4 = await makeLobby('OpA', 'OpB', { bestOf: 1, turnSeconds: 60 });
+    await readyAndVeto(s4, ['audio']);
+    let auClue = null, auEnd = null, auWasPlayed = false, auGrows = true, lastSecs = 0;
+    const m4 = await playMatch(s4, 1, (mode, wrongs, clue) => {
+      if (mode !== 'audio') return;
+      auWasPlayed = true;
+      if (wrongs === 'round_end') { auEnd = clue; return; }
+      if (!auClue) auClue = clue;
+      // l'extrait ne doit jamais raccourcir quand les erreurs s'accumulent
+      if (clue && clue.seconds < lastSecs) auGrows = false;
+      if (clue) lastSecs = clue.seconds;
+    });
+    ok(auWasPlayed, 'le décideur forcé par le veto est bien l\'opening');
+    ok(auClue && Number.isInteger(auClue.openingId) && auClue.openingId > 0,
+       `opening : indice openingId (Opening ${auClue && auClue.openingId})`);
+    ok(auClue && typeof auClue.offsetFrac === 'number' && auClue.offsetFrac >= 0 && auClue.offsetFrac < 1,
+       `opening : décalage partagé en fraction (${auClue && auClue.offsetFrac.toFixed(3)})`);
+    // Paliers du daily : l'extrait doit correspondre au nombre d'erreurs cumulées
+    const AU_STEPS = [1, 2, 4, 7, 11, 16];
+    ok(auClue && auClue.seconds === AU_STEPS[Math.min(auClue.wrongCount, AU_STEPS.length - 1)] && auClue.longest === 16,
+       `opening : extrait de ${auClue && auClue.seconds} s à ${auClue && auClue.wrongCount} erreur(s), max ${auClue && auClue.longest} s`);
+    ok(auGrows, 'opening : l\'extrait s\'allonge (ou reste stable) à chaque erreur');
+    ok(!!m4 && Math.max(...m4.scores) === 1, `match_end Bo1 : scores ${m4 && m4.scores.join(':')}`);
+    ok(!auEnd || OPENING_NAMES.includes(auEnd.target.name),
+       `décideur = opening : ${auEnd ? auEnd.target.name : '(gagné du 1er coup)'}`);
+    s4[0].kill(); s4[1].kill();
   } finally {
     srv.kill();
   }
