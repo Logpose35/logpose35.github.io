@@ -68,7 +68,13 @@
   };
 
   // Chemin miroir de la page courante dans l'autre langue (pour le sélecteur FR/EN).
+  // Les pages PAR MODE ont des slugs traduits (/fruit-du-demon/ <-> /en/devil-fruit/) :
+  // le miroir n'y est plus déductible du chemin, il est écrit en dur dans
+  // data-mirror par tools/gen_modes.py et prime sur le calcul ci-dessous.
   window.i18nMirrorPath = function () {
+    var el = document.getElementById('lang-toggle');
+    var fixed = el && el.getAttribute('data-mirror');
+    if (fixed) return fixed;
     var p = location.pathname;
     if (p === '/en' || p === '/en/') return '/';
     if (p.indexOf('/en/') === 0) return p.slice(3);        // /en/game.html -> /game.html

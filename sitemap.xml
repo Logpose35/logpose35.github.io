@@ -8,7 +8,7 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/"/>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <lastmod>2026-07-23</lastmod>
+    <lastmod>2026-08-09</lastmod>
   </url>
   <url>
     <loc>https://onepiecedle.fr/en/</loc>
@@ -17,25 +17,151 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/"/>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-    <lastmod>2026-07-23</lastmod>
+    <lastmod>2026-08-09</lastmod>
   </url>
   <url>
-    <loc>https://onepiecedle.fr/game.html</loc>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/game.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/game.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/game.html"/>
+    <loc>https://onepiecedle.fr/classique/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/classique/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/classic/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/classique/"/>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-    <lastmod>2026-07-23</lastmod>
+    <lastmod>2026-08-09</lastmod>
   </url>
   <url>
-    <loc>https://onepiecedle.fr/en/game.html</loc>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/game.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/game.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/game.html"/>
+    <loc>https://onepiecedle.fr/en/classic/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/classique/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/classic/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/classique/"/>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-    <lastmod>2026-07-23</lastmod>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/wanted/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/wanted/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/wanted/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/wanted/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/wanted/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/wanted/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/wanted/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/wanted/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/silhouette/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/silhouette/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/silhouette/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/silhouette/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/silhouette/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/silhouette/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/silhouette/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/silhouette/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/fruit-du-demon/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/fruit-du-demon/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/devil-fruit/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/fruit-du-demon/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/devil-fruit/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/fruit-du-demon/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/devil-fruit/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/fruit-du-demon/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/emoji/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/emoji/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/emoji/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/emoji/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/emoji/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/emoji/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/emoji/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/emoji/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/opening/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/opening/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/opening/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/opening/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/opening/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/opening/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/opening/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/opening/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/tome/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/tome/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/volume/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/tome/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/volume/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/tome/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/volume/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/tome/"/>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/infini/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/infini/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/endless/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/infini/"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-08-09</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/endless/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/infini/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/endless/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/infini/"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2026-08-09</lastmod>
   </url>
   <url>
     <loc>https://onepiecedle.fr/versus.html</loc>
@@ -44,7 +170,7 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/versus.html"/>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2026-07-23</lastmod>
+    <lastmod>2026-08-09</lastmod>
   </url>
   <url>
     <loc>https://onepiecedle.fr/en/versus.html</loc>
@@ -53,6 +179,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/versus.html"/>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-    <lastmod>2026-07-23</lastmod>
+    <lastmod>2026-08-09</lastmod>
   </url>
 </urlset>

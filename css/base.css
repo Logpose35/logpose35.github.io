@@ -3,6 +3,19 @@
    Palette : Océan profond · Or · Parchemin
    ============================================================ */
 
+/* ===== TRANSITION ENTRE PAGES (v7.0) =====
+   Depuis « une URL par mode », changer d'onglet est une navigation et non plus
+   une bascule JS : le fondu enchaîné natif remplace l'animation FLIP perdue au
+   passage. Les deux pages doivent déclarer la règle — c'est le cas, base.css
+   est chargée partout. Chromium et Safari 18+ ; ailleurs la navigation reste
+   sèche, sans dégradation. */
+@view-transition { navigation: auto; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
+
 /* ===== VARIABLES ===== */
 :root {
   /* Jour — Mer des Caraïbes */
@@ -268,7 +281,10 @@ header::before {
   gap: var(--sp-3);
 }
 
-h1 {
+/* .brand-name : sur les pages dédiées à un mode, le « LogPose » de l'en-tête
+   n'est plus le <h1> (celui-ci porte le titre du mode, dans le bloc éditorial).
+   Rendu strictement identique. */
+h1, .brand-name {
   font-family: 'Cinzel Decorative', cursive;
   font-size: 1.95rem;
   font-weight: 700;

@@ -73,6 +73,39 @@ const MODES = [
 ];
 const MODE_IDS = MODES.map(m => m.id);
 
+// ===== URL DÉDIÉE DE CHAQUE MODE (une page par mode — SEO) =====
+// [slug FR, slug EN] — doit rester synchronisé avec tools/modes.py, qui génère
+// les pages. Les slugs sont traduits : /fruit-du-demon/ <-> /en/devil-fruit/.
+const MODE_SLUGS = {
+  classic:    ['classique',      'classic'],
+  wanted:     ['wanted',         'wanted'],
+  silhouette: ['silhouette',     'silhouette'],
+  fruit:      ['fruit-du-demon', 'devil-fruit'],
+  emoji:      ['emoji',          'emoji'],
+  audio:      ['opening',        'opening'],
+  tome:       ['tome',           'volume'],
+  inf:        ['infini',         'endless'],
+};
+function modeUrl(id) {
+  const s = MODE_SLUGS[id];
+  if (!s) return '/';
+  return (window.LANG === 'en') ? `/en/${s[1]}/` : `/${s[0]}/`;
+}
+
+// Mode imposé par la page courante (window.LP_MODE, inline dans le <head> des
+// pages générées). null sur game.html, qui garde ses 8 sections.
+const PAGE_MODE = (typeof window.LP_MODE === 'string' && MODE_SLUGS[window.LP_MODE])
+  ? window.LP_MODE : null;
+// Une page de mode ne contient QUE sa section : tout le reste du DOM de jeu est
+// absent, d'où ce garde-fou sur les bascules d'affichage.
+function hasSection(mode) {
+  return !!document.getElementById(mode === 'classic' ? 'classic-section' : `${mode}-section`);
+}
+function togSection(mode, cls, on) {
+  const el = document.getElementById(mode === 'classic' ? 'classic-section' : `${mode}-section`);
+  if (el) el.classList.toggle(cls, on);
+}
+
 // ===== CLÉS localStorage (source unique) =====
 // Statiques = constantes · paramétrées = fonctions produisant la clé exacte.
 const LS = {
@@ -80,7 +113,9 @@ const LS = {
   size:      'op-size',
   cb:        'op-cb',
   sfx:       'op-sfx',
-  ocean3d:   'op-ocean3d',     // fond 3D du jeu — opt-in ('1' = 3D, sinon classique)
+  // 'op-ocean3d' : retiré en v7.0 avec le fond 3D des pages de jeu (il ne reste
+  // que sur la landing, qui décide seule). Les valeurs déjà stockées chez les
+  // joueurs deviennent orphelines — sans effet, comme 'op-stats-flag'.
   theme:     'op-theme',
   spoilerOk: 'op-spoiler-ok',
   v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue (historique)
@@ -220,8 +255,20 @@ function lsGet(key)      { try { return localStorage.getItem(key); }    catch { 
 function lsSet(key, val) { try { localStorage.setItem(key, val); }      catch {} }
 function lsRemove(key)   { try { localStorage.removeItem(key); }        catch {} }
 
+// ===== PRÉCHARGEMENT DES PAGES DE MODE (Speculation Rules) =====
+// Chrome prépare la page de l'onglet survolé pour que le clic paraisse
+// instantané — mais il l'EXÉCUTE à l'avance, en arrière-plan, pour une page
+// que le joueur n'ouvrira peut-être jamais. Tout ce qui a un effet de bord
+// (écriture localStorage, lecture Firebase, célébration) passe donc par ici :
+// exécution immédiate en navigation normale, différée à l'activation réelle
+// sinon. Sans effet dans les navigateurs qui ne préchargent pas.
+function whenActivated(fn) {
+  if (document.prerendering) document.addEventListener('prerenderingchange', fn, { once: true });
+  else fn();
+}
+
 // ===== ÉTAT DU JEU =====
-let currentMode = 'classic';
+let currentMode = PAGE_MODE || 'classic';
 let cGuesses = [], cOver = false, cNames = new Set();
 let wGuesses = [], wOver = false, wNames = new Set();
 let silGuesses = [], silOver = false, silNames = new Set(), silHintUsed = false, silHintFocus = null;
@@ -281,14 +328,6 @@ function setSfx(on) {
   if (t) t.checked = sfxOn;
   if (sfxOn) { try { _ensureAudio(); sfx('tick'); } catch {} }
 }
-// ===== FOND 3D (océan/île) — désactivable pour les performances =====
-function setOcean3d(on) {
-  lsSet(LS.ocean3d, on ? '1' : '0');
-  const t = document.getElementById('ocean-toggle');
-  if (t) t.checked = !!on;
-  window.dispatchEvent(new Event('lp-ocean3d-changed'));
-}
-
 function _ensureAudio() {
   if (!_actx) {
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -387,8 +426,6 @@ function sfx(kind) {
   sfxOn = lsGet(LS.sfx) === '1';
   const st = document.getElementById('sfx-toggle');
   if (st) st.checked = sfxOn;
-  const ot = document.getElementById('ocean-toggle');
-  if (ot) ot.checked = lsGet(LS.ocean3d) === '1';   // jeu : classique par défaut, 3D en opt-in
 })();
 
 // ===== THÈME =====
@@ -509,7 +546,10 @@ async function loadDailyAverage() {
 }
 
 // ===== NAVIGATION PAR ONGLETS =====
-function switchMode(mode) {
+// fromInit : appel automatique au chargement d'une page dédiée à un mode.
+// On y saute l'auto-focus du champ — sur mobile il déclencherait le
+// scrollIntoView de saisieEnVue() et donc un saut de page à l'arrivée.
+function switchMode(mode, fromInit) {
   const _prevMode = currentMode;
 
   // ── Transition FLIP : style inline (priorité absolue sur les stylesheets) ──
@@ -535,14 +575,9 @@ function switchMode(mode) {
   document.querySelectorAll('.mode-tab[role="tab"]').forEach(t => {
     t.setAttribute('aria-selected', t.classList.contains('active') ? 'true' : 'false');
   });
-  document.getElementById('classic-section').classList.toggle('hidden', mode !== 'classic');
-  document.getElementById('wanted-section').classList.toggle('active', mode === 'wanted');
-  document.getElementById('silhouette-section').classList.toggle('active', mode === 'silhouette');
-  document.getElementById('fruit-section').classList.toggle('active', mode === 'fruit');
-  document.getElementById('emoji-section').classList.toggle('active', mode === 'emoji');
-  document.getElementById('audio-section').classList.toggle('active', mode === 'audio');
-  document.getElementById('tome-section').classList.toggle('active', mode === 'tome');
-  document.getElementById('inf-section').classList.toggle('active', mode === 'inf');
+  togSection('classic', 'hidden', mode !== 'classic');
+  ['wanted', 'silhouette', 'fruit', 'emoji', 'audio', 'tome', 'inf']
+    .forEach(m => togSection(m, 'active', mode === m));
   // Le mode Tome a son propre champ numérique → masquer la zone de saisie partagée + le compteur
   const _sa = input.closest('.search-area');
   if (_sa) _sa.style.display = (mode === 'tome') ? 'none' : '';
@@ -579,9 +614,9 @@ function switchMode(mode) {
   if (mode === 'audio')  initAudioMode();
   if (mode === 'tome')   initTomeMode();
   if (mode === 'inf')    initInfMode();
-  loadDailyCounter(mode);
+  whenActivated(() => loadDailyCounter(mode));   // lecture Firebase : à l'activation
   // Auto-focus du champ de saisie si le mode n'est pas terminé
-  if (!over) setTimeout(() => { input.focus(); }, 80);
+  if (!over && !fromInit) setTimeout(() => { input.focus(); }, 80);
   const TITLES = {
     classic: t('OnePiecedle · Classique : Devine le personnage One Piece'),
     wanted:  t('OnePiecedle · Wanted : Reconnais l\'avis de recherche'),
@@ -592,7 +627,10 @@ function switchMode(mode) {
     tome:    t('OnePiecedle · Tome : Devine le tome One Piece'),
     inf:     t('OnePiecedle · Classique Infini : Entraînement sans limite'),
   };
-  document.title = TITLES[mode] || t('OnePiecedle · 7 défis One Piece quotidiens');
+  // Sur une page dédiée, le <title> statique est déjà celui du mode (et il est
+  // meilleur : rédigé pour la recherche). Ne pas l'écraser — Googlebot exécute
+  // le JS et verrait le titre réécrit ici.
+  if (!PAGE_MODE) document.title = TITLES[mode] || t('OnePiecedle · 7 défis One Piece quotidiens');
 
   // Cleanup FLIP : fige animation:none pour neutraliser sectionIn (ne PAS remettre '' — ça le retriggerait)
   if (_flipEl) {
@@ -1030,8 +1068,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=281`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=281`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=285`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=285`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1461,7 +1499,8 @@ function renderStatsContent(mode) {
   if (nextMode) {
     const nm = MODES.find(m => m.id === nextMode);
     const nextLabel = nm ? `<svg class="ic ic-inline mi-${nm.id}" aria-hidden="true"><use href="#${nm.svg}"></use></svg>${esc(nm.label)}` : esc(nextMode);
-    html += `<button class="stats-next-btn" onclick="closeStats(); switchMode('${nextMode}')">${tf('Jouer : {0} →', nextLabel)}</button>`;
+    // Chaque mode a sa propre URL : c'est une vraie navigation, pas une bascule.
+    html += `<a class="stats-next-btn" href="${modeUrl(nextMode)}">${tf('Jouer : {0} →', nextLabel)}</a>`;
   }
 
   document.getElementById('stats-content').innerHTML = html;
@@ -2212,35 +2251,40 @@ function restoreAllStates() {
   const dk = todayKey();
   _restoring = true;
 
+  // Une page de mode ne porte QUE sa section : rejouer les autres modes y
+  // planterait sur des conteneurs absents. Le reste (barre de score, onglets
+  // ✓/✕, récap de partage) se lit dans le localStorage, pas dans ce DOM :
+  // n'en restaurer qu'un seul ne change donc rien à l'affichage.
+
   // Classic
-  const sc = safeParseJSON(lsGet(LS.gs('classic', dk)), null);
+  const sc = hasSection('classic') ? safeParseJSON(lsGet(LS.gs('classic', dk)), null) : null;
   if (sc && Array.isArray(sc.guesses) && (!sc.target || sc.target === TARGET_C.name)) {
     hintUsed = !!sc.hintUsed;
     sc.guesses.filter(validName).forEach(name => { input.value = name; submitClassic(); });
   }
 
   // Wanted
-  const sw = safeParseJSON(lsGet(LS.gs('wanted', dk)), null);
+  const sw = hasSection('wanted') ? safeParseJSON(lsGet(LS.gs('wanted', dk)), null) : null;
   if (sw && Array.isArray(sw.guesses) && (!sw.target || sw.target === TARGET_W.name)) {
     sw.guesses.filter(validName).forEach(name => { input.value = name; submitWanted(); });
   }
 
   // Silhouette
-  const ssil = safeParseJSON(lsGet(LS.gs('silhouette', dk)), null);
+  const ssil = hasSection('silhouette') ? safeParseJSON(lsGet(LS.gs('silhouette', dk)), null) : null;
   if (ssil && Array.isArray(ssil.guesses) && TARGET_SIL && (!ssil.target || ssil.target === TARGET_SIL.name)) {
     ssil.guesses.filter(validName).forEach(name => { input.value = name; submitSilhouette(); });
     if (ssil.hintUsed) { silHintUsed = true; silHintFocus = ssil.hintFocus || silHintFocus; applySilHintReveal(); updateSilStatus(); }
   }
 
   // Fruit
-  const sfr = safeParseJSON(lsGet(LS.gs('fruit', dk)), null);
+  const sfr = hasSection('fruit') ? safeParseJSON(lsGet(LS.gs('fruit', dk)), null) : null;
   if (sfr && Array.isArray(sfr.guesses) && (!sfr.target || sfr.target === TARGET_FRU.name)) {
     (Array.isArray(sfr.hints) ? sfr.hints : []).forEach(i => frHintsRevealed.add(i));
     sfr.guesses.filter(validName).forEach(name => { input.value = name; submitFruit(); });
   }
 
   // Emoji — doit attendre que emTarget soit initialisé
-  const sem = safeParseJSON(lsGet(LS.gs('emoji', dk)), null);
+  const sem = hasSection('emoji') ? safeParseJSON(lsGet(LS.gs('emoji', dk)), null) : null;
   if (sem && Array.isArray(sem.guesses) && (!sem.target || sem.target === TARGET_EM.name)) {
     if (!emTarget) {
       emTarget = TARGET_EM;
@@ -2251,13 +2295,13 @@ function restoreAllStates() {
   }
 
   // Audio
-  const sau = safeParseJSON(lsGet(LS.gs('audio', dk)), null);
+  const sau = hasSection('audio') ? safeParseJSON(lsGet(LS.gs('audio', dk)), null) : null;
   if (sau && Array.isArray(sau.guesses) && (!sau.target || sau.target === TARGET_AU.name)) {
     sau.guesses.filter(validName).forEach(name => { input.value = name; submitAudio(); });
   }
 
   // Tome
-  const stm = safeParseJSON(lsGet(LS.gs('tome', dk)), null);
+  const stm = hasSection('tome') ? safeParseJSON(lsGet(LS.gs('tome', dk)), null) : null;
   if (stm && Array.isArray(stm.guesses) && (stm.target == null || stm.target === TARGET_TOME)) {
     const ti = tomeInputEl();
     if (ti) { stm.guesses.forEach(n => { ti.value = String(n); submitTome(); }); ti.value = ''; }
@@ -2450,7 +2494,15 @@ function handleAboutOverlayClick(e) {
   if (e.target === document.getElementById('about-modal')) closeAbout();
 }
 
-// ===== POP-UP "GAZETTE · MODE VERSUS 1V1 (v6.0)" (Une de gazette · affichée une seule fois) =====
+// ===== POP-UP "GAZETTE" (Une de gazette · une seule fois par release) =====
+// DORMANTE depuis la v7.0 : plus appelée au chargement. La v7.0 est une version
+// d'architecture et de référencement, sans nouveauté de jeu à annoncer — et son
+// dernier contenu (v6.0) renvoyait vers le Versus, un appel à l'action à
+// contresens depuis une page de mode.
+// Pour la réarmer à une prochaine release : réécrire showWhatsNew(), ajouter une
+// clé `wn<Version>Seen` dans LS (ne PAS réutiliser wnVersusSeen, sinon ceux qui
+// ont vu celle du Versus ne verront jamais la suivante) et rappeler
+// maybeShowWhatsNew() dans l'init. Reste accessible à la main en console.
 function maybeShowWhatsNew() {
   if (lsGet(LS.wnVersusSeen)) return;  // déjà vue → on ne montre plus
   showWhatsNew();
@@ -2562,6 +2614,11 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '7.0', date: t('Août 2026'), items: [
+    t('🔗 Chaque mode a désormais sa propre adresse — onepiecedle.fr/wanted/, /silhouette/, /tome/… — à mettre en favori ou à partager directement, en français comme en anglais'),
+    t('🧭 Les onglets sont devenus de vrais liens : changer de mode charge sa page, les flèches ← → passent de l\'un à l\'autre, et le bouton retour du navigateur revient au mode précédent'),
+    t('🌊 Le fond 3D animé a été retiré des pages de jeu — il reste sur la page d\'accueil'),
+  ] },
   { v: '6.7', date: t('Août 2026'), items: [
     t('🎵 Le mode Opening arrive en Versus : les 7 modes du jeu sont désormais jouables en duel'),
     t('🔊 Réglage du volume intégré au duel, mémorisé d\'une manche à l\'autre'),
@@ -2805,10 +2862,14 @@ function updateScoreBar() {
     const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
     shareBtn.classList.toggle('hidden', Object.keys(results).length === 0);
   }
-  // Célébration 50 000 pts
+  // Célébration du sans-faute — différée si la page est préchargée : sinon on
+  // la marquerait « déjà fêtée » sur un onglet que le joueur n'a pas ouvert.
   if (total >= SCORE_MAX_TOTAL && !lsGet(LS.perfect(todayKey()))) {
-    lsSet(LS.perfect(todayKey()), '1');
-    setTimeout(launchPerfectDay, 800);
+    whenActivated(() => {
+      if (lsGet(LS.perfect(todayKey()))) return;   // fêtée entre-temps
+      lsSet(LS.perfect(todayKey()), '1');
+      setTimeout(launchPerfectDay, 800);
+    });
   }
   updateStreakDisplay();
   updateTabDoneStates();
@@ -3134,7 +3195,8 @@ function playWinAudio() {
 // écran à chaque frame. Sans accélération matérielle (rendu logiciel), ouvrir les
 // Stats ou les Notes de version faisait ramer tout le jeu. On fige donc, le temps
 // qu'une modale soit ouverte : les animations de la barre de score (classe
-// `lp-modal-open`, cf. layout.css) et le fond 3D s'il est activé.
+// `lp-modal-open`, cf. layout.css). Depuis la v7.0 il n'y a plus de fond 3D à
+// figer ici — il ne subsiste que sur la landing, qui n'a pas de modale.
 // Un observateur unique : aucun des ~15 points d'ouverture de modale n'est à modifier.
 (function () {
   const SEL = ['.modal-overlay', '.wn-overlay', '.share-popup-overlay', '.map-modal']
@@ -3145,10 +3207,6 @@ function playWinAudio() {
     if (now === opened) return;                 // rien à faire si l'état n'a pas changé
     opened = now;
     document.body.classList.toggle('lp-modal-open', now);
-    const ocean = window.LP_OCEAN_CTL;
-    if (!ocean || !ocean.built) return;         // 3D non activée : rien de plus à figer
-    if (now) { if (ocean.pause)  ocean.pause(); }
-    else     { if (ocean.resume) ocean.resume(); }
   }
   new MutationObserver(sync).observe(document.body,
     { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
@@ -3257,6 +3315,36 @@ function initMobileYesterday() {
   });
 })();
 
+/* Flèches ← / → : passer d'un mode à l'autre au clavier. Depuis « une URL par
+   mode » c'est une navigation — on se contente donc de suivre le lien de
+   l'onglet voisin. Uniquement les 7 modes DU JOUR (.mode-tabs) : Infini et
+   Versus sont des destinations à part, hors du défi quotidien, et n'ont rien
+   à faire dans la rotation. La liste boucle du 7e au 1er.
+   Neutralisé quand : on saisit du texte (le champ de recherche et le champ du
+   mode Tome utilisent les flèches), une modale est ouverte, ou un modificateur
+   est enfoncé — Alt+← est le « précédent » du navigateur, on ne le vole pas. */
+(function flechesEntreModes() {
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
+    if (document.body.classList.contains('lp-modal-open')) return;
+    const el = document.activeElement;
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'
+            || el.tagName === 'SELECT' || el.isContentEditable)) return;
+
+    const tabs = [...document.querySelectorAll('.mode-tabs a[href]')];
+    if (tabs.length < 2) return;   // gabarit à onglets-boutons : rien à faire
+    let i = tabs.findIndex(a => a.getAttribute('aria-current') === 'page');
+    if (i < 0) i = tabs.findIndex(a => a.classList.contains('active'));
+    if (i < 0) return;             // page hors rotation (Infini) : on ne fait rien
+
+    const cible = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    if (!cible) return;
+    e.preventDefault();          // sinon la rangée collante défile en x
+    location.href = cible.href;
+  });
+})();
+
 /* La rangée d'onglets est collante et défile en x : on garde l'onglet actif
    centré pour qu'il reste toujours visible et que les voisins soient atteignables.
    Un observateur suffit — aucun des points d'appel de switchMode() n'est à modifier. */
@@ -3288,6 +3376,12 @@ function initMobileYesterday() {
 // ===== INIT ASYNCHRONE =====
 // Attend le chargement de data.json avant d'initialiser le jeu
 (async function initGame() {
+  // Peints AVANT l'attente réseau : la barre de score, le rang et les pastilles
+  // ✓/✕ des onglets ne lisent que le localStorage. Depuis « une URL par mode »,
+  // changer de mode est un chargement de page — sans ça, le « 0 / 70 000 »
+  // s'affichait puis sautait à chaque changement d'onglet.
+  try { updateScoreBar();  } catch(e) { console.warn('updateScoreBar (avant data):', e); }
+  try { updateRankBadge(); } catch(e) { console.warn('updateRankBadge (avant data):', e); }
   try {
     await loadGameData();
     if (window.__i18nReady) await window.__i18nReady;   // dico EN chargé avant tout rendu dynamique (no-op en FR)
@@ -3301,7 +3395,7 @@ function initMobileYesterday() {
   saveTodayTargets();
   buildYesterdayBar();
   try { initMobileYesterday(); } catch(e) { console.warn('initMobileYesterday:', e); }
-  loadDailyAverage(); // fire-and-forget, remplit #daily-average quand Firebase répond
+  whenActivated(loadDailyAverage); // fire-and-forget, remplit #daily-average quand Firebase répond
   // Badge anniversaire
   (function() {
     const bdays = getTodayBirthdays();
@@ -3311,14 +3405,19 @@ function initMobileYesterday() {
     el.textContent = `🎂 ${names}`;
     el.hidden = false;
   })();
-  try { updateScoreBar();    } catch(e) { console.warn('updateScoreBar init:', e); }
-  try { updateRankBadge();   } catch(e) { console.warn('updateRankBadge init:', e); }
   try { restoreAllStates();  } catch(e) { console.warn('restoreAllStates init:', e); }
   try { syncBanners();       } catch(e) { console.warn('syncBanners init:', e); }  // filet si la restauration a jeté
   startCountdown();
-  updateCounter();
-  initSilhouetteMode();
-  loadDailyCounter('classic');
-  try { maybeShowWhatsNew(); } catch(e) { console.warn('whatsNew init:', e); }
+  // Page dédiée à un mode (window.LP_MODE) : on l'active, ce qui initialise sa
+  // section et place le compteur du jour. Sinon on garde le comportement
+  // historique de game.html (Classique par défaut).
+  if (PAGE_MODE) {
+    switchMode(PAGE_MODE, true);   // currentMode vaut déjà PAGE_MODE => pas d'animation de bascule
+  } else {
+    updateCounter();
+    initSilhouetteMode();
+    loadDailyCounter('classic');
+  }
+  // (Plus de pop-up « gazette » au chargement — cf. maybeShowWhatsNew.)
 })();
 

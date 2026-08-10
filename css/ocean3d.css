@@ -2,6 +2,10 @@
    LOGPOSE — Ocean 3D (prototype refonte "nuit en mer")
    Redesign visuel : glassmorphisme, gradients or, profondeur.
    Chargé APRÈS tous les autres CSS — il les surcharge.
+
+   v7.0 : cette feuille n'est plus chargée QUE par index.html — le fond 3D a été
+   retiré des pages de jeu (réglage compris). Toutes les règles `[data-ocean="game"]`
+   (section « PAGE DE JEU », voile, cockpit en verre) ont été supprimées avec lui.
    ============================================================ */
 
 /* ===== CANVAS OCÉAN ===== */
@@ -15,7 +19,6 @@
   display: none;
 }
 body[data-ocean] #ocean-canvas        { display: block; }
-body.ocean3d-active[data-ocean="game"] #ocean-canvas { opacity: 0.62; }
 
 /* ===== NEUTRALISATIONS (le 3D remplace les décors CSS) =====
    Le fond classique (vagues SVG de base.css) n'est masqué QUE là où la 3D
@@ -24,8 +27,7 @@ body.ocean3d-active[data-ocean="game"] #ocean-canvas { opacity: 0.62; }
    appareils modestes : cf. js/ocean3d-boot.js) ; sans cette condition, elle
    perdait à la fois le décor 3D ET son décor CSS de remplacement, et se
    retrouvait sur un aplat gris. */
-body.ocean3d-active[data-ocean="landing"]::before,
-body.ocean3d-active[data-ocean="game"]::before { display: none !important; }  /* vagues SVG du fond */
+body.ocean3d-active[data-ocean="landing"]::before { display: none !important; }  /* vagues SVG du fond */
 body.ocean3d-active .hero { background: none !important; }   /* dégradé du héros   */
 body.ocean3d-active .hero::before { display: none; }         /* fausses étoiles    */
 body.ocean3d-active .hero-sea { display: none; }             /* Merry CSS -> Merry 3D */
@@ -210,70 +212,6 @@ body[data-ocean] .land-footer .lf-legal { color: #7a94b0 !important; }
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-top: 1px solid rgba(232, 192, 48, 0.12);
-}
-
-/* ============================================================
-   PAGE DE JEU
-   ============================================================ */
-
-/* Voile sombre : garantit la lisibilité du jeu sur l'île */
-body.ocean3d-active[data-ocean="game"]::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(180deg,
-    rgba(2, 8, 16, 0.55) 0%,
-    rgba(2, 8, 16, 0.32) 50%,
-    rgba(2, 8, 16, 0.6) 100%);
-  transition: background 0.8s ease;
-}
-/* Mode jour : voile bleu clair, l'île respire */
-html[data-theme="light"] body.ocean3d-active[data-ocean="game"]::after {
-  background: linear-gradient(180deg,
-    rgba(222, 236, 248, 0.30) 0%,
-    rgba(222, 236, 248, 0.10) 50%,
-    rgba(222, 236, 248, 0.35) 100%);
-}
-
-/* Cockpit en verre */
-body.ocean3d-active[data-ocean="game"] header {
-  position: relative;
-  z-index: 100;
-  background: rgba(2, 8, 16, 0.7) !important;
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(200, 148, 10, 0.15);
-}
-body.ocean3d-active[data-ocean="game"] .mode-tabs,
-body.ocean3d-active[data-ocean="game"] .mode-tabs-inf {
-  position: relative;
-  z-index: 11;
-  background: rgba(4, 12, 24, 0.65) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-body.ocean3d-active[data-ocean="game"] .score-bar-section {
-  position: relative;
-  z-index: 10;
-  background: rgba(4, 12, 24, 0.6) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-/* Texte du score : clair dans les deux thèmes (surface toujours sombre) */
-body.ocean3d-active[data-ocean="game"] .score-text,
-body.ocean3d-active[data-ocean="game"] .score-max { color: #e8d8a8 !important; }
-body.ocean3d-active[data-ocean="game"] main {
-  position: relative;
-  z-index: 10;
-}
-body.ocean3d-active[data-ocean="game"] footer {
-  position: relative;
-  z-index: 10;
-  background: rgba(2, 8, 16, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 /* ============================================================

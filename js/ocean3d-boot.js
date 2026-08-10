@@ -6,12 +6,11 @@
    pour TOUT LE MONDE — alors que le fond 3D est désactivé par défaut
    dans le jeu. 273 Ko payés pour rien à chaque partie.
 
-   Maintenant : ce fichier (~2 Ko) décide, puis charge à la demande.
-     • game.html  : rien n'est chargé tant que le joueur n'active pas
-                    le fond 3D dans les réglages.
-     • index.html : chargé seulement si l'appareil peut suivre —
-                    un océan WebGL plein écran sur un téléphone coûte
-                    de la batterie et de la chaleur pour un décor.
+   Maintenant : ce fichier (~2 Ko) décide, puis charge à la demande —
+   et depuis la v7.0 il n'est plus chargé QUE par index.html : le fond 3D
+   a été retiré des pages de jeu (réglage compris). La landing décide
+   seule, sur les capacités de l'appareil : un océan WebGL plein écran
+   sur un téléphone coûte de la batterie et de la chaleur pour un décor.
 
    Rollback : remettre les deux <script> d'origine dans les <head>
    et supprimer ce fichier.
@@ -73,22 +72,6 @@
     return true;
   }
 
-  function activeDansLesReglages() {
-    try { return localStorage.getItem('op-ocean3d') === '1'; } catch (e) { return false; }
-  }
-
-  function pageMode() {
-    return (document.body && document.body.dataset) ? document.body.dataset.ocean : '';
-  }
-
-  /* Décision d'ouverture de page. Le jeu respecte le choix explicite du joueur
-     (s'il a coché la case, on charge, même sur mobile) ; la landing décide
-     seule, puisqu'il n'y a pas de réglage exposé. */
-  function doitCharger() {
-    if (pageMode() === 'game') return activeDansLesReglages();
-    return appareilCapable();
-  }
-
   var enCours = null;
   function amorcer() {
     if (enCours) return enCours;
@@ -103,13 +86,7 @@
 
   function demarrer() {
     initCardTilt();
-    if (doitCharger()) amorcer();
-    /* Bascule depuis les réglages (setOcean3d dans app.js) : au tout premier
-       passage à « activé », ocean3d.js n'est pas encore là — on le charge.
-       Ensuite, c'est son propre écouteur qui prend le relais. */
-    window.addEventListener('lp-ocean3d-changed', function () {
-      if (activeDansLesReglages()) amorcer();
-    });
+    if (appareilCapable()) amorcer();
   }
 
   if (document.readyState === 'loading') {

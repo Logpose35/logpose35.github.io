@@ -257,8 +257,10 @@
 .stats-share-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(200,148,10,0.5); }
 .stats-share-btn:active { transform: translateY(0); }
 
+/* <a> depuis « une URL par mode » : c'est une navigation, plus une bascule. */
 .stats-next-btn {
   display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: fit-content; text-decoration: none;
   margin: 10px auto 0;
   background: transparent;
   color: var(--gold, #c89408); border: 1.5px solid var(--gold, #c89408); border-radius: 20px;

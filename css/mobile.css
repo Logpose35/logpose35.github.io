@@ -31,9 +31,9 @@
   /* ==========================================================
      1. BARRE SUPÉRIEURE — 202 px → 52 px, collante
      ========================================================== */
-  /* Sélecteur scopé à game.html : versus.html a aussi un <header>
+  /* Sélecteur scopé aux pages de jeu : versus.html a aussi un <header>
      (.v-header) qui ne doit pas hériter de ce cockpit. */
-  body[data-ocean="game"] header {
+  body[data-page="game"] header {
     position: sticky;
     top: 0;
     padding: 0 10px;
@@ -43,7 +43,7 @@
     box-shadow: 0 2px 12px rgba(2, 8, 16, 0.5);
   }
   /* L'étoile décorative ✦ (11rem) n'a plus la place dans 52 px */
-  body[data-ocean="game"] header::before { display: none; }
+  body[data-page="game"] header::before { display: none; }
 
   .header-inner {
     /* annule le `flex-direction: column` de misc.css qui empilait
@@ -62,7 +62,8 @@
     min-width: 0;          /* autorise la troncature — corrige le débordement à 320 px */
     flex: 1 1 auto;
   }
-  .header-center h1 {
+  .header-center h1,
+  .header-center .brand-name {
     font-size: 1.15rem;
     letter-spacing: 0.04em;
     white-space: nowrap;
@@ -113,7 +114,8 @@
 
   /* Sous 360 px, le mot « LogPose » cède la place aux commandes */
   @media (max-width: 359px) {
-    .header-center h1 { display: none; }
+    .header-center h1,
+    .header-center .brand-name { display: none; }
   }
 
   /* ==========================================================
@@ -321,8 +323,15 @@
     flex-shrink: 1;
   }
   .fruit-card { padding: 20px 16px 18px; }
-  /* Le poster Wanted (360 px fixes) déborde sous 384 px */
-  .op-poster { width: 100%; max-width: 360px; }
+  /* Poster Wanted. `width: 100%` ne servait à rien : le parent
+     .wanted-poster-wrap est en largeur AUTOMATIQUE dans une colonne centrée,
+     donc sa largeur valait celle de son plus large enfant — l'interrupteur
+     « Couleur », 122 px. Le portrait tombait à 99 px de large sous 20 px de
+     flou, soit 20 % de l'image contre ~7 % sur desktop : indevinable.
+     On donne donc une largeur réelle au parent. Le cap en `vh` évite qu'un
+     poster pleine largeur ne dépasse l'écran en hauteur (ratio 1:1,4145). */
+  .wanted-poster-wrap { width: 100%; }
+  .op-poster { width: 100%; max-width: min(360px, 42vh); }
 
   /* ==========================================================
      7 ter. CARTE DE GRAND LINE
