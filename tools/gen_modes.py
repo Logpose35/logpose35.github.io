@@ -193,9 +193,14 @@ def head_seo(html, mode, seo):
                 r'<link rel="alternate" hreflang="fr" href="[^"]*">\s*\n\s*'
                 r'<link rel="alternate" hreflang="en" href="[^"]*">\s*\n\s*'
                 r'<link rel="alternate" hreflang="x-default" href="[^"]*">',
+                # x-default = ANGLAIS (décision du 10/08/2026) : il ne sert qu'aux
+                # visiteurs dont Google ne reconnaît ni le français ni l'anglais.
+                # Les francophones déclenchent hreflang="fr", explicite, et ne sont
+                # donc jamais concernés. Viser l'anglais élargit la prise
+                # internationale, le marché des jeux -dle étant anglophone.
                 '<link rel="alternate" hreflang="fr" href="%s">\n'
                 '  <link rel="alternate" hreflang="en" href="%s">\n'
-                '  <link rel="alternate" hreflang="x-default" href="%s">' % (url, en, url),
+                '  <link rel="alternate" hreflang="x-default" href="%s">' % (url, en, en),
                 'bloc hreflang')
     html = sub1(html, r'<meta property="og:title" content="[^"]*">',
                 '<meta property="og:title" content="%s">' % seo['og_title'], 'og:title')
