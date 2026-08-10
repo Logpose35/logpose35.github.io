@@ -233,12 +233,13 @@ body.lp-modal-open .score-merry { animation-play-state: paused; }
 }
 .sb-total span:last-child { color: var(--gold-l); font-size: 1rem; }
 
-/* ===== YESTERDAY BAR — Opening ===== */
+/* ===== YESTERDAY BAR — 2e ligne (Opening + Tome) =====
+   Pas de couleur ni d'opacité propres : la ligne hérite de .yesterday pour
+   ne faire qu'un bloc avec la première. Elle était dorée à 75 %, ce qui la
+   détachait comme une note de bas de page alors que c'est la même liste. */
 .yesterday-op {
   display: block;
   margin-top: 4px;
-  color: var(--gold);
-  opacity: 0.75;
   font-style: normal;
 }
 .yesterday-op em {

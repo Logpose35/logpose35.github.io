@@ -521,10 +521,12 @@ function buildYesterdayBar() {
   };
 
   const tomeBit = (data.tome != null)
-    ? ` &nbsp;|&nbsp; <svg class="ic ic-inline mi-tome" aria-hidden="true"><use href="#ic-tome"></use></svg>${t('Tome :')} <strong>${esc(String(data.tome))}</strong>` : '';
+    ? ` &nbsp;|&nbsp; <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-tome"></use></svg>${t('Tome :')} <strong>${esc(String(data.tome))}</strong>` : '';
   el.innerHTML =
     `${t('Hier')} &nbsp;·&nbsp; ${t('Classique :')} <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; ${t('Wanted :')} <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; ${t('Silhouette :')} <strong>${esc(data.silhouette || '?')}</strong> &nbsp;|&nbsp; ${t('Fruit :')} <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; ${t('Émoji :')} <strong>${esc(data.emoji)}</strong>` +
-    `<br><span class="yesterday-op"><svg class="ic ic-inline mi-audio" aria-hidden="true"><use href="#ic-note"></use></svg>${t('Opening :')} <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>`;
+    // Icônes sans classe mi-* : la 2e ligne doit se lire d'un bloc avec la 1re,
+    // qui n'a pas d'icône. Les couleurs signature restent sur les onglets.
+    `<br><span class="yesterday-op"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-note"></use></svg>${t('Opening :')} <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>`;
 }
 // Score TOTAL moyen d'un joueur sur la journée EN COURS, tous modes confondus, sous le compteur
 // du jour. Source : le nœud d'agrégat `_day` de daily-stats/{date} (players = +1 par joueur et
@@ -1068,8 +1070,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=285`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=285`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=286`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=286`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
