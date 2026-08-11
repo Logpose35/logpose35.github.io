@@ -1,0 +1,7 @@
+# ads.txt — vendeurs autorisés à commercialiser l'inventaire publicitaire
+# de onepiecedle.fr. Sans ce fichier, une partie des acheteurs programmatiques
+# refuse d'enchérir : AdSense le signale « Introuvable » dans l'onglet Sites.
+# Doit rester à la RACINE du domaine : https://onepiecedle.fr/ads.txt
+# Format : <domaine du vendeur>, <identifiant éditeur>, <relation>, <ID TAG>
+# f08c47fec0942fa0 = identifiant de Google dans le registre TAG (constante).
+google.com, pub-9097997401612968, DIRECT, f08c47fec0942fa0
