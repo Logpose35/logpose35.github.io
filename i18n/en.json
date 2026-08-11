@@ -1676,5 +1676,6 @@
   "Envoi…": "Sending…",
   "Merci, c'est envoyé !": "Thanks, it's been sent!",
   "Trop de signalements envoyés, réessayez plus tard.": "Too many reports sent, please try again later.",
-  "Envoi impossible. Réessayez, ou écrivez-nous directement.": "Could not send. Please try again, or email us directly."
+  "Envoi impossible. Réessayez, ou écrivez-nous directement.": "Could not send. Please try again, or email us directly.",
+  "📣 Un bouton sous le compte à rebours permet de signaler une erreur ou de suggérer une amélioration, sans quitter la partie": "📣 A button under the countdown lets you report a mistake or suggest an improvement, without leaving the game"
 }
