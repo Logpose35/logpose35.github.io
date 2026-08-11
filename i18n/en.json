@@ -127,14 +127,11 @@
   "Prochains défis dans": "Next challenges in",
   "LogPose · Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome": "LogPose · Classic · Wanted · Silhouette · Devil Fruit · Emoji · Opening · Volume",
   "One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation": "One Piece © Eiichiro Oda · Shueisha · Toei Animation · unofficial fan project, no affiliation",
-  "Attention : Spoilers !": "Warning: Spoilers!",
   "LogPose est mis à jour jusqu'au": "LogPose is updated up to the",
   "dernier chapitre publié": "latest published chapter",
   "de One Piece.": "of One Piece.",
   "Des personnages, affiliations et événements récents sont inclus dans le jeu.": "Recent characters, affiliations and events are included in the game.",
   "En continuant, tu acceptes le risque d'être spoilé.": "By continuing, you accept the risk of being spoiled.",
-  "Je comprends, allons-y !": "Got it, let's go!",
-  "Ne plus afficher": "Don't show again",
   "Partager mon récap": "Share my recap",
   "Copier": "Copy",
   "💾 Télécharger": "💾 Download",
@@ -1659,5 +1656,7 @@
   "seo.inf.body": "<p>Infinite mode reuses the Classic grid &mdash; eight attributes compared on every guess &mdash; but draws a random character and can be replayed without limit. It stays outside the daily challenge: it earns no points toward the day's score and only tracks a win streak and its record.</p>",
   "🔗 Chaque mode a désormais sa propre adresse — onepiecedle.fr/wanted/, /silhouette/, /tome/… — à mettre en favori ou à partager directement, en français comme en anglais": "🔗 Every mode now has its own address — onepiecedle.fr/en/wanted/, /silhouette/, /volume/… — to bookmark or share directly, in English as well as French",
   "🌊 Le fond 3D animé a été retiré des pages de jeu — il reste sur la page d'accueil": "🌊 The animated 3D background is gone from the game pages — it stays on the home page",
-  "🧭 Les onglets sont devenus de vrais liens : changer de mode charge sa page, les flèches ← → passent de l'un à l'autre, et le bouton retour du navigateur revient au mode précédent": "🧭 The tabs are real links now: switching mode loads its page, the ← → arrow keys move between modes, and the browser's back button returns to the previous mode"
+  "🧭 Les onglets sont devenus de vrais liens : changer de mode charge sa page, les flèches ← → passent de l'un à l'autre, et le bouton retour du navigateur revient au mode précédent": "🧭 The tabs are real links now: switching mode loads its page, the ← → arrow keys move between modes, and the browser's back button returns to the previous mode",
+  "Le jeu suit le dernier chapitre publié de One Piece — personnages, affiliations et événements récents en font partie.": "The game follows the latest published One Piece chapter — recent characters, affiliations and events are all in play.",
+  "Contenu à jour jusqu'au dernier chapitre publié — spoilers possibles.": "Up to date with the latest published chapter — spoilers ahead."
 }

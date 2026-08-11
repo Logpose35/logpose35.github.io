@@ -100,65 +100,6 @@
 .share-canvas-dl-btn    { background: rgba(200,148,10,0.12); color: var(--gold); border: 1.5px solid rgba(200,148,10,0.38); flex:1; }
 .share-canvas-share-btn { background: rgba(200,148,10,0.2);  color: var(--gold); border: 1.5px solid rgba(200,148,10,0.55); flex:1; }
 
-/* ===== MODAL SPOILER ===== */
-.spoiler-box {
-  text-align: center;
-  max-width: 440px;
-}
-.spoiler-skull {
-  font-size: 3rem;
-  margin-bottom: 8px;
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.15); }
-}
-.spoiler-text {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--text);
-  margin: 16px 0 24px;
-}
-.spoiler-text strong {
-  color: var(--gold);
-}
-.spoiler-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-.spoiler-btn-accept {
-  background: var(--gold);
-  color: #1a1006;
-  border: none;
-  border-radius: 10px;
-  padding: 13px 32px;
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 1.15rem;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 16px rgba(200,148,10,0.3);
-  width: 100%;
-}
-.spoiler-btn-accept:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(200,148,10,0.45);
-}
-.spoiler-remember {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.9rem;
-  color: var(--text);
-  opacity: 0.7;
-  cursor: pointer;
-}
-.spoiler-remember input { cursor: pointer; accent-color: var(--gold); }
-
 /* ===== MODAL STATS ===== */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 200;

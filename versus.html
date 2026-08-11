@@ -38,14 +38,20 @@
     })();
   </script>
 
+  <!-- AdSense — chargement asynchrone du script maison. Sert à la fois à la
+       validation du site et aux annonces automatiques. Origine tierce, donc
+       jamais interceptée par le Service Worker. -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9097997401612968"
+       crossorigin="anonymous"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=286">
-  <link rel="stylesheet" href="css/classic.css?v=286">
-  <link rel="stylesheet" href="css/versus.css?v=286">
+  <link rel="stylesheet" href="css/base.css?v=287">
+  <link rel="stylesheet" href="css/classic.css?v=287">
+  <link rel="stylesheet" href="css/versus.css?v=287">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="css/mobile.css?v=286">
+  <link rel="stylesheet" href="css/mobile.css?v=287">
 </head>
 <body class="versus-body">
 
@@ -304,9 +310,9 @@
 <div class="v-countoverlay" id="v-count" hidden><div class="v-countnum" id="v-countnum">3</div><div class="v-countround" id="v-countround"></div></div>
 <div class="v-toast" id="v-toast" hidden></div>
 
-<script src="js/i18n.js?v=286"></script>
-<script src="js/data.js?v=286"></script>
-<script src="js/versus-rules.js?v=286"></script>
-<script src="js/versus.js?v=286"></script>
+<script src="js/i18n.js?v=287"></script>
+<script src="js/data.js?v=287"></script>
+<script src="js/versus-rules.js?v=287"></script>
+<script src="js/versus.js?v=287"></script>
 </body>
 </html>

@@ -493,3 +493,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-
   margin: 0 0 0.95rem; color: var(--lb-ink-2); line-height: 1.55;
   font-size: clamp(0.96rem, 2.3vw, 1.06rem); max-width: 64ch;
 }
+
+/* Avertissement spoilers — remplace la modale bloquante (v7.0). Discret : il
+   informe sans retarder l'entrée en jeu, et un seul bandeau reste à l'arrivée,
+   celui du consentement. */
+.lp-spoiler {
+  margin: 0.7rem 0 0;
+  max-width: 46ch;
+  font-size: clamp(0.78rem, 1.9vw, 0.86rem);
+  line-height: 1.5;
+  color: var(--lb-ink-2);
+  opacity: 0.78;
+  text-shadow: var(--lb-shadow);
+}

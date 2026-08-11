@@ -117,7 +117,6 @@ const LS = {
   // que sur la landing, qui décide seule). Les valeurs déjà stockées chez les
   // joueurs deviennent orphelines — sans effet, comme 'op-stats-flag'.
   theme:     'op-theme',
-  spoilerOk: 'op-spoiler-ok',
   v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue (historique)
   wnSilSeen: 'op-wn-sil-seen', // pop-up "Gazette · mode Silhouette (v5.2)" déjà vue (historique)
   wnVersusSeen: 'op-wn-versus-seen', // pop-up "Gazette · mode Versus 1v1 (v6.0)" déjà vue
@@ -458,19 +457,13 @@ function applyTheme(theme) {
   }
 })();
 
-// ===== MODAL SPOILER =====
-function closeSpoilerModal() {
-  if (document.getElementById('spoiler-no-show').checked) {
-    lsSet(LS.spoilerOk, '1');
-  }
-  document.getElementById('spoiler-modal').classList.add('hidden');
-}
-
-(function () {
-  if (!lsGet(LS.spoilerOk)) {
-    document.getElementById('spoiler-modal').classList.remove('hidden');
-  }
-})();
+// ===== AVERTISSEMENT SPOILERS =====
+// Plus de modale au chargement depuis la v7.0 : avec la CMP de consentement,
+// un nouveau venu européen recevait DEUX fenêtres avant de pouvoir jouer.
+// L'avertissement vit désormais en clair — accroche de la landing et pied de
+// page des pages de jeu — donc visible aussi pour qui arrive de Google
+// directement sur un mode, ce que la modale de la landing n'aurait pas couvert.
+// La clé 'op-spoiler-ok' devient orpheline chez les joueurs : sans effet.
 
 // ===== DATE & HIER =====
 document.getElementById('date-label').textContent =
@@ -1070,8 +1063,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=286`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=286`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=287`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=287`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };

@@ -437,3 +437,13 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .mode-seo__q summary::after { transition: none; }
 }
+
+/* Rappel spoilers du pied de page — l'avertissement n'est plus une modale
+   depuis la v7.0, mais il doit rester lisible sur les pages de mode, seules
+   portes d'entrée depuis Google. */
+.footer-spoiler {
+  display: inline-block;
+  margin-top: 2px;
+  opacity: 0.72;
+  font-style: italic;
+}

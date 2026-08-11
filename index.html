@@ -62,15 +62,21 @@
   <!-- Base des assets lourds (VPS). Rollback : '' → chemins relatifs, re-couverts par le SW. -->
   <script>window.ASSET_BASE = 'https://assets.onepiecedle.fr/';</script>
 
+  <!-- AdSense — chargement asynchrone du script maison. Sert à la fois à la
+       validation du site et aux annonces automatiques. Origine tierce, donc
+       jamais interceptée par le Service Worker. -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9097997401612968"
+       crossorigin="anonymous"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=286">
-  <link rel="stylesheet" href="css/landing.css?v=286">
-  <link rel="stylesheet" href="css/modals.css?v=286">
-  <link rel="stylesheet" href="css/ocean3d.css?v=286">
+  <link rel="stylesheet" href="css/base.css?v=287">
+  <link rel="stylesheet" href="css/landing.css?v=287">
+  <link rel="stylesheet" href="css/modals.css?v=287">
+  <link rel="stylesheet" href="css/ocean3d.css?v=287">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="css/mobile.css?v=286">
+  <link rel="stylesheet" href="css/mobile.css?v=287">
 </head>
 <body class="landing-body layout-rose" data-ocean="landing">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -182,6 +188,7 @@
   <h1 class="lp-title">LogPose</h1>
   <p class="lp-tagline">OnePiecedle — le jeu One Piece du jour.</p>
   <p class="lp-line">Sept énigmes, une nouvelle par jour. Devine les personnages mystères.</p>
+  <p class="lp-spoiler">Le jeu suit le dernier chapitre publié de One Piece — personnages, affiliations et événements récents en font partie.</p>
   <a class="lp-cta" href="/classique/">
     <svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg>
     Jouer maintenant
@@ -416,10 +423,10 @@
   </div>
 </div>
 
-<script src="js/i18n.js?v=286"></script>
-<script src="js/version.js?v=286"></script>
+<script src="js/i18n.js?v=287"></script>
+<script src="js/version.js?v=287"></script>
 <!-- Fond 3D : three.js + ocean3d.js chargés à la demande (cf. js/ocean3d-boot.js) -->
-<script src="js/ocean3d-boot.js?v=286"></script>
-<script src="js/landing.js?v=286"></script>
+<script src="js/ocean3d-boot.js?v=287"></script>
+<script src="js/landing.js?v=287"></script>
 </body>
 </html>
