@@ -25,6 +25,34 @@ window.SITE_CONTACT = { user: 'contact', domain: 'onepiecedle.fr' };
       el.textContent = '';
       el.appendChild(a);
     });
+
+    // ── Signalement d'erreur (sous le compte à rebours) ──────────────────
+    // Un site statique n'a pas de serveur pour recevoir un POST : le lien
+    // ouvre donc le client mail avec le contexte DÉJÀ rempli. C'est ce qui
+    // manque le plus dans un signalement spontané — quel mode, quel jour,
+    // quelle version. Construit ici, comme l'adresse, pour ne pas l'exposer.
+    // La réponse du jour n'y figure PAS : le lien est visible avant d'avoir
+    // joué, elle serait un spoiler offert.
+    var t = window.t || function (s) { return s; };
+    document.querySelectorAll('.js-report').forEach(function (el) {
+      var contexte = [
+        'page: ' + location.pathname,
+        'mode: ' + (window.LP_MODE || '—'),
+        'date: ' + new Date().toISOString().slice(0, 10),
+        'version: ' + window.APP_VERSION,
+        'langue: ' + (window.LANG || 'fr'),
+        'UA: ' + navigator.userAgent
+      ].join('\n');
+      var corps = t('Décrivez le problème ici :') + '\n\n\n---\n' + contexte;
+      var a = document.createElement('a');
+      a.className = 'report-link';
+      a.href = 'mailto:' + addr
+             + '?subject=' + encodeURIComponent(t('LogPose — signalement'))
+             + '&body='    + encodeURIComponent(corps);
+      a.textContent = t('Signaler une erreur');
+      el.textContent = '';
+      el.appendChild(a);
+    });
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

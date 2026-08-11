@@ -117,7 +117,22 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+  flex-wrap: wrap;          /* le lien de signalement passe sur sa propre ligne */
 }
+/* Signalement d'erreur : un recours, pas un appel à l'action — donc discret,
+   et doré seulement au survol, comme le reste du chrome. */
+.js-report { flex-basis: 100%; }
+.report-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--border2);
+  transition: color 0.15s, border-color 0.15s;
+}
+.report-link:hover { color: var(--gold); border-color: var(--gold); }
 .next-puzzle-label {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.82rem;

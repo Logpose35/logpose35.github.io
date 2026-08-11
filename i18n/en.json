@@ -1658,5 +1658,8 @@
   "🌊 Le fond 3D animé a été retiré des pages de jeu — il reste sur la page d'accueil": "🌊 The animated 3D background is gone from the game pages — it stays on the home page",
   "🧭 Les onglets sont devenus de vrais liens : changer de mode charge sa page, les flèches ← → passent de l'un à l'autre, et le bouton retour du navigateur revient au mode précédent": "🧭 The tabs are real links now: switching mode loads its page, the ← → arrow keys move between modes, and the browser's back button returns to the previous mode",
   "Le jeu suit le dernier chapitre publié de One Piece — personnages, affiliations et événements récents en font partie.": "The game follows the latest published One Piece chapter — recent characters, affiliations and events are all in play.",
-  "Contenu à jour jusqu'au dernier chapitre publié — spoilers possibles.": "Up to date with the latest published chapter — spoilers ahead."
+  "Contenu à jour jusqu'au dernier chapitre publié — spoilers possibles.": "Up to date with the latest published chapter — spoilers ahead.",
+  "Signaler une erreur": "Report a mistake",
+  "LogPose — signalement": "LogPose — bug report",
+  "Décrivez le problème ici :": "Describe the problem here:"
 }
