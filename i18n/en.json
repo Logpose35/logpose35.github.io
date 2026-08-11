@@ -1661,5 +1661,20 @@
   "Contenu à jour jusqu'au dernier chapitre publié — spoilers possibles.": "Up to date with the latest published chapter — spoilers ahead.",
   "Signaler une erreur": "Report a mistake",
   "LogPose — signalement": "LogPose — bug report",
-  "Décrivez le problème ici :": "Describe the problem here:"
+  "Décrivez le problème ici :": "Describe the problem here:",
+  "Type de problème": "Type of problem",
+  "Erreur dans une fiche de personnage": "Mistake in a character sheet",
+  "Bug d'affichage": "Display bug",
+  "Problème de son (mode Opening)": "Sound problem (Opening mode)",
+  "Silhouette illisible": "Unreadable silhouette",
+  "Suggestion": "Suggestion",
+  "Autre": "Other",
+  "Décrivez le problème : quel personnage, quel mode, ce qui est attendu…": "Describe the problem: which character, which mode, what you expected…",
+  "Envoyer": "Send",
+  "Le mode, la date et la version sont joints automatiquement. Aucune donnée personnelle n'est collectée.": "The mode, date and version are attached automatically. No personal data is collected.",
+  "Décrivez le problème en quelques mots.": "Please describe the problem in a few words.",
+  "Envoi…": "Sending…",
+  "Merci, c'est envoyé !": "Thanks, it's been sent!",
+  "Trop de signalements envoyés, réessayez plus tard.": "Too many reports sent, please try again later.",
+  "Envoi impossible. Réessayez, ou écrivez-nous directement.": "Could not send. Please try again, or email us directly."
 }

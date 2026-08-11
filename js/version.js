@@ -50,6 +50,12 @@ window.SITE_CONTACT = { user: 'contact', domain: 'onepiecedle.fr' };
              + '?subject=' + encodeURIComponent(t('LogPose — signalement'))
              + '&body='    + encodeURIComponent(corps);
       a.textContent = t('Signaler une erreur');
+      // Sur une page de jeu, app.js expose openReport() : on ouvre le
+      // formulaire. Le mailto reste le href réel, donc il prend le relais si
+      // app.js n'a pas chargé, sur la landing, ou en ouverture dans un onglet.
+      a.addEventListener('click', function (e) {
+        if (typeof window.openReport === 'function' && window.openReport()) e.preventDefault();
+      });
       el.textContent = '';
       el.appendChild(a);
     });

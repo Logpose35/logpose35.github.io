@@ -1063,8 +1063,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=288`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=288`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=289`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=289`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2548,6 +2548,80 @@ function showWhatsNew() {
   document.addEventListener('keydown', _wnEsc);
   const cta = ov.querySelector('.wn-cta');
   if (cta) cta.focus();
+}
+
+// ===== SIGNALEMENT D'ERREUR (modale + POST vers le serveur du VPS) =====
+// Le site est statique : le formulaire poste vers /report du conteneur versus,
+// déjà routé sur multi.onepiecedle.fr — aucune ligne de Caddy à toucher.
+// Le contexte (page, mode, version, langue, navigateur) part automatiquement :
+// c'est ce qui manque le plus dans un signalement spontané. La réponse du jour
+// n'y figure pas — la modale est accessible avant d'avoir joué.
+const REPORT_URL = (function () {
+  // Même détection que js/versus.js : en local ou depuis un téléphone sur le
+  // réseau, on vise le serveur de dev plutôt que la prod.
+  const dev = location.hostname === 'localhost' || location.hostname === '127.0.0.1' ||
+    /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname);
+  return dev ? `http://${location.hostname}:8765/report` : 'https://multi.onepiecedle.fr/report';
+})();
+
+function openReport() {
+  const ov = document.getElementById('report-modal');
+  if (!ov) return false;                       // page sans modale : l'appelant retombe sur le mailto
+  document.getElementById('report-status').textContent = '';
+  document.getElementById('report-send').disabled = false;
+  ov.classList.remove('hidden');
+  setTimeout(() => { const m = document.getElementById('report-msg'); if (m) m.focus(); }, 60);
+  return true;
+}
+function closeReport() {
+  const ov = document.getElementById('report-modal');
+  if (ov) ov.classList.add('hidden');
+}
+function handleReportOverlayClick(e) {
+  if (e.target === document.getElementById('report-modal')) closeReport();
+}
+
+async function submitReport(e) {
+  if (e) e.preventDefault();
+  const msg    = document.getElementById('report-msg');
+  const statut = document.getElementById('report-status');
+  const envoi  = document.getElementById('report-send');
+  const texte  = (msg.value || '').trim();
+  if (texte.length < 5) { statut.textContent = t('Décrivez le problème en quelques mots.'); return; }
+
+  envoi.disabled = true;
+  statut.textContent = t('Envoi…');
+  try {
+    const r = await fetch(REPORT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        category: document.getElementById('report-cat').value,
+        message:  texte,
+        website:  document.getElementById('report-hp').value,   // leurre
+        page:     location.pathname,
+        mode:     window.LP_MODE || '',
+        version:  window.APP_VERSION || '',
+        lang:     window.LANG || 'fr',
+        ua:       navigator.userAgent,
+      }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok && data.ok) {
+      statut.textContent = t('Merci, c\'est envoyé !');
+      msg.value = '';
+      setTimeout(closeReport, 1400);
+    } else if (r.status === 429) {
+      statut.textContent = t('Trop de signalements envoyés, réessayez plus tard.');
+      envoi.disabled = false;
+    } else {
+      statut.textContent = t('Envoi impossible. Réessayez, ou écrivez-nous directement.');
+      envoi.disabled = false;
+    }
+  } catch (err) {
+    statut.textContent = t('Envoi impossible. Réessayez, ou écrivez-nous directement.');
+    envoi.disabled = false;
+  }
 }
 
 // ===== EXPORT / IMPORT DE LA SAUVEGARDE (clés "op-" uniquement · 100% local, sans serveur) =====

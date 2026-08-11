@@ -14,7 +14,15 @@
 //       VERSUS_DATA_URL (déf. https://onepiecedle.fr/data.json),
 //       VERSUS_ALLOW_FAST_TURNS=1 (dev/test : autorise turnSeconds >= 2 et
 //       countdown 1 s), VERSUS_ALLOW_NO_ORIGIN=1 (dev : accepte les clients
-//       sans header Origin).
+//       sans header Origin),
+//       Signalements du formulaire (route POST /report) — les deux canaux
+//       sont facultatifs et cumulables, le log stdout est toujours écrit :
+//         REPORT_WEBHOOK_URL (webhook Discord),
+//         REPORT_SMTP_HOST / _PORT / _USER / _PASS, REPORT_MAIL_TO,
+//         REPORT_MAIL_FROM (déf. = _USER ; OVH exige une adresse authentifiée).
+//       ⚠️ SECRETS : préférer REPORT_SMTP_PASS_FILE et REPORT_WEBHOOK_URL_FILE
+//       (chemin d'un fichier monté en lecture seule) — un -e reste lisible à vie
+//       dans `docker inspect`, sur une machine partagée avec d'autres services.
 'use strict';
 
 const http   = require('http');
@@ -818,11 +826,209 @@ function onMessage(ws, raw, ip) {
   }
 }
 
-// ── Serveur HTTP (health) + WebSocket ──────────────────────────────────────
+// ── Signalements des joueurs (POST /report) ────────────────────────────────
+// Le site est statique : il n'a aucun serveur pour recevoir un formulaire.
+// Cette route est son point de chute. Elle vit ICI plutôt que dans un service
+// à part pour une raison précise : le Caddyfile du VPS est un bind mount
+// partagé avec le bot Discord et le backend iOS, et le modifier est de loin
+// l'opération la plus risquée de la machine. multi.onepiecedle.fr est déjà
+// routé vers ce conteneur — on s'y greffe, zéro ligne de Caddy à toucher.
+//
+// Destination : REPORT_WEBHOOK_URL (webhook Discord). Le signalement est
+// TOUJOURS écrit sur stdout AVANT l'envoi : webhook absent, cassé ou hors
+// service, rien n'est perdu — `docker logs versus` le contient.
+const REPORT_WEBHOOK = process.env.REPORT_WEBHOOK_URL_FILE
+  ? (() => { try { return fs.readFileSync(process.env.REPORT_WEBHOOK_URL_FILE, 'utf8').trim(); }
+             catch (e) { console.error('[report] webhook_FILE illisible :', e.message); return ''; } })()
+  : (process.env.REPORT_WEBHOOK_URL || '');
+const REPORT_CATEGORIES = ['fiche', 'affichage', 'audio', 'silhouette', 'suggestion', 'autre'];
+const REPORT_MAX_BODY = 8 * 1024;      // octets de la requête
+const REPORT_MSG_MIN  = 5;
+const REPORT_MSG_MAX  = 2000;
+const REPORT_PER_HOUR = 5;             // par IP
+const reportHits = new Map();          // ip -> [timestamps]
+
+// Derrière Caddy, req.socket.remoteAddress vaut 127.0.0.1 : sans X-Forwarded-For
+// la limite de débit serait globale et le premier spammeur bloquerait tout le monde.
+function clientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff) return xff.split(',')[0].trim();
+  return req.socket.remoteAddress || '?';
+}
+
+function reportRateOk(ip) {
+  const now = Date.now(), depuis = now - 3600_000;
+  for (const [k, v] of reportHits) {                       // purge opportuniste
+    const g = v.filter(t => t > depuis);
+    if (g.length) reportHits.set(k, g); else reportHits.delete(k);
+  }
+  const hits = (reportHits.get(ip) || []).filter(t => t > depuis);
+  if (hits.length >= REPORT_PER_HOUR) return false;
+  hits.push(now); reportHits.set(ip, hits);
+  return true;
+}
+
+function corsHeaders(req) {
+  const origin = req.headers.origin;
+  const h = { 'Vary': 'Origin' };
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    h['Access-Control-Allow-Origin'] = origin;
+    h['Access-Control-Allow-Methods'] = 'POST, OPTIONS';
+    h['Access-Control-Allow-Headers'] = 'Content-Type';
+    h['Access-Control-Max-Age'] = '86400';
+  }
+  return h;
+}
+
+function coupe(v, n) { return String(v == null ? '' : v).slice(0, n); }
+
+async function envoiWebhook(texte) {
+  if (!REPORT_WEBHOOK) return false;
+  try {
+    const r = await fetch(REPORT_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: texte.slice(0, 1900) }),   // limite Discord : 2000
+    });
+    if (!r.ok) console.error('[report] webhook HTTP', r.status);
+    return r.ok;
+  } catch (e) {
+    console.error('[report] webhook injoignable :', e.message);
+    return false;
+  }
+}
+
+// ── Envoi par e-mail (SMTP OVH) ────────────────────────────────────────────
+// Le domaine est déjà hébergé chez OVH et son SPF autorise mx.ovh.com : on
+// passe donc par la boîte du domaine plutôt que par un service tiers — rien
+// de plus à créer, et le courrier part d'une adresse authentifiée, donc pas
+// en indésirable. nodemailer est chargé paresseusement : sans configuration
+// SMTP, le serveur démarre et tourne exactement comme avant.
+// Un secret passé en -e reste lisible AU REPOS : historique du shell, `ps`, et
+// surtout `docker inspect` à vie — sur une machine partagée avec le bot Discord
+// et le backend iOS. On privilégie donc REPORT_SMTP_PASS_FILE : le conteneur
+// monte un fichier chmod 600 en lecture seule et lit son contenu ici, si bien
+// que `docker inspect` ne montre qu'un CHEMIN. C'est la convention des images
+// officielles Postgres/MySQL. REPORT_SMTP_PASS reste accepté en dépannage.
+function litSecret(nomVar) {
+  const chemin = process.env[nomVar + '_FILE'];
+  if (chemin) {
+    try { return fs.readFileSync(chemin, 'utf8').trim(); }
+    catch (e) { console.error(`[report] ${nomVar}_FILE illisible : ${e.message}`); return ''; }
+  }
+  return process.env[nomVar] || '';
+}
+
+const SMTP = {
+  host: process.env.REPORT_SMTP_HOST || '',
+  port: parseInt(process.env.REPORT_SMTP_PORT || '465', 10),
+  user: process.env.REPORT_SMTP_USER || '',
+  pass: litSecret('REPORT_SMTP_PASS'),
+  to:   process.env.REPORT_MAIL_TO   || '',
+  from: process.env.REPORT_MAIL_FROM || process.env.REPORT_SMTP_USER || '',
+};
+let _transport = null;
+function transport() {
+  if (_transport) return _transport;
+  if (!SMTP.host || !SMTP.user || !SMTP.pass || !SMTP.to) return null;
+  let nodemailer;
+  try { nodemailer = require('nodemailer'); }
+  catch (e) { console.error('[report] nodemailer absent — e-mail désactivé'); return null; }
+  _transport = nodemailer.createTransport({
+    host: SMTP.host, port: SMTP.port,
+    secure: SMTP.port === 465,          // 465 = TLS implicite (OVH), 587 = STARTTLS
+    auth: { user: SMTP.user, pass: SMTP.pass },
+  });
+  return _transport;
+}
+
+async function envoiMail(sujet, texte) {
+  const t = transport();
+  if (!t) return false;
+  try {
+    await t.sendMail({ from: SMTP.from, to: SMTP.to, subject: sujet, text: texte });
+    return true;
+  } catch (e) {
+    console.error('[report] envoi e-mail échoué :', e.message);
+    return false;
+  }
+}
+
+// Ne PAS détruire la requête quand le corps dépasse la limite : le client
+// n'aurait plus personne à qui parler et verrait une socket coupée au lieu du
+// message d'erreur. On cesse d'accumuler, on laisse le flux se vider, et le
+// handler répond normalement.
+function lireCorps(req, max) {
+  return new Promise((ok, ko) => {
+    let n = 0, stop = false; const morceaux = [];
+    req.on('data', c => {
+      if (stop) return;                       // on ignore la suite, sans couper
+      n += c.length;
+      if (n > max) { stop = true; ko(new Error('TROP_GROS')); return; }
+      morceaux.push(c);
+    });
+    req.on('end',   () => { if (!stop) ok(Buffer.concat(morceaux).toString('utf8')); });
+    req.on('error', e  => { if (!stop) ko(e); });
+  });
+}
+
+async function onReport(req, res) {
+  const cors = corsHeaders(req);
+  const fin = (code, obj) => {
+    res.writeHead(code, { 'Content-Type': 'application/json', ...cors });
+    res.end(JSON.stringify(obj));
+  };
+  if (!cors['Access-Control-Allow-Origin']) return fin(403, { ok: false, error: 'ORIGIN' });
+
+  const ip = clientIp(req);
+  if (!reportRateOk(ip)) return fin(429, { ok: false, error: 'TROP_DE_SIGNALEMENTS' });
+
+  let data;
+  try { data = JSON.parse(await lireCorps(req, REPORT_MAX_BODY)); }
+  catch (e) { return fin(400, { ok: false, error: e.message === 'TROP_GROS' ? 'TROP_GROS' : 'JSON' }); }
+
+  // Champ leurre : invisible dans le formulaire, donc rempli seulement par un
+  // robot. On répond ok pour ne pas lui apprendre qu'il a été repéré.
+  if (data && data.website) { console.warn('[report] leurre déclenché, ip', ip); return fin(200, { ok: true }); }
+
+  const categorie = REPORT_CATEGORIES.includes(data && data.category) ? data.category : 'autre';
+  const message   = coupe(data && data.message, REPORT_MSG_MAX).trim();
+  if (message.length < REPORT_MSG_MIN) return fin(400, { ok: false, error: 'MESSAGE_COURT' });
+
+  const ctx = {
+    page:    coupe(data && data.page, 120),
+    mode:    coupe(data && data.mode, 20),
+    version: coupe(data && data.version, 20),
+    langue:  coupe(data && data.lang, 5),
+    ua:      coupe(data && data.ua, 200),
+  };
+  const contexte = `page: ${ctx.page}\nmode: ${ctx.mode}\nversion: ${ctx.version}\n`
+                 + `langue: ${ctx.langue}\nUA: ${ctx.ua}`;
+
+  // Le log part EN PREMIER : quoi qu'il arrive ensuite au webhook ou au SMTP,
+  // `docker logs versus` contient le signalement. Rien ne se perd.
+  console.log('[report]', JSON.stringify({ at: new Date().toISOString(), ip, categorie, message, ...ctx }));
+  await Promise.all([
+    envoiWebhook(`**Signalement — ${categorie}**\n${message}\n` + '```\n' + contexte + '\n```'),
+    envoiMail(`[LogPose] Signalement — ${categorie}`, `${message}\n\n---\n${contexte}`),
+  ]);
+  return fin(200, { ok: true });
+}
+
+// ── Serveur HTTP (health + signalements) + WebSocket ────────────────────────
 const server = http.createServer((req, res) => {
-  if (req.url === '/health') {
+  const chemin = (req.url || '').split('?')[0];
+  if (chemin === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ok: true, lobbies: lobbies.size, characters: CHARACTERS.length, dataVersion: DATA_VERSION, uptime: Math.round(process.uptime()) }));
+  } else if (chemin === '/report' && req.method === 'OPTIONS') {
+    res.writeHead(204, corsHeaders(req)); res.end();          // pré-vol CORS
+  } else if (chemin === '/report' && req.method === 'POST') {
+    onReport(req, res).catch(e => {
+      console.error('[report] erreur :', e);
+      res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders(req) });
+      res.end(JSON.stringify({ ok: false, error: 'SERVEUR' }));
+    });
   } else {
     res.writeHead(404); res.end();
   }

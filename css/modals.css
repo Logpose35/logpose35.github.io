@@ -491,3 +491,66 @@
 .pn-date { font-family: 'Barlow Condensed', sans-serif; color: var(--text3); font-size: .8rem; font-weight: 400; letter-spacing: .06em; }
 .pn-items { list-style: none; margin: 8px 0 0; padding: 0 0 0 12px; display: flex; flex-direction: column; gap: 6px; border-left: 2px solid rgba(200,148,10,0.25); }
 .pn-items li { font-family: 'Barlow Condensed', sans-serif; color: var(--text2); font-size: .95rem; line-height: 1.3; }
+
+/* ===== MODALE DE SIGNALEMENT =====
+   Réutilise .modal-overlay / .modal-box : aucun nouveau châssis, juste les
+   champs. Sobre et doré comme le reste — c'est un recours, pas une vitrine. */
+.report-box { text-align: left; }
+.report-label {
+  display: block;
+  margin: 14px 0 5px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  font-weight: 700;
+}
+.report-select,
+.report-textarea {
+  width: 100%;
+  background: var(--bg2);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.92rem;
+}
+.report-textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+.report-select:focus,
+.report-textarea:focus { outline: none; border-color: var(--gold); }
+/* Leurre : hors écran plutôt que display:none — certains robots ignorent les
+   champs masqués, mais remplissent ce qui existe dans le DOM. */
+.report-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px; height: 1px;
+  opacity: 0;
+}
+.report-actions {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 16px;
+}
+.report-send {
+  background: var(--gold); color: #04090f;
+  border: none; border-radius: 20px;
+  padding: 9px 24px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem; font-weight: 700; letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: transform 0.14s, filter 0.14s;
+}
+.report-send:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+.report-send:disabled { opacity: 0.55; cursor: default; }
+.report-status {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem;
+  color: var(--gold);
+}
+.report-note {
+  margin: 12px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--text3);
+}
