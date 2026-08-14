@@ -554,3 +554,13 @@
   line-height: 1.45;
   color: var(--text3);
 }
+
+/* Règle de longueur du champ de description : annoncée AVANT que le joueur
+   bute dessus. Le navigateur la fait respecter via minlength, cette ligne ne
+   fait que la dire — discrète, juste sous le champ. */
+.report-hint {
+  margin: 6px 0 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  color: var(--text3);
+}
