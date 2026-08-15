@@ -814,7 +814,7 @@ function finClassic(won) {
     revealEl.style.display = 'block';
   }
   if (won) {
-    const isBdayWin = getTodayBirthdays().some(c => c.name === TARGET_C.name);
+    const isBdayWin = getTodayBirthdays(activeDate()).some(c => c.name === TARGET_C.name);
     document.getElementById('win-title').textContent      = isBdayWin ? t('🎂 Joyeux anniversaire !') : WIN_TITLES['classic'];
     document.getElementById('win-char-name').textContent  = TARGET_C.name;
     document.getElementById('win-attempts').textContent   = cGuesses.length;
@@ -1076,8 +1076,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=297`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=297`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=298`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=298`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1315,10 +1315,24 @@ function parisNow() {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
 }
 
-function todayKey() {
-  const d = parisNow();
+function dateKeyOf(d) {
   return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
 }
+function todayKey() { return dateKeyOf(parisNow()); }
+
+// ===== JOURNÉE ACTIVE =====
+// Le jeu peut tourner sur une journée d'archive (mode « rejouer »). Deux familles de
+// dates, à ne jamais confondre :
+//   • activeKey() — la journée JOUÉE : grilles en cours, scores, résultats, partage.
+//     Ces clés localStorage sont déjà paramétrées par date, rejouer le 20/06 écrit donc
+//     dans les clés du 20/06 sans toucher à la partie du jour.
+//   • todayKey()  — la VRAIE date : compteurs Firebase, stats communauté, séries,
+//     compte à rebours. Une rediffusion ne doit jamais réécrire l'histoire.
+// REPLAY_DATE reste null tant qu'aucune rediffusion n'est lancée : comportement inchangé.
+let REPLAY_DATE = null;
+function activeDate() { return REPLAY_DATE ? new Date(REPLAY_DATE) : parisNow(); }
+function activeKey()  { return dateKeyOf(activeDate()); }
+function isReplay()   { return REPLAY_DATE !== null; }
 
 function recordResult(mode, won, numGuesses) {
   const stats = loadStats(mode);
@@ -1387,7 +1401,7 @@ function switchStatsTab(mode) {
 const MODES_ORDER = MODE_IDS;
 
 function getNextUnplayedMode(currentMode) {
-  const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
+  const results = safeParseJSON(lsGet(LS.result(activeKey())), {});
   const startIdx = MODES_ORDER.indexOf(currentMode);
   // Cherche d'abord après le mode actuel, puis depuis le début
   const ordered = [
@@ -1433,7 +1447,7 @@ function renderStatsContent(mode) {
   const lastWinGuess = stats.lastWinGuesses || null;
 
   // ── Score du jour ──────────────────────────────────────────────
-  const todayScores = safeParseJSON(lsGet(LS.score(todayKey())), {});
+  const todayScores = safeParseJSON(lsGet(LS.score(activeKey())), {});
   const rawMode     = Object.prototype.hasOwnProperty.call(todayScores, mode) ? sanitizeNum(todayScores[mode]) : undefined;
   const totalScore  = Object.values(todayScores).reduce((a, b) => a + sanitizeNum(b), 0);
   const modeLabels  = { classic:t('Classique'), wanted:t('Wanted'), silhouette:t('Silhouette'), fruit:t('Fruit du Démon'), emoji:t('Émoji') };
@@ -2307,7 +2321,7 @@ function calcModeScore(mode, tries, hintUsed, hintsCount) {
 
 // ===== SAUVEGARDE / RESTAURATION DE L'ÉTAT DE JEU =====
 function saveState(mode) {
-  const dk = todayKey();
+  const dk = activeKey();
   // Le nom de la cible est inclus pour détecter un changement de hash en cours de journée
   if (mode === 'classic') lsSet(LS.gs('classic', dk), JSON.stringify({ guesses: cGuesses.map(c => c.name), hintUsed, target: TARGET_C.name }));
   if (mode === 'wanted')  lsSet(LS.gs('wanted',  dk), JSON.stringify({ guesses: wGuesses.map(c => c.name), target: TARGET_W.name }));
@@ -2322,7 +2336,7 @@ function saveState(mode) {
 function validName(n) { return typeof n === 'string' && n.length > 0 && n.length <= 120; }
 
 function restoreAllStates() {
-  const dk = todayKey();
+  const dk = activeKey();
   _restoring = true;
 
   // Une page de mode ne porte QUE sa section : rejouer les autres modes y
@@ -2392,7 +2406,7 @@ function restoreAllStates() {
 }
 
 function saveModeScore(mode, pts) {
-  const key    = LS.score(todayKey());
+  const key    = LS.score(activeKey());
   const scores = safeParseJSON(lsGet(key), {});
   scores[mode] = pts;
   lsSet(key, JSON.stringify(scores));
@@ -2400,7 +2414,7 @@ function saveModeScore(mode, pts) {
 }
 
 function saveModeResult(mode, won, tries, extra) {
-  const key     = LS.result(todayKey());
+  const key     = LS.result(activeKey());
   const results = safeParseJSON(lsGet(key), {});
   if (results[mode]) return; // déjà enregistré
   results[mode] = { won: won, tries: tries, ...extra };
@@ -2443,22 +2457,27 @@ async function countDayPlayer(dk) {
 
 function onGameEnd(mode, won, tries, score, extra) {
   if (_restoring) return;
-  recordResult(mode, won, tries);
+  // Une rediffusion ne touche NI aux séries (elles mesurent l'assiduité jour après jour :
+  // rejouer le 20/06 ne doit ni la prolonger ni la casser), NI aux statistiques communauté
+  // de la journée d'archive, qui sont closes depuis longtemps.
+  if (!isReplay()) recordResult(mode, won, tries);
   saveModeResult(mode, won, tries, extra);
-  // Écriture stats communauté, PUIS rafraîchissement du compteur une fois les écritures
-  // prises en compte (sinon on relit daily-stats avant que la victoire du joueur y figure).
-  const _dk = todayKey();
-  const _statWrites = [fbIncrement(`daily-stats/${_dk}/${mode}/total`)];
-  if (won) {
-    _statWrites.push(fbIncrement(`daily-stats/${_dk}/${mode}/wins`));
-    if (tries > 0) _statWrites.push(fbIncrementBy(`daily-stats/${_dk}/${mode}/tries_sum`, tries));
+  if (!isReplay()) {
+    // Écriture stats communauté, PUIS rafraîchissement du compteur une fois les écritures
+    // prises en compte (sinon on relit daily-stats avant que la victoire du joueur y figure).
+    const _dk = todayKey();
+    const _statWrites = [fbIncrement(`daily-stats/${_dk}/${mode}/total`)];
+    if (won) {
+      _statWrites.push(fbIncrement(`daily-stats/${_dk}/${mode}/wins`));
+      if (tries > 0) _statWrites.push(fbIncrementBy(`daily-stats/${_dk}/${mode}/tries_sum`, tries));
+    }
+    // Agrégat du jour (nœud `_day`) : alimente le score total moyen de la journée en cours.
+    _statWrites.push(countDayPlayer(_dk));
+    if (won && score > 0) _statWrites.push(fbIncrementBy(`daily-stats/${_dk}/_day/score_sum`, score));
+    // compteur public (navigation + gagnants/essais moyens) et moyenne du jour, rafraîchis après
+    // les écritures
+    Promise.allSettled(_statWrites).then(() => { incrementDailyCounter(mode); loadDailyAverage(); });
   }
-  // Agrégat du jour (nœud `_day`) : alimente le score total moyen de la journée en cours.
-  _statWrites.push(countDayPlayer(_dk));
-  if (won && score > 0) _statWrites.push(fbIncrementBy(`daily-stats/${_dk}/_day/score_sum`, score));
-  // compteur public (navigation + gagnants/essais moyens) et moyenne du jour, rafraîchis après
-  // les écritures
-  Promise.allSettled(_statWrites).then(() => { incrementDailyCounter(mode); loadDailyAverage(); });
   if (won) {
     saveModeScore(mode, score);
     const prev = sanitizeNum(lsGet(LS.cumulativeScore));
@@ -2474,9 +2493,11 @@ function onGameEnd(mode, won, tries, score, extra) {
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   // N'ouvre les stats automatiquement QUE lorsque TOUS les modes du jour sont terminés
-  // (sinon la modale s'ouvre après chaque mode et casse l'enchaînement).
-  const _res = safeParseJSON(lsGet(LS.result(todayKey())), {});
-  if (MODE_IDS.every(m => _res[m])) setTimeout(() => showStats(mode), 900);
+  // (sinon la modale s'ouvre après chaque mode et casse l'enchaînement). « Tous » dépend
+  // de la journée : une date d'archive de juin n'avait que 6 modes, MODE_IDS n'y arriverait
+  // jamais au bout.
+  const _res = safeParseJSON(lsGet(LS.result(activeKey())), {});
+  if (modesForDate(activeDate()).every(m => _res[m])) setTimeout(() => showStats(mode), 900);
 }
 
 let _shareText = '';
@@ -2495,7 +2516,7 @@ function xShareLen(s) {
 }
 
 function buildShareText() {
-  const dk      = todayKey();
+  const dk      = activeKey();
   const scores  = safeParseJSON(lsGet(LS.score(dk)),  {});
   const results = safeParseJSON(lsGet(LS.result(dk)), {});
   const total   = Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
@@ -2521,7 +2542,7 @@ function buildShareText() {
 
   // Mention anniversaire si un perso fête son anniv aujourd'hui (ligne OPTIONNELLE :
   // retirée plus bas si elle fait dépasser la limite de X — noms parfois très longs).
-  const bdays = getTodayBirthdays();
+  const bdays = getTodayBirthdays(activeDate());
   const bdayLine = bdays.length
     ? tf(`🎂 Anniversaire de {0} !`, bdays.map(c => c.name).join(' & '))
     : null;
@@ -2943,12 +2964,12 @@ function fallbackCopy(text, cb) {
 }
 
 function getTotalScore() {
-  const scores = safeParseJSON(lsGet(LS.score(todayKey())), {});
+  const scores = safeParseJSON(lsGet(LS.score(activeKey())), {});
   return Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
 }
 
 function updateTabDoneStates() {
-  const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
+  const results = safeParseJSON(lsGet(LS.result(activeKey())), {});
   MODE_IDS.forEach(mode => {
     const tab = document.getElementById('tab-' + mode);
     if (!tab) return;
@@ -2964,8 +2985,8 @@ function toggleScoreBreakdown(e) {
   if (!el) return;
   const isHidden = el.classList.contains('hidden');
   if (isHidden) {
-    const scores  = safeParseJSON(lsGet(LS.score(todayKey())),  {});
-    const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
+    const scores  = safeParseJSON(lsGet(LS.score(activeKey())),  {});
+    const results = safeParseJSON(lsGet(LS.result(activeKey())), {});
     // Libellés courts spécifiques à la pastille compacte (≠ registre global).
     const rows = [
       { key:'classic', icon:'🗺️',  label:t('Classique') },
@@ -3017,15 +3038,15 @@ function updateScoreBar() {
   if (label) label.textContent = nfmt(total);
   if (maxLabel) maxLabel.textContent = ' / ' + nfmt(max);   // 70 000 aujourd'hui, moins en archive
   if (shareBtn) {
-    const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
+    const results = safeParseJSON(lsGet(LS.result(activeKey())), {});
     shareBtn.classList.toggle('hidden', Object.keys(results).length === 0);
   }
   // Célébration du sans-faute — différée si la page est préchargée : sinon on
   // la marquerait « déjà fêtée » sur un onglet que le joueur n'a pas ouvert.
-  if (total >= max && !lsGet(LS.perfect(todayKey()))) {
+  if (total >= max && !lsGet(LS.perfect(activeKey()))) {
     whenActivated(() => {
-      if (lsGet(LS.perfect(todayKey()))) return;   // fêtée entre-temps
-      lsSet(LS.perfect(todayKey()), '1');
+      if (lsGet(LS.perfect(activeKey()))) return;   // fêtée entre-temps
+      lsSet(LS.perfect(activeKey()), '1');
       setTimeout(launchPerfectDay, 800);
     });
   }
@@ -3556,7 +3577,7 @@ function initMobileYesterday() {
   whenActivated(loadDailyAverage); // fire-and-forget, remplit #daily-average quand Firebase répond
   // Badge anniversaire
   (function() {
-    const bdays = getTodayBirthdays();
+    const bdays = getTodayBirthdays(activeDate());
     const el = document.getElementById('birthday-badge');
     if (!el || !bdays.length) return;
     const names = bdays.map(c => c.name).join(' & ');

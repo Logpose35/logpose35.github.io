@@ -27,8 +27,10 @@ const BIRTHDAYS = {
 
 // Retourne les personnages du pool dont c'est l'anniversaire aujourd'hui (Paris).
 // Appelable uniquement après loadGameData() (CHARACTERS doit être initialisé).
-function getTodayBirthdays() {
-  const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
+// Sans argument : aujourd'hui (Paris). Avec une date : celle-là — le mode « rejouer »
+// doit fêter l'anniversaire de la journée REJOUÉE, pas celui du jour réel.
+function getTodayBirthdays(when) {
+  const d = when || new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
   const mmdd = String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   const names = BIRTHDAYS[mmdd] || [];
   return names.map(name => CHARACTERS.find(c => c.name === name)).filter(Boolean);
