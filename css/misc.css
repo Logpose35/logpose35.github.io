@@ -194,26 +194,8 @@ footer {
   .modal-box { padding: 22px 18px; }
 }
 
-/* ===== PUBLICITÉS MOBILE ===== */
-.ad-mobile { display: none; } /* caché sur desktop */
-@media (max-width: 700px) {
-  .ad-mobile {
-    display: block;
-    width: 100%;
-    background: transparent;
-    text-align: center;
-    overflow: hidden;
-  }
-  .ad-mobile-top {
-    min-height: 60px;
-    border-bottom: 1px solid rgba(200,148,10,0.1);
-  }
-  .ad-mobile-bottom {
-    min-height: 100px;
-    border-top: 1px solid rgba(200,148,10,0.1);
-    margin-bottom: 8px;
-  }
-}
+/* Les emplacements .ad-mobile ont été retirés : AdSense tourne en ANNONCES
+   AUTOMATIQUES, c'est Google qui place les blocs. Plus rien à réserver ici. */
 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 6px; }

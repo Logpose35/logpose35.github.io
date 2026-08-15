@@ -183,18 +183,7 @@
   .mode-tabs-inf .mode-tab-inf { border-style: dashed; flex: 0 1 calc(37% - 2px); }
 
   /* ==========================================================
-     3. EMPLACEMENTS PUBLICITAIRES — 160 px récupérés
-     ------------------------------------------------------------
-     AdSense n'est pas branché (data-ad-client = ca-pub-XXXXXXXXXXXXXXXX,
-     aucun script adsbygoogle.js chargé) : ces deux blocs ne réservaient
-     que du vide, et uniquement sur mobile. Ils restent dans le DOM.
-     Pour les réactiver le jour où AdSense est configuré :
-     supprimer ce bloc de règles.
-     ========================================================== */
-  .ad-mobile { display: none; }
-
-  /* ==========================================================
-     4. BARRE DE SCORE — 43 px → 30 px
+     3. BARRE DE SCORE — 43 px → 30 px
      ========================================================== */
   .score-bar-section {
     padding: 5px 10px 6px;
@@ -210,7 +199,7 @@
   .share-daily-btn { padding: 4px 10px; font-size: 0.72rem; }
 
   /* ==========================================================
-     5. BARRE « HIER » — 155 px → 34 px, dépliable au doigt
+     4. BARRE « HIER » — 155 px → 34 px, dépliable au doigt
      ------------------------------------------------------------
      Le contenu est intact : il est simplement replié par défaut.
      Le bouton et l'état sont posés par app.js (initMobileYesterday).
@@ -259,7 +248,7 @@
   .yesterday:not(.is-open) .yest-body { display: none; }
 
   /* ==========================================================
-     6. DATE, COMPTEUR, ZONE DE JEU
+     5. DATE, COMPTEUR, ZONE DE JEU
      ========================================================== */
   main { padding-left: 12px; padding-right: 12px; }
   .date-badge { margin-bottom: 4px; font-size: 0.68rem; }
@@ -267,7 +256,7 @@
   .daily-average { margin: 0 0 2px; font-size: 0.76rem; }
 
   /* ==========================================================
-     7. SAISIE + AUTOCOMPLÉTION
+     6. SAISIE + AUTOCOMPLÉTION
      ------------------------------------------------------------
      Avec le clavier virtuel la hauteur utile tombe à ~420 px : la liste
      doit se limiter et défiler à l'intérieur, pas déborder sous le pli.
@@ -356,7 +345,7 @@
   .map-hint { font-size: 0.68rem; line-height: 1.35; }
 
   /* ==========================================================
-     8. MODALES — collision titre/croix + cibles tactiles
+     7. MODALES — collision titre/croix + cibles tactiles
      ========================================================== */
   .modal-title {
     padding-right: 46px;               /* la croix ne chevauche plus le titre */
@@ -375,7 +364,7 @@
   }
 
   /* ==========================================================
-     9. HAUTEURS DE FENÊTRE
+     8. HAUTEURS DE FENÊTRE
      ------------------------------------------------------------
      100vh ignore la barre d'URL mobile et déborde d'environ 100 px.
      100dvh suit la hauteur réellement visible.
@@ -385,7 +374,7 @@
   .landing-body { min-height: 100vh; min-height: 100dvh; }
 
   /* ==========================================================
-     10. CONFORT TACTILE GÉNÉRAL
+     9. CONFORT TACTILE GÉNÉRAL
      ========================================================== */
   .mode-tab,
   #guess-btn,

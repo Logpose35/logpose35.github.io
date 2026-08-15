@@ -79,31 +79,31 @@
   <!-- Mode de cette page (une URL par mode) : js/app.js l'active à l'init. -->
   <script>window.LP_MODE = 'audio';</script>
 
-  <!-- AdSense — chargement asynchrone du script maison. Sert à la fois à la
-       validation du site et aux annonces automatiques. Origine tierce, donc
-       jamais interceptée par le Service Worker. -->
+  <!-- AdSense en ANNONCES AUTOMATIQUES : ce seul script suffit, c'est Google qui place
+       les blocs (réglages dans l'interface AdSense, rien à écrire dans le HTML). Sert
+       aussi à la validation du site. Origine tierce, donc jamais interceptée par le SW. -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9097997401612968"
        crossorigin="anonymous"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=291">
-  <link rel="stylesheet" href="/css/layout.css?v=291">
-  <link rel="stylesheet" href="/css/modals.css?v=291">
-  <link rel="stylesheet" href="/css/classic.css?v=291">
-  <link rel="stylesheet" href="/css/wanted.css?v=291">
-  <link rel="stylesheet" href="/css/silhouette.css?v=291">
-  <link rel="stylesheet" href="/css/fruit.css?v=291">
-  <link rel="stylesheet" href="/css/inf.css?v=291">
-  <link rel="stylesheet" href="/css/emoji.css?v=291">
-  <link rel="stylesheet" href="/css/misc.css?v=291">
-  <link rel="stylesheet" href="/css/audio.css?v=291">
-  <link rel="stylesheet" href="/css/animations.css?v=291">
-  <link rel="stylesheet" href="/css/map.css?v=291">
-  <link rel="stylesheet" href="/css/tome.css?v=291">
+  <link rel="stylesheet" href="/css/base.css?v=292">
+  <link rel="stylesheet" href="/css/layout.css?v=292">
+  <link rel="stylesheet" href="/css/modals.css?v=292">
+  <link rel="stylesheet" href="/css/classic.css?v=292">
+  <link rel="stylesheet" href="/css/wanted.css?v=292">
+  <link rel="stylesheet" href="/css/silhouette.css?v=292">
+  <link rel="stylesheet" href="/css/fruit.css?v=292">
+  <link rel="stylesheet" href="/css/inf.css?v=292">
+  <link rel="stylesheet" href="/css/emoji.css?v=292">
+  <link rel="stylesheet" href="/css/misc.css?v=292">
+  <link rel="stylesheet" href="/css/audio.css?v=292">
+  <link rel="stylesheet" href="/css/animations.css?v=292">
+  <link rel="stylesheet" href="/css/map.css?v=292">
+  <link rel="stylesheet" href="/css/tome.css?v=292">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=291">
+  <link rel="stylesheet" href="/css/mobile.css?v=292">
 </head>
 <body data-page="game">
 
@@ -370,16 +370,6 @@
   <a class="mode-tab mode-tab-inf mode-tab-versus" id="tab-versus" href="/en/versus.html"><svg class="ic tab-ic" aria-hidden="true"><use href="#ic-versus"></use></svg>Versus 1v1</a>
 </div>
 
-<!-- PUB MOBILE — sous les onglets -->
-<div class="ad-mobile ad-mobile-top">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-       data-ad-slot="XXXXXXXXXX"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-</div>
-
 <div class="score-bar-section">
   <div class="score-bar-inner">
     <span class="score-anchor"><svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg></span>
@@ -464,16 +454,6 @@
   </div>
 
 </main>
-
-<!-- PUB MOBILE — avant le timer (fin de partie) -->
-<div class="ad-mobile ad-mobile-bottom">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-       data-ad-slot="XXXXXXXXXX"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-</div>
 
 <div class="next-puzzle">
   <span class="next-puzzle-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-hourglass"></use></svg>Next challenges in</span>
@@ -673,14 +653,14 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/i18n/en.js?v=291"></script>
-<script src="/js/i18n.js?v=291"></script>
-<script src="/js/version.js?v=291"></script>
-<script src="/js/data.js?v=291"></script>
-<script src="/js/jolly-roger.js?v=291"></script>
-<script src="/js/versus-rules.js?v=291"></script>
-<script src="/js/app.js?v=291"></script>
-<script src="/js/canvas-share.js?v=291"></script>
-<script src="/js/map.js?v=291"></script>
+<script src="/i18n/en.js?v=292"></script>
+<script src="/js/i18n.js?v=292"></script>
+<script src="/js/version.js?v=292"></script>
+<script src="/js/data.js?v=292"></script>
+<script src="/js/jolly-roger.js?v=292"></script>
+<script src="/js/versus-rules.js?v=292"></script>
+<script src="/js/app.js?v=292"></script>
+<script src="/js/canvas-share.js?v=292"></script>
+<script src="/js/map.js?v=292"></script>
 </body>
 </html>
