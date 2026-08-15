@@ -170,6 +170,7 @@ button:focus-visible, input:focus-visible {
   --mode-silhouette: #6b7f9e; /* ardoise — évoque l'ombre (avant : héritait l'or, indistinct) */
   --mode-emoji:   #e368a4; --mode-audio:  #3a8fcf; --mode-tome: #3fae73; --mode-inf:   #7d6ee8;
   --mode-versus:  #d24b4b;  /* mode bonus 1v1 — rouge duel */
+  --mode-replay:  #2bb3a3;  /* rejouer une journée — turquoise, seule teinte encore libre */
 }
 /* --mode-color porté par chaque onglet (sert à l'icône + au hover) */
 #tab-classic, #stab-classic { --mode-color: var(--mode-classic); }
@@ -182,6 +183,7 @@ button:focus-visible, input:focus-visible {
 #tab-tome,    #stab-tome    { --mode-color: var(--mode-tome); }
 #tab-inf                    { --mode-color: var(--mode-inf); }
 #tab-versus,  #stab-versus  { --mode-color: var(--mode-versus); }
+#tab-replay                 { --mode-color: var(--mode-replay); }
 /* Icône de l'onglet inactif → couleur du mode (l'actif garde sa couleur de contraste) */
 .mode-tab:not(.active) .tab-ic, .modal-mode-tab:not(.active) .tab-ic { color: var(--mode-color); }
 /* Icônes injectées par app.js + grille « À propos » */

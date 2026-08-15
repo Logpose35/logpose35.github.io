@@ -180,7 +180,9 @@
   }
   /* L'ombre portée vit sur la dernière bande collante */
   .mode-tabs { box-shadow: 0 3px 10px rgba(2, 8, 16, 0.35); }
-  .mode-tabs-inf .mode-tab-inf { border-style: dashed; flex: 0 1 calc(37% - 2px); }
+  /* Trois entrées depuis « Rejouer » : elles doivent tenir sur UNE rangée, sinon on
+     reperd les 30 px que la refonte mobile avait gagnés. */
+  .mode-tabs-inf .mode-tab-inf { border-style: dashed; flex: 0 1 calc(33.33% - 3px); padding: 7px 6px; }
 
   /* ==========================================================
      3. BARRE DE SCORE — 43 px → 30 px

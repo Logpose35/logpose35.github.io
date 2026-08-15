@@ -142,6 +142,10 @@ def tabs_markup(mode):
                   ' aria-current="page"' if cur else '', inf['icon'], inf['fr_label']))
     out.append('  <a class="mode-tab mode-tab-inf mode-tab-versus" id="tab-versus" href="/versus.html">'
                '<svg class="ic tab-ic" aria-hidden="true"><use href="#ic-versus"></use></svg>Versus 1v1</a>')
+    # Rejouer : ouvre la grille des journées passées (pas une navigation, donc un bouton)
+    out.append('  <button type="button" class="mode-tab mode-tab-inf mode-tab-replay" id="tab-replay" '
+               'onclick="openReplayPicker()">'
+               '<svg class="ic tab-ic" aria-hidden="true"><use href="#ic-replay"></use></svg>Rejouer</button>')
     out.append('</div>')
     return '\n'.join(out)
 

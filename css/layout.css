@@ -46,6 +46,9 @@ a.mode-tab {
 .mode-tab-versus { text-decoration: none; display: inline-flex; align-items: center; }
 .mode-tab-versus .tab-ic { color: var(--mode-versus); }
 .mode-tab-versus:hover { border-color: var(--mode-versus); color: var(--mode-versus); }
+/* Rejouer = ouvre la grille des journées passées. Sa couleur suit la convention des
+   autres onglets : --mode-color posé sur #tab-replay dans base.css (turquoise), repris
+   par l'icône et le survol. */
 
 .mode-tab {
   padding: 9px 26px;

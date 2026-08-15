@@ -224,23 +224,6 @@ footer {
 }
 .replay-back:hover { opacity: 0.8; }
 
-/* Entrée « Rejouer une journée » — même discrétion que le lien de signalement,
-   sous le compte à rebours. */
-.replay-open-wrap { flex-basis: 100%; margin-top: 4px; }
-.replay-open {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  color: var(--text3);
-  opacity: 0.75;
-  transition: opacity 0.15s, color 0.15s;
-}
-.replay-open:hover { opacity: 1; color: var(--gold); }
-
 /* Grille de sélection des journées */
 /* .modal-box impose width: min(480px, 92vw) — trop étroit pour une grille de dates */
 .rp-box { width: min(760px, 94vw); }
