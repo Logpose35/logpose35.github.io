@@ -217,6 +217,11 @@ footer {
   letter-spacing: 0.04em;
   text-align: center;
 }
+/* Le cercle ↺ garde la couleur du mode, comme sur l'onglet : icône turquoise,
+   libellé doré. Même convention que les autres modes. */
+.replay-bar .ic,
+.rp-box .modal-title .ic { color: var(--mode-replay); }
+
 .replay-back {
   color: var(--gold-l);
   text-decoration: underline;
