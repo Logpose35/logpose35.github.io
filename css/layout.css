@@ -22,6 +22,7 @@
   z-index: 9;
   display: flex;
   justify-content: center;
+  gap: var(--sp-2);          /* même respiration que la rangée du haut */
   padding: 0 var(--sp-5) var(--sp-3);
   background: var(--ocean-2);
 }
