@@ -1063,8 +1063,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=292`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=292`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=293`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=293`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2017,6 +2017,24 @@ function updateAudioStatus() {
   }
 }
 
+// Vidéo de l'opening servie par AnimeThemes (projet de fans) : versions souvent sans
+// crédits, sans pub ni pistage, et qui ne disparaissent pas comme les vidéos YouTube.
+// Le nom de fichier vit dans data.json (champ `vid`), l'hôte ici — un seul endroit à
+// changer si le CDN bouge, et '' revient au comportement YouTube d'avant.
+const AT_VIDEO_BASE = 'https://v.animethemes.moe/';
+
+// Valide un nom de fichier AnimeThemes (même esprit que validateYTId : rien d'autre
+// que le fichier attendu ne peut se retrouver dans l'URL).
+function validateATFile(f) {
+  return /^[\w.-]+\.webm$/.test(String(f)) ? String(f) : '';
+}
+
+// Safari iOS n'a le VP9/WebM que depuis la 16 : ailleurs, on retombe sur YouTube.
+function canPlayWebm() {
+  try { return !!document.createElement('video').canPlayType('video/webm; codecs="vp9,opus"'); }
+  catch (e) { return false; }
+}
+
 function showAudioReveal() {
   document.getElementById('au-reveal-num').textContent    = TARGET_AU.id;
   document.getElementById('au-reveal-name').textContent   = TARGET_AU.name;
@@ -2024,11 +2042,46 @@ function showAudioReveal() {
 
   const wrap = document.getElementById('au-yt-wrap');
   wrap.innerHTML = '';
+  delete wrap.dataset.fallback;   // le garde-fou anti-boucle ne vaut que pour CE rendu
 
   const ytQuery = encodeURIComponent(`One Piece Opening ${TARGET_AU.id} ${TARGET_AU.name} ${TARGET_AU.artist}`);
   const ytSearchUrl = `https://www.youtube.com/results?search_query=${ytQuery}`;
 
   const safeYTId = validateYTId(TARGET_AU.yt || '');
+  const atFile   = validateATFile(TARGET_AU.vid || '');
+
+  if (atFile && canPlayWebm()) {
+    const video = document.createElement('video');
+    video.className   = 'au-yt-iframe';        // même cadre 16/9 que l'iframe qu'elle remplace
+    video.src         = AT_VIDEO_BASE + atFile;
+    video.controls    = true;
+    video.preload     = 'none';                // 17 à 64 Mo selon l'opening : rien avant le clic
+    video.playsInline = true;
+    video.title       = `${TARGET_AU.name} · One Piece Opening ${TARGET_AU.id}`;
+    // CDN d'un projet de fans : s'il ne répond pas, on rebascule sur YouTube sans que
+    // le joueur ait à recharger.
+    video.addEventListener('error', () => {
+      if (wrap.dataset.fallback) return;
+      wrap.dataset.fallback = '1';
+      wrap.innerHTML = '';
+      appendYouTubeFallback(wrap, safeYTId, ytSearchUrl);
+    });
+    wrap.appendChild(video);
+
+    const credit = document.createElement('a');
+    credit.className   = 'au-yt-link';
+    credit.href        = 'https://animethemes.moe/anime/one_piece';
+    credit.target      = '_blank';
+    credit.rel         = 'noopener noreferrer';
+    credit.textContent = t('Source vidéo : AnimeThemes');
+    wrap.appendChild(credit);
+    return;
+  }
+
+  appendYouTubeFallback(wrap, safeYTId, ytSearchUrl);
+}
+
+function appendYouTubeFallback(wrap, safeYTId, ytSearchUrl) {
   if (safeYTId) {
     // Iframe YouTube nocookie
     const iframe = document.createElement('iframe');

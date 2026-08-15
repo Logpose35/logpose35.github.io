@@ -193,6 +193,10 @@
   display: block;
   box-shadow: 0 4px 16px var(--shadow);
 }
+/* La vidéo AnimeThemes reprend le cadre de l'iframe ; fond noir pour éviter le flash
+   blanc avant la première image (preload="none" = rien n'est chargé avant le clic). */
+video.au-yt-iframe { background: #000; object-fit: contain; }
+
 .au-yt-link {
   display: block;
   margin-top: 8px;
