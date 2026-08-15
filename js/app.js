@@ -1076,8 +1076,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=306`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=306`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=307`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=307`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2906,7 +2906,7 @@ function importSaveFile(event) {
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
   { v: '7.1', date: t('Août 2026'), items: [
-    t('🔒 Les réponses de chaque journée sont désormais fixées à l\'avance : ajouter des personnages ou des silhouettes ne change plus la partie du jour, ni celles déjà jouées'),
+    t('🕰️ L\'historique devient jouable : l\'onglet « Rejouer » ouvre les journées passées depuis fin mai, et celles déjà terminées affichent le score obtenu'),
   ] },
   { v: '7.0', date: t('Août 2026'), items: [
     t('🔗 Chaque mode a désormais sa propre adresse — onepiecedle.fr/wanted/, /silhouette/, /tome/… — à mettre en favori ou à partager directement, en français comme en anglais'),
