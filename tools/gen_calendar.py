@@ -177,6 +177,30 @@ SWITCH_DAYS = {date(2026, 5, 18), date(2026, 5, 19), date(2026, 5, 23),
                date(2026, 6, 4), date(2026, 7, 2), date(2026, 7, 17)}
 
 
+def lire_calendrier():
+    """Fichier existant, ou une coquille vide. `uncertain` est conservé d'un run à l'autre."""
+    if not os.path.exists(CAL):
+        return {}, []
+    c = json.load(open(CAL, encoding='utf-8'))
+    return c.get('days', {}), c.get('uncertain', [])
+
+
+def ecrire_calendrier(cal, incertains):
+    """SEUL point d'écriture : les deux modes (génération normale et reconstitution git)
+    passent par ici, sinon l'un des deux oublie un champ d'en-tête. C'est arrivé :
+    la génération normale écrasait `launch`, et les numéros de journée (#34) — qui en
+    dépendent — disparaissaient de l'interface."""
+    out = {
+        '_note': ("Réponses figées jour par jour. Les dates <= aujourd'hui ne sont JAMAIS "
+                  "réécrites (archive) ; celles d'après sont régénérées à chaque exécution de "
+                  "tools/gen_calendar.py, ce qui fait entrer les nouveaux personnages."),
+        'launch': LAUNCH.isoformat(),
+        'uncertain': sorted(set(incertains)),
+        'days': dict(sorted(cal.items())),
+    }
+    json.dump(out, open(CAL, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+
+
 def _git(*args):
     return subprocess.run(['git'] + list(args), cwd=ROOT, capture_output=True,
                           text=True, encoding='utf-8').stdout
@@ -311,9 +335,7 @@ def main():
 
     pools, chars = load_pools()
     today = date.today()
-    cal   = {}
-    if os.path.exists(CAL):
-        cal = json.load(open(CAL, encoding='utf-8')).get('days', {})
+    cal, incertains_connus = lire_calendrier()
 
     if args.check or args.verify:
         past = [k for k in cal if k <= today.isoformat()]
@@ -321,14 +343,24 @@ def main():
         print('archive : %d jours (%s → %s)' % (len(past), min(past, default='—'), max(past, default='—')))
         print("avance  : %d jours%s" % (ahead, '  ⚠️  REGÉNÉRER' if ahead < 30 else ''))
         if args.verify:
-            ko = [k for k in sorted(past)
-                  if cal[k] != pick_for(date.fromisoformat(k), pools, chars)]
-            print('divergences sur l\'archive : %d' % len(ko))
+            # Deux périodes qu'il ne faut PAS juger pareil :
+            #   • depuis FIRST_DAY : mêmes pools et même algorithme qu'aujourd'hui, donc le
+            #     recalcul DOIT retomber sur le fichier. Un écart ici = vrai problème.
+            #   • avant : journées reconstituées avec les pools et l'algorithme de LEUR époque
+            #     (tools/gen_calendar.py --backfill-git). Les recalculer avec le pool actuel
+            #     donne forcément autre chose — c'est le principe même du calendrier.
+            recent = [k for k in sorted(past) if k >= FIRST_DAY.isoformat()]
+            ancien = [k for k in sorted(past) if k <  FIRST_DAY.isoformat()]
+            ko = [k for k in recent if cal[k] != pick_for(date.fromisoformat(k), pools, chars)]
+            print('période courante (>= %s) : %d jours, %d divergence(s)%s'
+                  % (FIRST_DAY.isoformat(), len(recent), len(ko), '  ⚠️  À REGARDER' if ko else '  ✓'))
             for k in ko[:10]:
                 print('  ', k, 'fichier =', cal[k])
                 print('  ', ' ' * len(k), 'calculé =', pick_for(date.fromisoformat(k), pools, chars))
-            if ko:
-                print('→ NORMAL si le pool a changé depuis : le fichier fait foi, il n\'est pas réécrit.')
+            ecarts_anciens = sum(1 for k in ancien
+                                 if cal[k] != pick_for(date.fromisoformat(k), pools, chars))
+            print('période reconstituée      : %d jours, %d recalculés différemment '
+                  '(ATTENDU : pools d\'époque)' % (len(ancien), ecarts_anciens))
         return
 
     if args.backfill_git:
@@ -339,15 +371,7 @@ def main():
         if args.dry_run:
             print('\n(--dry-run : calendar.json inchangé)')
             return
-        out = {
-            '_note': ("Réponses figées jour par jour. Les dates <= aujourd'hui ne sont JAMAIS "
-                      "réécrites ; celles d'après sont régénérées par tools/gen_calendar.py."),
-            'launch': LAUNCH.isoformat(),
-            'uncertain': sorted(set(json.load(open(CAL, encoding='utf-8')).get('uncertain', [])
-                                    if os.path.exists(CAL) else []) | set(incertains)),
-            'days': dict(sorted(cal.items())),
-        }
-        json.dump(out, open(CAL, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+        ecrire_calendrier(cal, list(incertains_connus) + incertains)
         print('\ncalendar.json : %d jours · %.1f Ko' % (len(cal), os.path.getsize(CAL) / 1024))
         return
 
@@ -369,13 +393,7 @@ def main():
     # Purge des dates hors fenêtre au-delà de l'horizon (si on réduit --days)
     cal = {k: v for k, v in cal.items() if k <= end.isoformat()}
 
-    out = {
-        '_note': ("Réponses figées jour par jour. Les dates <= aujourd'hui ne sont JAMAIS "
-                  "réécrites (archive) ; celles d'après sont régénérées à chaque exécution de "
-                  "tools/gen_calendar.py, ce qui fait entrer les nouveaux personnages."),
-        'days': dict(sorted(cal.items())),
-    }
-    json.dump(out, open(CAL, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+    ecrire_calendrier(cal, incertains_connus)
     print('calendar.json : %d jours (%d figés, %d ajoutés, %d régénérés) · %.1f Ko'
           % (len(cal), figees, ajoutees, regenerees, os.path.getsize(CAL) / 1024))
     print('pools : ' + ' · '.join('%s %d' % (m, len(p)) for m, p in pools.items()))
