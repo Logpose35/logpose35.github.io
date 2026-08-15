@@ -1076,8 +1076,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=307`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=307`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=308`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=308`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1443,6 +1443,13 @@ function setupReplayUI() {
     `<a class="replay-back" href="${location.pathname}">${t('Revenir à aujourd\'hui')}</a>`;
   const main = document.querySelector('main');
   if (main) main.insertBefore(bar, main.firstChild);
+
+  // La barre de score est peinte AVANT le chargement des données (initGame, pour éviter
+  // le « 0 / 70 000 » qui sautait à chaque changement d'onglet) — donc avant que
+  // REPLAY_DATE existe : elle affichait le score d'aujourd'hui, soit 0, sur une journée
+  // d'archive pourtant terminée. On la repeint maintenant que la date est connue.
+  // (updateScoreBar rafraîchit aussi la série et les pastilles ✓/✕ des onglets.)
+  updateScoreBar();
 
   // Tout ce qui parle du PRÉSENT disparaît : le compte à rebours vers le prochain défi,
   // le compteur « X pirates ont joué aujourd'hui » et la moyenne communauté (lus sur les
