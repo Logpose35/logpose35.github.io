@@ -1076,8 +1076,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=299`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=299`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=301`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=301`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1348,6 +1348,64 @@ function replayHref(href) {
   return isReplay() ? href + '?jour=' + _isoKey(activeDate()) : href;
 }
 
+// ===== CHOISIR UNE JOURNÉE À REJOUER =====
+// Une journée DÉJÀ JOUÉE s'affiche en vert avec son score. Y retourner n'efface rien :
+// restoreAllStates rejoue l'état sauvegardé, les modes terminés refusent toute saisie,
+// la journée se consulte donc en lecture seule. C'est le même clic dans les deux cas.
+function replayDayUrl(iso) {
+  const jour  = CALENDAR[iso] || {};
+  const dispo = MODE_IDS.filter(m => jour[m] !== undefined && jour[m] !== null);
+  const mode  = (PAGE_MODE && dispo.indexOf(PAGE_MODE) !== -1) ? PAGE_MODE : (dispo[0] || 'classic');
+  return modeUrl(mode) + '?jour=' + iso;
+}
+
+function openReplayPicker() {
+  if (document.getElementById('replay-overlay')) return;
+  const ajd   = _isoKey(parisNow());
+  const jours = Object.keys(CALENDAR).filter(k => k < ajd).sort().reverse();
+
+  const cartes = jours.map(iso => {
+    const [y, m, j] = iso.split('-').map(Number);
+    const d      = new Date(y, m - 1, j);
+    const cle    = dateKeyOf(d);
+    const scores = safeParseJSON(lsGet(LS.score(cle)), {});
+    const total  = Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
+    const joue   = Object.keys(safeParseJSON(lsGet(LS.result(cle)), {})).length > 0;
+    const num    = dayNumber(d);
+    // Le maximum dépend de la journée : 60 000 en juin, 50 000 avant. Sans lui, une
+    // journée parfaite à 6 modes passerait pour un échec.
+    const max    = modesForDate(d).length * SCORE_PER_MODE;
+    return `<a class="rp-card${joue ? ' is-done' : ''}" href="${esc(replayDayUrl(iso))}">`
+         + `<span class="rp-num">${num ? '#' + num : ''}</span>`
+         + `<span class="rp-date">${esc(dfmt(d, { day: '2-digit', month: '2-digit', year: 'numeric' }))}</span>`
+         + (joue ? `<span class="rp-score">${nfmt(total)} / ${nfmt(max)}</span>` : '')
+         + `</a>`;
+  }).join('');
+
+  const ov = document.createElement('div');
+  ov.id = 'replay-overlay';
+  ov.className = 'modal-overlay';
+  ov.setAttribute('role', 'dialog');
+  ov.setAttribute('aria-modal', 'true');
+  ov.setAttribute('aria-label', t('Rejouer une journée'));
+  ov.innerHTML =
+      '<div class="modal-box rp-box">'
+    +   '<button class="modal-close" type="button" aria-label="' + t('Fermer') + '" onclick="closeReplayPicker()">×</button>'
+    +   '<div class="modal-title">' + t('⏪ Rejouer une journée') + '</div>'
+    +   '<p class="rp-intro">' + t('Les journées déjà jouées apparaissent en vert avec leur score. Elles se consultent, mais ne se rejouent pas.') + '</p>'
+    +   (cartes ? `<div class="rp-grid">${cartes}</div>` : `<p class="rp-intro">${t('Aucune journée archivée pour le moment.')}</p>`)
+    + '</div>';
+  ov.addEventListener('click', e => { if (e.target === ov) closeReplayPicker(); });
+  document.body.appendChild(ov);
+  document.addEventListener('keydown', _rpEsc);
+}
+function _rpEsc(e) { if (e.key === 'Escape') closeReplayPicker(); }
+function closeReplayPicker() {
+  const ov = document.getElementById('replay-overlay');
+  if (ov) ov.remove();
+  document.removeEventListener('keydown', _rpEsc);
+}
+
 // Bandeau + adaptations de l'interface quand on rejoue une journée d'archive.
 // Appelé après loadGameData (c'est là que REPLAY_DATE est posé).
 function setupReplayUI() {
@@ -1359,10 +1417,21 @@ function setupReplayUI() {
   if (badge) badge.textContent = dfmt(d, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   // Les onglets de mode gardent la journée ; Infini et Versus n'ont pas de cible
-  // quotidienne, leurs liens restent donc sur le présent.
+  // quotidienne, leurs liens restent donc sur le présent. Les modes qui n'existaient
+  // pas encore ce jour-là disparaissent : sans ça, `_resolve` inventerait une cible
+  // par la seed et proposerait une énigme qui n'a jamais existé.
+  const dispo = modesForDate(d);
   document.querySelectorAll('.mode-tabs a.mode-tab[href]').forEach(a => {
+    const id = (a.id || '').replace(/^tab-/, '');
+    if (dispo.indexOf(id) === -1) { a.style.display = 'none'; return; }
     a.setAttribute('href', replayHref(a.getAttribute('href').split('?')[0]));
   });
+  // Arrivée directe sur un mode absent ce jour-là (URL bricolée) : on bascule sur le
+  // premier mode disponible plutôt que d'afficher une énigme inventée.
+  if (PAGE_MODE && dispo.indexOf(PAGE_MODE) === -1) {
+    const premier = document.querySelector('.mode-tabs a.mode-tab:not([style*="none"])[href]');
+    if (premier) { location.replace(premier.getAttribute('href')); return; }
+  }
 
   const n = dayNumber(d);
   const bar = document.createElement('div');
@@ -1373,9 +1442,14 @@ function setupReplayUI() {
   const main = document.querySelector('main');
   if (main) main.insertBefore(bar, main.firstChild);
 
-  // Le compte à rebours vers le prochain défi n'a pas de sens ici.
-  const next = document.querySelector('.next-puzzle');
-  if (next) next.style.display = 'none';
+  // Tout ce qui parle du PRÉSENT disparaît : le compte à rebours vers le prochain défi,
+  // le compteur « X pirates ont joué aujourd'hui » et la moyenne communauté (lus sur les
+  // stats du jour), et surtout la barre « Hier » — qui révélerait les réponses d'une
+  // journée d'archive toute proche, donc potentiellement la prochaine à rejouer.
+  ['.next-puzzle', '#daily-counter', '#daily-average', '#yesterday-bar'].forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) el.style.display = 'none';
+  });
 }
 
 function recordResult(mode, won, numGuesses) {

@@ -224,6 +224,75 @@ footer {
 }
 .replay-back:hover { opacity: 0.8; }
 
+/* Entrée « Rejouer une journée » — même discrétion que le lien de signalement,
+   sous le compte à rebours. */
+.replay-open-wrap { flex-basis: 100%; margin-top: 4px; }
+.replay-open {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--text3);
+  opacity: 0.75;
+  transition: opacity 0.15s, color 0.15s;
+}
+.replay-open:hover { opacity: 1; color: var(--gold); }
+
+/* Grille de sélection des journées */
+/* .modal-box impose width: min(480px, 92vw) — trop étroit pour une grille de dates */
+.rp-box { width: min(760px, 94vw); }
+.rp-intro {
+  margin: 0 0 var(--sp-3);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text3);
+}
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.rp-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  background: var(--bg2);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.rp-card:hover { border-color: var(--gold); transform: translateY(-1px); }
+.rp-num {
+  flex-shrink: 0;
+  padding: 1px 7px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  color: var(--gold);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+.rp-date { font-weight: 600; }
+.rp-score {
+  margin-left: auto;
+  color: #22c55e;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+/* Journée déjà jouée : verte, mais toujours consultable */
+.rp-card.is-done { border-color: rgba(34, 197, 94, 0.5); }
+.rp-card.is-done .rp-num { border-color: #22c55e; color: #22c55e; }
+.rp-card.is-done:hover { border-color: #22c55e; }
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

@@ -1685,5 +1685,9 @@
   "{0} / {1} pts": "{0} / {1} pts",
   "⏪ Rediffusion — journée n°{0}": "⏪ Replay — day #{0}",
   "⏪ Rediffusion": "⏪ Replay",
-  "Revenir à aujourd'hui": "Back to today"
+  "Revenir à aujourd'hui": "Back to today",
+  "Rejouer une journée": "Replay a past day",
+  "⏪ Rejouer une journée": "⏪ Replay a past day",
+  "Les journées déjà jouées apparaissent en vert avec leur score. Elles se consultent, mais ne se rejouent pas.": "Days you have already played appear in green with their score. You can review them, but not play them again.",
+  "Aucune journée archivée pour le moment.": "No archived day yet."
 }
