@@ -1063,8 +1063,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=293`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=293`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=294`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=294`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2743,6 +2743,7 @@ const CHANGELOG = [
     t('🧭 Les onglets sont devenus de vrais liens : changer de mode charge sa page, les flèches ← → passent de l\'un à l\'autre, et le bouton retour du navigateur revient au mode précédent'),
     t('🌊 Le fond 3D animé a été retiré des pages de jeu — il reste sur la page d\'accueil'),
     t('📣 Un bouton sous le compte à rebours permet de signaler une erreur ou de suggérer une amélioration, sans quitter la partie'),
+    t('🎬 Mode Opening : la révélation de fin de partie joue désormais la vidéo du générique, sans publicité, dans sa version sans crédits quand elle existe — merci au projet de fans AnimeThemes.moe, qui archive et héberge ces vidéos'),
   ] },
   { v: '6.7', date: t('Août 2026'), items: [
     t('🎵 Le mode Opening arrive en Versus : les 7 modes du jeu sont désormais jouables en duel'),
