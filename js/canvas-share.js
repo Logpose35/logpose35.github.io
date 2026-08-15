@@ -151,7 +151,10 @@ async function generateShareCanvas() {
   ctx.font = '700 24px "Barlow Condensed", sans-serif';
   ctx.fillStyle = GOLDB;
   ctx.textAlign = 'left';
-  ctx.fillText(tf('⭐ {0} / {1} pts', nfmt(total), nfmt(70000)), LX, ry + 22);
+  // Maximum du jour : 70 000 aujourd'hui, moins sur une journée d'archive où tous les
+  // modes n'existaient pas encore (app.js). Repli si app.js n'est pas chargé.
+  const maxJour = (typeof maxScoreForDate === 'function') ? maxScoreForDate() : 70000;
+  ctx.fillText(tf('⭐ {0} / {1} pts', nfmt(total), nfmt(maxJour)), LX, ry + 22);
   ry += 38;
 
   // ── 9. Rang + Série ──

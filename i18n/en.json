@@ -1681,5 +1681,6 @@
   "Il faut au moins 5 caractères.": "At least 5 characters are needed.",
   "Source vidéo : AnimeThemes": "Video source: AnimeThemes",
   "🎬 Mode Opening : la révélation de fin de partie joue désormais la vidéo du générique, sans publicité, dans sa version sans crédits quand elle existe — merci au projet de fans AnimeThemes.moe, qui archive et héberge ces vidéos": "🎬 Opening mode: the end-of-game reveal now plays the opening video, ad-free, in its creditless version where one exists — thanks to the fan project AnimeThemes.moe, which archives and hosts these videos",
-  "🔒 Les réponses de chaque journée sont désormais fixées à l'avance : ajouter des personnages ou des silhouettes ne change plus la partie du jour, ni celles déjà jouées": "🔒 Each day's answers are now locked in advance: adding characters or silhouettes no longer changes the current day's puzzle, nor any already played"
+  "🔒 Les réponses de chaque journée sont désormais fixées à l'avance : ajouter des personnages ou des silhouettes ne change plus la partie du jour, ni celles déjà jouées": "🔒 Each day's answers are now locked in advance: adding characters or silhouettes no longer changes the current day's puzzle, nor any already played",
+  "{0} / {1} pts": "{0} / {1} pts"
 }

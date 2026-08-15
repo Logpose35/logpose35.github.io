@@ -1076,8 +1076,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=296`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=296`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=297`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=297`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1446,7 +1446,7 @@ function renderStatsContent(mode) {
       <div class="stats-score-sep">⚓</div>
       <div class="stats-score-item">
         <span class="stats-score-label">${t('Total du jour')}</span>
-        <span class="stats-score-val">${nfmt(totalScore)} <span class="stats-score-max">/ ${nfmt(70000)}</span></span>
+        <span class="stats-score-val">${nfmt(totalScore)} <span class="stats-score-max">/ ${nfmt(maxScoreForDate())}</span></span>
       </div>
     </div>` : '';
 
@@ -2278,7 +2278,20 @@ function finTome(won) {
 }
 
 // ===== SYSTÈME DE SCORE =====
-const SCORE_MAX_TOTAL = 70000;   // 7 modes × 10 000
+const SCORE_PER_MODE = 10000;
+
+// Le maximum d'une journée n'est pas une constante : c'est 10 000 × le nombre de modes
+// qui existaient CE jour-là. 70 000 aujourd'hui, mais 60 000 du 05/06 au 02/07/2026
+// (pas encore de Silhouette) et 50 000 avant le 05/06 (pas de Tome non plus) — journées
+// que le mode « rejouer » rendra accessibles. Sans ça, une journée de juin réussie sans
+// faute s'afficherait à 60 000 / 70 000, donc comme un échec.
+function modesForDate(d) {
+  const jour = (typeof calendarDay === 'function') ? calendarDay(d) : null;
+  if (!jour) return MODE_IDS.slice();                    // pas de calendrier → les 7 modes
+  const ids = MODE_IDS.filter(m => jour[m] !== undefined && jour[m] !== null);
+  return ids.length ? ids : MODE_IDS.slice();
+}
+function maxScoreForDate(d) { return modesForDate(d).length * SCORE_PER_MODE; }
 const SCORE_PENALTIES = { classic: 1000, wanted: 1250, fruit: 1000, emoji: 1250, tome: 1800, silhouette: 1100 };
 
 function round50(n) { return Math.round(n / 50) * 50; }
@@ -2514,7 +2527,7 @@ function buildShareText() {
     : null;
   if (bdayLine) lines.push(bdayLine);
   lines.push('');
-  lines.push(`⭐ ${nfmt(total)} / ${nfmt(70000)} pts`);
+  lines.push(`⭐ ${nfmt(total)} / ${nfmt(maxScoreForDate())} pts`);
   // Pas de ligne rang/série/score cumulé ici : elle coûtait ~52 caractères et faisait
   // dépasser la limite de 280 de X (le partage était bloqué). Elle reste sur l'image
   // de partage (canvas-share.js), qui n'a aucune limite de longueur.
@@ -2994,19 +3007,22 @@ function closeScoreBreakdown() {
 
 function updateScoreBar() {
   const total    = getTotalScore();
-  const pct      = Math.min(100, (total / SCORE_MAX_TOTAL) * 100);
+  const max      = maxScoreForDate();
+  const pct      = Math.min(100, (total / max) * 100);
   const fill     = document.getElementById('score-fill');
   const label    = document.getElementById('score-total');
+  const maxLabel = document.getElementById('score-max');
   const shareBtn = document.getElementById('share-daily-btn');
   if (fill)  fill.style.width = pct + '%';
   if (label) label.textContent = nfmt(total);
+  if (maxLabel) maxLabel.textContent = ' / ' + nfmt(max);   // 70 000 aujourd'hui, moins en archive
   if (shareBtn) {
     const results = safeParseJSON(lsGet(LS.result(todayKey())), {});
     shareBtn.classList.toggle('hidden', Object.keys(results).length === 0);
   }
   // Célébration du sans-faute — différée si la page est préchargée : sinon on
   // la marquerait « déjà fêtée » sur un onglet que le joueur n'a pas ouvert.
-  if (total >= SCORE_MAX_TOTAL && !lsGet(LS.perfect(todayKey()))) {
+  if (total >= max && !lsGet(LS.perfect(todayKey()))) {
     whenActivated(() => {
       if (lsGet(LS.perfect(todayKey()))) return;   // fêtée entre-temps
       lsSet(LS.perfect(todayKey()), '1');
@@ -3035,7 +3051,7 @@ function launchPerfectDay() {
     <canvas class="perfect-canvas" id="perfect-canvas"></canvas>
     <div class="perfect-content">
       <div class="perfect-emoji">🏴‍☠️</div>
-      <div class="perfect-sub">${t('70 000 / 70 000 pts')}</div>
+      <div class="perfect-sub">${tf('{0} / {1} pts', nfmt(maxScoreForDate()), nfmt(maxScoreForDate()))}</div>
       <div class="perfect-sub2">${t('Tu as réussi tous les défis du jour !')}</div>
     </div>
   `;
