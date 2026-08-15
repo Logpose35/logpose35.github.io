@@ -176,9 +176,16 @@ function counterPredicate(mode) {
   return mode === 'fruit' ? tf('croqué le {0}', TARGET_FRU.name) : COUNTER_VERBS[mode];
 }
 // "🏴‍☠️ X pirates ont <action propre au mode> aujourd'hui" (+ "· N essais moyens" si dispo)
+// En rediffusion, « aujourd'hui » devient « ce jour-là » : les chiffres sont ceux de la
+// journée rejouée, lus dans Firebase, pas ceux du présent.
 function counterText(count, mode, avg) {
   const pred = counterPredicate(mode);
-  let t = count > 1 ? tf('🏴‍☠️ {0} pirates ont {1} aujourd\'hui', nfmt(count), pred) : tf('🏴‍☠️ {0} pirate a {1} aujourd\'hui', nfmt(count), pred);
+  const jadis = isReplay();
+  let t = count > 1
+    ? (jadis ? tf('🏴‍☠️ {0} pirates ont {1} ce jour-là', nfmt(count), pred)
+             : tf('🏴‍☠️ {0} pirates ont {1} aujourd\'hui', nfmt(count), pred))
+    : (jadis ? tf('🏴‍☠️ {0} pirate a {1} ce jour-là', nfmt(count), pred)
+             : tf('🏴‍☠️ {0} pirate a {1} aujourd\'hui', nfmt(count), pred));
   if (avg > 0) t += avg > 1 ? tf(' · {0} essais moyens', avg) : tf(' · {0} essai moyen', avg);
   return t;
 }
@@ -188,7 +195,9 @@ async function loadDailyCounter(mode) {
   if (!el || !COUNTER_VERBS.hasOwnProperty(mode)) { if (el) el.textContent = ''; return; }
   el.textContent = '';
   el.classList.add('loading');
-  const dateKey = todayKey();
+  // Journée ACTIVE : en rediffusion, on lit les compteurs de la journée rejouée. Firebase
+  // les garde depuis l'ouverture du site, bien avant l'agrégat `_day`.
+  const dateKey = activeKey();
   const count = await fbGet(`counters/${dateKey}/${mode}`);
   el.classList.remove('loading');
   if (currentMode !== mode) return;   // onglet changé pendant l'await → on n'écrase pas
@@ -541,12 +550,16 @@ function buildYesterdayBar() {
 async function loadDailyAverage() {
   const el = document.getElementById('daily-average');
   if (!el) return;
-  const day     = await fbGet(`daily-stats/${todayKey()}/_day`);
+  // Journée ACTIVE : en rediffusion, la moyenne est celle de la journée rejouée. L'agrégat
+  // `_day` n'existe que depuis le 08/08/2026 — avant, la ligne reste simplement masquée.
+  const day     = await fbGet(`daily-stats/${activeKey()}/_day`);
   const players = sanitizeNum(day && day.players);
   const sum     = sanitizeNum(day && day.score_sum);
   if (!players) { el.innerHTML = ''; return; }
   const avg = Math.round(sum / players);
-  el.title = t('Score total moyen par joueur aujourd\'hui, tous modes confondus');
+  el.title = isReplay()
+    ? t('Score total moyen par joueur ce jour-là, tous modes confondus')
+    : t('Score total moyen par joueur aujourd\'hui, tous modes confondus');
   const pts = `<strong>${nfmt(avg)}</strong>`;   // le chiffre porte la ligne (accentué en CSS)
   el.innerHTML = `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-chest"></use></svg>${t('Communauté&nbsp;:')} ` +
     (players > 1 ? tf('{0} pts en moyenne · {1} pirates', pts, nfmt(players))
@@ -1076,8 +1089,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=308`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=308`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=309`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=309`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1451,11 +1464,12 @@ function setupReplayUI() {
   // (updateScoreBar rafraîchit aussi la série et les pastilles ✓/✕ des onglets.)
   updateScoreBar();
 
-  // Tout ce qui parle du PRÉSENT disparaît : le compte à rebours vers le prochain défi,
-  // le compteur « X pirates ont joué aujourd'hui » et la moyenne communauté (lus sur les
-  // stats du jour), et surtout la barre « Hier » — qui révélerait les réponses d'une
-  // journée d'archive toute proche, donc potentiellement la prochaine à rejouer.
-  ['.next-puzzle', '#daily-counter', '#daily-average', '#yesterday-bar'].forEach(sel => {
+  // Le compte à rebours vers le prochain défi n'a pas de sens ici, et la barre « Hier »
+  // révélerait les réponses d'une journée d'archive toute proche — donc potentiellement
+  // la prochaine que le joueur voulait rejouer. Les deux disparaissent.
+  // Le compteur du jour et la moyenne communauté RESTENT : ils lisent désormais les
+  // chiffres de la journée rejouée (Firebase les conserve date par date).
+  ['.next-puzzle', '#yesterday-bar'].forEach(sel => {
     const el = document.querySelector(sel);
     if (el) el.style.display = 'none';
   });

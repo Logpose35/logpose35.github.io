@@ -1689,5 +1689,8 @@
   "Rejouer": "Replay",
   "Rediffusion — journée n°{0}": "Replay — day #{0}",
   "Rediffusion": "Replay",
-  "🕰️ L'historique devient jouable : l'onglet « Rejouer » ouvre les journées passées depuis fin mai, et celles déjà terminées affichent le score obtenu": "🕰️ Past days are now playable: the \"Replay\" tab opens every day since late May, and the ones already finished show the score you got"
+  "🕰️ L'historique devient jouable : l'onglet « Rejouer » ouvre les journées passées depuis fin mai, et celles déjà terminées affichent le score obtenu": "🕰️ Past days are now playable: the \"Replay\" tab opens every day since late May, and the ones already finished show the score you got",
+  "🏴‍☠️ {0} pirates ont {1} ce jour-là": "🏴‍☠️ {0} pirates {1} that day",
+  "🏴‍☠️ {0} pirate a {1} ce jour-là": "🏴‍☠️ {0} pirate {1} that day",
+  "Score total moyen par joueur ce jour-là, tous modes confondus": "Average total score per player that day, all modes combined"
 }
