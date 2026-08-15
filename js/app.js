@@ -500,11 +500,24 @@ function buildYesterdayBar() {
   const stored = safeParseJSON(lsGet(LS.daily(yKey)), null);
   const el = document.getElementById('yesterday-bar');
 
-  const audioOp = stored?.audio
-    ? OPENINGS.find(o => o.name === stored.audio) || OPENINGS[dailyIndex(d, 53, OPENINGS.length)]
-    : OPENINGS[dailyIndex(d, 53, OPENINGS.length)];
+  // Ordre de confiance : ce que CE joueur a vu hier (localStorage), sinon le calendrier
+  // (exact pour tout le monde, même après un ajout de personnages), sinon le tirage par
+  // seed — qui, lui, redevient faux dès que la taille d'un pool change.
+  const cal    = (typeof calendarDay === 'function') ? calendarDay(d) : null;
+  const calFru = cal && FRUITS.find(f => f.name === cal.fruit);
 
-  const data = stored || {
+  const audioOp = (stored?.audio && OPENINGS.find(o => o.name === stored.audio))
+    || (cal && OPENINGS.find(o => o.id === cal.audio))
+    || OPENINGS[dailyIndex(d, 53, OPENINGS.length)];
+
+  const data = stored || (cal && {
+    classic:    cal.classic,
+    wanted:     cal.wanted,
+    silhouette: cal.silhouette,
+    fruit:      calFru ? calFru.holder : null,
+    emoji:      cal.emoji,
+    tome:       cal.tome,
+  }) || {
     classic: CHARACTERS[dailyIndex(d,    1, CHARACTERS.length)].name,
     wanted:  WANTED_CHARS[dailyIndex(d, 31, WANTED_CHARS.length)].name,
     silhouette: (typeof SIL_POOL !== 'undefined' && SIL_POOL.length) ? SIL_POOL[dailyIndex(d, 211, SIL_POOL.length)].name : null,
@@ -1063,8 +1076,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=294`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=294`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=296`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=296`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2738,6 +2751,9 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '7.1', date: t('Août 2026'), items: [
+    t('🔒 Les réponses de chaque journée sont désormais fixées à l\'avance : ajouter des personnages ou des silhouettes ne change plus la partie du jour, ni celles déjà jouées'),
+  ] },
   { v: '7.0', date: t('Août 2026'), items: [
     t('🔗 Chaque mode a désormais sa propre adresse — onepiecedle.fr/wanted/, /silhouette/, /tome/… — à mettre en favori ou à partager directement, en français comme en anglais'),
     t('🧭 Les onglets sont devenus de vrais liens : changer de mode charge sa page, les flèches ← → passent de l\'un à l\'autre, et le bouton retour du navigateur revient au mode précédent'),

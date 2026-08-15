@@ -113,6 +113,31 @@ function dailyPick(pool, salt = 1) {
   return pool[dailyIndex(_parisDate(), salt, pool.length)];
 }
 
+// ===== CALENDRIER (réponses figées) =====
+// Le tirage ci-dessus dépend de la TAILLE du pool : ajouter un personnage ou une
+// silhouette décalait toutes les journées, passées comme en cours. calendar.json fige
+// donc la réponse de chaque jour (généré par tools/gen_calendar.py, dates <= aujourd'hui
+// jamais réécrites). Le tirage par seed ne sert plus que de filet : date absente du
+// fichier, ou nom qui n'existe plus dans data.json.
+let CALENDAR = {};
+
+function _isoKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+                         + '-' + String(d.getDate()).padStart(2, '0');
+}
+// Réponses figées d'une date (null si le calendrier ne la couvre pas).
+function calendarDay(d) {
+  return CALENDAR[_isoKey(d || _parisDate())] || null;
+}
+// Cible d'un mode : le calendrier fait foi, le tirage par seed prend le relais sinon.
+function _resolve(pool, salt, value, match) {
+  if (value !== undefined && value !== null) {
+    const hit = pool.find(item => match(item, value));
+    if (hit !== undefined) return hit;
+  }
+  return dailyPick(pool, salt);
+}
+
 // Hash pur (sans modulo) pour des décisions déterministes indépendantes du pool.
 function dailySeed(salt = 1) {
   return _seedHash(_dateBase(_parisDate()), salt);
@@ -151,14 +176,22 @@ async function loadGameData() {
   WANTED_CHARS = CHARACTERS.filter(c => c.img !== null && c.img !== undefined);
   EMOJI_POOL   = CHARACTERS.filter(c => Array.isArray(c.emoji) && c.emoji.length > 0);
 
-  // Cibles du jour (seed indépendant par mode)
-  TARGET_C   = dailyPick(CHARACTERS,   1);   // Classique
-  TARGET_W   = dailyPick(WANTED_CHARS, 31);  // Wanted
-  TARGET_FRU = dailyPick(FRUITS,       71);  // Fruit du Démon
-  TARGET_EM  = dailyPick(EMOJI_POOL,  137);  // Émoji
-  TARGET_AU  = dailyPick(OPENINGS,    53);   // Opening du jour
+  // Calendrier des réponses (facultatif : sans lui, on retombe sur le tirage par seed)
+  try {
+    const _cr = await fetch('/calendar.json', { cache: 'no-cache' });
+    CALENDAR = _cr.ok ? ((await _cr.json()).days || {}) : {};
+  } catch (e) { CALENDAR = {}; }
+  const _day = calendarDay();
+
+  // Cibles du jour : calendrier d'abord, seed en secours (salt indépendant par mode)
+  const _byName = (item, v) => item.name === v;
+  TARGET_C   = _resolve(CHARACTERS,   1, _day && _day.classic, _byName);   // Classique
+  TARGET_W   = _resolve(WANTED_CHARS, 31, _day && _day.wanted, _byName);   // Wanted
+  TARGET_FRU = _resolve(FRUITS,       71, _day && _day.fruit,  _byName);   // Fruit du Démon
+  TARGET_EM  = _resolve(EMOJI_POOL,  137, _day && _day.emoji,  _byName);   // Émoji
+  TARGET_AU  = _resolve(OPENINGS,     53, _day && _day.audio, (o, v) => o.id === v);
   TOMES      = raw.TOMES || [];
-  TARGET_TOME = dailyPick(TOMES,     181);   // Tome du jour (salt premier dédié)
+  TARGET_TOME = _resolve(TOMES,      181, _day && _day.tome,  (n, v) => n === v);
   // Centre du gros plan : déterministe, bridé loin des bords (18..82 %)
   const _z = dailySeed(191);
   TOME_ZOOM  = { x: 18 + (_z % 64), y: 18 + ((_z >>> 8) % 64) };
@@ -173,11 +206,14 @@ async function loadGameData() {
     const k = Array.isArray(c.img) ? c.img[0] : c.img;
     return k && SIL_FOCUS_MAP[k];
   });
-  TARGET_SIL = SIL_POOL.length ? dailyPick(SIL_POOL, 211) : null;   // salt premier dédié
+  TARGET_SIL = SIL_POOL.length
+    ? _resolve(SIL_POOL, 211, _day && _day.silhouette, _byName)   // salt premier dédié
+    : null;
 
   // Override anniversaire Classique : 30 % de chances si un personnage fête son anniv aujourd'hui.
   // Déterministe — même seed → même décision à chaque rechargement.
-  const _bdayChars = getTodayBirthdays();
+  // Ignoré quand le calendrier a fourni la réponse : elle l'intègre déjà (gen_calendar.py).
+  const _bdayChars = (_day && _day.classic) ? [] : getTodayBirthdays();
   if (_bdayChars.length) {
     // Salt 7 (≠ salt 1 du classique) : décision indépendante du choix de base
     if (dailySeed(7) % 10 < 3) {

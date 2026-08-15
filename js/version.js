@@ -3,7 +3,7 @@
 // badge « À propos », sur game.html ET index.html). Chargé avant app.js/landing.js.
 // À bumper à chaque release, en cohérence avec la dernière entrée du CHANGELOG (app.js).
 // NB : distinct du numéro de cache `?v=NN` / `logpose-vNN` (cache-busting technique).
-window.APP_VERSION = 'v7.0';
+window.APP_VERSION = 'v7.1';
 
 // Adresse de contact du site — assemblée au runtime (jamais en clair dans le HTML
 // source) pour limiter l'aspiration par les robots à spam. Changer ici uniquement.
