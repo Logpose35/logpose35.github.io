@@ -25,8 +25,8 @@ Usage :  python tools/gen_calendar.py            (archive + 90 jours d'avance)
          python tools/gen_calendar.py --days 30  (autre horizon)
          python tools/gen_calendar.py --check    (n'écrit rien, dit ce qui manque)
 """
-import io, json, os, sys, argparse
-from datetime import date, timedelta
+import io, json, os, sys, argparse, subprocess
+from datetime import date, datetime, timedelta
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -151,12 +151,162 @@ def pick_for(day, pools, chars):
     return out
 
 
+# ───────────────────────── reconstitution par l'historique git ─────────────
+# Le calendrier ne peut naître qu'aujourd'hui… sauf à rejouer le passé du dépôt :
+# pour chaque journée écoulée, on ressort le data.json et le focus.json QUI ÉTAIENT
+# EN LIGNE ce jour-là, et on applique l'algorithme de tirage de l'époque.
+#
+# Trois choses ont bougé depuis l'ouverture, et il faut les respecter :
+#   • l'algorithme : modulo simple jusqu'au 17/07/2026, sac sans remise depuis ;
+#   • les modes : ils sont arrivés un par un (dates ci-dessous) ;
+#   • l'override anniversaire du Classique, apparu avec la v5 le 04/06/2026.
+#
+# Une journée pendant laquelle un de ces éléments a changé est marquée « incertaine » :
+# les joueurs du matin et ceux du soir n'ont pas vu la même réponse.
+LAUNCH = date(2026, 5, 18)          # 1er commit du dépôt — sert aussi à numéroter les jours
+
+BAG_FROM      = date(2026, 7, 18)   # lendemain de 330bdc6 (tirage sans remise)
+BIRTHDAY_FROM = date(2026, 6, 5)    # lendemain de 8b80245 (v5)
+MODE_FROM = {                       # 1re journée CERTAINE de chaque mode
+    'classic': date(2026, 5, 19), 'wanted': date(2026, 5, 19), 'fruit': date(2026, 5, 19),
+    'emoji':   date(2026, 5, 20), 'audio':  date(2026, 5, 24), 'tome':  date(2026, 6, 5),
+    'silhouette': date(2026, 7, 3),
+}
+# Journées où le jeu a changé sous les pieds des joueurs (déploiement en cours de journée)
+SWITCH_DAYS = {date(2026, 5, 18), date(2026, 5, 19), date(2026, 5, 23),
+               date(2026, 6, 4), date(2026, 7, 2), date(2026, 7, 17)}
+
+
+def _git(*args):
+    return subprocess.run(['git'] + list(args), cwd=ROOT, capture_output=True,
+                          text=True, encoding='utf-8').stdout
+
+
+def _versions(path):
+    """[(sha, date locale du commit)] du plus récent au plus ancien."""
+    out = []
+    for line in _git('log', '--format=%H|%cI', '--', path).splitlines():
+        sha, iso = line.split('|', 1)
+        out.append((sha, datetime.fromisoformat(iso).date()))
+    return out
+
+
+def _version_at(versions, d):
+    """Version en ligne au MATIN du jour d = dernier commit antérieur à d."""
+    for sha, cd in versions:
+        if cd < d:
+            return sha
+    return None
+
+
+_CACHE = {}
+
+
+def _blob(sha, path):
+    key = (sha, path)
+    if key not in _CACHE:
+        _CACHE[key] = json.loads(_git('show', '%s:%s' % (sha, path)))
+    return _CACHE[key]
+
+
+def _legacy_index(d, salt, n):
+    """Tirage d'avant le 17/07 : modulo, avec anti-répétition de la veille."""
+    if n <= 1:
+        return 0
+    idx = _seed_hash(_date_base(d), salt) % n
+    prev = _seed_hash(_date_base(d - timedelta(days=1)), salt) % n
+    return (idx + 1) % n if idx == prev else idx
+
+
+def pools_from(data, focus):
+    chars = data['CHARACTERS']
+
+    def sk(c):
+        return c['img'][0] if isinstance(c.get('img'), list) else c.get('img')
+
+    return {
+        'classic':    chars,
+        'wanted':     [c for c in chars if c.get('img') is not None],
+        'fruit':      data.get('FRUITS', []),
+        'emoji':      [c for c in chars if isinstance(c.get('emoji'), list) and c['emoji']],
+        'audio':      data.get('OPENINGS', []),
+        'tome':       data.get('TOMES', []),
+        'silhouette': [c for c in chars if sk(c) and focus.get(sk(c))],
+    }
+
+
+def reconstruct(d, data, focus):
+    """Les réponses telles qu'un joueur les a vues ce jour-là (modes existants seulement)."""
+    pools = pools_from(data, focus)
+    index = daily_index if d >= BAG_FROM else _legacy_index
+    out = {}
+    for mode, pool in pools.items():
+        if d < MODE_FROM[mode] or not pool:
+            out[mode] = None
+            continue
+        item = pool[index(d, SALTS[mode], len(pool))]
+        out[mode] = item if mode == 'tome' else (item['id'] if mode == 'audio' else item['name'])
+
+    if d >= BIRTHDAY_FROM:
+        mmdd  = '%02d-%02d' % (d.month, d.day)
+        names = [n for n in BIRTHDAYS.get(mmdd, []) if any(c['name'] == n for c in data['CHARACTERS'])]
+        if names and daily_seed(d, 7) % 10 < 3:
+            out['classic'] = names[daily_seed(d, 11) % len(names)]
+    return out
+
+
+def backfill_git(cal, today, ecrire=True):
+    vd = _versions('data.json')
+    vf = _versions('silhouettes/focus.json')
+    jours_data = {cd for _, cd in vd} | {cd for _, cd in vf}
+
+    ajoutes, incertains, verifies, divergents, dates_ajoutees = 0, [], 0, [], []
+    d = LAUNCH
+    while d <= today:
+        sha_d = _version_at(vd, d)
+        if not sha_d:
+            d += timedelta(days=1); continue
+        sha_f = _version_at(vf, d)
+        data  = _blob(sha_d, 'data.json')
+        focus = _blob(sha_f, 'silhouettes/focus.json') if sha_f else {}
+        rec   = reconstruct(d, data, focus)
+        k = d.isoformat()
+
+        if k in cal:
+            # Journée déjà archivée : sert de contrôle de la méthode
+            verifies += 1
+            if any(cal[k].get(m) != rec[m] for m in rec if rec[m] is not None):
+                divergents.append(k)
+        else:
+            garde = {m: v for m, v in rec.items() if v is not None}
+            if garde:                      # une journée sans aucun mode ne sert à rien
+                if ecrire:
+                    cal[k] = garde
+                ajoutes += 1
+                dates_ajoutees.append(k)
+                if d in SWITCH_DAYS or d in jours_data:
+                    incertains.append(k)
+        d += timedelta(days=1)
+
+    print('reconstitution : %d journées ajoutées (%s → %s)'
+          % (ajoutes, dates_ajoutees[0] if dates_ajoutees else '—',
+             dates_ajoutees[-1] if dates_ajoutees else '—'))
+    print('contrôle       : %d journées déjà archivées recalculées, %d divergence(s)%s'
+          % (verifies, len(divergents), ' → ' + ', '.join(divergents[:5]) if divergents else ''))
+    print('incertaines    : %d (déploiement en cours de journée) → %s'
+          % (len(incertains), ', '.join(incertains) if incertains else '—'))
+    return cal, divergents, incertains
+
+
 # ───────────────────────── génération ─────────────────────────
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--days', type=int, default=90, help="jours d'avance à générer")
     ap.add_argument('--check', action='store_true', help='ne rien écrire, juste diagnostiquer')
     ap.add_argument('--verify', action='store_true', help='recalcule et compare les journées archivées')
+    ap.add_argument('--backfill-git', action='store_true',
+                    help="reconstitue le passé depuis l'historique du dépôt (n'écrase jamais l'existant)")
+    ap.add_argument('--dry-run', action='store_true', help='avec --backfill-git : ne rien écrire')
     args = ap.parse_args()
 
     pools, chars = load_pools()
@@ -179,6 +329,26 @@ def main():
                 print('  ', ' ' * len(k), 'calculé =', pick_for(date.fromisoformat(k), pools, chars))
             if ko:
                 print('→ NORMAL si le pool a changé depuis : le fichier fait foi, il n\'est pas réécrit.')
+        return
+
+    if args.backfill_git:
+        cal, divergents, incertains = backfill_git(cal, today, ecrire=not args.dry_run)
+        if divergents:
+            print('\n⚠️  La méthode ne retrouve pas les journées déjà archivées : rien n\'est écrit.')
+            return
+        if args.dry_run:
+            print('\n(--dry-run : calendar.json inchangé)')
+            return
+        out = {
+            '_note': ("Réponses figées jour par jour. Les dates <= aujourd'hui ne sont JAMAIS "
+                      "réécrites ; celles d'après sont régénérées par tools/gen_calendar.py."),
+            'launch': LAUNCH.isoformat(),
+            'uncertain': sorted(set(json.load(open(CAL, encoding='utf-8')).get('uncertain', [])
+                                    if os.path.exists(CAL) else []) | set(incertains)),
+            'days': dict(sorted(cal.items())),
+        }
+        json.dump(out, open(CAL, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+        print('\ncalendar.json : %d jours · %.1f Ko' % (len(cal), os.path.getsize(CAL) / 1024))
         return
 
     figees, ajoutees, regenerees = 0, 0, 0
