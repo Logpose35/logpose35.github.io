@@ -1076,8 +1076,8 @@ const SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=298`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=298`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=299`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=299`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1328,11 +1328,55 @@ function todayKey() { return dateKeyOf(parisNow()); }
 //     dans les clés du 20/06 sans toucher à la partie du jour.
 //   • todayKey()  — la VRAIE date : compteurs Firebase, stats communauté, séries,
 //     compte à rebours. Une rediffusion ne doit jamais réécrire l'histoire.
-// REPLAY_DATE reste null tant qu'aucune rediffusion n'est lancée : comportement inchangé.
-let REPLAY_DATE = null;
+// REPLAY_DATE est posé par js/data.js (?jour=AAAA-MM-JJ, validé contre le calendrier)
+// AVANT la résolution des cibles ; il vaut null pour une partie du jour normale.
 function activeDate() { return REPLAY_DATE ? new Date(REPLAY_DATE) : parisNow(); }
 function activeKey()  { return dateKeyOf(activeDate()); }
 function isReplay()   { return REPLAY_DATE !== null; }
+
+// Numéro de journée affiché aux joueurs (#1 = ouverture du site, champ `launch` du
+// calendrier). Null tant que le calendrier n'a pas été chargé.
+function dayNumber(d) {
+  if (!CALENDAR_LAUNCH) return null;
+  const a = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const b = new Date(CALENDAR_LAUNCH.getFullYear(), CALENDAR_LAUNCH.getMonth(), CALENDAR_LAUNCH.getDate());
+  return Math.round((a - b) / 86400000) + 1;
+}
+// URL d'un mode pour la journée active : le paramètre ?jour= doit survivre au
+// changement d'onglet, sinon on retomberait sur la partie du jour en un clic.
+function replayHref(href) {
+  return isReplay() ? href + '?jour=' + _isoKey(activeDate()) : href;
+}
+
+// Bandeau + adaptations de l'interface quand on rejoue une journée d'archive.
+// Appelé après loadGameData (c'est là que REPLAY_DATE est posé).
+function setupReplayUI() {
+  if (!isReplay()) return;
+  document.body.classList.add('is-replay');
+
+  const d = activeDate();
+  const badge = document.getElementById('date-label');
+  if (badge) badge.textContent = dfmt(d, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Les onglets de mode gardent la journée ; Infini et Versus n'ont pas de cible
+  // quotidienne, leurs liens restent donc sur le présent.
+  document.querySelectorAll('.mode-tabs a.mode-tab[href]').forEach(a => {
+    a.setAttribute('href', replayHref(a.getAttribute('href').split('?')[0]));
+  });
+
+  const n = dayNumber(d);
+  const bar = document.createElement('div');
+  bar.className = 'replay-bar';
+  bar.innerHTML =
+    `<span>${n ? tf('⏪ Rediffusion — journée n°{0}', n) : t('⏪ Rediffusion')}</span>` +
+    `<a class="replay-back" href="${location.pathname}">${t('Revenir à aujourd\'hui')}</a>`;
+  const main = document.querySelector('main');
+  if (main) main.insertBefore(bar, main.firstChild);
+
+  // Le compte à rebours vers le prochain défi n'a pas de sens ici.
+  const next = document.querySelector('.next-puzzle');
+  if (next) next.style.display = 'none';
+}
 
 function recordResult(mode, won, numGuesses) {
   const stats = loadStats(mode);
@@ -3572,6 +3616,7 @@ function initMobileYesterday() {
     return;
   }
   saveTodayTargets();
+  try { setupReplayUI(); } catch(e) { console.warn('setupReplayUI:', e); }
   buildYesterdayBar();
   try { initMobileYesterday(); } catch(e) { console.warn('initMobileYesterday:', e); }
   whenActivated(loadDailyAverage); // fire-and-forget, remplit #daily-average quand Firebase répond

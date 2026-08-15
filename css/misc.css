@@ -197,6 +197,33 @@ footer {
 /* Les emplacements .ad-mobile ont été retirés : AdSense tourne en ANNONCES
    AUTOMATIQUES, c'est Google qui place les blocs. Plus rien à réserver ici. */
 
+/* ===== BANDEAU DE REDIFFUSION (mode « rejouer une journée ») =====
+   Doré comme le reste, mais bordé pour qu'on ne confonde jamais une partie
+   d'archive avec la partie du jour. */
+.replay-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 14px;
+  margin-bottom: var(--sp-3);
+  padding: 6px 12px;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: rgba(200, 148, 10, 0.07);
+  color: var(--gold);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.replay-back {
+  color: var(--gold-l);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.replay-back:hover { opacity: 0.8; }
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

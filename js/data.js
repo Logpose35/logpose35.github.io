@@ -122,6 +122,7 @@ function dailyPick(pool, salt = 1) {
 // jamais réécrites). Le tirage par seed ne sert plus que de filet : date absente du
 // fichier, ou nom qui n'existe plus dans data.json.
 let CALENDAR = {};
+let CALENDAR_LAUNCH = null;   // 1er jour du site (= journée #1) — numérote les rediffusions
 
 function _isoKey(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
@@ -130,6 +131,25 @@ function _isoKey(d) {
 // Réponses figées d'une date (null si le calendrier ne la couvre pas).
 function calendarDay(d) {
   return CALENDAR[_isoKey(d || _parisDate())] || null;
+}
+
+// ===== JOURNÉE REJOUÉE (?jour=AAAA-MM-JJ) =====
+// Déclaré ICI et pas dans app.js : les cibles sont résolues au chargement des données,
+// donc la date doit être connue avant. app.js s'en sert ensuite (activeDate/activeKey).
+// Toute valeur douteuse — format invalide, date future, journée absente du calendrier —
+// est ignorée : on retombe silencieusement sur la partie du jour.
+let REPLAY_DATE = null;
+
+function _parseReplayParam() {
+  const p = new URLSearchParams(location.search).get('jour');
+  if (!p || !/^\d{4}-\d{2}-\d{2}$/.test(p)) return null;
+  const [y, m, d] = p.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+  const today = _parisDate();
+  today.setHours(0, 0, 0, 0);
+  if (dt > today) return null;                 // le futur ne se rejoue pas
+  return CALENDAR[_isoKey(dt)] ? dt : null;    // hors archive → journée du jour
 }
 // Cible d'un mode : le calendrier fait foi, le tirage par seed prend le relais sinon.
 function _resolve(pool, salt, value, match) {
@@ -141,8 +161,9 @@ function _resolve(pool, salt, value, match) {
 }
 
 // Hash pur (sans modulo) pour des décisions déterministes indépendantes du pool.
-function dailySeed(salt = 1) {
-  return _seedHash(_dateBase(_parisDate()), salt);
+// Suit la journée rejouée : le cadrage du Tome doit être celui de CETTE journée-là.
+function dailySeed(salt = 1, when) {
+  return _seedHash(_dateBase(when || REPLAY_DATE || _parisDate()), salt);
 }
 
 // ===== VARIABLES GLOBALES (initialisées par loadGameData) =====
@@ -181,9 +202,17 @@ async function loadGameData() {
   // Calendrier des réponses (facultatif : sans lui, on retombe sur le tirage par seed)
   try {
     const _cr = await fetch('/calendar.json', { cache: 'no-cache' });
-    CALENDAR = _cr.ok ? ((await _cr.json()).days || {}) : {};
+    const _cj = _cr.ok ? await _cr.json() : {};
+    CALENDAR = _cj.days || {};
+    if (_cj.launch) {
+      const [ly, lm, ld] = _cj.launch.split('-').map(Number);
+      CALENDAR_LAUNCH = new Date(ly, lm - 1, ld);
+    }
   } catch (e) { CALENDAR = {}; }
-  const _day = calendarDay();
+
+  // Journée rejouée : lue APRÈS le calendrier (qui sert à la valider), AVANT les cibles.
+  REPLAY_DATE = _parseReplayParam();
+  const _day = calendarDay(REPLAY_DATE || undefined);
 
   // Cibles du jour : calendrier d'abord, seed en secours (salt indépendant par mode)
   const _byName = (item, v) => item.name === v;
@@ -215,7 +244,7 @@ async function loadGameData() {
   // Override anniversaire Classique : 30 % de chances si un personnage fête son anniv aujourd'hui.
   // Déterministe — même seed → même décision à chaque rechargement.
   // Ignoré quand le calendrier a fourni la réponse : elle l'intègre déjà (gen_calendar.py).
-  const _bdayChars = (_day && _day.classic) ? [] : getTodayBirthdays();
+  const _bdayChars = (_day && _day.classic) ? [] : getTodayBirthdays(REPLAY_DATE || undefined);
   if (_bdayChars.length) {
     // Salt 7 (≠ salt 1 du classique) : décision indépendante du choix de base
     if (dailySeed(7) % 10 < 3) {
