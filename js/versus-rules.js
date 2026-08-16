@@ -46,16 +46,32 @@
   // la comparaison par mots ne trouverait aucun terme commun (→ rouge à tort).
   const WORLD_GOV = new Set(['Gouvernement Mondial', 'Chevaliers Divins']);
 
-  // Mots trop génériques à ignorer dans la comparaison d'affiliation
-  const AFFIL_STOP = new Set(['pirates','pirate','de','du','des','les','la','le','d','l','et','the','of','grand','new']);
+  // Mots trop génériques pour rapprocher deux équipages. « barbe » en fait partie :
+  // c'est un descriptif, pas une appartenance — sans lui, Barbe Blanche et Barbe Noire,
+  // qui se sont fait la guerre, passaient pour alliés.
+  const AFFIL_STOP = new Set(['pirates','pirate','de','du','des','les','la','le','d','l','et','the','of',
+                              'grand','new','barbe']);
+
+  // Mots significatifs d'une affiliation. Le « s » final tombe pour que Marine et
+  // Neo Marines se reconnaissent, sans quoi la comparaison mot à mot les séparerait.
+  function affilWords(s) {
+    const out = new Set();
+    String(s).toLowerCase().split(/[\s\-–]+/).forEach(w => {
+      const r = w.replace(/s$/, '');
+      if (r.length > 3 && !AFFIL_STOP.has(r)) out.add(r);
+    });
+    return out;
+  }
+
   function cmpAffil(a, b) {
     if (a === b) return 'correct';
     if (GRAND_FLEET.has(a) && GRAND_FLEET.has(b)) return 'partial';
     if (WORLD_GOV.has(a) && WORLD_GOV.has(b)) return 'partial';
-    const wordsA = a.toLowerCase().split(/[\s\-–]+/).filter(w => w.length > 3 && !AFFIL_STOP.has(w));
-    if (!wordsA.length) return 'wrong';
-    const lowerB = b.toLowerCase();
-    return wordsA.some(w => lowerB.includes(w)) ? 'partial' : 'wrong';
+    // Comparaison mot ENTIER, jamais sous-chaîne : `includes` rapprochait « Gran Tesoro »
+    // de « Grande Flotte » et « Chat Noir » de « Barbe Noire » sur un fragment commun.
+    const mb = affilWords(b);
+    for (const w of affilWords(a)) { if (mb.has(w)) return 'partial'; }
+    return 'wrong';
   }
 
   // ── Verdict complet d'un essai : guess + target → états par colonne ──
