@@ -74,7 +74,7 @@
   // Paliers visuels des modes wanted/silhouette/tome — copies du daily (app.js
   // n'est pas chargé ici ; BLUR_STEPS vient de data.js). wrongCount (serveur,
   // erreurs cumulées des DEUX joueurs) pilote flou et dézoom.
-  const V_SIL_SCALES  = [3.2, 2.75, 2.35, 2, 1.75, 1.55, 1.4, 1.25, 1.12, 1];
+  const V_SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
   const V_SIL_HINT_AT = 5;   // disque couleur automatique à partir de 5 erreurs
   const V_TOME_SCALES = [8, 5.3, 3.5, 2.3, 1.5, 1];
   // Mode Opening : le serveur envoie la durée d'extrait et la fraction de départ ;

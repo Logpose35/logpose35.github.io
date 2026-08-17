@@ -366,6 +366,15 @@ def main(argv):
         for i in ids:
             if i in BY_ID:
                 gen_en.build_mode(i)
+        # index.html et versus.html sont édités à la main (et bumpés par le sed
+        # de cache-busting) : sans ce rappel, leurs miroirs anglais restent à la
+        # version précédente. C'est ce qui les a laissés bloqués en v291 pendant
+        # que tout le reste passait à v310 — un visiteur anglophone déjà venu
+        # gardait alors les assets d'il y a 19 versions. Comme build_redirects(),
+        # on ne le fait que sur une passe complète.
+        if len(ids) == len(MODES):
+            for p in ('index', 'versus'):
+                gen_en.build(p)
 
 
 if __name__ == '__main__':
