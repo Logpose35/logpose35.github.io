@@ -246,6 +246,8 @@
   padding: 6px 12px; border: 1px dashed var(--border);
   border-radius: 10px; display: inline-block;
 }
+.about-answers { color: inherit; text-decoration: none; border-bottom: 1px dotted currentColor; }
+.about-answers:hover { color: var(--gold); border-bottom-color: var(--gold); }
 .about-stats-row {
   display: flex; justify-content: center; gap: 16px;
   flex-wrap: wrap; margin-bottom: 18px;

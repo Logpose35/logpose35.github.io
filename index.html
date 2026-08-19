@@ -71,12 +71,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=312">
-  <link rel="stylesheet" href="css/landing.css?v=312">
-  <link rel="stylesheet" href="css/modals.css?v=312">
-  <link rel="stylesheet" href="css/ocean3d.css?v=312">
+  <link rel="stylesheet" href="css/base.css?v=319">
+  <link rel="stylesheet" href="css/landing.css?v=319">
+  <link rel="stylesheet" href="css/modals.css?v=319">
+  <link rel="stylesheet" href="css/ocean3d.css?v=319">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="css/mobile.css?v=312">
+  <link rel="stylesheet" href="css/mobile.css?v=319">
 </head>
 <body class="landing-body layout-rose" data-ocean="landing">
 <canvas id="ocean-canvas" aria-hidden="true"></canvas>
@@ -147,6 +147,10 @@
   <symbol id="ic-sun" viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="4"/>
     <path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/>
+  </symbol>
+  <symbol id="ic-replay" viewBox="0 0 24 24">
+    <path d="M4.6 14.5a8 8 0 1 0 1.2-7.3L3 10.4"/>
+    <path d="M2.6 4.2v6.2h6.2"/>
   </symbol>
   <symbol id="ic-moon" viewBox="0 0 24 24">
     <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor" stroke="none"/>
@@ -406,6 +410,7 @@
       <div class="about-mode-item"><svg class="ic" aria-hidden="true"><use href="#ic-tome"></use></svg> Tome</div>
     </div>
     <div class="about-inf-row"><svg class="ic" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em;color:var(--mode-versus)"><use href="#ic-versus"></use></svg> Versus 1v1 : défie un ami en duel au tour par tour</div>
+    <div class="about-inf-row"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-replay"></use></svg> <a class="about-answers" href="/reponses/">Réponses passées : l'archive jour par jour</a></div>
 
     <div class="about-stats-row">
       <span class="about-stat"><svg class="ic" aria-hidden="true"><use href="#ic-note"></use></svg> 29 openings</span>
@@ -423,10 +428,10 @@
   </div>
 </div>
 
-<script src="js/i18n.js?v=312"></script>
-<script src="js/version.js?v=312"></script>
+<script src="js/i18n.js?v=319"></script>
+<script src="js/version.js?v=319"></script>
 <!-- Fond 3D : three.js + ocean3d.js chargés à la demande (cf. js/ocean3d-boot.js) -->
-<script src="js/ocean3d-boot.js?v=312"></script>
-<script src="js/landing.js?v=312"></script>
+<script src="js/ocean3d-boot.js?v=319"></script>
+<script src="js/landing.js?v=319"></script>
 </body>
 </html>

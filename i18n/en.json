@@ -1692,5 +1692,18 @@
   "🕰️ L'historique devient jouable : l'onglet « Rejouer » ouvre les journées passées depuis fin mai, et celles déjà terminées affichent le score obtenu": "🕰️ Past days are now playable: the \"Replay\" tab opens every day since late May, and the ones already finished show the score you got",
   "🏴‍☠️ {0} pirates ont {1} ce jour-là": "🏴‍☠️ {0} pirates {1} that day",
   "🏴‍☠️ {0} pirate a {1} ce jour-là": "🏴‍☠️ {0} pirate {1} that day",
-  "Score total moyen par joueur ce jour-là, tous modes confondus": "Average total score per player that day, all modes combined"
+  "Score total moyen par joueur ce jour-là, tous modes confondus": "Average total score per player that day, all modes combined",
+  "Réponses passées : l'archive jour par jour": "Past answers: the day-by-day archive",
+  "OnePiecedle — réponses des journées passées et archive · LogPose": "OnePiecedle — Past Answers and Daily Archive · LogPose",
+  "L'archive complète des réponses OnePiecedle, jour par jour et rejouable. Les réponses d'une journée sont publiées le lendemain.": "The complete archive of OnePiecedle answers, day by day and fully replayable. Each day's answers go up the following day.",
+  "OnePiecedle : les réponses des journées passées": "OnePiecedle: the answers from every past day",
+  "Les réponses d'une journée sont publiées le lendemain. Celles de la journée en cours ne figurent nulle part sur cette page, et aucun indice n'est donné. Chaque journée archivée reste entièrement rejouable, ce que ne permet aucun autre site.": "A day's answers go up the following day. Today's answers appear nowhere on this page, and no hints are given either. Every archived day stays fully replayable — something no other site lets you do.",
+  "Journée": "Day",
+  "Les réponses du jour paraîtront demain. En attendant, les sept modes se jouent ici :": "Today's answers will be up tomorrow. In the meantime, all seven modes are playable here:",
+  "Archive des réponses": "Answer archive",
+  "%d journées": "%d days",
+  "Rejouer cette journée": "Replay this day",
+  "Voir les %d réponses": "Show the %d answers",
+  "Journée incertaine : le pool a changé en cours de journée, c'est la version du matin qui est retenue.": "Uncertain day: the pool changed partway through, so the morning version is the one kept.",
+  "Jouer la journée du jour": "Play today's puzzle"
 }

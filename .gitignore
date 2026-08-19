@@ -37,3 +37,8 @@ __pycache__/
 images/gunko.png
 images/gunko3.png
 images/shamrock.png
+
+# Marketing : chaîne de production des clips verticaux (compositions HyperFrames,
+# polices, rendus MP4). Reste 100 % local — rien de tout ça ne doit partir dans un
+# dépôt public ni être servi par Pages.
+marketing/
