@@ -189,8 +189,8 @@ def build(lang):
         first = next((m['id'] for m in DAILY if d.get(m['id']) is not None), 'classic')
         see = esc(T('Voir les %d réponses', lang) % len(items))
         blocks.append(
-            '<article class="ans-day">'
-            '<header class="ans-day__h">'
+            '<article class="ans-day" data-jour="%s">' % esc(iso)
+            + '<header class="ans-day__h">'
             '<h3>%s%s</h3>'
             '<a class="ans-replay" href="/%s%s/?jour=%s">%s</a>'
             '</header>'
@@ -203,7 +203,33 @@ def build(lang):
 
     n_today = day_no(today)
     pfx = 'en/' if lang == 'en' else ''
+
+    # Config lue par js/answers.js pour rattraper l'ecart a l'affichage.
+    # holders/openings sont embarques (~4 Ko) plutot que de faire charger
+    # data.json (103 Ko) a une page qui n'en a besoin que pour 1 a 3 journees.
+    cfg = {
+        'lang': lang,
+        'launch': launch,
+        'generated': today,
+        'prefix': pfx,
+        'months': MOIS if lang == 'fr' else MONTHS,
+        'dayWord': T('Journée', lang),
+        'replay': T('Rejouer cette journée', lang),
+        'seeTpl': T('Voir les %d réponses', lang),
+        'countTpl': T('%d journées', lang),
+        'uncertain': T("Journée incertaine : le pool a changé en cours de journée, "
+                       "c'est la version du matin qui est retenue.", lang),
+        'modes': [{'id': m['id'], 'label': label(m['id'])} for m in DAILY],
+        'slugs': {m['id']: slug[m['id']] for m in DAILY},
+        'holders': {k: v['holder'] for k, v in data.fruits.items() if v.get('holder')},
+        'openings': {str(k): v['name'] for k, v in data.openings.items()},
+    }
+    # '<' echappe : le JSON vit dans un <script>, un '</script>' dans une donnee
+    # fermerait la balise. Aucun nom ne contient '<' aujourd'hui, mais c'est gratuit.
+    cfg_json = json.dumps(cfg, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c')
+
     doc = TEMPLATE % {
+        'cfg': cfg_json,
         'v': ver,
         'lang': lang,
         'locale': 'fr_FR' if lang == 'fr' else 'en_US',
@@ -381,13 +407,13 @@ TEMPLATE = """<!DOCTYPE html>
   <p class="ans-intro">%(intro)s</p>
 
   <section class="ans-today" id="aujourdhui">
-    <h2>%(day_word)s %(today_n)s%(today_h)s</h2>
+    <h2 id="ans-today-h">%(day_word)s %(today_n)s%(today_h)s</h2>
     <p class="ans-today__note">%(note)s</p>
     <ul class="ans-modes">%(modes)s</ul>
   </section>
 
   <section class="ans-archive" id="archive">
-    <h2>%(archive_h)s <span class="ans-count">%(count)s</span></h2>
+    <h2>%(archive_h)s <span class="ans-count" id="ans-count">%(count)s</span></h2>
     %(days)s
   </section>
 </main>
@@ -397,6 +423,12 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="lp-foot__meta"><span class="lp-foot__brand">LogPose</span></div>
   <p class="lp-foot__legal">%(legal)s</p>
 </footer>
+
+<!-- Rattrapage a l'affichage : le HTML fige la date de generation, js/answers.js
+     recalcule l'en-tete du jour et ajoute les journees ecoulees depuis. Sans lui,
+     la page mentirait sur la date des le lendemain d'un deploiement. -->
+<script type="application/json" id="ans-data">%(cfg)s</script>
+<script src="/js/answers.js?v=%(v)s" defer></script>
 
 <script src="/js/version.js?v=%(v)s"></script>
 </body>
