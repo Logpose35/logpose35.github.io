@@ -28,7 +28,9 @@
   <meta property="og:image" content="https://onepiecedle.fr/images/og_preview.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:site_name" content="LogPose">
+  <!-- Aligne sur le WebSite ci-dessous : deux noms differents = signaux
+       contradictoires, et Google retombe alors sur le nom de domaine. -->
+  <meta property="og:site_name" content="OnePiecedle">
 
   <!-- Twitter / X Cards -->
   <meta name="twitter:card" content="summary_large_image">
@@ -38,6 +40,22 @@
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.en.json">
+
+  <!-- Nom de site affiche par Google au-dessus du titre. Sans ce bloc WebSite,
+       Google se rabat sur le nom de domaine (« onepiecedle.fr »), ce qui fait
+       passer le site pour une variante derivee face a un concurrent qui affiche
+       « Onepiecedle ». Le nom retenu est celui que les joueurs tapent ; LogPose
+       reste en alternateName et demeure l'identite du produit (h1, en-tete,
+       pied de page, WebApplication ci-dessous). Doit vivre sur la PAGE D'ACCUEIL. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "OnePiecedle",
+    "alternateName": "LogPose",
+    "url": "https://onepiecedle.fr/en/"
+  }
+  </script>
 
   <!-- JSON-LD Schema -->
   <script type="application/ld+json">

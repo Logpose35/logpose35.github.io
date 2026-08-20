@@ -291,7 +291,7 @@ TEMPLATE = """<!DOCTYPE html>
   <meta property="og:url" content="%(self)s">
   <meta property="og:locale" content="%(locale)s">
   <meta property="og:image" content="https://onepiecedle.fr/images/og_preview.jpg">
-  <meta property="og:site_name" content="LogPose">
+  <meta property="og:site_name" content="OnePiecedle">
 
   <link rel="icon" type="image/png" href="/images/favicon.png">
 
