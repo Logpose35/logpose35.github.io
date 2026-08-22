@@ -121,13 +121,13 @@ SEO = {
         body='''<p>Le mode Silhouette part d'un gros plan très serré sur un point du contour d'un
         personnage, puis recule d'un cran à chaque erreur jusqu'à dévoiler la forme entière au dixième
         essai. À partir du cinquième essai, un indice facultatif éclaire une zone en couleur contre la
-        moitié du score ; 162 des 258 personnages du jeu peuvent tomber.</p>''',
+        moitié du score ; 197 des 266 personnages du jeu peuvent tomber.</p>''',
     ),
 
     'fruit': dict(
         title='OnePiecedle Fruit du Démon — trouver le détenteur · LogPose',
         desc='OnePiecedle Fruit du Démon : le nom d\'un fruit du démon est affiché, son détenteur '
-             'reste à trouver. 117 fruits, 10 essais et trois indices progressifs.',
+             'reste à trouver. 118 fruits, 10 essais et trois indices progressifs.',
         og_title='OnePiecedle · Fruit du Démon — qui a mangé ce fruit ?',
         og_desc='Un nom de fruit du démon est donné, son détenteur reste à trouver. Trois indices se '
                 'débloquent au fil des essais.',
@@ -136,7 +136,7 @@ SEO = {
                 'en dix essais et trois indices.',
         h1='OnePiecedle Fruit du Démon — trouver le détenteur du fruit',
         body_key='seo.fruit.body',
-        body='''<p>Le mode Fruit du Démon affiche le nom d'un des 117 fruits recensés et laisse
+        body='''<p>Le mode Fruit du Démon affiche le nom d'un des 118 fruits recensés et laisse
         deviner son détenteur en dix essais. Trois indices se débloquent au fil des erreurs : le type
         du fruit au troisième essai, sa traduction française au cinquième et la description de son
         pouvoir au huitième, chacun réduisant le score obtenu.</p>''',
