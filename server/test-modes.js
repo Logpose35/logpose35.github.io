@@ -278,14 +278,24 @@ async function main() {
       if (clue) lastSecs = clue.seconds;
     });
     ok(auWasPlayed, 'le décideur forcé par le veto est bien l\'opening');
-    ok(auClue && Number.isInteger(auClue.openingId) && auClue.openingId > 0,
-       `opening : indice openingId (Opening ${auClue && auClue.openingId})`);
-    ok(auClue && typeof auClue.offsetFrac === 'number' && auClue.offsetFrac >= 0 && auClue.offsetFrac < 1,
-       `opening : décalage partagé en fraction (${auClue && auClue.offsetFrac.toFixed(3)})`);
-    // Paliers du daily : l'extrait doit correspondre au nombre d'erreurs cumulées
-    const AU_STEPS = [1, 2, 4, 7, 11, 16];
-    ok(auClue && auClue.seconds === AU_STEPS[Math.min(auClue.wrongCount, AU_STEPS.length - 1)] && auClue.longest === 16,
-       `opening : extrait de ${auClue && auClue.seconds} s à ${auClue && auClue.wrongCount} erreur(s), max ${auClue && auClue.longest} s`);
+    // auClue n'est renseigné que par les rappels INTERMÉDIAIRES. Quand le bot trouve
+    // l'opening du premier coup, la manche se termine aussitôt et il n'y a jamais eu
+    // d'indice à observer : les trois assertions ci-dessous tombaient alors sur null
+    // et échouaient au hasard, une fois sur cinq environ. Un test qui clignote finit
+    // par masquer une vraie régression, d'où ce garde-fou (l'assertion de la ligne
+    // suivante prévoyait déjà ce cas, il n'avait simplement pas été propagé ici).
+    if (auClue) {
+      ok(Number.isInteger(auClue.openingId) && auClue.openingId > 0,
+         `opening : indice openingId (Opening ${auClue.openingId})`);
+      ok(typeof auClue.offsetFrac === 'number' && auClue.offsetFrac >= 0 && auClue.offsetFrac < 1,
+         `opening : décalage partagé en fraction (${auClue.offsetFrac.toFixed(3)})`);
+      // Paliers du daily : l'extrait doit correspondre au nombre d'erreurs cumulées
+      const AU_STEPS = [1, 2, 4, 7, 11, 16];
+      ok(auClue.seconds === AU_STEPS[Math.min(auClue.wrongCount, AU_STEPS.length - 1)] && auClue.longest === 16,
+         `opening : extrait de ${auClue.seconds} s à ${auClue.wrongCount} erreur(s), max ${auClue.longest} s`);
+    } else {
+      console.log('   ⏭  indices opening non vérifiés : manche gagnée du 1er coup');
+    }
     ok(auGrows, 'opening : l\'extrait s\'allonge (ou reste stable) à chaque erreur');
     ok(!!m4 && Math.max(...m4.scores) === 1, `match_end Bo1 : scores ${m4 && m4.scores.join(':')}`);
     ok(!auEnd || OPENING_NAMES.includes(auEnd.target.name),

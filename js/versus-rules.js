@@ -26,12 +26,36 @@
     if (g.includes('Blue') && t.includes('Blue')) return 'partial';
     return 'wrong';
   }
-  function fruitLabel(f) {
-    // 'Aucun' est un libellé AFFICHÉ → traduit côté navigateur. Garde `typeof t` :
-    // ce module est aussi requis par le serveur Node (où t() n'existe pas) → comportement inchangé.
-    if (!f) return { icon:'❌', val: (typeof t === 'function' ? t('Aucun') : 'Aucun') };
-    return { icon: { Paramecia:'🌀', Logia:'🌊', Zoan:'🐾', Mythique:'✨' }[f] || '❓', val: f };
+  // `fruit` d'une fiche : chaîne, OU tableau quand un personnage en porte plusieurs.
+  // Un seul cas dans l'œuvre : Barbe Noire, Logia + Paramecia. Signalé par un joueur
+  // le 24/08/2026, le jeu n'affichait que Logia.
+  const FRUIT_ICONES = { Paramecia:'🌀', Logia:'🌊', Zoan:'🐾', Mythique:'✨' };
+  function fruitList(f) {
+    return Array.isArray(f) ? f.filter(Boolean) : (f ? [f] : []);
   }
+  // Clé de comparaison, insensible à l'ordre : ['Logia','Paramecia'] et
+  // ['Paramecia','Logia'] doivent être vus comme identiques.
+  function fruitKey(f) { return fruitList(f).slice().sort().join('+'); }
+
+  function fruitLabel(f) {
+    // Les libellés sont AFFICHÉS → traduits côté navigateur. Garde `typeof t` :
+    // ce module est aussi requis par le serveur Node (où t() n'existe pas).
+    const tr = (typeof t === 'function') ? t : (s => s);
+    const l = fruitList(f);
+    if (!l.length) return { icon:'❌', val: tr('Aucun') };
+    // ⚠️ `val` sort DÉJÀ traduit : ne pas le repasser dans t() côté appelant, la
+    // chaîne jointe « Logia + Paramecia » n'est pas une clé du dictionnaire.
+    return { icon: l.map(x => FRUIT_ICONES[x] || '❓').join(''), val: l.map(tr).join(' + ') };
+  }
+
+  // Détenteurs acceptés d'un fruit. Le Gura Gura no Mi a appartenu à Barbe Blanche
+  // avant Barbe Noire : les deux réponses sont justes, d'où `holdersAlt`.
+  // `holder` reste le détenteur canonique, celui qu'on affiche à la révélation.
+  function fruitHolders(f) {
+    if (!f) return [];
+    return [f.holder].concat(Array.isArray(f.holdersAlt) ? f.holdersAlt : []).filter(Boolean);
+  }
+  function isFruitHolder(f, nom) { return fruitHolders(f).indexOf(nom) !== -1; }
 
   // Équipages membres de la Grande Flotte de Chapeau de Paille : deux d'entre eux
   // (même différents) comptent comme correspondance PARTIELLE en Classique — un
@@ -87,7 +111,11 @@
       gender: g.gender === t.gender ? 'correct' : 'wrong',
       affil:  cmpAffil(g.affil, t.affil),
       origin: cmpOrigin(g.origin, t.origin),
-      fruit:  g.fruit === t.fruit ? 'correct' : (g.fruit && t.fruit ? 'partial' : 'wrong'),
+      // Vert = mêmes types, jaune = les deux ont un fruit mais pas le même,
+      // rouge = l'un des deux n'en a aucun. Sémantique inchangée, elle tolère
+      // seulement les tableaux depuis le 24/08/2026 (cas Barbe Noire).
+      fruit:  fruitKey(g.fruit) === fruitKey(t.fruit) ? 'correct'
+              : (fruitList(g.fruit).length && fruitList(t.fruit).length ? 'partial' : 'wrong'),
       haki:   cmpHaki(g.haki, t.haki),
       status: g.status === t.status ? 'correct' : 'wrong',
       arc:    cmpArc(g.arc, t.arc),
@@ -172,6 +200,7 @@
   }
 
   return { cmpHaki, cmpArc, cmpBounty, cmpOrigin, cmpAffil, AFFIL_STOP, GRAND_FLEET, WORLD_GOV,
-           fruitLabel, computeVerdicts, getMatchHint, charMatchesQuery, fold, resolveName,
+           fruitLabel, fruitList, fruitKey, fruitHolders, isFruitHolder,
+           computeVerdicts, getMatchHint, charMatchesQuery, fold, resolveName,
            matchRank, sortSuggestions };
 });

@@ -625,7 +625,8 @@
     const hakiTxt = Array.isArray(char.haki) && char.haki.length > 0 ? char.haki.map(t).join(', ') : t('Aucun');
     const arcTxt = t((typeof ARCS !== 'undefined' && ARCS[char.arc]) || '?');
     // Valeurs data.json traduites POUR L'AFFICHAGE ; verdicts (v.*) et coloriage sur les données brutes.
-    const affilTxt = t(char.affil), originTxt = t(char.origin), statusTxt = t(char.status), fruitValTxt = t(fl.val);
+    // fl.val sort déjà traduit de fruitLabel (« Logia + Paramecia » n'est pas une clé).
+    const affilTxt = t(char.affil), originTxt = t(char.origin), statusTxt = t(char.status), fruitValTxt = fl.val;
     const al = (label, val, state, extra = '') => `aria-label="${esc(label)} : ${esc(String(val))}, ${STATE_FR[state]}${extra}"`;
     row.innerHTML = `
       <div class="cell cell-char">

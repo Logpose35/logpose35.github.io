@@ -602,7 +602,11 @@ function handleGuess(lb, idx, name) {
   if (cur.mode === 'classic') {
     verdicts = rules.computeVerdicts(char, cur.target);
   } else {
-    const win = char.name === cur.target.name;
+    // En mode Fruit, plusieurs détenteurs peuvent être acceptés : le Gura Gura no Mi
+    // a appartenu à Barbe Blanche avant Barbe Noire. Même règle que le daily, portée
+    // par js/versus-rules.js pour que les deux ne divergent pas.
+    const win = char.name === cur.target.name
+             || (cur.mode === 'fruit' && rules.isFruitHolder(cur.fruit, char.name));
     if (!win) cur.wrongCount++;
     verdicts = { win };
   }

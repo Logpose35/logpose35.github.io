@@ -869,7 +869,9 @@ function buildGuessRow(char, T) {
   const arcTxt    = t(ARCS[char.arc] || '?');   // ARCS[0]='Filler', arc 1→32 = arcs canoniques
   // Valeurs de données (data.json) TRADUITES POUR L'AFFICHAGE uniquement ; la comparaison
   // (computeVerdicts) et le coloriage restent sur les valeurs BRUTES françaises (char.*).
-  const affilTxt = t(char.affil), originTxt = t(char.origin), statusTxt = t(char.status), fruitValTxt = t(fl.val);
+  // fl.val sort DÉJÀ traduit de fruitLabel (il peut valoir « Logia + Paramecia »,
+  // qui n'est pas une clé du dictionnaire) — ne pas le repasser dans t().
+  const affilTxt = t(char.affil), originTxt = t(char.origin), statusTxt = t(char.status), fruitValTxt = fl.val;
   const al = (label, val, state, extra = '') => `aria-label="${tf('{0} : {1}, {2}', esc(label), esc(String(val)), STATE_FR[state])}${extra}"`;
   row.innerHTML = `
     <div class="cell cell-char">
@@ -904,7 +906,7 @@ const RECAP_COLS = [
   { key:'gender', label:t('Genre'),     fn: c => c.gender === 'M' ? t('Homme') : c.gender === 'F' ? t('Femme') : t('Inconnu'), check: (g,t) => g.gender === t.gender },
   { key:'affil',  label:t('Affil.'),    fn: c => t(c.affil),                                    check: (g,t) => g.affil  === t.affil  },
   { key:'origin', label:t('Origine'),   fn: c => t(c.origin),                                   check: (g,t) => g.origin === t.origin },
-  { key:'fruit',  label:t('Fruit'),     fn: c => c.fruit ? t(c.fruit) : t('Aucun'),             check: (g,t) => g.fruit  === t.fruit  },
+  { key:'fruit',  label:t('Fruit'),     fn: c => fruitLabel(c.fruit).val,                       check: (g,t) => fruitKey(g.fruit) === fruitKey(t.fruit) },
   { key:'haki',   label:t('Haki'),      fn: c => c.haki.length ? c.haki.map(t).join(', ') : t('Aucun'), check: (g,t) => JSON.stringify([...g.haki].sort()) === JSON.stringify([...t.haki].sort()) },
   { key:'status', label:t('Statut'),    fn: c => t(c.status),                                   check: (g,t) => g.status === t.status },
   { key:'arc',    label:t('1er Arc'),   fn: c => t(ARCS[c.arc]),                                check: (g,t) => g.arc    === t.arc    },
@@ -939,7 +941,7 @@ const HINT_COLS = [
   { key:'gender', label:t('Genre'),          fn: c => c.gender === 'M' ? t('Homme') : c.gender === 'F' ? t('Femme') : t('Inconnu') },
   { key:'affil',  label:t('Affiliation'),    fn: c => t(c.affil) },
   { key:'origin', label:t('Origine'),        fn: c => t(c.origin) },
-  { key:'fruit',  label:t('Fruit du Démon'), fn: c => c.fruit ? t(c.fruit) : t('Aucun') },
+  { key:'fruit',  label:t('Fruit du Démon'), fn: c => fruitLabel(c.fruit).val },
   { key:'haki',   label:t('Haki'),           fn: c => c.haki.length ? c.haki.map(t).join(', ') : t('Aucun') },
   { key:'status', label:t('Statut'),         fn: c => t(c.status) },
   { key:'arc',    label:t('1er Arc'),        fn: c => t(ARCS[c.arc]) },
@@ -958,7 +960,7 @@ function useHint() {
       if (col.key === 'gender') return g.gender === TARGET_C.gender;
       if (col.key === 'affil')  return g.affil  === TARGET_C.affil;
       if (col.key === 'origin') return g.origin === TARGET_C.origin;
-      if (col.key === 'fruit')  return g.fruit  === TARGET_C.fruit;
+      if (col.key === 'fruit')  return fruitKey(g.fruit) === fruitKey(TARGET_C.fruit);
       if (col.key === 'haki')   return JSON.stringify([...g.haki].sort()) === JSON.stringify([...TARGET_C.haki].sort());
       if (col.key === 'status') return g.status === TARGET_C.status;
       if (col.key === 'arc')    return g.arc    === TARGET_C.arc;
@@ -1106,8 +1108,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=325`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=325`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=327`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=327`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1715,12 +1717,12 @@ const FRU_HINT3_AT = 8;
 function initFruitMode() {
   document.getElementById('fr-fruit-name').textContent = TARGET_FRU.name;
   document.getElementById('fruit-guesses').innerHTML = '';
-  frGuesses.forEach(g => renderFruitRow(g, g.name === TARGET_FRU.holder));
+  frGuesses.forEach(g => renderFruitRow(g, isFruitHolder(TARGET_FRU, g.name)));
   renderFruitHints();
 }
 
 function revealHint(n) {
-  const wrongCount = frGuesses.filter(g => g.name !== TARGET_FRU.holder).length;
+  const wrongCount = frGuesses.filter(g => !isFruitHolder(TARGET_FRU, g.name)).length;
   const thresholds = [FRU_HINT1_AT, FRU_HINT2_AT, FRU_HINT3_AT];
   if (wrongCount >= thresholds[n - 1] || frOver) {
     frHintsRevealed.add(n);
@@ -1729,7 +1731,7 @@ function revealHint(n) {
 }
 
 function renderFruitHints() {
-  const wrongCount = frGuesses.filter(g => g.name !== TARGET_FRU.holder).length;
+  const wrongCount = frGuesses.filter(g => !isFruitHolder(TARGET_FRU, g.name)).length;
 
   function applyHint(id, subId, threshold, value, hintNum) {
     const box = document.getElementById(id);
@@ -1758,7 +1760,7 @@ function renderFruitHints() {
 
   const status = document.getElementById('fruit-status');
   if (frOver) {
-    const won = frGuesses.some(g => g.name === TARGET_FRU.holder);
+    const won = frGuesses.some(g => isFruitHolder(TARGET_FRU, g.name));
     status.textContent = won ? t('🎉 Trouvé !') : tf('💀 C\'était {0} !', TARGET_FRU.holder);
     status.style.color = won ? 'var(--correct)' : 'var(--red)';
   } else {
@@ -1780,7 +1782,9 @@ function submitFruit() {
   saveState('fruit');
   input.value = '';
   acBox.classList.remove('open');
-  const correct = char.name === TARGET_FRU.holder;
+  // Plusieurs détenteurs peuvent être acceptés : le Gura Gura no Mi a appartenu à
+  // Barbe Blanche avant Barbe Noire, les deux réponses sont justes.
+  const correct = isFruitHolder(TARGET_FRU, char.name);
   renderFruitRow(char, correct);
   updateCounter();
   renderFruitHints();
@@ -1795,6 +1799,15 @@ function renderFruitRow(char, correct) {
   document.getElementById('fruit-guesses').prepend(row);
 }
 
+// Nom à révéler : celui que le JOUEUR a donné quand il a trouvé, sinon le détenteur
+// canonique. Un fruit peut avoir plusieurs détenteurs acceptés (Gura Gura no Mi :
+// Barbe Noire et Barbe Blanche) ; sans ça, répondre « Edward Newgate » affichait la
+// victoire au nom et au portrait de Barbe Noire, ce qui se lit comme une erreur.
+function fruitRevealName() {
+  const trouve = frGuesses.find(g => isFruitHolder(TARGET_FRU, g.name));
+  return trouve ? trouve.name : TARGET_FRU.holder;
+}
+
 function finFruit(won) {
   frOver = true;
   if (!_restoring) sfx(won ? 'win' : 'lose');
@@ -1802,7 +1815,8 @@ function finFruit(won) {
   input.disabled = true;
   renderFruitHints();
   // Reveal character image
-  const holder = CHARACTERS.find(c => c.name === TARGET_FRU.holder);
+  const nomRevele = fruitRevealName();
+  const holder = CHARACTERS.find(c => c.name === nomRevele);
   if (holder) {
     const imgFile = getImgFile(holder);
     if (imgFile) {
@@ -1810,18 +1824,18 @@ function finFruit(won) {
       const revealImg = document.getElementById('fruit-reveal-img');
       const revealName = document.getElementById('fruit-reveal-name');
       revealImg.src = `${ASSET_BASE}images/${imgFile}.jpg`;
-      revealName.textContent = TARGET_FRU.holder;
+      revealName.textContent = nomRevele;
       revealEl.style.display = 'block';
     }
   }
   if (won) {
     document.getElementById('win-title').textContent     = WIN_TITLES['fruit'];
-    document.getElementById('win-char-name').textContent = TARGET_FRU.holder;
+    document.getElementById('win-char-name').textContent = nomRevele;
     document.getElementById('win-attempts').textContent  = frGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     if (!_restoring) launchConfetti();
   } else {
-    document.getElementById('lose-char-name').textContent = TARGET_FRU.holder;
+    document.getElementById('lose-char-name').textContent = nomRevele;
     document.getElementById('lose-banner').classList.add('show');
   }
   onGameEnd('fruit', won, frGuesses.length, won ? calcModeScore('fruit', frGuesses.length, false, frHintsRevealed.size) : 0);
