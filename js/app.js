@@ -712,6 +712,8 @@ function updateCounter() {
 }
 
 // ===== FORMATAGE PRIME =====
+// `bounty` est exprimé en MILLIONS de berrys (Law = 3000 → 3 Md).
+// ⚠️ Fonction DUPLIQUÉE à l'identique dans js/versus.js — toute retouche va aux deux.
 function formatBounty(b) {
   if (!b) return '—';
   if (b >= 1000) {
@@ -720,6 +722,13 @@ function formatBounty(b) {
       ? md + t(' Md')
       : md.toFixed(3).replace(/\.?0+$/, '').replace('.', ',') + t(' Md');
     return str;
+  }
+  // Sous le million, l'unité du champ ne suffit plus : 0.001 s'afficherait « 0.001 M ».
+  // On repasse donc en berrys. Cas de Chopper (1 000) et de Bepo (500), signalés par
+  // un joueur le 22/08/2026 — le jeu affichait « — », donc « prime inconnue », alors
+  // qu'elle est connue et que c'est justement sa petitesse qui fait la blague.
+  if (b < 1) {
+    return String(Math.round(b * 1e6)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + t(' Berrys');
   }
   return b + t(' M');
 }
@@ -1097,8 +1106,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=324`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=324`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=325`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=325`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };

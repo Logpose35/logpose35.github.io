@@ -19,13 +19,20 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
                     .replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
   }
+  // Copie de formatBounty() de js/app.js — les deux doivent rester identiques.
+  // Les suffixes passent par t() depuis le 24/08/2026 : ils étaient en dur, donc
+  // la page /en/versus.html affichait « Md » au lieu de « B ».
   function formatBounty(b) {
     if (!b) return '—';
     if (b >= 1000) {
       const md = b / 1000;
-      return md % 1 === 0 ? md + ' Md' : md.toFixed(3).replace(/\.?0+$/, '').replace('.', ',') + ' Md';
+      return (md % 1 === 0 ? md : md.toFixed(3).replace(/\.?0+$/, '').replace('.', ',')) + t(' Md');
     }
-    return b + ' M';
+    // Sous le million on repasse en berrys : Chopper (1 000) et Bepo (500).
+    if (b < 1) {
+      return String(Math.round(b * 1e6)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + t(' Berrys');
+    }
+    return b + t(' M');
   }
   const STATE_FR = { correct: t('correct'), partial: t('partiel'), wrong: t('incorrect') };
   const arrowFr = a => a === '⬆️' ? t(', plus haut') : a === '⬇️' ? t(', plus bas') : '';
