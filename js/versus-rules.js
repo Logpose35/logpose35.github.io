@@ -37,7 +37,7 @@
   // (même différents) comptent comme correspondance PARTIELLE en Classique — un
   // Happou Navy vs un Barto Club sont alliés, donc « presque ». Doit refléter
   // exactement les valeurs `affil` de data.json.
-  const GRAND_FLEET = new Set(['Grande Flotte', 'Happou Navy', 'Tontatta',
+  const GRAND_FLEET = new Set(['Grande Flotte', 'Flotte de Happou', 'Tontatta',
                                'Nouveaux Géants Guerriers', 'Barto Club']);
 
   // Affiliations rattachées au Gouvernement Mondial : deux d'entre elles (même
@@ -49,8 +49,13 @@
   // Mots trop génériques pour rapprocher deux équipages. « barbe » en fait partie :
   // c'est un descriptif, pas une appartenance — sans lui, Barbe Blanche et Barbe Noire,
   // qui se sont fait la guerre, passaient pour alliés.
+  // « équipage » et « flotte » ont rejoint la liste le 24/08/2026, quand les libellés
+  // anglais ont été passés en français : six d'entre eux commencent par « Équipage »
+  // (Cent Bêtes, Don Quichotte, Fire Tank, On-Air, Moines Dépravés, Hommes-Poissons),
+  // et sans cette entrée ils se rapprochaient tous les uns des autres sur ce seul mot.
+  // Idem « flotte », partagé par Flotte de Happou et Grande Flotte.
   const AFFIL_STOP = new Set(['pirates','pirate','de','du','des','les','la','le','d','l','et','the','of',
-                              'grand','new','barbe']);
+                              'grand','new','barbe','équipage','flotte']);
 
   // Mots significatifs d'une affiliation. Le « s » final tombe pour que Marine et
   // Neo Marines se reconnaissent, sans quoi la comparaison mot à mot les séparerait.
