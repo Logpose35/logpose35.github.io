@@ -230,6 +230,14 @@ async function appendDailyAvg(el, mode, count, dateKey) {
 }
 
 // ===== UTILS =====
+// Nom de personnage A L'AFFICHAGE. Les noms vivent en francais dans data.json
+// (reference Glenat) ; la version anglaise les traduit ici quand VIZ diverge
+// — Baggy/Buggy, Hermep/Helmeppo, Ener/Enel, Keimi/Camie, Jimbei/Jinbe...
+// t() renvoie la chaine telle quelle si la cle est absente : les ~260 noms
+// identiques dans les deux langues passent donc inchanges.
+// NE JAMAIS s'en servir pour COMPARER : la comparaison tourne sur le nom brut.
+function tName(n) { return t(n); }
+
 function esc(s) {
   return String(s)
     .replace(/&/g,'&amp;')
@@ -693,10 +701,10 @@ function syncBanners() {
   document.getElementById('lose-banner').classList.toggle('show', !won);
   if (won) {
     document.getElementById('win-title').innerHTML = WIN_TITLES[currentMode] || t('🏴‍☠️ Nakama trouvé !');
-    document.getElementById('win-char-name').textContent = target.name;
+    document.getElementById('win-char-name').textContent = tName(target.name);
     document.getElementById('win-attempts').textContent = guesses.length;
   } else {
-    document.getElementById('lose-char-name').textContent = target.name;
+    document.getElementById('lose-char-name').textContent = tName(target.name);
   }
 }
 
@@ -757,12 +765,16 @@ input.addEventListener('input', () => {
   if (!acFilt.length) { acBox.classList.remove('open'); return; }
   acBox.innerHTML = acFilt.map((c, i) => {
     const hint = getMatchHint(c, q, ALIASES);
-    const sub  = hint ? ` <span class="ac-hint">${esc(hint)}</span>` : '';
-    return `<div class="ac-item" data-i="${i}">${esc(c.name)}${sub}</div>`;
+    // L'indice repete l'alias qui a matche. En anglais, le nom traduit EST
+    // souvent cet alias (« Buggy buggy ») : dans ce cas il n'apprend rien.
+    const nom  = tName(c.name);
+    const sub  = (hint && hint.toLowerCase() !== nom.toLowerCase())
+                   ? ` <span class="ac-hint">${esc(hint)}</span>` : '';
+    return `<div class="ac-item" data-i="${i}">${esc(nom)}${sub}</div>`;
   }).join('');
   acBox.classList.add('open'); acSel = -1;
   acBox.querySelectorAll('.ac-item').forEach(el =>
-    el.addEventListener('click', () => { input.value = acFilt[+el.dataset.i].name; acBox.classList.remove('open'); })
+    el.addEventListener('click', () => { input.value = tName(acFilt[+el.dataset.i].name); acBox.classList.remove('open'); })
   );
 });
 
@@ -771,7 +783,7 @@ input.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown')      { acSel = Math.min(acSel + 1, items.length - 1); hiAc(items); e.preventDefault(); }
   else if (e.key === 'ArrowUp')   { acSel = Math.max(acSel - 1, 0); hiAc(items); e.preventDefault(); }
   else if (e.key === 'Enter') {
-    if (acSel >= 0 && acFilt[acSel]) { input.value = acFilt[acSel].name; acBox.classList.remove('open'); }
+    if (acSel >= 0 && acFilt[acSel]) { input.value = tName(acFilt[acSel].name); acBox.classList.remove('open'); }
     submitGuess();
   }
 });
@@ -786,6 +798,11 @@ document.addEventListener('click', e => { if (!e.target.closest('.search-wrap'))
 document.getElementById('guess-btn').addEventListener('click', submitGuess);
 
 function submitGuess() {
+  // Saisie tolerante : un alias — ou un nom traduit rendu par tName() — est
+  // ramene au nom canonique de data.json AVANT que les modes ne resolvent.
+  // Sans ca, un joueur anglais tapant « Buggy » ne trouverait pas « Baggy ».
+  const _al = ALIASES[input.value.trim().toLowerCase()];
+  if (_al) input.value = _al;
   if (currentMode === 'classic')     submitClassic();
   else if (currentMode === 'wanted') submitWanted();
   else if (currentMode === 'fruit')  submitFruit();
@@ -832,18 +849,18 @@ function finClassic(won) {
     const revealImg = document.getElementById('classic-reveal-img');
     const revealName = document.getElementById('classic-reveal-name');
     revealImg.src = `${ASSET_BASE}images/${imgFile}.jpg`;
-    revealName.textContent = TARGET_C.name;
+    revealName.textContent = tName(TARGET_C.name);
     revealEl.style.display = 'block';
   }
   if (won) {
     const isBdayWin = getTodayBirthdays(activeDate()).some(c => c.name === TARGET_C.name);
     document.getElementById('win-title').textContent      = isBdayWin ? t('🎂 Joyeux anniversaire !') : WIN_TITLES['classic'];
-    document.getElementById('win-char-name').textContent  = TARGET_C.name;
+    document.getElementById('win-char-name').textContent  = tName(TARGET_C.name);
     document.getElementById('win-attempts').textContent   = cGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     if (!_restoring) launchConfetti(isBdayWin ? 'birthday' : null);
   } else {
-    document.getElementById('lose-char-name').textContent = TARGET_C.name;
+    document.getElementById('lose-char-name').textContent = tName(TARGET_C.name);
     document.getElementById('lose-banner').classList.add('show');
   }
   onGameEnd('classic', won, cGuesses.length, won ? calcModeScore('classic', cGuesses.length, hintUsed, 0) : 0);
@@ -876,8 +893,8 @@ function buildGuessRow(char, T) {
   row.innerHTML = `
     <div class="cell cell-char">
       ${getImgFile(char)
-        ? `<img class="char-thumb" src="${ASSET_BASE}images/${esc(getImgFile(char))}.jpg" alt="${esc(char.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(char.name)}</span>`
-        : `<span class="char-name-only">${esc(char.name)}</span>`
+        ? `<img class="char-thumb" src="${ASSET_BASE}images/${esc(getImgFile(char))}.jpg" alt="${esc(tName(char.name))}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(tName(char.name))}</span>`
+        : `<span class="char-name-only">${esc(tName(char.name))}</span>`
       }
     </div>
     <div class="cell ${gs}" data-label="${t('Genre')}" ${al(t('Genre'), genderTxt, gs)}><span class="cell-icon" aria-hidden="true">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${genderTxt}</span></div>
@@ -1044,7 +1061,7 @@ function defloutStep() {
 function revealFull() {
   const img = document.getElementById('wanted-img');
   img.style.filter = 'blur(0) grayscale(0)';
-  document.getElementById('poster-name').textContent    = TARGET_W.name;
+  document.getElementById('poster-name').textContent    = tName(TARGET_W.name);
   document.getElementById('poster-epithet').textContent = TARGET_W.epithet ? `"${tc('ep', TARGET_W.epithet, TARGET_W.name)}"` : '';
   document.getElementById('poster-amount').textContent  = TARGET_W.bounty > 0
     ? (TARGET_W.bounty * 1_000_000).toLocaleString('en-US') : '—';
@@ -1069,7 +1086,7 @@ function submitWanted() {
 function renderWantedRow(char, correct) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row';
-  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(tName(char.name))}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   document.getElementById('wanted-guesses').prepend(row);
 }
 
@@ -1081,13 +1098,13 @@ function finWanted(won) {
   revealFull();
   if (won) {
     document.getElementById('win-title').textContent      = WIN_TITLES['wanted'];
-    document.getElementById('win-char-name').textContent  = TARGET_W.name;
+    document.getElementById('win-char-name').textContent  = tName(TARGET_W.name);
     document.getElementById('win-attempts').textContent   = wGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     if (!_restoring) launchConfetti();
     playWinWanted();
   } else {
-    document.getElementById('lose-char-name').textContent = TARGET_W.name;
+    document.getElementById('lose-char-name').textContent = tName(TARGET_W.name);
     document.getElementById('lose-banner').classList.add('show');
   }
   onGameEnd('wanted', won, wGuesses.length, won ? calcModeScore('wanted', wGuesses.length, false, 0) : 0);
@@ -1108,8 +1125,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=327`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=327`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=329`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=329`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1198,7 +1215,7 @@ function updateSilStatus() {
 function renderSilGuess(char, correct, fresh = true) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row' + (fresh ? ' fresh' : '');
-  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(tName(char.name))}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   document.getElementById('sil-guesses').prepend(row);
 }
 
@@ -1231,12 +1248,12 @@ function finSilhouette(won) {
   updateSilStatus();
   if (won) {
     document.getElementById('win-title').innerHTML        = WIN_TITLES['silhouette'];
-    document.getElementById('win-char-name').textContent  = TARGET_SIL.name;
+    document.getElementById('win-char-name').textContent  = tName(TARGET_SIL.name);
     document.getElementById('win-attempts').textContent   = silGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     if (!_restoring) launchConfetti();
   } else {
-    document.getElementById('lose-char-name').textContent = TARGET_SIL.name;
+    document.getElementById('lose-char-name').textContent = tName(TARGET_SIL.name);
     document.getElementById('lose-banner').classList.add('show');
   }
   onGameEnd('silhouette', won, silGuesses.length, won ? calcModeScore('silhouette', silGuesses.length, silHintUsed, 0) : 0);
@@ -1302,12 +1319,12 @@ function finInf(won) {
   document.getElementById('inf-record').textContent = newRecord;
   if (won) {
     document.getElementById('win-title').textContent     = WIN_TITLES['inf'];
-    document.getElementById('win-char-name').textContent = infTarget.name;
+    document.getElementById('win-char-name').textContent = tName(infTarget.name);
     document.getElementById('win-attempts').textContent  = infGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     launchConfetti();
   } else {
-    document.getElementById('lose-char-name').textContent = infTarget.name;
+    document.getElementById('lose-char-name').textContent = tName(infTarget.name);
     document.getElementById('lose-banner').classList.add('show');
   }
   document.getElementById('inf-replay-wrap').classList.remove('hidden');
@@ -1795,7 +1812,7 @@ function submitFruit() {
 function renderFruitRow(char, correct) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row';
-  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(tName(char.name))}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   document.getElementById('fruit-guesses').prepend(row);
 }
 
@@ -1877,7 +1894,7 @@ function showEmojiReveal() {
   } else {
     revImg.style.display = 'none';
   }
-  revName.textContent = emTarget.name;
+  revName.textContent = tName(emTarget.name);
   revEl.style.display = 'block';
 }
 
@@ -2018,7 +2035,7 @@ function submitEmoji() {
 function renderEmojiGuess(char, correct, prepend = true) {
   const row = document.createElement('div');
   row.className = 'wanted-guess-row';
-  row.innerHTML = `<span class="wg-name">${esc(char.name)}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
+  row.innerHTML = `<span class="wg-name">${esc(tName(char.name))}</span><span class="wg-result ${correct ? 'correct' : 'wrong'}">${correct ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
   const container = document.getElementById('emoji-guesses');
   if (prepend) container.prepend(row);
   else         container.appendChild(row);
@@ -2041,7 +2058,7 @@ function finEmoji(won) {
     const revImg  = document.getElementById('emoji-reveal-img');
     const revName = document.getElementById('emoji-reveal-name');
     revImg.src = `${ASSET_BASE}images/${imgFile}.jpg`;
-    revName.textContent = emTarget.name;
+    revName.textContent = tName(emTarget.name);
     revEl.style.display = 'block';
   }
 
@@ -2050,12 +2067,12 @@ function finEmoji(won) {
 
   if (won) {
     document.getElementById('win-title').textContent      = WIN_TITLES['emoji'];
-    document.getElementById('win-char-name').textContent  = emTarget.name;
+    document.getElementById('win-char-name').textContent  = tName(emTarget.name);
     document.getElementById('win-attempts').textContent   = emGuesses.length;
     document.getElementById('win-banner').classList.add('show');
     if (!_restoring) launchConfetti();
   } else {
-    document.getElementById('lose-char-name').textContent = emTarget.name;
+    document.getElementById('lose-char-name').textContent = tName(emTarget.name);
     document.getElementById('lose-banner').classList.add('show');
   }
   onGameEnd('emoji', won, emGuesses.length, won ? calcModeScore('emoji', emGuesses.length, false, emHintRevealed ? 1 : 0) : 0);

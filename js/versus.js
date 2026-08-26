@@ -279,12 +279,12 @@
         // sinon il reste collé à gauche dans une carte par ailleurs centrée.
         pr.classList.toggle('v-noimg', !img);
         pr.innerHTML = `${img}
-          <div><div class="v-rtitle">${tf("C'était {0}", esc(lastRound.target.name))}${lastRound.fruitName ? ` (${esc(lastRound.fruitName)})` : ''}</div>
+          <div><div class="v-rtitle">${tf("C'était {0}", esc(tName(lastRound.target.name)))}${lastRound.fruitName ? ` (${esc(lastRound.fruitName)})` : ''}</div>
           <div class="v-rsub">${lastRound.tries > 1 ? tf('trouvé en {0} essais', lastRound.tries) : tf('trouvé en {0} essai', lastRound.tries)}</div></div>`;
         pr.hidden = false;
       } else pr.hidden = true;
       $('v-post-rounds').innerHTML = (s.roundsHistory || []).map((r, i) =>
-        `${tf('Manche {0}', i + 1)} ${modeChip(r.mode)} : <b>${esc(r.targetName)}</b>${r.fruitName ? ` · ${esc(r.fruitName)}` : ''} · ${esc(s.players[r.winner]?.name || '?')} (${r.tries > 1 ? tf('{0} essais', r.tries) : tf('{0} essai', r.tries)})`).join('<br>');
+        `${tf('Manche {0}', i + 1)} ${modeChip(r.mode)} : <b>${esc(tName(r.targetName))}</b>${r.fruitName ? ` · ${esc(r.fruitName)}` : ''} · ${esc(s.players[r.winner]?.name || '?')} (${r.tries > 1 ? tf('{0} essais', r.tries) : tf('{0} essai', r.tries)})`).join('<br>');
       $('v-post-score').textContent = `${esc(s.players[me]?.name)} ${s.scores[me]} - ${s.scores[op]} ${esc(s.players[op]?.name)}`;
       const meWants = s.players[me]?.wantsRematch, opWants = s.players[op]?.wantsRematch;
       $('v-rematch').disabled = !!meWants;
@@ -611,7 +611,7 @@
     row.className = 'v-simple-row';
     row.innerHTML = `
       ${char.imgFile ? `<img src="${AB}images/${esc(char.imgFile)}.jpg" alt="" loading="lazy" onerror="this.remove()">` : ''}
-      <span class="nm">${esc(char.name)}</span>
+      <span class="nm">${esc(tName(char.name))}</span>
       <span class="res ${v.win ? 'correct' : 'wrong'}">${v.win ? t('✅ TROUVÉ !') : t('❌ Raté')}</span>`;
     return row;
   }
@@ -631,8 +631,8 @@
     row.innerHTML = `
       <div class="cell cell-char">
         ${char.imgFile
-          ? `<img class="char-thumb" src="${AB}images/${esc(char.imgFile)}.jpg" alt="${esc(char.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(char.name)}</span>`
-          : `<span class="char-name-only">${esc(char.name)}</span>`}
+          ? `<img class="char-thumb" src="${AB}images/${esc(char.imgFile)}.jpg" alt="${esc(tName(char.name))}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="char-name-fallback" style="display:none">${esc(tName(char.name))}</span>`
+          : `<span class="char-name-only">${esc(tName(char.name))}</span>`}
       </div>
       <div class="cell ${v.gender}" data-label="${t('Genre')}" ${al(t('Genre'), genderTxt, v.gender)}><span class="cell-icon" aria-hidden="true">${char.gender === 'M' ? '♂️' : char.gender === 'F' ? '♀️' : '❓'}</span><span class="cell-val">${genderTxt}</span></div>
       <div class="cell ${v.affil}" data-label="${t('Affiliation')}" ${al(t('Affiliation'), affilTxt, v.affil)}><span class="cell-val" style="font-size:0.76rem;line-height:1.3">${esc(affilTxt)}</span></div>
@@ -673,7 +673,7 @@
       ${roImg}
       <div>
         <div class="v-rtitle">${mine ? t('🏆 Manche gagnée !') : tf('💀 Manche pour {0}', esc(wName))}</div>
-        <div class="v-rname">${t("C'était")} <b>${esc(p.target.name)}</b>${p.fruitName ? ` (${esc(p.fruitName)})` : ''}</div>
+        <div class="v-rname">${t("C'était")} <b>${esc(tName(p.target.name))}</b>${p.fruitName ? ` (${esc(p.fruitName)})` : ''}</div>
         <div class="v-rsub">${tf('trouvé en {0} essai{1} · Score : {2}', p.tries, p.tries > 1 ? 's' : '', p.scores.join(' · '))}</div>
       </div>`;
     $('v-roundover').hidden = false;
@@ -700,15 +700,26 @@
       // Mode Opening : on affiche TOUJOURS le numéro, y compris quand c'est le titre
       // qui a matché — sinon rien ne dit à quel générique correspond le titre.
       const hint = curMode === 'audio' ? tf('Opening {0}', c.id) : getMatchHint(c, q, ALIASES);
-      return `<div class="ac-item" data-i="${i}">${esc(c.name)}${hint ? ` <span class="ac-hint">${esc(hint)}</span>` : ''}</div>`;
+      const nom = tName(c.name);
+      const ind = (hint && hint.toLowerCase() !== nom.toLowerCase())
+                    ? ` <span class="ac-hint">${esc(hint)}</span>` : '';
+      return `<div class="ac-item" data-i="${i}">${esc(nom)}${ind}</div>`;
     }).join('');
     acBox().classList.add('open'); acSel = -1;
     acBox().querySelectorAll('.ac-item').forEach(el =>
       el.addEventListener('click', () => submitGuess(acFilt[+el.dataset.i].name)));
   }
 
+  // Nom de PERSONNAGE a l'affichage — jamais un nom de joueur, jamais une
+  // comparaison. Passe par window.t : `t` est masque localement plus bas.
+  function tName(n) { return (window.t ? window.t(n) : n); }
+
   function submitGuess(name) {
     if (!name) return;
+    // Alias (ou nom traduit) ramene au nom canonique de data.json avant resolution :
+    // sans ca, un joueur anglais tapant « Buggy » ne trouverait pas « Baggy ».
+    const _al = ALIASES[String(name).trim().toLowerCase()];
+    if (_al) name = _al;
     if (curMode === 'tome') {   // numéro de tome, pas un personnage
       const n = parseInt(name, 10);
       if (!Number.isInteger(n) || n < 1 || n > tomeMax()) return toast(tf('Un numéro de tome entre 1 et {0} !', tomeMax()));
