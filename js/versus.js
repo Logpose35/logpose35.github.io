@@ -701,7 +701,8 @@
       // qui a matché — sinon rien ne dit à quel générique correspond le titre.
       const hint = curMode === 'audio' ? tf('Opening {0}', c.id) : getMatchHint(c, q, ALIASES);
       const nom = tName(c.name);
-      const ind = (hint && hint.toLowerCase() !== nom.toLowerCase())
+      const plat = (s) => fold(s).replace(/[^a-z0-9]/g, '');   // fold garde la ponctuation
+      const ind = (hint && plat(hint) !== plat(nom))
                     ? ` <span class="ac-hint">${esc(hint)}</span>` : '';
       return `<div class="ac-item" data-i="${i}">${esc(nom)}${ind}</div>`;
     }).join('');

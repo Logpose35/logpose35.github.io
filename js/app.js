@@ -768,7 +768,8 @@ input.addEventListener('input', () => {
     // L'indice repete l'alias qui a matche. En anglais, le nom traduit EST
     // souvent cet alias (« Buggy buggy ») : dans ce cas il n'apprend rien.
     const nom  = tName(c.name);
-    const sub  = (hint && hint.toLowerCase() !== nom.toLowerCase())
+    const plat = (s) => fold(s).replace(/[^a-z0-9]/g, '');   // fold garde la ponctuation
+    const sub  = (hint && plat(hint) !== plat(nom))
                    ? ` <span class="ac-hint">${esc(hint)}</span>` : '';
     return `<div class="ac-item" data-i="${i}">${esc(nom)}${sub}</div>`;
   }).join('');
@@ -1125,8 +1126,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=329`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=329`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=331`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=331`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
