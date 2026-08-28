@@ -1,4 +1,4 @@
-const CACHE_NAME = 'logpose-v331';
+const CACHE_NAME = 'logpose-v332';
 
 const STATIC_ASSETS = [
   '/',
@@ -29,37 +29,37 @@ const STATIC_ASSETS = [
   '/en/opening/',
   '/en/volume/',
   '/en/endless/',
-  '/js/i18n.js?v=331',
-  '/i18n/en.js?v=331',
-  '/css/versus.css?v=331',
-  '/js/versus.js?v=331',
-  '/css/base.css?v=331',
-  '/css/landing.css?v=331',
-  '/css/layout.css?v=331',
-  '/css/modals.css?v=331',
-  '/css/classic.css?v=331',
-  '/css/wanted.css?v=331',
-  '/css/silhouette.css?v=331',
-  '/css/fruit.css?v=331',
-  '/css/inf.css?v=331',
-  '/css/emoji.css?v=331',
-  '/css/misc.css?v=331',
-  '/css/audio.css?v=331',
-  '/js/version.js?v=331',
-  '/js/data.js?v=331',
-  '/js/landing.js?v=331',
-  '/js/jolly-roger.js?v=331',
-  '/js/versus-rules.js?v=331',
-  '/js/app.js?v=331',
-  '/js/canvas-share.js?v=331',
-  '/js/map.js?v=331',
-  '/css/animations.css?v=331',
-  '/css/map.css?v=331',
-  '/css/tome.css?v=331',
-  '/css/ocean3d.css?v=331',
-  '/css/answers.css?v=331',
-  '/css/mobile.css?v=331',
-  '/js/ocean3d-boot.js?v=331',
+  '/js/i18n.js?v=332',
+  '/i18n/en.js?v=332',
+  '/css/versus.css?v=332',
+  '/js/versus.js?v=332',
+  '/css/base.css?v=332',
+  '/css/landing.css?v=332',
+  '/css/layout.css?v=332',
+  '/css/modals.css?v=332',
+  '/css/classic.css?v=332',
+  '/css/wanted.css?v=332',
+  '/css/silhouette.css?v=332',
+  '/css/fruit.css?v=332',
+  '/css/inf.css?v=332',
+  '/css/emoji.css?v=332',
+  '/css/misc.css?v=332',
+  '/css/audio.css?v=332',
+  '/js/version.js?v=332',
+  '/js/data.js?v=332',
+  '/js/landing.js?v=332',
+  '/js/jolly-roger.js?v=332',
+  '/js/versus-rules.js?v=332',
+  '/js/app.js?v=332',
+  '/js/canvas-share.js?v=332',
+  '/js/map.js?v=332',
+  '/css/animations.css?v=332',
+  '/css/map.css?v=332',
+  '/css/tome.css?v=332',
+  '/css/ocean3d.css?v=332',
+  '/css/answers.css?v=332',
+  '/css/mobile.css?v=332',
+  '/js/ocean3d-boot.js?v=332',
   '/data.json',
   '/calendar.json',
   '/manifest.json',
@@ -72,6 +72,11 @@ const STATIC_ASSETS = [
 //   /js/ocean3d.js       110 Ko — fond 3D chargé à la demande depuis la v6.5
 //   /images/og_preview.jpg 75 Ko — vignette de partage, jamais affichée sur le site
 //   /images/wanted_frame.webp     — n'est utile qu'en mode Wanted
+//   /a-propos/ /mentions-legales/ /confidentialite/ (+ miroirs /en/) et
+//   /css/doc.css — pages de contenu consultées une fois ou jamais. Les
+//   précacher ajouterait ~80 Ko à CHAQUE installation pour un gain nul. Elles
+//   restent servies normalement, et disponibles hors ligne après une visite
+//   (HTML en network-first avec repli cache, CSS versionné en cache-first).
 
 // Installation : mise en cache des assets essentiels
 self.addEventListener('install', event => {

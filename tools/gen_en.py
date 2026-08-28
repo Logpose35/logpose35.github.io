@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.join(ROOT, 'tools'))
 DICT = json.load(open(os.path.join(ROOT, 'i18n', 'en.json'), encoding='utf-8'))
 
 from modes import MODES, BY_ID   # noqa: E402
+from pages import DOCS           # noqa: E402  (liens légaux du pied de page)
 
 # Pages à générer : (fichier racine, url_path SEO, chemin miroir FR pour le sélecteur)
 # game.html n'y figure plus : depuis « une URL par mode », c'est une simple
@@ -65,6 +66,9 @@ def structural(html, url_path, mirror):
     # Les slugs sont traduits, d'où la table plutôt qu'un simple préfixe.
     for m in MODES:
         html = html.replace('href="/%s/"' % m['fr_slug'], 'href="/en/%s/"' % m['en_slug'])
+    # Liens légaux du pied de page (slugs traduits eux aussi).
+    for d in DOCS:
+        html = html.replace('href="/%s/"' % d['fr_slug'], 'href="/en/%s/"' % d['en_slug'])
     # 4. SEO : URL canonique/og/JSON-LD -> /en/… (ciblé : ni les images, ni le bloc hreflang)
     base   = 'https://onepiecedle.fr/%s' % url_path
     enbase = 'https://onepiecedle.fr/en/%s' % url_path
@@ -183,6 +187,9 @@ def structural_mode(html, mode):
     html = html.replace('href="/versus.html"', 'href="/en/versus.html"')
     for m in MODES:
         html = html.replace('href="/%s/"' % m['fr_slug'], 'href="/en/%s/"' % m['en_slug'])
+    # Liens légaux du pied de page (slugs traduits eux aussi).
+    for d in DOCS:
+        html = html.replace('href="/%s/"' % d['fr_slug'], 'href="/en/%s/"' % d['en_slug'])
 
     # 2. URL SEO auto-référentes (ciblé : le bloc hreflang porte les MÊMES URL
     #    des deux côtés et doit rester intact).

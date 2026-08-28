@@ -88,22 +88,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=331">
-  <link rel="stylesheet" href="/css/layout.css?v=331">
-  <link rel="stylesheet" href="/css/modals.css?v=331">
-  <link rel="stylesheet" href="/css/classic.css?v=331">
-  <link rel="stylesheet" href="/css/wanted.css?v=331">
-  <link rel="stylesheet" href="/css/silhouette.css?v=331">
-  <link rel="stylesheet" href="/css/fruit.css?v=331">
-  <link rel="stylesheet" href="/css/inf.css?v=331">
-  <link rel="stylesheet" href="/css/emoji.css?v=331">
-  <link rel="stylesheet" href="/css/misc.css?v=331">
-  <link rel="stylesheet" href="/css/audio.css?v=331">
-  <link rel="stylesheet" href="/css/animations.css?v=331">
-  <link rel="stylesheet" href="/css/map.css?v=331">
-  <link rel="stylesheet" href="/css/tome.css?v=331">
+  <link rel="stylesheet" href="/css/base.css?v=332">
+  <link rel="stylesheet" href="/css/layout.css?v=332">
+  <link rel="stylesheet" href="/css/modals.css?v=332">
+  <link rel="stylesheet" href="/css/classic.css?v=332">
+  <link rel="stylesheet" href="/css/wanted.css?v=332">
+  <link rel="stylesheet" href="/css/silhouette.css?v=332">
+  <link rel="stylesheet" href="/css/fruit.css?v=332">
+  <link rel="stylesheet" href="/css/inf.css?v=332">
+  <link rel="stylesheet" href="/css/emoji.css?v=332">
+  <link rel="stylesheet" href="/css/misc.css?v=332">
+  <link rel="stylesheet" href="/css/audio.css?v=332">
+  <link rel="stylesheet" href="/css/animations.css?v=332">
+  <link rel="stylesheet" href="/css/map.css?v=332">
+  <link rel="stylesheet" href="/css/tome.css?v=332">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=331">
+  <link rel="stylesheet" href="/css/mobile.css?v=332">
 </head>
 <body data-page="game">
 
@@ -456,12 +456,40 @@
 <section class="mode-seo">
   <h1 class="mode-seo__h1">OnePiecedle Tome — reconnaître le tome à sa couverture</h1>
   <div class="mode-seo__body" data-i18n-html="seo.tome.body">
-      <p>Le mode Tome montre un détail très agrandi de la couverture d'un des 112 tomes
-      parus et recule d'un cran à chaque erreur jusqu'à la couverture entière. La réponse est un
-      numéro entre 1 et 112 : chaque proposition indique si le tome cherché est plus haut ou plus
-      bas, ce qui laisse six essais pour l'encadrer.</p>
+      <p>Le mode Tome montre un détail très agrandi de la couverture d'un des 112 tomes présents dans le
+      jeu. La vue recule à chaque erreur, jusqu'à la couverture entière au sixième et dernier essai.</p>
+      <p>La réponse est un numéro compris entre 1 et 112. Chaque proposition indique si le tome cherché se
+      situe plus haut ou plus bas, ce qui permet de l'encadrer par dichotomie. Six essais suffisent en
+      théorie à couvrir toute la collection, à condition de couper l'intervalle en deux à chaque fois.</p>
+      <p>Le détail initial porte souvent sur un aplat de couleur ou un fragment de logo, difficile à
+      situer. Le dézoom fait ensuite apparaître les personnages en couverture, ce qui rattache le tome à un
+      arc précis et resserre l'intervalle bien plus vite que le seul jeu du plus haut ou plus bas.</p>
+      <p>C'est le seul mode quotidien dont la réponse est un nombre et non un nom, ce qui change la façon
+      de jouer : la logique de recherche y compte davantage que la connaissance des personnages.</p>
+  </div>
+  <h2 class="mode-seo__h2">Questions fréquentes</h2>
+  <div class="mode-seo__faq">
+      <details class="mode-seo__q"><summary>Combien d'essais dans le mode Tome ?</summary><p>Six. Le zoom recule d'un cran à chaque erreur, du détail de départ jusqu'à la couverture complète.</p></details>
+      <details class="mode-seo__q"><summary>Comment savoir si le tome cherché est plus haut ou plus bas ?</summary><p>Chaque proposition affiche une flèche indiquant le sens. Couper l'intervalle en deux à chaque essai reste la méthode la plus sûre.</p></details>
+      <details class="mode-seo__q"><summary>Combien de tomes peuvent tomber ?</summary><p>112, soit toutes les couvertures présentes dans le jeu. Le numéro attendu se situe donc entre 1 et 112.</p></details>
   </div>
 </section>
+
+<!-- Balisage FAQPage (Schema.org) : miroir exact de la FAQ ci-dessus -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+      { "@type": "Question", "name": "Combien d'essais dans le mode Tome ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Six. Le zoom recule d'un cran à chaque erreur, du détail de départ jusqu'à la couverture complète." } },
+      { "@type": "Question", "name": "Comment savoir si le tome cherché est plus haut ou plus bas ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Chaque proposition affiche une flèche indiquant le sens. Couper l'intervalle en deux à chaque essai reste la méthode la plus sûre." } },
+      { "@type": "Question", "name": "Combien de tomes peuvent tomber ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "112, soit toutes les couvertures présentes dans le jeu. Le numéro attendu se situe donc entre 1 et 112." } }
+  ]
+}
+</script>
 
 <footer>
   LogPose · Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome
@@ -472,6 +500,8 @@
   <br>
   <button class="footer-about-btn" onclick="openAbout()">À propos</button>
   <span class="footer-version js-version"></span>
+  <br>
+  <span class="foot-legal"><a href="/a-propos/">Le projet</a> · <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a></span>
 </footer>
 
 <!-- POPUP PARTAGE -->
@@ -651,13 +681,13 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/js/i18n.js?v=331"></script>
-<script src="/js/version.js?v=331"></script>
-<script src="/js/data.js?v=331"></script>
-<script src="/js/jolly-roger.js?v=331"></script>
-<script src="/js/versus-rules.js?v=331"></script>
-<script src="/js/app.js?v=331"></script>
-<script src="/js/canvas-share.js?v=331"></script>
-<script src="/js/map.js?v=331"></script>
+<script src="/js/i18n.js?v=332"></script>
+<script src="/js/version.js?v=332"></script>
+<script src="/js/data.js?v=332"></script>
+<script src="/js/jolly-roger.js?v=332"></script>
+<script src="/js/versus-rules.js?v=332"></script>
+<script src="/js/app.js?v=332"></script>
+<script src="/js/canvas-share.js?v=332"></script>
+<script src="/js/map.js?v=332"></script>
 </body>
 </html>

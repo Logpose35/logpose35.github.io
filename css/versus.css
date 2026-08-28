@@ -343,3 +343,14 @@
   font-size: .92rem; box-shadow: 0 6px 18px rgba(0,0,0,.3);
 }
 .v-toast.info { background: var(--tab-act); }
+
+/* ===== PIED DE PAGE =====
+   Ajouté le 28/08/2026 : cette page n'en avait aucun, or les liens légaux
+   doivent figurer sur toutes les pages du site. Volontairement minimal — on
+   est au milieu d'un duel, pas sur une page de lecture. */
+.v-foot {
+  text-align: center;
+  padding: var(--sp-4) var(--sp-4) var(--sp-5);
+  margin-top: var(--sp-4);
+  border-top: 1px solid rgba(200, 148, 10, 0.16);
+}

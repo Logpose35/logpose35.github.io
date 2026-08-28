@@ -88,22 +88,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=331">
-  <link rel="stylesheet" href="/css/layout.css?v=331">
-  <link rel="stylesheet" href="/css/modals.css?v=331">
-  <link rel="stylesheet" href="/css/classic.css?v=331">
-  <link rel="stylesheet" href="/css/wanted.css?v=331">
-  <link rel="stylesheet" href="/css/silhouette.css?v=331">
-  <link rel="stylesheet" href="/css/fruit.css?v=331">
-  <link rel="stylesheet" href="/css/inf.css?v=331">
-  <link rel="stylesheet" href="/css/emoji.css?v=331">
-  <link rel="stylesheet" href="/css/misc.css?v=331">
-  <link rel="stylesheet" href="/css/audio.css?v=331">
-  <link rel="stylesheet" href="/css/animations.css?v=331">
-  <link rel="stylesheet" href="/css/map.css?v=331">
-  <link rel="stylesheet" href="/css/tome.css?v=331">
+  <link rel="stylesheet" href="/css/base.css?v=332">
+  <link rel="stylesheet" href="/css/layout.css?v=332">
+  <link rel="stylesheet" href="/css/modals.css?v=332">
+  <link rel="stylesheet" href="/css/classic.css?v=332">
+  <link rel="stylesheet" href="/css/wanted.css?v=332">
+  <link rel="stylesheet" href="/css/silhouette.css?v=332">
+  <link rel="stylesheet" href="/css/fruit.css?v=332">
+  <link rel="stylesheet" href="/css/inf.css?v=332">
+  <link rel="stylesheet" href="/css/emoji.css?v=332">
+  <link rel="stylesheet" href="/css/misc.css?v=332">
+  <link rel="stylesheet" href="/css/audio.css?v=332">
+  <link rel="stylesheet" href="/css/animations.css?v=332">
+  <link rel="stylesheet" href="/css/map.css?v=332">
+  <link rel="stylesheet" href="/css/tome.css?v=332">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=331">
+  <link rel="stylesheet" href="/css/mobile.css?v=332">
 </head>
 <body data-page="game">
 
@@ -473,12 +473,42 @@
 <section class="mode-seo">
   <h1 class="mode-seo__h1">OnePiecedle Fruit du Démon — trouver le détenteur du fruit</h1>
   <div class="mode-seo__body" data-i18n-html="seo.fruit.body">
-      <p>Le mode Fruit du Démon affiche le nom d'un des 118 fruits recensés et laisse
-      deviner son détenteur en dix essais. Trois indices se débloquent au fil des erreurs : le type
-      du fruit au troisième essai, sa traduction française au cinquième et la description de son
-      pouvoir au huitième, chacun réduisant le score obtenu.</p>
+      <p>Le mode Fruit du Démon affiche le nom d'un des 118 fruits recensés dans le jeu et laisse retrouver
+      son détenteur en dix essais. Pour les fruits célèbres, le nom seul suffit. Beaucoup d'autres
+      appartiennent à des seconds rôles et demandent d'attendre les indices.</p>
+      <p>Trois indices se débloquent au fil des erreurs, sans jamais consommer d'essai. Le type du fruit
+      arrive à la troisième erreur, Paramecia, Logia ou Zoan. Sa traduction française à la cinquième. La
+      description du pouvoir à la huitième. Chacun réduit le score de la manche.</p>
+      <p>Le classement par type est celui de l'œuvre, Zoan mythiques compris. Quelques fruits acceptent
+      deux réponses, lorsque l'histoire leur a donné deux porteurs successifs : les deux noms sont alors
+      validés.</p>
+      <p>Le fruit du jour est fixé à minuit, heure de Paris, et reste le même pour tous les joueurs
+      jusqu'au lendemain. La partie est conservée dans le navigateur, ce qui permet de la reprendre plus
+      tard sans rien perdre.</p>
+  </div>
+  <h2 class="mode-seo__h2">Questions fréquentes</h2>
+  <div class="mode-seo__faq">
+      <details class="mode-seo__q"><summary>Combien de fruits du démon le jeu contient-il ?</summary><p>118, des fruits les plus connus à ceux croisés une seule fois dans un arc secondaire.</p></details>
+      <details class="mode-seo__q"><summary>Les indices coûtent-ils un essai ?</summary><p>Non. Ils se débloquent seuls à la troisième, cinquième et huitième erreur. Ils réduisent le score de la manche, pas le nombre d'essais restants.</p></details>
+      <details class="mode-seo__q"><summary>Un fruit peut-il avoir deux détenteurs valables ?</summary><p>Oui, pour les quelques fruits dont l'histoire a montré deux porteurs successifs. Les deux réponses sont acceptées.</p></details>
   </div>
 </section>
+
+<!-- Balisage FAQPage (Schema.org) : miroir exact de la FAQ ci-dessus -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+      { "@type": "Question", "name": "Combien de fruits du démon le jeu contient-il ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "118, des fruits les plus connus à ceux croisés une seule fois dans un arc secondaire." } },
+      { "@type": "Question", "name": "Les indices coûtent-ils un essai ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Non. Ils se débloquent seuls à la troisième, cinquième et huitième erreur. Ils réduisent le score de la manche, pas le nombre d'essais restants." } },
+      { "@type": "Question", "name": "Un fruit peut-il avoir deux détenteurs valables ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Oui, pour les quelques fruits dont l'histoire a montré deux porteurs successifs. Les deux réponses sont acceptées." } }
+  ]
+}
+</script>
 
 <footer>
   LogPose · Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome
@@ -489,6 +519,8 @@
   <br>
   <button class="footer-about-btn" onclick="openAbout()">À propos</button>
   <span class="footer-version js-version"></span>
+  <br>
+  <span class="foot-legal"><a href="/a-propos/">Le projet</a> · <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a></span>
 </footer>
 
 <!-- POPUP PARTAGE -->
@@ -668,13 +700,13 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/js/i18n.js?v=331"></script>
-<script src="/js/version.js?v=331"></script>
-<script src="/js/data.js?v=331"></script>
-<script src="/js/jolly-roger.js?v=331"></script>
-<script src="/js/versus-rules.js?v=331"></script>
-<script src="/js/app.js?v=331"></script>
-<script src="/js/canvas-share.js?v=331"></script>
-<script src="/js/map.js?v=331"></script>
+<script src="/js/i18n.js?v=332"></script>
+<script src="/js/version.js?v=332"></script>
+<script src="/js/data.js?v=332"></script>
+<script src="/js/jolly-roger.js?v=332"></script>
+<script src="/js/versus-rules.js?v=332"></script>
+<script src="/js/app.js?v=332"></script>
+<script src="/js/canvas-share.js?v=332"></script>
+<script src="/js/map.js?v=332"></script>
 </body>
 </html>

@@ -402,3 +402,27 @@ h1, .brand-name {
 body.size-small { zoom: 0.78; }
 body.size-large  { zoom: 1.22; }
 
+
+/* ===== LIENS LÉGAUX DU PIED DE PAGE =====
+   Présents sur TOUTES les pages (jeu, landing, archive, pages de contenu),
+   d'où leur place ici plutôt que dans doc.css qui n'est chargé que par
+   /a-propos/, /mentions-legales/ et /confidentialite/.
+   Ajoutés le 28/08/2026 : le site n'avait aucune page légale, ce qu'AdSense
+   a relevé et ce que la LCEN impose de toute façon.
+   Discrets par construction, comme la ligne de copyright qu'ils accompagnent. */
+.foot-legal {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text3);
+}
+.foot-legal a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+.foot-legal a:hover {
+  color: var(--gold);
+  border-bottom-color: var(--lb-hair-2);
+}

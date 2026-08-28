@@ -376,6 +376,15 @@ def main(argv):
             for p in ('index', 'versus'):
                 gen_en.build(p)
 
+    # Pages de contenu (à propos / mentions légales / confidentialité), FR+EN.
+    # Elles lisent le ?v= dans sw.js : les régénérer ici garantit qu'un bump de
+    # cache les emmène avec le reste, sans commande supplémentaire à retenir.
+    if len(ids) == len(MODES):
+        print()
+        print('=== pages de contenu ===')
+        import gen_docs
+        gen_docs.main([])
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])

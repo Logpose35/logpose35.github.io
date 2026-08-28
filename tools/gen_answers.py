@@ -44,6 +44,7 @@ import datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 import modes as MODES_MOD
+from pages import foot_html   # liens légaux du pied de page
 
 # Ordre d'affichage = ordre canonique des modes, moins le mode Infini (pas quotidien).
 DAILY = [m for m in MODES_MOD.MODES if m['id'] != 'inf']
@@ -259,6 +260,9 @@ def build(lang):
         'theme_aria': esc(T('Changer de thème', lang)),
         'legal': esc(T('One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan '
                        'non officiel, sans affiliation.', lang)),
+        # Liens légaux : obligatoires sur toutes les pages (LCEN + AdSense).
+        # Déjà échappés et volontairement non passés à esc() : c'est du HTML.
+        'foot_legal': foot_html(lang),
         'nav_aria': esc(T('Navigation principale', lang)),
         'lang_home': pfx,
         'classic_slug': esc(pfx + slug['classic']),
@@ -421,6 +425,7 @@ TEMPLATE = """<!DOCTYPE html>
 <footer class="lp-foot">
   <a class="lp-cta" href="/%(classic_slug)s/">%(play_today)s</a>
   <div class="lp-foot__meta"><span class="lp-foot__brand">LogPose</span></div>
+  %(foot_legal)s
   <p class="lp-foot__legal">%(legal)s</p>
 </footer>
 

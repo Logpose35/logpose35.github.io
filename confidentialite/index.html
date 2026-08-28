@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politique de confidentialité — OnePiecedle · LogPose</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Ce que OnePiecedle (LogPose) stocke, ce qu&#x27;il n&#x27;envoie pas, et les services tiers utilisés. Aucun compte, aucune inscription, aucune revente de données.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#c89408">
+  <link rel="canonical" href="https://onepiecedle.fr/confidentialite/">
+  <!-- Bloc hreflang identique des deux côtés (cluster réciproque). -->
+  <link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/confidentialite/">
+  <link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/privacy/">
+  <link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/privacy/">
+
+  <meta property="og:title" content="Politique de confidentialité — OnePiecedle · LogPose">
+  <meta property="og:description" content="Ce que OnePiecedle (LogPose) stocke, ce qu&#x27;il n&#x27;envoie pas, et les services tiers utilisés. Aucun compte, aucune inscription, aucune revente de données.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://onepiecedle.fr/confidentialite/">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:image" content="https://onepiecedle.fr/images/og_preview.jpg">
+  <meta property="og:site_name" content="OnePiecedle">
+
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+
+  <!-- Thème partagé avec le reste du site (clé op-theme), appliqué avant le rendu. -->
+  <script>
+    (function () {
+      function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+      window.toggleTheme = function () {
+        var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        try { localStorage.setItem('op-theme', next); } catch (e) {}
+      };
+      function readAndApply() {
+        var saved;
+        try { saved = localStorage.getItem('op-theme'); } catch (e) {}
+        if (saved) applyTheme(saved);
+        else applyTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      }
+      readAndApply();
+      window.addEventListener('pageshow', function (e) { if (e.persisted) readAndApply(); });
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css?v=332">
+  <link rel="stylesheet" href="/css/landing.css?v=332">
+  <link rel="stylesheet" href="/css/doc.css?v=332">
+  <link rel="stylesheet" href="/css/mobile.css?v=332">
+</head>
+<!-- nav-condensed : ces pages n'ont pas de héros et ne chargent pas js/landing.js,
+     l'état déplié de la barre est donc le bon d'emblée. -->
+<body class="landing-body doc-body nav-condensed">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="ic-compass" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 5l1.7 5.3 5.3 1.7-5.3 1.7L12 19l-1.7-5.3L5 12l5.3-1.7z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-anchor" viewBox="0 0 24 24">
+    <circle cx="12" cy="5" r="2"/>
+    <path d="M12 7v13"/>
+    <path d="M7.5 11h9"/>
+    <path d="M5 13.5a7 7 0 0 0 14 0"/>
+    <path d="M5 13.5l-1.8.4M5 13.5l1.4 1.4M19 13.5l1.8.4M19 13.5l-1.4 1.4"/>
+  </symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24">
+    <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/>
+  </symbol>
+</svg>
+
+<nav class="lp-nav" aria-label="Navigation principale">
+  <a class="lp-nav__brand" href="/">
+    <svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg>
+    LogPose
+  </a>
+  <div class="lp-nav__actions">
+    <a class="lp-play" href="/classique/">
+      <svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg>
+      Jouer
+    </a>
+    <a class="lp-lang" href="/en/privacy/" aria-label="Switch to English">EN</a>
+    <button class="lp-theme" onclick="toggleTheme()" aria-label="Changer de thème">
+      <svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg>
+      <svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg>
+    </button>
+  </div>
+</nav>
+
+<main class="doc">
+  <h1 class="doc-title">Politique de confidentialité</h1>
+<p class="doc-lead">OnePiecedle ne demande ni compte, ni inscription, ni adresse électronique
+pour jouer. Le site ne constitue aucun profil de joueur et ne revend aucune donnée. Cette page
+décrit précisément ce qui est stocké et ce qui transite vers des tiers.</p>
+
+<h2>Ce qui reste sur l'appareil</h2>
+<p>La progression et les préférences sont enregistrées dans le stockage local du navigateur.
+Ces données ne quittent jamais l'appareil : elles ne sont envoyées à aucun serveur, y compris
+celui du site.</p>
+<ul>
+  <li>les préférences d'affichage : thème clair ou sombre, taille du texte, mode daltonien,
+      effets sonores ;</li>
+  <li>les parties du jour en cours ou terminées, mode par mode ;</li>
+  <li>les statistiques personnelles : parties jouées, victoires, séries en cours et
+      records ;</li>
+  <li>le score quotidien et l'historique des journées jouées ;</li>
+  <li>le bilan des duels du mode Versus ;</li>
+  <li>quelques indicateurs d'interface, par exemple une annonce déjà lue.</li>
+</ul>
+<p>Vider les données de site du navigateur efface l'ensemble. Cette suppression est définitive
+et fait perdre la progression, puisqu'il n'existe aucune copie côté serveur. Une sauvegarde
+peut être exportée puis réimportée depuis les réglages du jeu.</p>
+
+<h2>Compteurs anonymes</h2>
+<p>Le site tient un compteur du nombre de parties terminées par jour et par mode, ainsi qu'un
+compteur collectif de progression sur la carte. Ces compteurs sont de simples nombres, stockés
+chez <strong>Google Firebase</strong> sur des serveurs situés dans l'Union européenne
+(europe-west1).</p>
+<p>Aucun identifiant, aucune adresse IP et aucune donnée de partie ne leur est associé. Il est
+impossible d'en déduire qui a joué, ni quoi.</p>
+
+<h2>Formulaire de signalement</h2>
+<p>Le formulaire de signalement d'erreur transmet le message rédigé, la catégorie choisie et la
+page d'origine à un serveur géré par l'éditeur, hébergé en France. Le message est ensuite
+relayé par courriel à l'éditeur.</p>
+<p>L'adresse IP est utilisée le temps de la requête pour limiter les envois abusifs, sans être
+conservée dans un registre. Renseigner une adresse de contact est facultatif : sans elle, le
+signalement reste anonyme, mais aucune réponse n'est possible.</p>
+
+<h2>Services tiers</h2>
+<p>Consulter le site implique des échanges avec les services suivants, qui reçoivent à cette
+occasion l'adresse IP et des informations techniques sur le navigateur.</p>
+<ul>
+  <li><strong>Google Fonts</strong> : chargement des polices d'écriture.</li>
+  <li><strong>Google AdSense</strong> : régie publicitaire. Son script est chargé sur les
+      pages en vue d'une activation. Une fois la publicité active, ce service dépose des
+      cookies et lit ceux qu'il a déposés, pour mesurer l'audience des annonces et, selon le
+      consentement, les personnaliser.</li>
+  <li><strong>Google Firebase</strong> : compteurs anonymes décrits plus haut.</li>
+  <li><strong>YouTube</strong> et <strong>AnimeThemes</strong> : visionnage du générique,
+      proposé uniquement à la fin d'une partie du mode Opening. Rien n'est chargé avant.</li>
+  <li><strong>jsDelivr</strong> : bibliothèque d'affichage 3D de la page d'accueil.</li>
+  <li><strong>assets.onepiecedle.fr</strong> et <strong>multi.onepiecedle.fr</strong> :
+      serveurs de l'éditeur, hébergés en France, pour les images, les extraits audio et le
+      mode Versus.</li>
+</ul>
+
+<h2>Cookies</h2>
+<p>Le site n'utilise aucun cookie pour son propre fonctionnement : le stockage local décrit
+plus haut n'en est pas un et n'est jamais transmis.</p>
+<p>Aucune annonce n'est diffusée à ce jour et aucun emplacement publicitaire n'est placé sur
+les pages. Avant toute diffusion, un bandeau de consentement sera présenté aux visiteurs de
+l'Union européenne. Le refus y sera aussi simple que l'acceptation et modifiable à tout
+moment. Refuser n'empêchera pas de jouer : aucune fonctionnalité du jeu n'en dépend.</p>
+
+<h2>Mode Versus</h2>
+<p>Une partie en duel ouvre une connexion vers le serveur de l'éditeur. Ce serveur ne conserve
+la partie qu'en mémoire vive, le temps de la manche : le pseudonyme choisi, le code du salon et
+les propositions faites. Tout disparaît à la fin de la partie et rien n'est écrit sur disque.
+Le pseudonyme est libre et n'a pas à être un vrai nom.</p>
+
+<h2>Mineurs</h2>
+<p>Le site s'adresse à un large public et ne collecte volontairement aucune donnée permettant
+d'identifier une personne, quel que soit son âge.</p>
+
+<h2>Droits et contact</h2>
+<p>Le site ne détenant aucune donnée nominative, il n'existe pas de dossier personnel à
+consulter ou à supprimer : effacer les données de site du navigateur suffit à tout retirer.</p>
+<p>Pour les cookies publicitaires, les droits s'exercent auprès de Google, qui en est
+responsable. Pour toute question sur cette politique :
+<a href="mailto:contact@onepiecedle.fr">contact@onepiecedle.fr</a>.</p>
+</main>
+
+<footer class="lp-foot">
+  <a class="lp-cta" href="/classique/">Jouer</a>
+  <div class="lp-foot__meta">
+    <span class="lp-foot__brand">LogPose</span>
+    <span class="lp-foot__ver js-version"></span>
+  </div>
+  <span class="foot-legal"><a href="/a-propos/">Le projet</a> · <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a></span>
+  <p class="lp-foot__legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation.</p>
+</footer>
+
+<script src="/js/version.js?v=332"></script>
+</body>
+</html>

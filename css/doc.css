@@ -1,0 +1,82 @@
+/* doc.css — pages de contenu hors jeu : /a-propos/, /mentions-legales/,
+   /confidentialite/ et leurs miroirs anglais.
+
+   Ne définit AUCUNE couleur en dur : uniquement les variables de base.css,
+   donc le thème clair/sombre suit tout seul, comme answers.css.
+   Colonne de lecture étroite (68ch) : ces pages sont faites pour être lues,
+   pas parcourues. */
+
+.doc-body { overflow-x: clip; }          /* clip et non hidden : sinon sticky casse */
+
+/* .lp-nav est en position:fixed. Sans ce retrait en haut, le H1 passe dessous. */
+.doc {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 5.8rem var(--sp-4) var(--sp-8);
+}
+
+.doc-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.5rem, 4.2vw, 2.3rem);
+  line-height: 1.18;
+  color: var(--gold-l);
+  margin: 0 0 1.1rem;
+}
+
+/* Chapô : un cran au-dessus du corps, sans devenir un bloc de mise en avant. */
+.doc-lead {
+  color: var(--text2);
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  margin: 0 0 2.4rem;
+  padding-left: var(--sp-3);
+  border-left: 2px solid var(--lb-hair-2);
+}
+
+.doc h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.15rem, 2.6vw, 1.45rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  margin: 2.4rem 0 0.7rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--lb-hair);
+}
+
+.doc p {
+  color: var(--text2);
+  font-size: var(--fs-base);
+  line-height: 1.7;
+  margin: 0 0 1rem;
+  max-width: 68ch;
+}
+
+.doc ul {
+  color: var(--text2);
+  font-size: var(--fs-base);
+  line-height: 1.65;
+  margin: 0 0 1.2rem;
+  padding-left: 1.3rem;
+  max-width: 68ch;
+}
+.doc li { margin-bottom: 0.5rem; }
+.doc li::marker { color: var(--gold); }
+
+.doc strong { color: var(--text2); font-weight: 700; }
+
+.doc a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+.doc a:hover { color: var(--gold-l); }
+
+/* Les liens légaux du pied de page (.foot-legal) apparaissent sur TOUTES les
+   pages du site : leur style vit dans base.css, pas ici. */
+
+@media (max-width: 620px) {
+  .doc { padding-top: 5rem; }
+  .doc-lead { font-size: var(--fs-base); }
+}

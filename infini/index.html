@@ -88,22 +88,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=331">
-  <link rel="stylesheet" href="/css/layout.css?v=331">
-  <link rel="stylesheet" href="/css/modals.css?v=331">
-  <link rel="stylesheet" href="/css/classic.css?v=331">
-  <link rel="stylesheet" href="/css/wanted.css?v=331">
-  <link rel="stylesheet" href="/css/silhouette.css?v=331">
-  <link rel="stylesheet" href="/css/fruit.css?v=331">
-  <link rel="stylesheet" href="/css/inf.css?v=331">
-  <link rel="stylesheet" href="/css/emoji.css?v=331">
-  <link rel="stylesheet" href="/css/misc.css?v=331">
-  <link rel="stylesheet" href="/css/audio.css?v=331">
-  <link rel="stylesheet" href="/css/animations.css?v=331">
-  <link rel="stylesheet" href="/css/map.css?v=331">
-  <link rel="stylesheet" href="/css/tome.css?v=331">
+  <link rel="stylesheet" href="/css/base.css?v=332">
+  <link rel="stylesheet" href="/css/layout.css?v=332">
+  <link rel="stylesheet" href="/css/modals.css?v=332">
+  <link rel="stylesheet" href="/css/classic.css?v=332">
+  <link rel="stylesheet" href="/css/wanted.css?v=332">
+  <link rel="stylesheet" href="/css/silhouette.css?v=332">
+  <link rel="stylesheet" href="/css/fruit.css?v=332">
+  <link rel="stylesheet" href="/css/inf.css?v=332">
+  <link rel="stylesheet" href="/css/emoji.css?v=332">
+  <link rel="stylesheet" href="/css/misc.css?v=332">
+  <link rel="stylesheet" href="/css/audio.css?v=332">
+  <link rel="stylesheet" href="/css/animations.css?v=332">
+  <link rel="stylesheet" href="/css/map.css?v=332">
+  <link rel="stylesheet" href="/css/tome.css?v=332">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=331">
+  <link rel="stylesheet" href="/css/mobile.css?v=332">
 </head>
 <body data-page="game">
 
@@ -474,12 +474,41 @@
 <section class="mode-seo">
   <h1 class="mode-seo__h1">OnePiecedle Mode Infini — s'entraîner sans limite</h1>
   <div class="mode-seo__body" data-i18n-html="seo.inf.body">
-      <p>Le mode Infini reprend la grille du mode Classique — huit caractéristiques
-      comparées à chaque essai — mais tire un personnage au hasard et se rejoue autant de fois que
-      voulu. Il reste hors du défi quotidien : il ne rapporte aucun point au score du jour et ne
-      compte qu'une série de victoires et son record.</p>
+      <p>Le mode Infini reprend la grille du mode Classique, avec les mêmes huit caractéristiques comparées
+      à chaque essai et les mêmes dix tentatives, mais tire un personnage au hasard et se rejoue sans
+      limite.</p>
+      <p>Il sert avant tout d'entraînement. Enchaîner les parties fait retenir les primes, les affiliations
+      et les arcs de première apparition, ce qui se ressent ensuite sur le défi quotidien. Les personnages
+      secondaires, rarement tirés au quotidien, y reviennent beaucoup plus souvent.</p>
+      <p>Ce mode reste en dehors du défi du jour. Il ne rapporte aucun point au score quotidien et n'entre
+      pas dans le résultat partagé en fin de journée. Il tient son propre compteur : la série de victoires
+      en cours et le meilleur record, conservés dans le navigateur.</p>
+      <p>Une nouvelle partie est disponible immédiatement après chaque fin, sans attendre minuit et sans
+      limite de nombre.</p>
+  </div>
+  <h2 class="mode-seo__h2">Questions fréquentes</h2>
+  <div class="mode-seo__faq">
+      <details class="mode-seo__q"><summary>Le mode Infini compte-t-il dans le score quotidien ?</summary><p>Non. Il vit à côté du défi du jour, avec son propre compteur de série et son record.</p></details>
+      <details class="mode-seo__q"><summary>Combien de parties peut-on enchaîner ?</summary><p>Autant que voulu. Chaque partie tire un nouveau personnage au hasard parmi les 266 du jeu.</p></details>
+      <details class="mode-seo__q"><summary>Les règles sont-elles celles du mode Classique ?</summary><p>Oui, la grille et les dix essais sont identiques. Seule la sélection change : au hasard, et sans lien avec la journée en cours.</p></details>
   </div>
 </section>
+
+<!-- Balisage FAQPage (Schema.org) : miroir exact de la FAQ ci-dessus -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+      { "@type": "Question", "name": "Le mode Infini compte-t-il dans le score quotidien ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Non. Il vit à côté du défi du jour, avec son propre compteur de série et son record." } },
+      { "@type": "Question", "name": "Combien de parties peut-on enchaîner ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Autant que voulu. Chaque partie tire un nouveau personnage au hasard parmi les 266 du jeu." } },
+      { "@type": "Question", "name": "Les règles sont-elles celles du mode Classique ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Oui, la grille et les dix essais sont identiques. Seule la sélection change : au hasard, et sans lien avec la journée en cours." } }
+  ]
+}
+</script>
 
 <footer>
   LogPose · Classique · Wanted · Silhouette · Fruit du Démon · Émoji · Opening · Tome
@@ -490,6 +519,8 @@
   <br>
   <button class="footer-about-btn" onclick="openAbout()">À propos</button>
   <span class="footer-version js-version"></span>
+  <br>
+  <span class="foot-legal"><a href="/a-propos/">Le projet</a> · <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a></span>
 </footer>
 
 <!-- POPUP PARTAGE -->
@@ -669,13 +700,13 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/js/i18n.js?v=331"></script>
-<script src="/js/version.js?v=331"></script>
-<script src="/js/data.js?v=331"></script>
-<script src="/js/jolly-roger.js?v=331"></script>
-<script src="/js/versus-rules.js?v=331"></script>
-<script src="/js/app.js?v=331"></script>
-<script src="/js/canvas-share.js?v=331"></script>
-<script src="/js/map.js?v=331"></script>
+<script src="/js/i18n.js?v=332"></script>
+<script src="/js/version.js?v=332"></script>
+<script src="/js/data.js?v=332"></script>
+<script src="/js/jolly-roger.js?v=332"></script>
+<script src="/js/versus-rules.js?v=332"></script>
+<script src="/js/app.js?v=332"></script>
+<script src="/js/canvas-share.js?v=332"></script>
+<script src="/js/map.js?v=332"></script>
 </body>
 </html>

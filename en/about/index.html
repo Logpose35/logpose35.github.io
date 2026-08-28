@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About OnePiecedle — who makes the game and how · LogPose</title>
+
+  <!-- SEO -->
+  <meta name="description" content="OnePiecedle (LogPose) is a free daily One Piece game, no signup required. How the project started, how answers are chosen, where the data comes from and how to report a mistake.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#c89408">
+  <link rel="canonical" href="https://onepiecedle.fr/en/about/">
+  <!-- Bloc hreflang identique des deux côtés (cluster réciproque). -->
+  <link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/a-propos/">
+  <link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/about/">
+  <link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/about/">
+
+  <meta property="og:title" content="About OnePiecedle — who makes the game and how · LogPose">
+  <meta property="og:description" content="OnePiecedle (LogPose) is a free daily One Piece game, no signup required. How the project started, how answers are chosen, where the data comes from and how to report a mistake.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://onepiecedle.fr/en/about/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://onepiecedle.fr/images/og_preview.jpg">
+  <meta property="og:site_name" content="OnePiecedle">
+
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+
+  <!-- Thème partagé avec le reste du site (clé op-theme), appliqué avant le rendu. -->
+  <script>
+    (function () {
+      function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+      window.toggleTheme = function () {
+        var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        try { localStorage.setItem('op-theme', next); } catch (e) {}
+      };
+      function readAndApply() {
+        var saved;
+        try { saved = localStorage.getItem('op-theme'); } catch (e) {}
+        if (saved) applyTheme(saved);
+        else applyTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      }
+      readAndApply();
+      window.addEventListener('pageshow', function (e) { if (e.persisted) readAndApply(); });
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css?v=332">
+  <link rel="stylesheet" href="/css/landing.css?v=332">
+  <link rel="stylesheet" href="/css/doc.css?v=332">
+  <link rel="stylesheet" href="/css/mobile.css?v=332">
+</head>
+<!-- nav-condensed : ces pages n'ont pas de héros et ne chargent pas js/landing.js,
+     l'état déplié de la barre est donc le bon d'emblée. -->
+<body class="landing-body doc-body nav-condensed">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="ic-compass" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 5l1.7 5.3 5.3 1.7-5.3 1.7L12 19l-1.7-5.3L5 12l5.3-1.7z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-anchor" viewBox="0 0 24 24">
+    <circle cx="12" cy="5" r="2"/>
+    <path d="M12 7v13"/>
+    <path d="M7.5 11h9"/>
+    <path d="M5 13.5a7 7 0 0 0 14 0"/>
+    <path d="M5 13.5l-1.8.4M5 13.5l1.4 1.4M19 13.5l1.8.4M19 13.5l-1.4 1.4"/>
+  </symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24">
+    <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/>
+  </symbol>
+</svg>
+
+<nav class="lp-nav" aria-label="Main navigation">
+  <a class="lp-nav__brand" href="/en/">
+    <svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg>
+    LogPose
+  </a>
+  <div class="lp-nav__actions">
+    <a class="lp-play" href="/en/classic/">
+      <svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg>
+      Play
+    </a>
+    <a class="lp-lang" href="/a-propos/" aria-label="Passer en français">FR</a>
+    <button class="lp-theme" onclick="toggleTheme()" aria-label="Toggle theme">
+      <svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg>
+      <svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg>
+    </button>
+  </div>
+</nav>
+
+<main class="doc">
+  <h1 class="doc-title">About OnePiecedle</h1>
+<p class="doc-lead">OnePiecedle, also known as LogPose, is a daily guessing game built around
+One Piece. Seven challenges a day, an unlimited practice mode and a one-on-one duel mode.
+Free, no signup, nothing to install.</p>
+
+<h2>The project</h2>
+<p>The site is built and maintained by one person, in their spare time, since May 2026. It is
+a fan project, started with no commercial purpose and with no connection to the rights holders
+of the work.</p>
+<p>There is no account to create, no newsletter and no app to download. A game is played in
+the browser and progress stays on the device. The site also works offline once the page has
+loaded a first time.</p>
+
+<h2>How the daily answer is chosen</h2>
+<p>The seven daily answers are set in advance, day by day, in a fixed calendar. They roll over
+at midnight Paris time and stay identical for every player until the next day. Nobody sees a
+different answer depending on their timezone or device.</p>
+<p>Once a day has passed, its answer never changes, even when new characters enter the game.
+That is what makes it possible to replay a past day and to browse the archive of past
+answers.</p>
+
+<h2>The data</h2>
+<p>The game draws on a base of 266 characters, 118 Devil Fruits, 112 volumes, 29 opening themes
+and 33 story arcs. Every character sheet carries eight attributes: gender, affiliation, origin,
+Devil Fruit, Haki, status, first arc and bounty.</p>
+<p>This information is collected by hand from the manga, the anime and reference encyclopedias,
+then cross-checked. Sheets are reviewed periodically: a full pass over all 266 characters was
+carried out in August 2026.</p>
+
+<h2>Reporting a mistake</h2>
+<p>An out-of-date bounty, a debatable first arc, an unrecognizable silhouette: mistakes happen
+and reports genuinely help. A form is available from the footer of every game, or you can write
+directly to <a href="mailto:contact@onepiecedle.fr">contact@onepiecedle.fr</a>.</p>
+<p>Corrections to character sheets are applied after midnight where possible, so that a game
+already in progress is never altered.</p>
+
+<h2>One Piece</h2>
+<p>One Piece is a work by Eiichiro Oda, published by Shueisha and adapted into an animated
+series by Toei Animation. OnePiecedle is an independent fan project, with no affiliation to or
+endorsement from those rights holders. Names, images and elements of the universe remain the
+property of their respective owners.</p>
+</main>
+
+<footer class="lp-foot">
+  <a class="lp-cta" href="/en/classic/">Play</a>
+  <div class="lp-foot__meta">
+    <span class="lp-foot__brand">LogPose</span>
+    <span class="lp-foot__ver js-version"></span>
+  </div>
+  <span class="foot-legal"><a href="/en/about/">The project</a> · <a href="/en/legal-notice/">Legal notice</a> · <a href="/en/privacy/">Privacy</a></span>
+  <p class="lp-foot__legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · unofficial fan project, not affiliated.</p>
+</footer>
+
+<script src="/js/version.js?v=332"></script>
+</body>
+</html>

@@ -88,22 +88,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=331">
-  <link rel="stylesheet" href="/css/layout.css?v=331">
-  <link rel="stylesheet" href="/css/modals.css?v=331">
-  <link rel="stylesheet" href="/css/classic.css?v=331">
-  <link rel="stylesheet" href="/css/wanted.css?v=331">
-  <link rel="stylesheet" href="/css/silhouette.css?v=331">
-  <link rel="stylesheet" href="/css/fruit.css?v=331">
-  <link rel="stylesheet" href="/css/inf.css?v=331">
-  <link rel="stylesheet" href="/css/emoji.css?v=331">
-  <link rel="stylesheet" href="/css/misc.css?v=331">
-  <link rel="stylesheet" href="/css/audio.css?v=331">
-  <link rel="stylesheet" href="/css/animations.css?v=331">
-  <link rel="stylesheet" href="/css/map.css?v=331">
-  <link rel="stylesheet" href="/css/tome.css?v=331">
+  <link rel="stylesheet" href="/css/base.css?v=332">
+  <link rel="stylesheet" href="/css/layout.css?v=332">
+  <link rel="stylesheet" href="/css/modals.css?v=332">
+  <link rel="stylesheet" href="/css/classic.css?v=332">
+  <link rel="stylesheet" href="/css/wanted.css?v=332">
+  <link rel="stylesheet" href="/css/silhouette.css?v=332">
+  <link rel="stylesheet" href="/css/fruit.css?v=332">
+  <link rel="stylesheet" href="/css/inf.css?v=332">
+  <link rel="stylesheet" href="/css/emoji.css?v=332">
+  <link rel="stylesheet" href="/css/misc.css?v=332">
+  <link rel="stylesheet" href="/css/audio.css?v=332">
+  <link rel="stylesheet" href="/css/animations.css?v=332">
+  <link rel="stylesheet" href="/css/map.css?v=332">
+  <link rel="stylesheet" href="/css/tome.css?v=332">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=331">
+  <link rel="stylesheet" href="/css/mobile.css?v=332">
 </head>
 <body data-page="game">
 
@@ -472,8 +472,30 @@
 <!-- ===== BLOC ÉDITORIAL (SEO) — propre à ce mode, généré par tools/gen_modes.py ===== -->
 <section class="mode-seo">
   <h1 class="mode-seo__h1">OnePiecedle Devil Fruit — Find Who Ate the Fruit</h1>
-  <div class="mode-seo__body" data-i18n-html="seo.fruit.body"><p>Devil Fruit mode shows the name of one of the 118 fruits on record and leaves ten tries to find its eater. Three hints unlock as the misses add up: the fruit type on the third try, its translated name on the fifth and a description of its power on the eighth, each one lowering the score earned.</p></div>
+  <div class="mode-seo__body" data-i18n-html="seo.fruit.body"><p>Devil Fruit mode shows the name of one of the 118 fruits listed in the game and gives ten tries to name its user. For the famous ones, the name alone is enough. Many others belong to supporting characters and call for waiting on the hints.</p><p>Three hints unlock as mistakes pile up, and none of them costs a try. The type of the fruit arrives on the third miss, Paramecia, Logia or Zoan. Its translated name on the fifth. The description of the power on the eighth. Each one lowers the score of the round.</p><p>Types follow the series, Mythical Zoan included. A few fruits accept two answers, where the story gave them two successive users: both names are then valid.</p><p>The fruit of the day is set at midnight Paris time and stays the same for every player until tomorrow. The game is kept in the browser, so it can be picked up later without losing anything.</p></div>
+  <h2 class="mode-seo__h2">Frequently asked questions</h2>
+  <div class="mode-seo__faq">
+      <details class="mode-seo__q"><summary>How many Devil Fruits are in the game?</summary><p>118, from the best known ones to those seen just once in a minor arc.</p></details>
+      <details class="mode-seo__q"><summary>Do the hints cost a try?</summary><p>No. They unlock on their own at the third, fifth and eighth mistake. They lower the score of the round, not the number of tries left.</p></details>
+      <details class="mode-seo__q"><summary>Can a fruit have two valid users?</summary><p>Yes, for the few fruits the story gave two successive users. Both answers are accepted.</p></details>
+  </div>
 </section>
+
+<!-- Balisage FAQPage (Schema.org) : miroir exact de la FAQ ci-dessus -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+      { "@type": "Question", "name": "How many Devil Fruits are in the game?",
+        "acceptedAnswer": { "@type": "Answer", "text": "118, from the best known ones to those seen just once in a minor arc." } },
+      { "@type": "Question", "name": "Do the hints cost a try?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. They unlock on their own at the third, fifth and eighth mistake. They lower the score of the round, not the number of tries left." } },
+      { "@type": "Question", "name": "Can a fruit have two valid users?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, for the few fruits the story gave two successive users. Both answers are accepted." } }
+  ]
+}
+</script>
 
 <footer>
   LogPose · Classic · Wanted · Silhouette · Devil Fruit · Emoji · Opening · Volume
@@ -484,6 +506,8 @@
   <br>
   <button class="footer-about-btn" onclick="openAbout()">About</button>
   <span class="footer-version js-version"></span>
+  <br>
+  <span class="foot-legal"><a href="/en/about/">The project</a> · <a href="/en/legal-notice/">Legal notice</a> · <a href="/en/privacy/">Privacy</a></span>
 </footer>
 
 <!-- POPUP PARTAGE -->
@@ -660,14 +684,14 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/i18n/en.js?v=331"></script>
-<script src="/js/i18n.js?v=331"></script>
-<script src="/js/version.js?v=331"></script>
-<script src="/js/data.js?v=331"></script>
-<script src="/js/jolly-roger.js?v=331"></script>
-<script src="/js/versus-rules.js?v=331"></script>
-<script src="/js/app.js?v=331"></script>
-<script src="/js/canvas-share.js?v=331"></script>
-<script src="/js/map.js?v=331"></script>
+<script src="/i18n/en.js?v=332"></script>
+<script src="/js/i18n.js?v=332"></script>
+<script src="/js/version.js?v=332"></script>
+<script src="/js/data.js?v=332"></script>
+<script src="/js/jolly-roger.js?v=332"></script>
+<script src="/js/versus-rules.js?v=332"></script>
+<script src="/js/app.js?v=332"></script>
+<script src="/js/canvas-share.js?v=332"></script>
+<script src="/js/map.js?v=332"></script>
 </body>
 </html>

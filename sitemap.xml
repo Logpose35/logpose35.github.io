@@ -199,4 +199,58 @@
     <priority>0.6</priority>
     <lastmod>2026-08-19</lastmod>
   </url>
+  <url>
+    <loc>https://onepiecedle.fr/a-propos/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/a-propos/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/about/"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2026-08-28</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/about/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/a-propos/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/about/"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2026-08-28</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/mentions-legales/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/mentions-legales/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/legal-notice/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/legal-notice/"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+    <lastmod>2026-08-28</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/legal-notice/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/mentions-legales/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/legal-notice/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/legal-notice/"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+    <lastmod>2026-08-28</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/confidentialite/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/confidentialite/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/privacy/"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+    <lastmod>2026-08-28</lastmod>
+  </url>
+  <url>
+    <loc>https://onepiecedle.fr/en/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/confidentialite/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/privacy/"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+    <lastmod>2026-08-28</lastmod>
+  </url>
 </urlset>

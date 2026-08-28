@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentions légales — OnePiecedle · LogPose</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Mentions légales du site OnePiecedle (LogPose) : éditeur, hébergement, propriété intellectuelle et contact.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#c89408">
+  <link rel="canonical" href="https://onepiecedle.fr/mentions-legales/">
+  <!-- Bloc hreflang identique des deux côtés (cluster réciproque). -->
+  <link rel="alternate" hreflang="fr" href="https://onepiecedle.fr/mentions-legales/">
+  <link rel="alternate" hreflang="en" href="https://onepiecedle.fr/en/legal-notice/">
+  <link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/legal-notice/">
+
+  <meta property="og:title" content="Mentions légales — OnePiecedle · LogPose">
+  <meta property="og:description" content="Mentions légales du site OnePiecedle (LogPose) : éditeur, hébergement, propriété intellectuelle et contact.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://onepiecedle.fr/mentions-legales/">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:image" content="https://onepiecedle.fr/images/og_preview.jpg">
+  <meta property="og:site_name" content="OnePiecedle">
+
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+
+  <!-- Thème partagé avec le reste du site (clé op-theme), appliqué avant le rendu. -->
+  <script>
+    (function () {
+      function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+      window.toggleTheme = function () {
+        var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        try { localStorage.setItem('op-theme', next); } catch (e) {}
+      };
+      function readAndApply() {
+        var saved;
+        try { saved = localStorage.getItem('op-theme'); } catch (e) {}
+        if (saved) applyTheme(saved);
+        else applyTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      }
+      readAndApply();
+      window.addEventListener('pageshow', function (e) { if (e.persisted) readAndApply(); });
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css?v=332">
+  <link rel="stylesheet" href="/css/landing.css?v=332">
+  <link rel="stylesheet" href="/css/doc.css?v=332">
+  <link rel="stylesheet" href="/css/mobile.css?v=332">
+</head>
+<!-- nav-condensed : ces pages n'ont pas de héros et ne chargent pas js/landing.js,
+     l'état déplié de la barre est donc le bon d'emblée. -->
+<body class="landing-body doc-body nav-condensed">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="ic-compass" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 5l1.7 5.3 5.3 1.7-5.3 1.7L12 19l-1.7-5.3L5 12l5.3-1.7z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-anchor" viewBox="0 0 24 24">
+    <circle cx="12" cy="5" r="2"/>
+    <path d="M12 7v13"/>
+    <path d="M7.5 11h9"/>
+    <path d="M5 13.5a7 7 0 0 0 14 0"/>
+    <path d="M5 13.5l-1.8.4M5 13.5l1.4 1.4M19 13.5l1.8.4M19 13.5l-1.4 1.4"/>
+  </symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24">
+    <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/>
+  </symbol>
+</svg>
+
+<nav class="lp-nav" aria-label="Navigation principale">
+  <a class="lp-nav__brand" href="/">
+    <svg class="ic" aria-hidden="true"><use href="#ic-compass"></use></svg>
+    LogPose
+  </a>
+  <div class="lp-nav__actions">
+    <a class="lp-play" href="/classique/">
+      <svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg>
+      Jouer
+    </a>
+    <a class="lp-lang" href="/en/legal-notice/" aria-label="Switch to English">EN</a>
+    <button class="lp-theme" onclick="toggleTheme()" aria-label="Changer de thème">
+      <svg class="ic ic-moon" aria-hidden="true"><use href="#ic-moon"></use></svg>
+      <svg class="ic ic-sun" aria-hidden="true"><use href="#ic-sun"></use></svg>
+    </button>
+  </div>
+</nav>
+
+<main class="doc">
+  <h1 class="doc-title">Mentions légales</h1>
+<p class="doc-lead">Informations requises par l'article 6-III de la loi n° 2004-575 du
+21 juin 2004 pour la confiance dans l'économie numérique.</p>
+
+<h2>Éditeur du site</h2>
+<p>Le site <strong>onepiecedle.fr</strong> est édité à titre personnel et non professionnel,
+sans but lucratif.</p>
+<p>Conformément à l'article 6-III-2 de la même loi, l'éditeur non professionnel qui souhaite
+préserver son anonymat tient son identité à la disposition de l'hébergeur. Toute demande
+relevant de ces dispositions peut être adressée à
+<a href="mailto:contact@onepiecedle.fr">contact@onepiecedle.fr</a>.</p>
+<p>Directeur de la publication : l'éditeur du site.</p>
+
+
+<h2>Hébergement</h2>
+<p>Les pages du site sont hébergées par :</p>
+<ul>
+  <li><strong>GitHub, Inc.</strong> (GitHub Pages), 88 Colin P. Kelly Jr. Street,
+      San Francisco, CA 94107, États-Unis.</li>
+</ul>
+<p>Les fichiers volumineux (images, silhouettes, extraits audio) et le service du mode Versus
+sont hébergés par :</p>
+<ul>
+  <li><strong>OVH SAS</strong>, 2 rue Kellermann, 59100 Roubaix, France.</li>
+</ul>
+
+<h2>Propriété intellectuelle</h2>
+<p>One Piece est une œuvre d'Eiichiro Oda, publiée par Shueisha et adaptée en série animée par
+Toei Animation. Les noms, personnages, images, couvertures et musiques issus de cette œuvre
+demeurent la propriété exclusive de leurs ayants droit.</p>
+<p>OnePiecedle est un projet de fan indépendant, sans affiliation, partenariat ni approbation
+de Shueisha, Toei Animation ou de tout autre détenteur de droits. Il n'est ni un produit
+officiel, ni une source d'information officielle.</p>
+<p>Tout ayant droit qui souhaiterait le retrait d'un contenu peut en faire la demande à
+<a href="mailto:contact@onepiecedle.fr">contact@onepiecedle.fr</a>. Les demandes fondées sont traitées sans délai.</p>
+<p>Le code du site, ses textes éditoriaux et son interface sont l'œuvre de l'éditeur.</p>
+
+<h2>Responsabilité</h2>
+<p>Le site est proposé en l'état, à titre de divertissement. Les informations sur les
+personnages sont relevées à la main et peuvent comporter des erreurs ou devenir obsolètes au
+fil de la parution. Elles n'ont aucune valeur de référence.</p>
+<p>Le site peut être interrompu à tout moment, notamment pour maintenance, sans préavis ni
+indemnité.</p>
+
+<h2>Liens externes</h2>
+<p>Certaines pages renvoient vers des sites tiers, notamment YouTube pour le visionnage des
+génériques. L'éditeur n'exerce aucun contrôle sur ces sites et décline toute responsabilité
+quant à leur contenu.</p>
+
+<h2>Contact</h2>
+<p>Pour toute question relative au site, à ses données ou à ces mentions :
+<a href="mailto:contact@onepiecedle.fr">contact@onepiecedle.fr</a>.</p>
+</main>
+
+<footer class="lp-foot">
+  <a class="lp-cta" href="/classique/">Jouer</a>
+  <div class="lp-foot__meta">
+    <span class="lp-foot__brand">LogPose</span>
+    <span class="lp-foot__ver js-version"></span>
+  </div>
+  <span class="foot-legal"><a href="/a-propos/">Le projet</a> · <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a></span>
+  <p class="lp-foot__legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation.</p>
+</footer>
+
+<script src="/js/version.js?v=332"></script>
+</body>
+</html>

@@ -88,22 +88,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=331">
-  <link rel="stylesheet" href="/css/layout.css?v=331">
-  <link rel="stylesheet" href="/css/modals.css?v=331">
-  <link rel="stylesheet" href="/css/classic.css?v=331">
-  <link rel="stylesheet" href="/css/wanted.css?v=331">
-  <link rel="stylesheet" href="/css/silhouette.css?v=331">
-  <link rel="stylesheet" href="/css/fruit.css?v=331">
-  <link rel="stylesheet" href="/css/inf.css?v=331">
-  <link rel="stylesheet" href="/css/emoji.css?v=331">
-  <link rel="stylesheet" href="/css/misc.css?v=331">
-  <link rel="stylesheet" href="/css/audio.css?v=331">
-  <link rel="stylesheet" href="/css/animations.css?v=331">
-  <link rel="stylesheet" href="/css/map.css?v=331">
-  <link rel="stylesheet" href="/css/tome.css?v=331">
+  <link rel="stylesheet" href="/css/base.css?v=332">
+  <link rel="stylesheet" href="/css/layout.css?v=332">
+  <link rel="stylesheet" href="/css/modals.css?v=332">
+  <link rel="stylesheet" href="/css/classic.css?v=332">
+  <link rel="stylesheet" href="/css/wanted.css?v=332">
+  <link rel="stylesheet" href="/css/silhouette.css?v=332">
+  <link rel="stylesheet" href="/css/fruit.css?v=332">
+  <link rel="stylesheet" href="/css/inf.css?v=332">
+  <link rel="stylesheet" href="/css/emoji.css?v=332">
+  <link rel="stylesheet" href="/css/misc.css?v=332">
+  <link rel="stylesheet" href="/css/audio.css?v=332">
+  <link rel="stylesheet" href="/css/animations.css?v=332">
+  <link rel="stylesheet" href="/css/map.css?v=332">
+  <link rel="stylesheet" href="/css/tome.css?v=332">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=331">
+  <link rel="stylesheet" href="/css/mobile.css?v=332">
 </head>
 <body data-page="game">
 
@@ -473,8 +473,30 @@
 <!-- ===== BLOC ÉDITORIAL (SEO) — propre à ce mode, généré par tools/gen_modes.py ===== -->
 <section class="mode-seo">
   <h1 class="mode-seo__h1">OnePiecedle Infinite Mode — Practice Without Limits</h1>
-  <div class="mode-seo__body" data-i18n-html="seo.inf.body"><p>Infinite mode reuses the Classic grid &mdash; eight attributes compared on every guess &mdash; but draws a random character and can be replayed without limit. It stays outside the daily challenge: it earns no points toward the day's score and only tracks a win streak and its record.</p></div>
+  <div class="mode-seo__body" data-i18n-html="seo.inf.body"><p>Endless mode reuses the Classic grid, with the same eight attributes compared on every try and the same ten guesses, but draws a random character and can be replayed without limit.</p><p>It works above all as practice. Playing game after game fixes bounties, affiliations and first arcs in memory, which shows later on the daily challenge. Supporting characters, rarely drawn day to day, come up far more often here.</p><p>This mode sits outside the daily challenge. It scores no points toward the day and does not appear in the shared result. It keeps its own counter instead: the current win streak and the best record, both stored in the browser.</p><p>A new game is available immediately after each one ends, with no wait for midnight and no cap on how many.</p></div>
+  <h2 class="mode-seo__h2">Frequently asked questions</h2>
+  <div class="mode-seo__faq">
+      <details class="mode-seo__q"><summary>Does Endless mode count toward the daily score?</summary><p>No. It sits alongside the daily challenge, with its own streak counter and record.</p></details>
+      <details class="mode-seo__q"><summary>How many games can be played in a row?</summary><p>As many as you like. Each game draws a new random character from the 266 in the game.</p></details>
+      <details class="mode-seo__q"><summary>Are the rules those of Classic mode?</summary><p>Yes, the grid and the ten tries are identical. Only the selection changes: random, with no tie to the current day.</p></details>
+  </div>
 </section>
+
+<!-- Balisage FAQPage (Schema.org) : miroir exact de la FAQ ci-dessus -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+      { "@type": "Question", "name": "Does Endless mode count toward the daily score?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. It sits alongside the daily challenge, with its own streak counter and record." } },
+      { "@type": "Question", "name": "How many games can be played in a row?",
+        "acceptedAnswer": { "@type": "Answer", "text": "As many as you like. Each game draws a new random character from the 266 in the game." } },
+      { "@type": "Question", "name": "Are the rules those of Classic mode?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, the grid and the ten tries are identical. Only the selection changes: random, with no tie to the current day." } }
+  ]
+}
+</script>
 
 <footer>
   LogPose · Classic · Wanted · Silhouette · Devil Fruit · Emoji · Opening · Volume
@@ -485,6 +507,8 @@
   <br>
   <button class="footer-about-btn" onclick="openAbout()">About</button>
   <span class="footer-version js-version"></span>
+  <br>
+  <span class="foot-legal"><a href="/en/about/">The project</a> · <a href="/en/legal-notice/">Legal notice</a> · <a href="/en/privacy/">Privacy</a></span>
 </footer>
 
 <!-- POPUP PARTAGE -->
@@ -661,14 +685,14 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/i18n/en.js?v=331"></script>
-<script src="/js/i18n.js?v=331"></script>
-<script src="/js/version.js?v=331"></script>
-<script src="/js/data.js?v=331"></script>
-<script src="/js/jolly-roger.js?v=331"></script>
-<script src="/js/versus-rules.js?v=331"></script>
-<script src="/js/app.js?v=331"></script>
-<script src="/js/canvas-share.js?v=331"></script>
-<script src="/js/map.js?v=331"></script>
+<script src="/i18n/en.js?v=332"></script>
+<script src="/js/i18n.js?v=332"></script>
+<script src="/js/version.js?v=332"></script>
+<script src="/js/data.js?v=332"></script>
+<script src="/js/jolly-roger.js?v=332"></script>
+<script src="/js/versus-rules.js?v=332"></script>
+<script src="/js/app.js?v=332"></script>
+<script src="/js/canvas-share.js?v=332"></script>
+<script src="/js/map.js?v=332"></script>
 </body>
 </html>
