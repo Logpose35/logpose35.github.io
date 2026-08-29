@@ -20,7 +20,12 @@ Transformations :
   4. Sections : on ne garde QUE celle du mode (sinon les 8 pages sont des doublons)
   5. window.LP_MODE = '<id>' : le mode forcé à l'arrivée (js/app.js le lit à l'init)
   6. SEO : title, description, canonical auto-référent, hreflang réciproque, og/twitter, JSON-LD
-  7. Bloc éditorial propre au mode (h1 + 100-150 mots + FAQ) + balisage FAQPage
+  7. Bloc éditorial propre au mode (h1 + ~200 mots + FAQ) + balisage FAQPage
+     ⚠️ Le balisage FAQPage ne produit PLUS de résultat enrichi : Google a
+     restreint la fonctionnalité aux sites gouvernementaux et de santé en
+     septembre 2023, puis l'a retirée de Search en mai 2026. On le garde
+     parce qu'il est inerte et sans coût, mais il ne faut RIEN en attendre
+     côté affichage. La valeur du bloc FAQ est le texte visible lui-même.
 
 Usage :  python tools/gen_modes.py            (les 8 modes, puis les pages EN)
          python tools/gen_modes.py wanted     (un seul mode)

@@ -63,6 +63,7 @@ DAILY_IDS = [m['id'] for m in MODES if m['id'] != 'inf']
 # Un mode absent de ce dictionnaire est généré SANS bloc éditorial.
 #
 # Clé 'faq' FACULTATIVE : la fournir rajoute l'accordéon + le balisage FAQPage
+# (balisage inerte depuis mai 2026, cf. gen_modes.py — l'intérêt est le texte)
 # (voir gen_modes.seo_block). Aucun mode n'en a pour l'instant — décision du
 # 09/08/2026 après comparaison avec onepiecedle.net.
 # ============================================================================
