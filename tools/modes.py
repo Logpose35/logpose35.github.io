@@ -94,7 +94,7 @@ SEO = {
         <p>Deux colonnes affichent en plus une flèche. Le premier arc indique s'il faut chercher plus tôt ou
         plus tard dans l'histoire, la prime si le montant recherché est plus haut ou plus bas. Ces deux
         repères réduisent la liste bien plus vite que les cases de couleur seules.</p>
-        <p>La sélection compte 266 personnages, des Chapeaux de Paille aux Empereurs, en passant par les
+        <p>La sélection compte {{NB_PERSOS}} personnages, des Chapeaux de Paille aux Empereurs, en passant par les
         seconds rôles des grands arcs. Un indice facultatif dévoile un attribut resté inconnu, contre la
         moitié du score de la manche. Le tirage a lieu à minuit, heure de Paris, et vaut pour tous les
         joueurs jusqu'au lendemain.</p>''',
@@ -167,7 +167,7 @@ SEO = {
         <p>À partir du cinquième essai, un indice facultatif éclaire en couleur la zone visible du contour,
         contre la moitié du score de la manche. Il aide surtout sur les personnages dont la couleur fait
         l'identité, une chevelure rousse ou une tenue immédiatement reconnaissable.</p>
-        <p>197 des 266 personnages du jeu peuvent tomber : seuls ceux dont la silhouette a été découpée
+        <p>{{NB_SILHOUETTES}} des {{NB_PERSOS}} personnages du jeu peuvent tomber : seuls ceux dont la silhouette a été découpée
         entrent dans le tirage. Cette sélection s'élargit au fil des ajouts, sans jamais modifier les
         journées déjà jouées.</p>''',
         faq=[
@@ -176,14 +176,14 @@ SEO = {
             ("À quoi sert l'indice couleur ?",
              "Il colore la zone visible du contour, à partir du cinquième essai. Il coûte la moitié du score de la manche et ne se déclenche qu'à la demande."),
             ("Tous les personnages peuvent-ils tomber ?",
-             "Non. Le tirage se limite aux 197 personnages dont la silhouette est disponible, sur les 266 que compte le jeu."),
+             "Non. Le tirage se limite aux {{NB_SILHOUETTES}} personnages dont la silhouette est disponible, sur les {{NB_PERSOS}} que compte le jeu."),
         ],
     ),
 
     'fruit': dict(
         title='OnePiecedle Fruit du Démon — trouver le détenteur · LogPose',
         desc='OnePiecedle Fruit du Démon : le nom d\'un fruit du démon est affiché, son détenteur '
-             'reste à trouver. 118 fruits, 10 essais et trois indices progressifs.',
+             'reste à trouver. {{NB_FRUITS}} fruits, 10 essais et trois indices progressifs.',
         og_title='OnePiecedle · Fruit du Démon — qui a mangé ce fruit ?',
         og_desc='Un nom de fruit du démon est donné, son détenteur reste à trouver. Trois indices se '
                 'débloquent au fil des essais.',
@@ -193,7 +193,7 @@ SEO = {
         h1='OnePiecedle Fruit du Démon — trouver le détenteur du fruit',
         body_key='seo.fruit.body',
         body='''
-        <p>Le mode Fruit du Démon affiche le nom d'un des 118 fruits recensés dans le jeu et laisse retrouver
+        <p>Le mode Fruit du Démon affiche le nom d'un des {{NB_FRUITS}} fruits recensés dans le jeu et laisse retrouver
         son détenteur en dix essais. Pour les fruits célèbres, le nom seul suffit. Beaucoup d'autres
         appartiennent à des seconds rôles et demandent d'attendre les indices.</p>
         <p>Trois indices se débloquent au fil des erreurs, sans jamais consommer d'essai. Le type du fruit
@@ -207,7 +207,7 @@ SEO = {
         tard sans rien perdre.</p>''',
         faq=[
             ("Combien de fruits du démon le jeu contient-il ?",
-             "118, des fruits les plus connus à ceux croisés une seule fois dans un arc secondaire."),
+             "{{NB_FRUITS}}, des fruits les plus connus à ceux croisés une seule fois dans un arc secondaire."),
             ("Les indices coûtent-ils un essai ?",
              "Non. Ils se débloquent seuls à la troisième, cinquième et huitième erreur. Ils réduisent le score de la manche, pas le nombre d'essais restants."),
             ("Un fruit peut-il avoir deux détenteurs valables ?",
@@ -253,16 +253,16 @@ SEO = {
     'audio': dict(
         title='OnePiecedle Opening — l\'opening One Piece du jour · LogPose',
         desc='OnePiecedle Opening : un extrait d\'une seconde d\'un opening One Piece, allongé à '
-             'chaque erreur. 29 openings et 6 essais pour reconnaître le bon.',
+             'chaque erreur. {{NB_OPENINGS}} openings et 6 essais pour reconnaître le bon.',
         og_title='OnePiecedle · Opening — reconnaître l\'opening One Piece du jour',
-        og_desc='Une seconde de musique au premier essai, seize au dernier. 29 openings, six essais.',
+        og_desc='Une seconde de musique au premier essai, seize au dernier. {{NB_OPENINGS}} openings, six essais.',
         ld_name='OnePiecedle Opening',
         ld_desc='Devinette musicale quotidienne One Piece : reconnaître un opening à partir d\'un '
                 'extrait qui s\'allonge à chaque erreur.',
         h1='OnePiecedle Opening — reconnaître l\'opening One Piece du jour',
         body_key='seo.audio.body',
         body='''
-        <p>Le mode Opening diffuse une seconde d'un des 29 génériques de la série animée. À chaque erreur
+        <p>Le mode Opening diffuse une seconde d'un des {{NB_OPENINGS}} génériques de la série animée. À chaque erreur
         l'extrait s'allonge : deux secondes, puis quatre, sept, onze, et seize au sixième et dernier
         essai.</p>
         <p>Le point de départ de l'extrait est tiré au sort chaque jour. Un même opening ne commence donc
@@ -287,9 +287,9 @@ SEO = {
     'tome': dict(
         title='OnePiecedle Tome — reconnaître le tome à sa couverture · LogPose',
         desc='OnePiecedle Tome : un gros plan sur la couverture d\'un tome de One Piece, dézoomé à '
-             'chaque erreur. 112 tomes et 6 essais pour trouver le bon numéro.',
+             'chaque erreur. {{NB_TOMES}} tomes et 6 essais pour trouver le bon numéro.',
         og_title='OnePiecedle · Tome — reconnaître le tome à sa couverture',
-        og_desc='Un détail de couverture qui s\'élargit à chaque erreur. 112 tomes, six essais, et '
+        og_desc='Un détail de couverture qui s\'élargit à chaque erreur. {{NB_TOMES}} tomes, six essais, et '
                 'l\'écart est indiqué à chaque proposition.',
         ld_name='OnePiecedle Tome',
         ld_desc='Devinette quotidienne One Piece : retrouver le numéro d\'un tome à partir d\'un gros '
@@ -297,9 +297,9 @@ SEO = {
         h1='OnePiecedle Tome — reconnaître le tome à sa couverture',
         body_key='seo.tome.body',
         body='''
-        <p>Le mode Tome montre un détail très agrandi de la couverture d'un des 112 tomes présents dans le
+        <p>Le mode Tome montre un détail très agrandi de la couverture d'un des {{NB_TOMES}} tomes présents dans le
         jeu. La vue recule à chaque erreur, jusqu'à la couverture entière au sixième et dernier essai.</p>
-        <p>La réponse est un numéro compris entre 1 et 112. Chaque proposition indique si le tome cherché se
+        <p>La réponse est un numéro compris entre 1 et {{NB_TOMES}}. Chaque proposition indique si le tome cherché se
         situe plus haut ou plus bas, ce qui permet de l'encadrer par dichotomie. Six essais suffisent en
         théorie à couvrir toute la collection, à condition de couper l'intervalle en deux à chaque fois.</p>
         <p>Le détail initial porte souvent sur un aplat de couleur ou un fragment de logo, difficile à
@@ -313,7 +313,7 @@ SEO = {
             ("Comment savoir si le tome cherché est plus haut ou plus bas ?",
              "Chaque proposition affiche une flèche indiquant le sens. Couper l'intervalle en deux à chaque essai reste la méthode la plus sûre."),
             ("Combien de tomes peuvent tomber ?",
-             "112, soit toutes les couvertures présentes dans le jeu. Le numéro attendu se situe donc entre 1 et 112."),
+             "{{NB_TOMES}}, soit toutes les couvertures présentes dans le jeu. Le numéro attendu se situe donc entre 1 et {{NB_TOMES}}."),
         ],
     ),
 
@@ -345,7 +345,7 @@ SEO = {
             ("Le mode Infini compte-t-il dans le score quotidien ?",
              "Non. Il vit à côté du défi du jour, avec son propre compteur de série et son record."),
             ("Combien de parties peut-on enchaîner ?",
-             "Autant que voulu. Chaque partie tire un nouveau personnage au hasard parmi les 266 du jeu."),
+             "Autant que voulu. Chaque partie tire un nouveau personnage au hasard parmi les {{NB_PERSOS}} du jeu."),
             ("Les règles sont-elles celles du mode Classique ?",
              "Oui, la grille et les dix essais sont identiques. Seule la sélection change : au hasard, et sans lien avec la journée en cours."),
         ],

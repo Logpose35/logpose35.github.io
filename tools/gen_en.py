@@ -38,6 +38,29 @@ DICT = json.load(open(os.path.join(ROOT, 'i18n', 'en.json'), encoding='utf-8'))
 from modes import MODES, BY_ID   # noqa: E402
 from pages import DOCS           # noqa: E402  (liens légaux du pied de page)
 
+# ── Compteurs de contenu ────────────────────────────────────────────────────
+# Les textes portent des jetons {{NB_PERSOS}}, {{NB_SILHOUETTES}}… déduits de
+# data.json par tools/compteurs.py. Toute écriture passe par _ecrire(), qui
+# substitue et REFUSE d'écrire s'il en reste un : un compteur oublié se voit
+# immédiatement plutôt qu'en production.
+from compteurs import substituer, jetons_restants   # noqa: E402
+
+# Le dictionnaire porte les jetons ; la page FR lue ici a DEJA ses chiffres
+# (gen_modes.py les a substitues a l'ecriture). On aligne donc le dictionnaire
+# sur les chiffres reels, sinon aucune cle ne correspondrait plus.
+DICT = {substituer(k): (substituer(v) if isinstance(v, str) else v)
+        for k, v in DICT.items()}
+
+
+def _ecrire(chemin, html):
+    html = substituer(html)
+    restants = jetons_restants(html)
+    if restants:
+        raise SystemExit('jeton non substitue dans %s : %s' % (chemin, restants))
+    open(chemin, 'w', encoding='utf-8', newline='').write(html)
+    return html
+
+
 # Pages à générer : (fichier racine, url_path SEO, chemin miroir FR pour le sélecteur)
 # game.html n'y figure plus : depuis « une URL par mode », c'est une simple
 # redirection vers /classique/, générée (FR et EN) par tools/gen_modes.py.
@@ -161,7 +184,7 @@ def build(page):
     outdir = os.path.join(ROOT, 'en')
     os.makedirs(outdir, exist_ok=True)
     out = os.path.join(outdir, src)
-    open(out, 'w', encoding='utf-8', newline='').write(html)
+    _ecrire(out, html)
     print('=> écrit', os.path.relpath(out, ROOT))
     report_untranslated(html, 'en/' + src)
 
@@ -225,7 +248,7 @@ def build_mode(mode_id):
     outdir = os.path.join(ROOT, 'en', mode['en_slug'])
     os.makedirs(outdir, exist_ok=True)
     out = os.path.join(outdir, 'index.html')
-    open(out, 'w', encoding='utf-8', newline='').write(html)
+    _ecrire(out, html)
     print('=> écrit', os.path.relpath(out, ROOT).replace('\\', '/'))
     report_untranslated(html, 'en/%s/index.html' % mode['en_slug'])
 

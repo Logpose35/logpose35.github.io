@@ -47,11 +47,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=334">
-  <link rel="stylesheet" href="/css/classic.css?v=334">
-  <link rel="stylesheet" href="/css/versus.css?v=334">
+  <link rel="stylesheet" href="/css/base.css?v=382">
+  <link rel="stylesheet" href="/css/classic.css?v=382">
+  <link rel="stylesheet" href="/css/versus.css?v=382">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=334">
+  <link rel="stylesheet" href="/css/mobile.css?v=382">
 </head>
 <body class="versus-body">
 
@@ -161,6 +161,13 @@
     <div class="v-card v-pseudo-card">
       <label class="v-label" for="v-pseudo">Your pirate name</label>
       <input type="text" id="v-pseudo" maxlength="16" placeholder="Mugiwara" autocomplete="off">
+      <p class="v-hint v-pseudo-note" id="v-pseudo-note" hidden>Nickname reserved by your account. Change it from the game’s "Account" panel.</p>
+      <!-- Le compte n'ouvre plus aucune porte ici : tout est jouable sans. Il
+           protège juste le nom. Proposé, jamais imposé. -->
+      <div class="v-locked" id="v-quick-locked" hidden>
+        <p class="v-hint">A reserved nickname can only be worn by you. Sign in to play under yours.</p>
+        <button class="v-btn v-btn-quiet v-btn-wide" id="v-signin">Sign in with Google</button>
+      </div>
     </div>
 
     <div class="v-duo">
@@ -183,6 +190,7 @@
             </select>
           </label>
         </div>
+        <label class="v-check"><input type="checkbox" id="v-public"> Public game, visible to everyone</label>
         <button class="v-btn v-btn-gold v-btn-wide" id="v-create"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Create game</button>
       </div>
       <div class="v-card">
@@ -192,6 +200,15 @@
         <button class="v-btn v-btn-gold v-btn-wide" id="v-join"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Join the duel</button>
       </div>
     </div>
+    <!-- Seul chemin vers un inconnu depuis le retrait de la file : une partie
+         créée en « publique » atterrit ici, et s'y rejoint d'un clic. -->
+    <div class="v-card v-open-card">
+      <h2><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-map"></use></svg>Open games</h2>
+      <div id="v-open-list" class="v-open-list"></div>
+      <p class="v-hint" id="v-open-empty">No open game right now. A game created as "public" shows up here, visible to everyone.</p>
+      <p class="v-hint v-online" id="v-online" hidden></p>
+    </div>
+
     <p class="v-hint">Both players' guesses are visible — reading your opponent is part of the game.</p>
   </section>
 
@@ -316,10 +333,14 @@
   <span class="foot-legal"><a href="/en/about/">The project</a> · <a href="/en/legal-notice/">Legal notice</a> · <a href="/en/privacy/">Privacy</a></span>
 </footer>
 
-<script src="/i18n/en.js?v=334"></script>
-<script src="/js/i18n.js?v=334"></script>
-<script src="/js/data.js?v=334"></script>
-<script src="/js/versus-rules.js?v=334"></script>
-<script src="/js/versus.js?v=334"></script>
+<script src="/i18n/en.js?v=382"></script>
+<script src="/js/i18n.js?v=382"></script>
+<script src="/js/data.js?v=382"></script>
+<script src="/js/versus-rules.js?v=382"></script>
+<!-- Couche compte SEULE : la page Versus a besoin de savoir qui est connecté
+     pour son pseudo réservé, mais elle n'a aucune progression à synchroniser
+     — c'est le jeu qui s'en charge. On ne charge donc ni save-merge ni account. -->
+<script src="/js/account-auth.js?v=382"></script>
+<script src="/js/versus.js?v=382"></script>
 </body>
 </html>

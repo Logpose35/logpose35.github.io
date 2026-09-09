@@ -1,0 +1,86 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "counters": {
+      ".read": true,
+      ".write": true
+    },
+    "daily-stats": {
+      ".read": true,
+      ".write": true
+    },
+    "island-reach": {
+      ".read": true,
+      ".write": true
+    },
+    "saves": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid",
+        "meta": {
+          "v": {
+            ".validate": "newData.isNumber()"
+          },
+          "updatedAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "pseudo": {
+            ".validate": "newData.isString() && newData.val().length <= 16"
+          }
+        },
+        "days": {
+          "$jour": {
+            ".validate": "$jour.matches(/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/)",
+            "$cle": {
+              ".validate": "$cle.matches(/^op-/) && newData.isString() && newData.val().length <= 8192"
+            }
+          }
+        },
+        "agg": {
+          "$cle": {
+            ".validate": "$cle.matches(/^op-/) && newData.isString() && newData.val().length <= 32768"
+          }
+        }
+      }
+    },
+    "pseudos": {
+      "$nom": {
+        ".read": true,
+        ".write": "auth !== null && ((!data.exists() && newData.val() === auth.uid) || (data.exists() && data.val() === auth.uid)) && (!newData.exists() || newData.parent().parent().child('pseudo-delai').child(auth.uid).val() === now)",
+        ".validate": "newData.isString() && newData.val() === auth.uid && $nom.matches(/^[a-z0-9_-]{3,16}$/)"
+      }
+    },
+    "leaderboard": {
+      "$jour": {
+        ".read": true,
+        "$uid": {
+          ".write": "auth !== null && auth.uid === $uid && $jour.matches(/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/)",
+          ".validate": "newData.hasChildren(['n','s','t'])",
+          "n": {
+            ".validate": "newData.isString() && newData.val() === root.child('saves').child(auth.uid).child('meta').child('pseudo').val() && newData.val().matches(/^[a-zA-Z0-9_-]{3,16}$/)"
+          },
+          "s": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 70000"
+          },
+          "d": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "$autre": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "pseudo-delai": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid && newData.exists() && (!data.exists() || now > data.val() + 86400000)",
+        ".validate": "newData.isNumber() && newData.val() === now"
+      }
+    }
+  }
+}

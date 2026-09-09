@@ -88,22 +88,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=334">
-  <link rel="stylesheet" href="/css/layout.css?v=334">
-  <link rel="stylesheet" href="/css/modals.css?v=334">
-  <link rel="stylesheet" href="/css/classic.css?v=334">
-  <link rel="stylesheet" href="/css/wanted.css?v=334">
-  <link rel="stylesheet" href="/css/silhouette.css?v=334">
-  <link rel="stylesheet" href="/css/fruit.css?v=334">
-  <link rel="stylesheet" href="/css/inf.css?v=334">
-  <link rel="stylesheet" href="/css/emoji.css?v=334">
-  <link rel="stylesheet" href="/css/misc.css?v=334">
-  <link rel="stylesheet" href="/css/audio.css?v=334">
-  <link rel="stylesheet" href="/css/animations.css?v=334">
-  <link rel="stylesheet" href="/css/map.css?v=334">
-  <link rel="stylesheet" href="/css/tome.css?v=334">
+  <link rel="stylesheet" href="/css/base.css?v=382">
+  <link rel="stylesheet" href="/css/layout.css?v=382">
+  <link rel="stylesheet" href="/css/modals.css?v=382">
+  <link rel="stylesheet" href="/css/classic.css?v=382">
+  <link rel="stylesheet" href="/css/wanted.css?v=382">
+  <link rel="stylesheet" href="/css/silhouette.css?v=382">
+  <link rel="stylesheet" href="/css/fruit.css?v=382">
+  <link rel="stylesheet" href="/css/inf.css?v=382">
+  <link rel="stylesheet" href="/css/emoji.css?v=382">
+  <link rel="stylesheet" href="/css/misc.css?v=382">
+  <link rel="stylesheet" href="/css/audio.css?v=382">
+  <link rel="stylesheet" href="/css/animations.css?v=382">
+  <link rel="stylesheet" href="/css/map.css?v=382">
+  <link rel="stylesheet" href="/css/tome.css?v=382">
+  <link rel="stylesheet" href="/css/leaderboard.css?v=382">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=334">
+  <link rel="stylesheet" href="/css/mobile.css?v=382">
 </head>
 <body data-page="game">
 
@@ -308,6 +309,10 @@
 
 <header>
   <div class="header-inner">
+    <!-- Groupe de gauche : la roue dentée et le compte voisinent, comme la carte,
+         la langue et le thème à droite. Sans ce conteneur, ils étaient deux
+         enfants directs d'un flex en space-between, qui les écartait de 160 px. -->
+    <div class="header-left" style="display:flex;align-items:center;gap:8px">
     <div class="settings-wrap">
       <button class="theme-btn" id="settings-btn" onclick="toggleSettings()" title="Paramètres" aria-label="Paramètres" aria-haspopup="true" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="#ic-gear"></use></svg></button>
       <div class="settings-panel hidden" id="settings-panel" role="menu" aria-label="Paramètres">
@@ -344,6 +349,12 @@
           <input type="file" id="import-save-input" accept="application/json" hidden onchange="importSaveFile(event)">
         </div>
       </div>
+    </div>
+    <!-- Compte : un bouton, à côté des réglages, et rien d'autre. Aucune
+         sollicitation, aucune pop-up à l'arrivée : le panneau ne s'ouvre que
+         si le joueur clique. Masqué tant que la config Firebase n'est pas
+         renseignée (js/account-auth.js) — révélé par refreshAccountUI(). -->
+    <button class="theme-btn account-header-btn" id="account-btn" onclick="openAccount()" title="Compte" aria-label="Compte" hidden><svg class="ic" aria-hidden="true"><use href="#ic-anchor"></use></svg><span class="account-btn-text" id="account-btn-label">Connexion</span></button>
     </div>
     <div class="header-center">
       <a href="/" title="Retour à l'accueil" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit">
@@ -462,6 +473,18 @@
 
 </main>
 
+<!-- Classement du jour, rempli par js/leaderboard.js. Placé APRÈS la partie,
+     ce qui règle les deux cas d'un coup : sur grand écran il est en position
+     fixe dans la gouttière droite et sa place dans le document n'a aucun effet ;
+     sur écran étroit il redevient un bloc normal et se pose ici, sous le jeu,
+     sans repousser la zone de saisie vers le bas (l'acquis de la v6.5).
+     Reste `hidden` tant que personne n'est classé. -->
+<aside class="lb-panel" id="lb-panel" aria-labelledby="lb-title" hidden>
+  <h2 class="lb-title" id="lb-title"><svg class="ic" aria-hidden="true"><use href="#ic-trophy"></use></svg>Classement du jour</h2>
+  <ol class="lb-list" id="lb-list"></ol>
+  <p class="lb-foot" id="lb-foot"></p>
+</aside>
+
 <div class="next-puzzle">
   <span class="next-puzzle-label"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-hourglass"></use></svg>Prochains défis dans</span>
   <span class="next-puzzle-timer" id="next-puzzle-timer">--:--:--</span>
@@ -489,7 +512,7 @@
   <h2 class="mode-seo__h2">Questions fréquentes</h2>
   <div class="mode-seo__faq">
       <details class="mode-seo__q"><summary>Le mode Infini compte-t-il dans le score quotidien ?</summary><p>Non. Il vit à côté du défi du jour, avec son propre compteur de série et son record.</p></details>
-      <details class="mode-seo__q"><summary>Combien de parties peut-on enchaîner ?</summary><p>Autant que voulu. Chaque partie tire un nouveau personnage au hasard parmi les 266 du jeu.</p></details>
+      <details class="mode-seo__q"><summary>Combien de parties peut-on enchaîner ?</summary><p>Autant que voulu. Chaque partie tire un nouveau personnage au hasard parmi les 282 du jeu.</p></details>
       <details class="mode-seo__q"><summary>Les règles sont-elles celles du mode Classique ?</summary><p>Oui, la grille et les dix essais sont identiques. Seule la sélection change : au hasard, et sans lien avec la journée en cours.</p></details>
   </div>
 </section>
@@ -503,7 +526,7 @@
       { "@type": "Question", "name": "Le mode Infini compte-t-il dans le score quotidien ?",
         "acceptedAnswer": { "@type": "Answer", "text": "Non. Il vit à côté du défi du jour, avec son propre compteur de série et son record." } },
       { "@type": "Question", "name": "Combien de parties peut-on enchaîner ?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Autant que voulu. Chaque partie tire un nouveau personnage au hasard parmi les 266 du jeu." } },
+        "acceptedAnswer": { "@type": "Answer", "text": "Autant que voulu. Chaque partie tire un nouveau personnage au hasard parmi les 282 du jeu." } },
       { "@type": "Question", "name": "Les règles sont-elles celles du mode Classique ?",
         "acceptedAnswer": { "@type": "Answer", "text": "Oui, la grille et les dix essais sont identiques. Seule la sélection change : au hasard, et sans lien avec la journée en cours." } }
   ]
@@ -551,6 +574,53 @@
 </div>
 
 <!-- MODAL SIGNALEMENT -->
+<!-- ===== COMPTE JOUEUR ===== -->
+<div class="modal-overlay hidden" id="account-modal" onclick="handleAccountOverlayClick(event)">
+  <div class="modal-box report-box">
+    <button class="modal-close" onclick="closeAccount()" aria-label="Fermer">✕</button>
+    <div class="modal-title"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-anchor"></use></svg>Compte</div>
+
+    <!-- Déconnecté -->
+    <div id="account-out">
+      <p class="report-hint">Un compte sert à retrouver la même progression sur tous ses appareils : les journées jouées, les scores et les réponses déjà trouvées suivent d'un navigateur à l'autre. Sans compte, tout reste sur cet appareil et disparaît si les données du navigateur sont effacées.</p>
+      <p class="report-hint">Aucun mot de passe n'est demandé, et aucune donnée personnelle n'est enregistrée par le site : seule la progression de jeu est stockée.</p>
+
+      <button class="report-send account-btn-wide" id="account-google" onclick="accountSignInGoogle()">Continuer avec Google</button>
+      <p class="report-hint" id="account-inapp" hidden>Ouvert depuis une application (TikTok, Instagram…), Google refuse la connexion. Utilisez le lien par e-mail ci-dessous, ou ouvrez le site dans votre navigateur.</p>
+
+      <div class="account-sep"><span>ou</span></div>
+
+      <label class="report-label" for="account-mail">Recevoir un lien de connexion</label>
+      <input type="email" id="account-mail" class="report-select account-input" autocomplete="email"
+             inputmode="email" placeholder="adresse@exemple.fr">
+      <button class="sp-stats-btn account-btn-wide" id="account-link" onclick="accountSendLink()">Envoyer le lien</button>
+    </div>
+
+    <!-- Connecté -->
+    <div id="account-in" hidden>
+      <p class="report-hint">Progression synchronisée sur ce compte.</p>
+      <p class="account-mail-line" id="account-who">—</p>
+
+      <!-- Le pseudo se choisit à la connexion : c'est le moment où le joueur
+           s'installe. Il reste modifiable ensuite depuis ce même panneau. -->
+      <label class="report-label" for="account-pseudo">Pseudo réservé</label>
+      <input type="text" id="account-pseudo" class="report-select account-input" maxlength="16"
+             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+             placeholder="Mugiwara">
+      <p class="report-hint">De 3 à 16 caractères : lettres, chiffres, tiret et souligné. Une fois réservé, personne d'autre ne peut le prendre, et il sert d'identité dans les duels. Il ne se change qu'une fois par jour.</p>
+      <button class="sp-stats-btn account-btn-wide" id="account-pseudo-save" onclick="accountSavePseudo()">Réserver ce pseudo</button>
+      <div class="sp-divider"></div>
+      <button class="sp-stats-btn account-btn-wide" onclick="accountSyncNow()">Synchroniser maintenant</button>
+      <button class="sp-stats-btn account-btn-wide" onclick="accountSignOut()">Se déconnecter</button>
+      <div class="sp-divider"></div>
+      <p class="report-hint">La suppression efface définitivement le compte et la progression qui y est enregistrée. La progression de cet appareil, elle, est conservée.</p>
+      <button class="sp-stats-btn account-btn-wide account-danger" onclick="accountDelete()">Supprimer mon compte</button>
+    </div>
+
+    <p class="report-status" id="account-status" role="status"></p>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="report-modal" onclick="handleReportOverlayClick(event)">
   <div class="modal-box report-box">
     <button class="modal-close" onclick="closeReport()" aria-label="Fermer">✕</button>
@@ -700,13 +770,20 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/js/i18n.js?v=334"></script>
-<script src="/js/version.js?v=334"></script>
-<script src="/js/data.js?v=334"></script>
-<script src="/js/jolly-roger.js?v=334"></script>
-<script src="/js/versus-rules.js?v=334"></script>
-<script src="/js/app.js?v=334"></script>
-<script src="/js/canvas-share.js?v=334"></script>
-<script src="/js/map.js?v=334"></script>
+<script src="/js/i18n.js?v=382"></script>
+<script src="/js/version.js?v=382"></script>
+<script src="/js/data.js?v=382"></script>
+<script src="/js/jolly-roger.js?v=382"></script>
+<script src="/js/versus-rules.js?v=382"></script>
+<!-- Compte joueur : règle de fusion puis transport. Les deux AVANT app.js, qui
+     appelle LPAccount dès son initialisation. Sans compte connecté, ces deux
+     fichiers ne font rien. -->
+<script src="/js/save-merge.js?v=382"></script>
+<script src="/js/account.js?v=382"></script>
+<script src="/js/account-auth.js?v=382"></script>
+<script src="/js/leaderboard.js?v=382"></script>
+<script src="/js/app.js?v=382"></script>
+<script src="/js/canvas-share.js?v=382"></script>
+<script src="/js/map.js?v=382"></script>
 </body>
 </html>

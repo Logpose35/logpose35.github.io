@@ -50,6 +50,10 @@
     NOT_CREATOR: t('Seul le créateur peut modifier les options.'), RATE_LIMITED: t('Doucement, moussaillon !'),
     SERVER_FULL: t('Serveur complet, réessaie plus tard.'), BAD_OPTIONS: t('Options invalides.'),
     PAUSED: t('Partie en pause (adversaire déconnecté).'),
+    // Deux personnes peuvent voir ce message : quelqu'un qui tente le pseudo
+    // d'un autre, et le propriétaire dont la session n'a pas pu être vérifiée.
+    // La phrase doit être vraie et actionnable pour les deux.
+    PSEUDO_RESERVE: t('Ce pseudo est réservé par un compte. Connectez-vous avec ce compte, ou choisissez-en un autre.'),
   };
   const CLOSED_FR = {
     opponent_left: t('Ton adversaire a quitté le lobby.'), expired: t('Lobby expiré (inactivité).'),
@@ -126,6 +130,11 @@
       if (saved && !supersededFlag && retryCount < 20) {
         banner(t('⚓ Connexion perdue, reconnexion en cours…'));
         retryTimer = setTimeout(() => { retryCount++; connect(); send('resume', { code: saved.code, resumeToken: saved.token }); }, 2000);
+      } else if (!saved && retryCount < 10 && !$('v-home').hidden) {
+        // Hors partie, sur l'accueil : rien à reprendre, mais la liste des
+        // parties ouvertes se figerait sans bruit. On se rebranche discrètement,
+        // sans bandeau — il n'y a pas de partie en jeu à sauver.
+        retryTimer = setTimeout(() => { retryCount++; connect(); send('list_lobbies'); }, 4000);
       }
     };
   }
@@ -180,10 +189,36 @@
         toast(CLOSED_FR[payload.reason] || t('Lobby fermé.'), 'info');
         resetToHome();
         break;
+      case 'lobby_list':     renderLobbyList(payload); break;
       case 'error':          onError(payload); break;
       case 'pong': break;
       default: break;
     }
+  }
+
+  // ── Salon public ──
+  // La liste est POUSSÉE par le serveur : on s'abonne une fois (list_lobbies)
+  // et les mises à jour arrivent seules à chaque changement de lobby.
+  function renderLobbyList(p) {
+    const parties = Array.isArray(p.lobbies) ? p.lobbies : [];
+    const liste = $('v-open-list');
+    liste.innerHTML = parties.map(l => `
+      <button class="v-open-row" data-code="${esc(l.code)}">
+        <span class="v-open-host">${esc(l.host)}</span>
+        <span class="v-open-meta">Bo${esc(String(l.bestOf))} · ${l.turnSeconds ? esc(String(l.turnSeconds)) + ' s' : t('illimité')}</span>
+        <span class="v-open-join">${t('Rejoindre')}</span>
+      </button>`).join('');
+    $('v-open-empty').hidden = parties.length > 0;
+
+    // « 3 pirates en ligne » : une salle qu'on sait habitée donne envie d'ouvrir
+    // une partie. Masqué à un seul connecté — se compter soi-même n'apprend rien,
+    // donc n vaut toujours 2 ou plus ici : pas de singulier à gérer.
+    const en = $('v-online');
+    const n = Number(p.online) || 0;
+    if (n > 1) {
+      en.textContent = tf('{0} pirates en ligne', n);
+      en.hidden = false;
+    } else en.hidden = true;
   }
 
   function onError(p) {
@@ -202,6 +237,7 @@
     $('v-post-reveal').hidden = true;
     $('v-roundover').hidden = true; $('v-codechip').hidden = true; $('v-count').hidden = true;
     screen('v-home');
+    send('list_lobbies');   // de retour au salon : on redemande l'état courant
   }
 
   function render(s) {
@@ -762,16 +798,148 @@
     b.textContent = msg; b.hidden = false;
   }
 
+  // ── Compte (page Versus) ──
+  // La page ne charge QUE js/account-auth.js : elle a besoin de savoir qui est
+  // connecté, pas de synchroniser quoi que ce soit.
+  function connecte() { return !!(window.LPAuth && LPAuth.state().connecte); }
+
+  async function jetonCompte() {
+    if (!connecte()) return null;
+    try { return await LPAuth.token(); } catch (e) { return null; }
+  }
+
+  // Le compte n'ouvre AUCUNE porte sur cette page : partie publique, privée,
+  // rejoindre — tout est jouable sans. Il ne fait qu'une chose, et l'invitation
+  // ne parle que de ça : réserver son nom pour que personne ne le porte.
+  function majCompte() {
+    const st = window.LPAuth ? LPAuth.state() : { disponible: false, connecte: false };
+    const dehors = st.disponible && !st.connecte;
+    const bloc = $('v-quick-locked');
+    if (bloc) bloc.hidden = !dehors;
+    // Dans un navigateur intégré (TikTok, Instagram…), Google refuse OAuth :
+    // proposer le bouton ferait échouer à coup sûr. On renvoie vers le jeu, où
+    // vit le lien par e-mail.
+    const bs = $('v-signin');
+    if (bs) bs.hidden = !!st.navigateurIntegre;
+  }
+
+  // ── Pseudo réservé ───────────────────────────────────────────────────────
+  // Connecté avec un pseudo réservé : c'est CELUI-LÀ qu'on joue, le champ est
+  // rempli et verrouillé. Il se change au même endroit que le reste du compte,
+  // dans le jeu — pas ici, où il n'y a ni délai de 24 h ni contrôle d'unicité.
+  //
+  // La lecture est directe (une requête REST sur notre propre méta) plutôt que
+  // via js/account.js : ce module-là embarque toute la synchronisation des
+  // sauvegardes, dont cette page n'a rien à faire.
+  let pseudoDuCompte = null;
+
+  async function lirePseudoDuCompte() {
+    const st = window.LPAuth ? LPAuth.state() : null;
+    if (!st || !st.connecte || !st.uid) return null;
+    try {
+      const jeton = await LPAuth.token();
+      if (!jeton) return null;
+      const base = (LPAuth.dbUrl && LPAuth.dbUrl()) || '';
+      if (!base) return null;
+      const r = await fetch(`${base}/saves/${st.uid}/meta/pseudo.json?auth=${encodeURIComponent(jeton)}`,
+                            { signal: AbortSignal.timeout(6000) });
+      if (!r.ok) return null;
+      const v = await r.json();
+      return (typeof v === 'string' && v) ? v : null;
+    } catch (e) { return null; }
+  }
+
+  // Verrouille (ou libère) le champ. Le `readonly` plutôt que `disabled` :
+  // le nom reste sélectionnable et lisible par les lecteurs d'écran.
+  function majChampPseudo() {
+    const champ = $('v-pseudo');
+    if (!champ) return;
+    const verrou = !!pseudoDuCompte;
+    if (verrou) champ.value = pseudoDuCompte;
+    champ.readOnly = verrou;
+    champ.classList.toggle('v-pseudo-verrou', verrou);
+    champ.title = verrou ? t('Pseudo réservé par votre compte') : '';
+    const note = $('v-pseudo-note');
+    if (note) note.hidden = !verrou;
+  }
+
+  async function rafraichirPseudoDuCompte() {
+    pseudoDuCompte = await lirePseudoDuCompte();
+    if (pseudoDuCompte) localStorage.setItem(K_PSEUDO, pseudoDuCompte);
+    majChampPseudo();
+  }
+
   // ── Câblage ──
+  // Le pseudo est lu, borné et mémorisé au même endroit : create, join et la
+  // liste en avaient tous besoin.
+  function pseudoActuel() {
+    if (pseudoDuCompte) return pseudoDuCompte;
+    const p = $('v-pseudo').value.trim() || 'Pirate';
+    localStorage.setItem(K_PSEUDO, p);
+    return p;
+  }
+
   function init() {
     $('v-pseudo').value = localStorage.getItem(K_PSEUDO) || '';
 
-    $('v-create').addEventListener('click', () => {
-      const pseudo = $('v-pseudo').value.trim() || 'Pirate';
-      localStorage.setItem(K_PSEUDO, pseudo);
+    // Le salon exige une connexion AVANT toute création : sans elle, ni liste
+    // ni compteur de joueurs. La page Versus est dédiée — qui l'ouvre vient
+    // jouer, la socket n'est donc pas ouverte pour rien.
+    connect();
+    send('list_lobbies');
+
+    $('v-create').addEventListener('click', async () => {
+      const publique = $('v-public').checked;
+      // Le jeton part s'il existe, sans jamais être exigé : il n'ouvre plus rien
+      // (aucune contrainte de compte en Versus), il prouve seulement au serveur
+      // que le pseudo réservé qu'on annonce est bien le nôtre.
+      const token = await jetonCompte();
       supersededFlag = false;
       connect();
-      send('create_lobby', { pseudo, options: { bestOf: +$('v-bestof').value, turnSeconds: +$('v-turns').value, gameType: 'classic' } });
+      send('create_lobby', { pseudo: pseudoActuel(), token, options: {
+        bestOf: +$('v-bestof').value, turnSeconds: +$('v-turns').value,
+        visibility: publique ? 'public' : 'private', gameType: 'classic',
+      } });
+    });
+
+    // La file d'appariement automatique a été retirée le 09/09/2026 : elle
+    // faisait doublon avec « Parties ouvertes » — pire, c'étaient deux viviers
+    // SÉPARÉS. Quelqu'un qui attendait dans un lobby public et quelqu'un en
+    // recherche ne se voyaient jamais, alors qu'ils cherchaient tous les deux
+    // un adversaire au même instant. Un seul chemin vaut mieux que deux qui
+    // s'ignorent. (Le serveur garde `quick_match`, plus personne ne l'appelle.)
+
+    const btnCo = $('v-signin');
+    if (btnCo) btnCo.addEventListener('click', async () => {
+      if (!window.LPAuth) return;
+      btnCo.disabled = true;
+      const r = await LPAuth.signInGoogle();
+      btnCo.disabled = false;
+      if (r && r.ok && !r.redirect) location.reload();   // repart avec le compte en place
+      else if (r && !r.ok) toast(t('Connexion impossible. Réessayez.'));
+    });
+
+    if (window.LPAuth) {
+      LPAuth.onChange(() => { majCompte(); rafraichirPseudoDuCompte(); });
+      LPAuth.boot();
+    }
+    majCompte();
+    rafraichirPseudoDuCompte();
+
+    // Rejoindre n'exige TOUJOURS pas de compte. Le jeton n'est joint que s'il
+    // existe déjà, et sert uniquement à prouver un pseudo réservé.
+    async function rejoindre(code) {
+      supersededFlag = false;
+      connect();
+      send('join_lobby', { code, pseudo: pseudoActuel(), token: await jetonCompte() });
+    }
+
+    // Délégation : la liste est réécrite à chaque diffusion, un écouteur par
+    // ligne serait reposé à chaque fois.
+    $('v-open-list').addEventListener('click', e => {
+      const ligne = e.target.closest('.v-open-row');
+      if (!ligne || !ligne.dataset.code) return;
+      rejoindre(ligne.dataset.code);
     });
 
     $('v-join').addEventListener('click', joinFromInput);
@@ -779,11 +947,7 @@
     function joinFromInput() {
       const code = $('v-code').value.trim().toUpperCase();
       if (code.length !== 5) return toast(t('Le code fait 5 caractères.'));
-      const pseudo = $('v-pseudo').value.trim() || 'Pirate';
-      localStorage.setItem(K_PSEUDO, pseudo);
-      supersededFlag = false;
-      connect();
-      send('join_lobby', { code, pseudo });
+      rejoindre(code);
     }
 
     $('v-copylink').addEventListener('click', async () => {

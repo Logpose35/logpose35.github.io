@@ -510,3 +510,16 @@
     padding: 8px 12px;
   }
 }
+
+/* ============================================================
+   BOUTON COMPTE — l'en-tête mobile est déjà serré
+   ============================================================ */
+@media (max-width: 760px) {
+  /* Le libellé saute, l'ancre suffit : le bouton retrouve exactement le gabarit
+     des autres icônes de l'en-tête (40x40) plutôt que de pousser le logo. */
+  .account-header-btn {
+    width: 40px; padding: 0; gap: 0;
+    justify-content: center;
+  }
+  .account-header-btn .account-btn-text { display: none; }
+}

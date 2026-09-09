@@ -6,7 +6,7 @@
   <title>Politique de confidentialité — OnePiecedle · LogPose</title>
 
   <!-- SEO -->
-  <meta name="description" content="Ce que OnePiecedle (LogPose) stocke, ce qu&#x27;il n&#x27;envoie pas, et les services tiers utilisés. Aucun compte, aucune inscription, aucune revente de données.">
+  <meta name="description" content="Ce que OnePiecedle (LogPose) stocke, ce qu&#x27;il n&#x27;envoie pas, et les services tiers utilisés. Compte facultatif, aucun mot de passe, aucune revente de données.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#c89408">
   <link rel="canonical" href="https://onepiecedle.fr/confidentialite/">
@@ -16,7 +16,7 @@
   <link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/privacy/">
 
   <meta property="og:title" content="Politique de confidentialité — OnePiecedle · LogPose">
-  <meta property="og:description" content="Ce que OnePiecedle (LogPose) stocke, ce qu&#x27;il n&#x27;envoie pas, et les services tiers utilisés. Aucun compte, aucune inscription, aucune revente de données.">
+  <meta property="og:description" content="Ce que OnePiecedle (LogPose) stocke, ce qu&#x27;il n&#x27;envoie pas, et les services tiers utilisés. Compte facultatif, aucun mot de passe, aucune revente de données.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://onepiecedle.fr/confidentialite/">
   <meta property="og:locale" content="fr_FR">
@@ -48,10 +48,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=334">
-  <link rel="stylesheet" href="/css/landing.css?v=334">
-  <link rel="stylesheet" href="/css/doc.css?v=334">
-  <link rel="stylesheet" href="/css/mobile.css?v=334">
+  <link rel="stylesheet" href="/css/base.css?v=382">
+  <link rel="stylesheet" href="/css/landing.css?v=382">
+  <link rel="stylesheet" href="/css/doc.css?v=382">
+  <link rel="stylesheet" href="/css/mobile.css?v=382">
 </head>
 <!-- nav-condensed : ces pages n'ont pas de héros et ne chargent pas js/landing.js,
      l'état déplié de la barre est donc le bon d'emblée. -->
@@ -98,14 +98,17 @@
 
 <main class="doc">
   <h1 class="doc-title">Politique de confidentialité</h1>
-<p class="doc-lead">OnePiecedle ne demande ni compte, ni inscription, ni adresse électronique
-pour jouer. Le site ne constitue aucun profil de joueur et ne revend aucune donnée. Cette page
-décrit précisément ce qui est stocké et ce qui transite vers des tiers.</p>
+<p class="doc-lead">OnePiecedle se joue sans compte et sans inscription. Un compte facultatif
+existe, pour retrouver sa progression sur plusieurs appareils, mais rien ne l'exige et le jeu
+est identique sans lui. Le site ne constitue aucun profil de joueur et ne revend aucune donnée.
+Cette page décrit précisément ce qui est stocké et ce qui transite vers des tiers.</p>
 
 <h2>Ce qui reste sur l'appareil</h2>
 <p>La progression et les préférences sont enregistrées dans le stockage local du navigateur.
-Ces données ne quittent jamais l'appareil : elles ne sont envoyées à aucun serveur, y compris
-celui du site.</p>
+Sans compte, ces données ne quittent jamais l'appareil : elles ne sont envoyées à aucun serveur,
+y compris celui du site. Avec un compte, seule la progression de jeu est recopiée en ligne, dans
+les conditions décrites juste après. Les préférences d'affichage, elles, restent toujours
+locales.</p>
 <ul>
   <li>les préférences d'affichage : thème clair ou sombre, taille du texte, mode daltonien,
       effets sonores ;</li>
@@ -116,9 +119,27 @@ celui du site.</p>
   <li>le bilan des duels du mode Versus ;</li>
   <li>quelques indicateurs d'interface, par exemple une annonce déjà lue.</li>
 </ul>
-<p>Vider les données de site du navigateur efface l'ensemble. Cette suppression est définitive
-et fait perdre la progression, puisqu'il n'existe aucune copie côté serveur. Une sauvegarde
-peut être exportée puis réimportée depuis les réglages du jeu.</p>
+<p>Vider les données de site du navigateur efface l'ensemble. Sans compte, cette suppression
+est définitive et fait perdre la progression, puisqu'il n'existe aucune copie côté serveur. Une
+sauvegarde peut être exportée puis réimportée depuis les réglages du jeu.</p>
+
+<h2>Compte facultatif</h2>
+<p>Un compte sert à retrouver la même progression sur plusieurs appareils, et à rien d'autre.
+Jouer n'en demande aucun. Aucune fenêtre ne s'ouvre d'elle-même et aucune relance n'est faite :
+il faut cliquer sur le bouton de connexion pour que quoi que ce soit se produise.</p>
+<p>La connexion passe par <strong>Google</strong> ou par un lien à usage unique reçu par
+courriel. Le site ne demande, ne voit ni ne conserve aucun mot de passe. L'identification est
+assurée par <strong>Firebase Authentication</strong> (Google), qui détient l'adresse
+électronique et les dates de connexion.</p>
+<p>Ce que le site enregistre de son côté se limite à la progression de jeu, rangée sous un
+identifiant de compte : journées jouées, propositions faites, scores, statistiques et
+personnages trouvés. Ni l'adresse électronique, ni le nom, ni la photo de profil n'y figurent.
+Ces données sont stockées chez Google Firebase, sur des serveurs situés dans l'Union européenne
+(europe-west1), et ne sont lisibles que par le compte qui les a écrites.</p>
+<p>La suppression est accessible dans le jeu, depuis le panneau « Compte ». Elle efface le
+compte et toute la progression enregistrée en ligne ; la progression présente sur l'appareil
+est conservée. Tant qu'elle n'est pas demandée, les données restent, puisque c'est précisément
+leur raison d'être.</p>
 
 <h2>Compteurs anonymes</h2>
 <p>Le site tient un compteur du nombre de parties terminées par jour et par mode, ainsi qu'un
@@ -145,7 +166,12 @@ occasion l'adresse IP et des informations techniques sur le navigateur.</p>
       pages en vue d'une activation. Une fois la publicité active, ce service dépose des
       cookies et lit ceux qu'il a déposés, pour mesurer l'audience des annonces et, selon le
       consentement, les personnaliser.</li>
-  <li><strong>Google Firebase</strong> : compteurs anonymes décrits plus haut.</li>
+  <li><strong>Google Firebase</strong> : compteurs anonymes décrits plus haut, et
+      sauvegarde du compte facultatif.</li>
+  <li><strong>Firebase Authentication</strong> (Google) : connexion au compte facultatif. Son
+      code est chargé depuis <strong>gstatic.com</strong>, et uniquement à l'ouverture du
+      panneau « Compte » ou au chargement d'une page si un compte y est déjà connecté. Un
+      visiteur qui n'utilise pas de compte ne le charge jamais.</li>
   <li><strong>YouTube</strong> et <strong>AnimeThemes</strong> : visionnage du générique,
       proposé uniquement à la fin d'une partie du mode Opening. Rien n'est chargé avant.</li>
   <li><strong>jsDelivr</strong> : bibliothèque d'affichage 3D de la page d'accueil.</li>
@@ -157,6 +183,9 @@ occasion l'adresse IP et des informations techniques sur le navigateur.</p>
 <h2>Cookies</h2>
 <p>Le site n'utilise aucun cookie pour son propre fonctionnement : le stockage local décrit
 plus haut n'en est pas un et n'est jamais transmis.</p>
+<p>La connexion à un compte fait exception sur un point : elle dépose un jeton de session dans
+le navigateur, par ce même mécanisme de stockage local. Il sert uniquement à rester connecté et
+disparaît à la déconnexion.</p>
 <p>Aucune annonce n'est diffusée à ce jour et aucun emplacement publicitaire n'est placé sur
 les pages. Avant toute diffusion, un bandeau de consentement sera présenté aux visiteurs de
 l'Union européenne. Le refus y sera aussi simple que l'acceptation et modifiable à tout
@@ -169,12 +198,18 @@ les propositions faites. Tout disparaît à la fin de la partie et rien n'est é
 Le pseudonyme est libre et n'a pas à être un vrai nom.</p>
 
 <h2>Mineurs</h2>
-<p>Le site s'adresse à un large public et ne collecte volontairement aucune donnée permettant
-d'identifier une personne, quel que soit son âge.</p>
+<p>Le site s'adresse à un large public. Jouer ne demande aucune donnée permettant d'identifier
+une personne, quel que soit son âge. Créer un compte suppose en revanche une adresse
+électronique : les plus jeunes peuvent jouer sans, sans rien perdre du jeu.</p>
 
 <h2>Droits et contact</h2>
-<p>Le site ne détenant aucune donnée nominative, il n'existe pas de dossier personnel à
-consulter ou à supprimer : effacer les données de site du navigateur suffit à tout retirer.</p>
+<p>Sans compte, le site ne détient aucune donnée nominative : il n'existe pas de dossier
+personnel à consulter ou à supprimer, et effacer les données de site du navigateur suffit à tout
+retirer.</p>
+<p>Avec un compte, les droits d'accès, de rectification et de suppression s'exercent depuis le
+panneau « Compte » du jeu, qui efface tout en une action, ou par courriel à l'adresse ci-dessous.
+L'adresse électronique associée au compte est détenue par Google en qualité de sous-traitant, et
+disparaît avec le compte.</p>
 <p>Pour les cookies publicitaires, les droits s'exercent auprès de Google, qui en est
 responsable. Pour toute question sur cette politique :
 <a href="mailto:contact@onepiecedle.fr">contact@onepiecedle.fr</a>.</p>
@@ -190,6 +225,6 @@ responsable. Pour toute question sur cette politique :
   <p class="lp-foot__legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · projet fan non officiel, sans affiliation.</p>
 </footer>
 
-<script src="/js/version.js?v=334"></script>
+<script src="/js/version.js?v=382"></script>
 </body>
 </html>

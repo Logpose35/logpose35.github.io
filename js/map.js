@@ -1,7 +1,7 @@
 // ===== P6 — CARTE DE GRAND LINE =====
-// Carte interactive : 32 îles = 32 arcs de One Piece, débloquées selon le score
+// Carte interactive : une île par arc de One Piece, débloquées selon le score
 // cumulé (LS.cumulativeScore, le même que les rangs pirate). Overlay SVG posé sur
-// l'image de fond images/carte.jpeg. Aucune donnée nouvelle persistée (recalcul live).
+// l'image de fond images/carte.webp. Aucune donnée nouvelle persistée (recalcul live).
 // Dépendances globales (app.js) : lsGet, LS, sanitizeNum, getRankFromScore, esc.
 
 (function () {
@@ -11,11 +11,11 @@
   // avec la constante homonyme d'app.js (scripts classiques, portée globale partagée).
   const ASSET_BASE = window.ASSET_BASE || '';
 
-  // ── Table des 32 îles ──
+  // ── Table des îles (source unique : tools/compteurs.py la compte ici) ──
   // x / y : position en % sur l'image (0-100). seuil : score cumulé requis.
   // Le parcours suit le voyage : East Blue (haut-droite) → Reverse Mountain (centre)
   // → Paradise (bande droite) → [tour du monde] → New World (bande gauche).
-  // Coordonnées calées sur les VRAIS emplacements de carte.jpeg (lecture des labels).
+  // Coordonnées calées sur les VRAIS emplacements de carte.webp (lecture des labels).
   // La Red Line apparaît au centre ET sur les bords (projection cylindrique) :
   // Fish-Man Island / Mariejois sont à l'extrême-gauche, le New World va de la gauche vers le centre.
   const ISLANDS = [
@@ -59,7 +59,7 @@
   ];
 
   // Zone spéciale « Films & Filler » (arc 0) — HORS de la progression Grand Line :
-  // toujours débloquée, non comptée dans les « / 32 îles », pas de compteur communauté.
+  // toujours débloquée, non comptée dans le « n / N îles », pas de compteur communauté.
   // Regroupe les personnages hors-canon (films, hors-série) taggés arc:0 dans data.json.
   const FILLER_ZONE = { arc: 0, name: 'Films & Filler', x: 12, y: 12, seuil: 0 };
 
@@ -294,7 +294,7 @@
       const n = lastIdx + 1;
       const cur = lastIdx >= 0 ? ISLANDS[lastIdx].name : '—';
       const nextIsl = ISLANDS[lastIdx + 1];
-      sub.innerHTML = `<strong>${tf('{0} / 32 îles', n)}</strong> · ${esc(cur)}`
+      sub.innerHTML = `<strong>${tf('{0} / {1} îles', n, ISLANDS.length)}</strong> · ${esc(cur)}`
         + (nextIsl
             ? tf(' · prochaine : {0} ({1} pts)', esc(nextIsl.name), nfmt(nextIsl.seuil))
             : t(' · Route de Laugh Tale tracée !'));

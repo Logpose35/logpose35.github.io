@@ -1,7 +1,7 @@
 # ===== Serveur Versus 1v1 LogPose — conteneur VPS =====
 # Contexte de build attendu : un dossier contenant
 #   Dockerfile (copié depuis server/), data.json, js/versus-rules.js,
-#   server/versus-server.js, server/package.json
+#   server/versus-server.js, server/firebase-token.js, server/package.json
 # (mêmes chemins relatifs qu'en dev : le serveur require ../js/versus-rules.js
 #  et lit ../data.json en fallback froid — voir BRIEF_V6 §2.6)
 #
@@ -18,6 +18,10 @@ COPY server/package.json ./
 RUN npm install --omit=dev && npm cache clean --force
 
 COPY server/versus-server.js ./
+# Vérification du jeton Firebase des parties publiques. ZÉRO dépendance (crypto
+# seul) — mais le fichier doit être là : sans lui, versus-server.js ne démarre
+# même pas (require en tête de fichier).
+COPY server/firebase-token.js ./
 COPY js/versus-rules.js /app/js/versus-rules.js
 COPY data.json /app/data.json
 

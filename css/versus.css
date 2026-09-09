@@ -71,6 +71,15 @@
   width: 100%; padding: 9px 12px; border: 1.5px solid var(--border2); border-radius: 8px;
   font-size: 1rem; background: var(--bg); color: var(--text); box-sizing: border-box;
 }
+/* Pseudo réservé : le champ est verrouillé, et ça doit se VOIR sans se lire.
+   Grisé mais toujours sélectionnable (readonly, pas disabled) — le nom reste
+   copiable et annoncé par les lecteurs d'écran. */
+#v-pseudo.v-pseudo-verrou {
+  background: var(--card); color: var(--text3); cursor: default;
+  border-style: dashed; border-color: var(--border);
+}
+.v-pseudo-note { margin: 7px 0 0; text-align: left; font-size: .78rem; }
+
 .v-opts { display: flex; gap: 16px; margin: 10px 0 14px; flex-wrap: wrap; }
 .v-opts label { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--text3); }
 .v-opts select {
@@ -354,3 +363,52 @@
   margin-top: var(--sp-4);
   border-top: 1px solid rgba(200, 148, 10, 0.16);
 }
+
+/* ══ SALON PUBLIC (parties ouvertes) ═══════════════════════════════════════
+   Rien de neuf visuellement : mêmes cartes, même or, même trame que le reste
+   de la page. Seules les lignes de la liste sont nouvelles, et elles reprennent
+   le gabarit des boutons existants. */
+.v-online { margin: 10px 0 0; font-size: .8rem; color: var(--gold-l); }
+
+/* Case « partie publique » : discrète, sous les options, avant le bouton. */
+.v-check {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .82rem; color: var(--text3); margin: 0 0 12px; cursor: pointer;
+}
+/* `#v-home input { width: 100% }` (plus haut) l'emporterait sur une simple
+   classe : la case prenait toute la largeur et rejetait son libellé à droite.
+   On repasse par l'ID pour gagner en spécificité. */
+#v-home .v-check input { width: auto; flex: 0 0 auto; margin: 0; accent-color: var(--gold); cursor: pointer; }
+
+.v-open-card { margin-top: 14px; }
+.v-open-list { display: flex; flex-direction: column; gap: 8px; }
+.v-open-row {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px;
+  width: 100%; padding: 10px 14px; text-align: left; cursor: pointer;
+  background: var(--bg); border: 1.5px solid var(--border2); border-radius: 10px;
+  color: var(--text); font-family: inherit; font-size: .9rem;
+  transition: border-color .15s, transform .1s;
+}
+.v-open-row:hover { border-color: var(--gold); transform: translateY(-1px); }
+.v-open-host { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v-open-meta { color: var(--text3); font-size: .8rem; white-space: nowrap; }
+.v-open-join { color: var(--gold); font-weight: 700; font-size: .82rem; white-space: nowrap; }
+@media (max-width: 520px) {
+  /* Le pseudo garde sa ligne, les métadonnées passent dessous : à 320 px les
+     trois colonnes écrasaient le nom jusqu'à l'illisible. */
+  .v-open-row { grid-template-columns: 1fr auto; }
+  .v-open-meta { grid-column: 1 / -1; }
+}
+
+/* Invitation à réserver son pseudo. Ce n'est plus une porte fermée — rien n'est
+   fermé en Versus — mais une proposition, sous le champ qu'elle concerne. */
+.v-locked { margin: 10px 0 0; }
+.v-locked .v-hint { text-align: left; margin: 0 0 10px; }
+/* Le bouton du bloc est la SEULE action proposée : `v-btn-quiet`,
+   sans bordure ni fond, le faisait passer pour du texte. On lui rend un
+   contour — sobre, pas doré plein : c'est une porte, pas une réclame. */
+.v-locked .v-btn-quiet {
+  border-color: var(--border2);
+  color: var(--text2);
+}
+.v-locked .v-btn-quiet:hover { border-color: var(--gold); color: var(--gold-l); }

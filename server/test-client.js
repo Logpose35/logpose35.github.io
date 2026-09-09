@@ -88,7 +88,11 @@ async function driveVeto(socks, keep) {
 async function main() {
   console.log('— Démarrage du serveur de test —');
   const srv = spawn(process.execPath, [path.join(__dirname, 'versus-server.js')], {
+    // ⚠️ VERSUS_STATS=0 est OBLIGATOIRE : sans lui les tests écrivent dans les
+    // compteurs Firebase de PRODUCTION. Voir la note dans test-modes.js.
     env: { ...process.env, VERSUS_PORT: String(PORT), VERSUS_ALLOW_FAST_TURNS: '1',
+           VERSUS_STATS: '0',
+           VERSUS_PSEUDOS_URL: 'http://127.0.0.1:9/none',   // jamais la table de prod
            VERSUS_DATA_URL: 'http://127.0.0.1:9/none' }, // fetch échoue vite → fallback local (test hermétique)
     stdio: ['ignore', 'pipe', 'pipe'],
   });

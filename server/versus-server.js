@@ -15,6 +15,8 @@
 //       VERSUS_ALLOW_FAST_TURNS=1 (dev/test : autorise turnSeconds >= 2 et
 //       countdown 1 s), VERSUS_ALLOW_NO_ORIGIN=1 (dev : accepte les clients
 //       sans header Origin),
+//       VERSUS_PSEUDOS_URL (déf. <FB_URL>/pseudos — table des pseudos réservés ;
+//       les tests la pointent vers un faux serveur pour ne pas lire la prod),
 //       Signalements du formulaire (route POST /report) — les deux canaux
 //       sont facultatifs et cumulables, le log stdout est toujours écrit :
 //         REPORT_WEBHOOK_URL (webhook Discord),
@@ -31,6 +33,7 @@ const fs     = require('fs');
 const path   = require('path');
 const { WebSocketServer } = require('ws');
 const rules  = require('../js/versus-rules.js');
+const { verifyIdToken, _setCerts } = require('./firebase-token.js');
 
 const PORT = parseInt(process.env.VERSUS_PORT || '8765', 10);
 const HOST = process.env.VERSUS_HOST || '127.0.0.1';
@@ -49,6 +52,21 @@ const INTER_ROUND_MS = FAST ? 1500 : 8000;  // temps de lecture de la réponse e
 const VETO_SECONDS = FAST ? 2 : 20;         // temps par action de veto (auto-choix aléatoire au bout)
 const TTL_MS = { CREATED: 15 * 60_000, FULL: 10 * 60_000, POST_MATCH: 10 * 60_000 };
 const MAX_LOBBIES = 500;
+const MAX_LISTED  = 40;                     // parties publiques renvoyées au plus dans la liste
+
+// ⚠️ Le Versus n'exige PLUS de compte, nulle part (décision du 09/09/2026, revenue
+// sur celle de la veille). Créer une partie publique, la rejoindre, consulter la
+// liste : tout est ouvert. Le jeton reste vérifié quand il est là, mais il
+// n'ouvre plus rien — il sert UNIQUEMENT à prouver qu'un pseudo réservé est bien
+// le sien (voir `pseudoPermis`). Ne pas remettre de porte sans le demander.
+//
+// Crochet DE TEST uniquement : injecte une clé publique pour que les suites
+// puissent signer leurs propres jetons. Sans cette variable, rien n'est injecté
+// et seuls les certificats de Google sont acceptés.
+if (process.env.VERSUS_FB_TEST_CERT) {
+  _setCerts({ [process.env.VERSUS_FB_TEST_KID || 'test']: process.env.VERSUS_FB_TEST_CERT });
+  console.warn('[auth] CERTIFICAT DE TEST injecté — ne doit jamais arriver en production');
+}
 const MAX_STRIKES = 3;                      // 3 timeouts consécutifs = forfait de manche
 const VALID_BEST_OF = [1, 3, 5];
 const VALID_TURN_S = FAST ? null : [30, 60, 120, 0]; // 0 = ∞ ; null = libre (dev)
@@ -161,7 +179,10 @@ function validOptions(o) {
   if (!VALID_BEST_OF.includes(bestOf)) return null;
   if (VALID_TURN_S ? !VALID_TURN_S.includes(turnSeconds)
                    : !(turnSeconds === 0 || (turnSeconds >= 2 && turnSeconds <= 600))) return null;
-  return { bestOf, turnSeconds }; // les modes par manche viennent des picks des joueurs
+  // 'private' par défaut : un lobby créé sans rien préciser reste invisible,
+  // exactement comme avant l'ajout du salon public.
+  const visibility = (o && o.visibility === 'public') ? 'public' : 'private';
+  return { bestOf, turnSeconds, visibility }; // les modes par manche viennent des picks des joueurs
 }
 
 function send(ws, type, payload = {}) {
@@ -178,6 +199,15 @@ function rateLimited(ip) {
 }
 
 // ── Lobby ──────────────────────────────────────────────────────────────────
+// Un joueur, tel qu'il entre dans un lobby. Factorisé : create_lobby,
+// join_lobby et l'appariement de la file en avaient besoin à l'identique.
+function makePlayer(name, ws) {
+  return {
+    name: cleanPseudo(name), ws, resumeToken: crypto.randomBytes(16).toString('hex'),
+    ready: false, connected: true, wantsRematch: false, graceTimer: null,
+  };
+}
+
 function makeLobby(code, options) {
   return {
     code, options,
@@ -353,6 +383,9 @@ function snapshotFor(lb, idx) {
 
 function broadcastState(lb) {
   lb.players.forEach((p, i) => send(p.ws, 'lobby_state', snapshotFor(lb, i)));
+  // La liste publique ne peut changer QUE quand un lobby change d'état. Se
+  // brancher ici plutôt qu'aux six points d'appel évite d'en oublier un.
+  broadcastLobbyList();
 }
 
 function turnRemainingMs(lb) {
@@ -380,7 +413,89 @@ function closeLobby(lb, reason) {
     if (p.ws && p.ws.readyState === p.ws.OPEN) p.ws.close();
   });
   lobbies.delete(lb.code);
+  broadcastLobbyList();   // closeLobby ne passe pas par broadcastState
   console.log(`[lobby ${lb.code}] fermé (${reason}) — ${lobbies.size} lobbies actifs`);
+}
+
+// ── Salon public : liste des parties ouvertes et file d'attente ────────────
+// Deux façons de trouver un adversaire sans échanger de code. La liste montre
+// ce qui existe ; la file attend qu'un adversaire arrive. À notre échelle
+// (quelques joueurs par jour) c'est la file qui fait le travail : une liste
+// vide donne l'impression d'un jeu mort, une file dit « patiente ».
+const browsers = new Set();   // sockets qui regardent la liste
+const queue    = [];          // { ws, pseudo, options, at } — ordre d'arrivée
+
+const aliveWs = ws => ws && ws.readyState === ws.OPEN;
+
+function publicLobbies() {
+  const out = [];
+  for (const lb of lobbies.values()) {
+    // CREATED + un seul joueur = une place libre. Un lobby en jeu ou complet
+    // n'a rien à faire dans la liste : le rejoindre échouerait.
+    if (lb.options.visibility !== 'public' || lb.state !== 'CREATED') continue;
+    if (lb.players.length !== 1 || !lb.players[0].connected) continue;
+    out.push({
+      code: lb.code,
+      host: lb.players[0].name,
+      bestOf: lb.options.bestOf,
+      turnSeconds: lb.options.turnSeconds,
+      waitingMs: Date.now() - lb.createdAt,
+    });
+    if (out.length >= MAX_LISTED) break;
+  }
+  return out;
+}
+
+// `online` sert surtout à ne pas laisser un écran vide : savoir que trois
+// personnes sont là change la décision d'attendre ou non.
+const lobbyListPayload = () => ({
+  lobbies: publicLobbies(), online: wss.clients.size, queue: queue.length,
+});
+
+function broadcastLobbyList() {
+  if (!browsers.size) return;
+  const p = lobbyListPayload();
+  browsers.forEach(ws => { if (aliveWs(ws)) send(ws, 'lobby_list', p); else browsers.delete(ws); });
+}
+
+function dequeue(ws) {
+  const i = queue.findIndex(q => q.ws === ws);
+  if (i !== -1) queue.splice(i, 1);
+  return i !== -1;
+}
+
+// Appariement : deux sockets vivantes en tête de file. Les options retenues
+// sont celles du PREMIER arrivé — il attendait, il ne va pas en plus subir
+// les réglages du suivant.
+function pairFromQueue() {
+  while (queue.length >= 2) {
+    if (lobbies.size >= MAX_LOBBIES) return;
+    const a = queue.shift();
+    if (!aliveWs(a.ws) || a.ws.lobbyCode) continue;          // parti entre-temps
+    const j = queue.findIndex(q => aliveWs(q.ws) && !q.ws.lobbyCode);
+    if (j === -1) { queue.unshift(a); return; }              // plus personne de valable
+    const b = queue.splice(j, 1)[0];
+
+    const code = newCode();
+    if (!code) { queue.unshift(b, a); return; }
+    const lb = makeLobby(code, Object.assign({}, a.options, { visibility: 'private' }));
+    lb.players.push(makePlayer(a.pseudo, a.ws), makePlayer(b.pseudo, b.ws));
+    lb.state = 'FULL';
+    lobbies.set(code, lb);
+    a.ws.lobbyCode = code; b.ws.lobbyCode = code;
+    lb.players.forEach(p => send(p.ws, 'lobby_created', {
+      code, options: lb.options, resumeToken: p.resumeToken,
+      dataVersion: DATA_VERSION, matched: true,
+    }));
+    console.log(`[file] ${lb.players[0].name} vs ${lb.players[1].name} — lobby ${code}`);
+    broadcastState(lb);
+  }
+}
+
+// Une socket qui s'en va ne doit laisser ni entrée de file, ni abonnement.
+function forgetSocket(ws) {
+  browsers.delete(ws);
+  if (dequeue(ws)) broadcastLobbyList();
 }
 
 // ── Déroulé d'une partie ───────────────────────────────────────────────────
@@ -502,6 +617,60 @@ function countVersusMatch() {
   const day = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' }); // YYYY-MM-DD
   fbBump('counters/versus-matches');        // total cumulé
   fbBump(`counters/versus-daily/${day}`);   // détail par jour
+}
+
+// ── Pseudos réservés ────────────────────────────────────────────────────────
+// Un pseudo réservé par un compte n'est utilisable QUE par ce compte, y compris
+// en Versus. Le contrôle ne peut pas vivre côté client : une page modifiée
+// enverrait ce qu'elle veut. Il est donc ici, avec l'uid du JETON VÉRIFIÉ.
+//
+// `pseudos/{nom}` est lisible sans authentification, ce qui n'expose rien de
+// neuf : la correspondance uid → pseudo est DÉJÀ publique par `leaderboard/`
+// (clé = uid, champ `n` = pseudo, `.read: true`).
+//
+// ⚠️ En cas de panne réseau on LAISSE PASSER. Refuser tous les duels parce que
+// Firebase hoquette serait pire que le risque couvert : il s'agit d'un nom
+// affiché dans une partie, pas d'un accès à un compte. Le choix est assumé.
+const PSEUDOS_URL   = process.env.VERSUS_PSEUDOS_URL || `${FB_URL}/pseudos`;
+const PSEUDO_TTL_MS = 60_000;
+const cachePseudos  = new Map();   // nom normalisé → { uid: string|null, at: ms }
+
+const normPseudo = n => String(n ?? '').trim().toLowerCase();
+
+// uid propriétaire du nom, null si libre, undefined si on n'a pas pu savoir.
+async function proprietairePseudo(nom) {
+  const cle = normPseudo(nom);
+  if (!/^[a-z0-9_-]{3,16}$/.test(cle)) return null;   // hors format = jamais réservable
+  const vu = cachePseudos.get(cle);
+  if (vu && Date.now() - vu.at < PSEUDO_TTL_MS) return vu.uid;
+  try {
+    const res = await fetch(`${PSEUDOS_URL}/${encodeURIComponent(cle)}.json`,
+                            { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return undefined;
+    const data = await res.json();
+    const uid = (typeof data === 'string' && data) ? data : null;
+    cachePseudos.set(cle, { uid, at: Date.now() });
+    return uid;
+  } catch (e) {
+    return undefined;                                  // panne : l'appelant laisse passer
+  }
+}
+
+// Le pseudo demandé est-il permis pour cette socket ? `ws.uid` vient d'un jeton
+// vérifié par `identifier()`, jamais du client seul.
+async function pseudoPermis(ws, pseudo) {
+  const proprio = await proprietairePseudo(pseudo);
+  if (proprio === undefined || proprio === null) return true;   // panne, ou libre
+  return proprio === ws.uid;
+}
+
+// Lit le jeton s'il y en a un, SANS l'exiger : `join_lobby` reste ouvert aux
+// visiteurs. Sert seulement à savoir si le pseudo demandé est bien le leur.
+async function identifier(ws, payload) {
+  if (ws.uid) return ws.uid;
+  const u = payload && payload.token ? await verifyIdToken(payload.token) : null;
+  if (u) ws.uid = u.uid;
+  return ws.uid || null;
 }
 
 function endRound(lb, winnerIdx, why) {
@@ -713,7 +882,7 @@ function handleResume(ws, code, token) {
 }
 
 // ── Dispatch des messages ──────────────────────────────────────────────────
-function onMessage(ws, raw, ip) {
+async function onMessage(ws, raw, ip) {
   let msg;
   try { msg = JSON.parse(raw); } catch { return send(ws, 'error', { code: 'BAD_MESSAGE' }); }
   if (msg?.v !== PROTO_V) return send(ws, 'error', { code: 'BAD_PROTOCOL_VERSION', message: `attendu v=${PROTO_V}` });
@@ -728,13 +897,14 @@ function onMessage(ws, raw, ip) {
     if (lobbies.size >= MAX_LOBBIES) return send(ws, 'error', { code: 'SERVER_FULL' });
     const options = validOptions(payload.options);
     if (!options) return send(ws, 'error', { code: 'BAD_OPTIONS' });
+    // Seule la partie PUBLIQUE exige un compte : une partie privée entre amis
+    // reste accessible sans rien.
+    await identifier(ws, payload);
+    if (!(await pseudoPermis(ws, payload.pseudo))) return send(ws, 'error', { code: 'PSEUDO_RESERVE' });
     const code = newCode();
     if (!code) return send(ws, 'error', { code: 'SERVER_FULL' });
     const lb = makeLobby(code, options);
-    lb.players.push({
-      name: cleanPseudo(payload.pseudo), ws, resumeToken: crypto.randomBytes(16).toString('hex'),
-      ready: false, connected: true, wantsRematch: false, graceTimer: null,
-    });
+    lb.players.push(makePlayer(payload.pseudo, ws));
     lobbies.set(code, lb);
     ws.lobbyCode = code;
     console.log(`[lobby ${code}] créé par ${lb.players[0].name} (Bo${options.bestOf}, ${options.turnSeconds || '∞'} s) — ${lobbies.size} lobbies`);
@@ -750,11 +920,10 @@ function onMessage(ws, raw, ip) {
     if (!lb) return send(ws, 'error', { code: 'BAD_CODE' });
     if (lb.state === 'IN_GAME' || lb.state === 'POST_MATCH') return send(ws, 'error', { code: 'GAME_IN_PROGRESS' });
     if (lb.players.length >= 2) return send(ws, 'error', { code: 'LOBBY_FULL' });
+    await identifier(ws, payload);
+    if (!(await pseudoPermis(ws, payload.pseudo))) return send(ws, 'error', { code: 'PSEUDO_RESERVE' });
     // payload.role : réservé (spectateur possible plus tard — §2.9)
-    const player = {
-      name: cleanPseudo(payload.pseudo), ws, resumeToken: crypto.randomBytes(16).toString('hex'),
-      ready: false, connected: true, wantsRematch: false, graceTimer: null,
-    };
+    const player = makePlayer(payload.pseudo, ws);
     lb.players.push(player);
     lb.state = 'FULL';
     touch(lb);
@@ -762,6 +931,35 @@ function onMessage(ws, raw, ip) {
     console.log(`[lobby ${lb.code}] ${player.name} a rejoint`);
     send(ws, 'lobby_created', { code: lb.code, options: lb.options, resumeToken: player.resumeToken, dataVersion: DATA_VERSION });
     broadcastState(lb);
+    return;
+  }
+
+  // ── Salon public ────────────────────────────────────────────────────────
+  if (type === 'list_lobbies') {
+    if (rateLimited(ip)) return send(ws, 'error', { code: 'RATE_LIMITED' });
+    browsers.add(ws);                       // abonnement : les changements suivants arrivent seuls
+    return send(ws, 'lobby_list', lobbyListPayload());
+  }
+  if (type === 'unlist_lobbies') { browsers.delete(ws); return; }
+
+  if (type === 'quick_match') {
+    if (ws.lobbyCode) return send(ws, 'error', { code: 'ALREADY_IN_LOBBY' });
+    if (rateLimited(ip)) return send(ws, 'error', { code: 'RATE_LIMITED' });
+    const options = validOptions(payload.options);
+    if (!options) return send(ws, 'error', { code: 'BAD_OPTIONS' });
+    await identifier(ws, payload);
+    if (!(await pseudoPermis(ws, payload.pseudo))) return send(ws, 'error', { code: 'PSEUDO_RESERVE' });
+    dequeue(ws);                            // une seule place par socket
+    queue.push({ ws, pseudo: cleanPseudo(payload.pseudo), options, at: Date.now() });
+    send(ws, 'queued', { position: queue.length, queue: queue.length });
+    pairFromQueue();
+    broadcastLobbyList();
+    return;
+  }
+  if (type === 'cancel_quick_match') {
+    dequeue(ws);
+    send(ws, 'queue_cancelled', {});
+    broadcastLobbyList();
     return;
   }
 
@@ -1024,7 +1222,7 @@ const server = http.createServer((req, res) => {
   const chemin = (req.url || '').split('?')[0];
   if (chemin === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true, lobbies: lobbies.size, characters: CHARACTERS.length, dataVersion: DATA_VERSION, uptime: Math.round(process.uptime()) }));
+    res.end(JSON.stringify({ ok: true, lobbies: lobbies.size, publicLobbies: publicLobbies().length, queue: queue.length, online: wss.clients.size, characters: CHARACTERS.length, dataVersion: DATA_VERSION, uptime: Math.round(process.uptime()) }));
   } else if (chemin === '/report' && req.method === 'OPTIONS') {
     res.writeHead(204, corsHeaders(req)); res.end();          // pré-vol CORS
   } else if (chemin === '/report' && req.method === 'POST') {
@@ -1058,10 +1256,16 @@ wss.on('connection', (ws, req) => {
   ws.lobbyCode = null;
   ws.on('pong', () => { ws.isAlive = true; });
   ws.on('message', raw => {
-    try { onMessage(ws, raw, ip); }
-    catch (e) { console.error('[ws] erreur de traitement :', e); send(ws, 'error', { code: 'SERVER_ERROR' }); }
+    // onMessage est devenu asynchrone (vérification de jeton) : un try/catch
+    // synchrone ne rattraperait plus une promesse rejetée, et le processus
+    // tomberait sur un unhandledRejection.
+    Promise.resolve().then(() => onMessage(ws, raw, ip)).catch(e => {
+      console.error('[ws] erreur de traitement :', e);
+      send(ws, 'error', { code: 'SERVER_ERROR' });
+    });
   });
   ws.on('close', () => {
+    forgetSocket(ws);
     const lb = lobbies.get(ws.lobbyCode);
     if (!lb) return;
     const idx = playerIdxOf(lb, ws);

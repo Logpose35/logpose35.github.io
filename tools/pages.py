@@ -97,13 +97,13 @@ entrent dans le jeu. C'est ce qui permet de rejouer une journée écoulée et de
 l'archive des réponses passées.</p>
 
 <h2>Les données</h2>
-<p>Le jeu s'appuie sur une base de 266 personnages, 118 fruits du démon, 112 tomes, 29
-génériques et 33 arcs narratifs. Chaque fiche de personnage porte huit caractéristiques :
+<p>Le jeu s'appuie sur une base de {{NB_PERSOS}} personnages, {{NB_FRUITS}} fruits du démon, {{NB_TOMES}} tomes, {{NB_OPENINGS}}
+génériques et {{NB_ARCS}} arcs narratifs. Chaque fiche de personnage porte huit caractéristiques :
 genre, affiliation, origine, fruit du démon, haki, statut, arc de première apparition et
 prime.</p>
 <p>Ces informations sont relevées à la main depuis le manga, la série animée et les
 encyclopédies de référence, puis recoupées. Les fiches sont relues périodiquement : une
-relecture complète des 266 personnages a été menée en août 2026.</p>
+relecture complète des {{NB_PERSOS}} personnages a été menée en août 2026.</p>
 
 <h2>Signaler une erreur</h2>
 <p>Une prime obsolète, un arc de première apparition discutable, une silhouette
@@ -148,11 +148,11 @@ That is what makes it possible to replay a past day and to browse the archive of
 answers.</p>
 
 <h2>The data</h2>
-<p>The game draws on a base of 266 characters, 118 Devil Fruits, 112 volumes, 29 opening themes
-and 33 story arcs. Every character sheet carries eight attributes: gender, affiliation, origin,
+<p>The game draws on a base of {{NB_PERSOS}} characters, {{NB_FRUITS}} Devil Fruits, {{NB_TOMES}} volumes, {{NB_OPENINGS}} opening themes
+and {{NB_ARCS}} story arcs. Every character sheet carries eight attributes: gender, affiliation, origin,
 Devil Fruit, Haki, status, first arc and bounty.</p>
 <p>This information is collected by hand from the manga, the anime and reference encyclopedias,
-then cross-checked. Sheets are reviewed periodically: a full pass over all 266 characters was
+then cross-checked. Sheets are reviewed periodically: a full pass over all {{NB_PERSOS}} characters was
 carried out in August 2026.</p>
 
 <h2>Reporting a mistake</h2>
@@ -296,17 +296,20 @@ CONTENT['privacy'] = dict(
     fr=dict(
         title='Politique de confidentialité — OnePiecedle · LogPose',
         desc='Ce que OnePiecedle (LogPose) stocke, ce qu\'il n\'envoie pas, et les services '
-             'tiers utilisés. Aucun compte, aucune inscription, aucune revente de données.',
+             'tiers utilisés. Compte facultatif, aucun mot de passe, aucune revente de données.',
         h1='Politique de confidentialité',
         body='''
-<p class="doc-lead">OnePiecedle ne demande ni compte, ni inscription, ni adresse électronique
-pour jouer. Le site ne constitue aucun profil de joueur et ne revend aucune donnée. Cette page
-décrit précisément ce qui est stocké et ce qui transite vers des tiers.</p>
+<p class="doc-lead">OnePiecedle se joue sans compte et sans inscription. Un compte facultatif
+existe, pour retrouver sa progression sur plusieurs appareils, mais rien ne l'exige et le jeu
+est identique sans lui. Le site ne constitue aucun profil de joueur et ne revend aucune donnée.
+Cette page décrit précisément ce qui est stocké et ce qui transite vers des tiers.</p>
 
 <h2>Ce qui reste sur l'appareil</h2>
 <p>La progression et les préférences sont enregistrées dans le stockage local du navigateur.
-Ces données ne quittent jamais l'appareil : elles ne sont envoyées à aucun serveur, y compris
-celui du site.</p>
+Sans compte, ces données ne quittent jamais l'appareil : elles ne sont envoyées à aucun serveur,
+y compris celui du site. Avec un compte, seule la progression de jeu est recopiée en ligne, dans
+les conditions décrites juste après. Les préférences d'affichage, elles, restent toujours
+locales.</p>
 <ul>
   <li>les préférences d'affichage : thème clair ou sombre, taille du texte, mode daltonien,
       effets sonores ;</li>
@@ -317,9 +320,27 @@ celui du site.</p>
   <li>le bilan des duels du mode Versus ;</li>
   <li>quelques indicateurs d'interface, par exemple une annonce déjà lue.</li>
 </ul>
-<p>Vider les données de site du navigateur efface l'ensemble. Cette suppression est définitive
-et fait perdre la progression, puisqu'il n'existe aucune copie côté serveur. Une sauvegarde
-peut être exportée puis réimportée depuis les réglages du jeu.</p>
+<p>Vider les données de site du navigateur efface l'ensemble. Sans compte, cette suppression
+est définitive et fait perdre la progression, puisqu'il n'existe aucune copie côté serveur. Une
+sauvegarde peut être exportée puis réimportée depuis les réglages du jeu.</p>
+
+<h2>Compte facultatif</h2>
+<p>Un compte sert à retrouver la même progression sur plusieurs appareils, et à rien d'autre.
+Jouer n'en demande aucun. Aucune fenêtre ne s'ouvre d'elle-même et aucune relance n'est faite :
+il faut cliquer sur le bouton de connexion pour que quoi que ce soit se produise.</p>
+<p>La connexion passe par <strong>Google</strong> ou par un lien à usage unique reçu par
+courriel. Le site ne demande, ne voit ni ne conserve aucun mot de passe. L'identification est
+assurée par <strong>Firebase Authentication</strong> (Google), qui détient l'adresse
+électronique et les dates de connexion.</p>
+<p>Ce que le site enregistre de son côté se limite à la progression de jeu, rangée sous un
+identifiant de compte : journées jouées, propositions faites, scores, statistiques et
+personnages trouvés. Ni l'adresse électronique, ni le nom, ni la photo de profil n'y figurent.
+Ces données sont stockées chez Google Firebase, sur des serveurs situés dans l'Union européenne
+(europe-west1), et ne sont lisibles que par le compte qui les a écrites.</p>
+<p>La suppression est accessible dans le jeu, depuis le panneau « Compte ». Elle efface le
+compte et toute la progression enregistrée en ligne ; la progression présente sur l'appareil
+est conservée. Tant qu'elle n'est pas demandée, les données restent, puisque c'est précisément
+leur raison d'être.</p>
 
 <h2>Compteurs anonymes</h2>
 <p>Le site tient un compteur du nombre de parties terminées par jour et par mode, ainsi qu'un
@@ -346,7 +367,12 @@ occasion l'adresse IP et des informations techniques sur le navigateur.</p>
       pages en vue d'une activation. Une fois la publicité active, ce service dépose des
       cookies et lit ceux qu'il a déposés, pour mesurer l'audience des annonces et, selon le
       consentement, les personnaliser.</li>
-  <li><strong>Google Firebase</strong> : compteurs anonymes décrits plus haut.</li>
+  <li><strong>Google Firebase</strong> : compteurs anonymes décrits plus haut, et
+      sauvegarde du compte facultatif.</li>
+  <li><strong>Firebase Authentication</strong> (Google) : connexion au compte facultatif. Son
+      code est chargé depuis <strong>gstatic.com</strong>, et uniquement à l'ouverture du
+      panneau « Compte » ou au chargement d'une page si un compte y est déjà connecté. Un
+      visiteur qui n'utilise pas de compte ne le charge jamais.</li>
   <li><strong>YouTube</strong> et <strong>AnimeThemes</strong> : visionnage du générique,
       proposé uniquement à la fin d'une partie du mode Opening. Rien n'est chargé avant.</li>
   <li><strong>jsDelivr</strong> : bibliothèque d'affichage 3D de la page d'accueil.</li>
@@ -358,6 +384,9 @@ occasion l'adresse IP et des informations techniques sur le navigateur.</p>
 <h2>Cookies</h2>
 <p>Le site n'utilise aucun cookie pour son propre fonctionnement : le stockage local décrit
 plus haut n'en est pas un et n'est jamais transmis.</p>
+<p>La connexion à un compte fait exception sur un point : elle dépose un jeton de session dans
+le navigateur, par ce même mécanisme de stockage local. Il sert uniquement à rester connecté et
+disparaît à la déconnexion.</p>
 <p>Aucune annonce n'est diffusée à ce jour et aucun emplacement publicitaire n'est placé sur
 les pages. Avant toute diffusion, un bandeau de consentement sera présenté aux visiteurs de
 l'Union européenne. Le refus y sera aussi simple que l'acceptation et modifiable à tout
@@ -370,12 +399,18 @@ les propositions faites. Tout disparaît à la fin de la partie et rien n'est é
 Le pseudonyme est libre et n'a pas à être un vrai nom.</p>
 
 <h2>Mineurs</h2>
-<p>Le site s'adresse à un large public et ne collecte volontairement aucune donnée permettant
-d'identifier une personne, quel que soit son âge.</p>
+<p>Le site s'adresse à un large public. Jouer ne demande aucune donnée permettant d'identifier
+une personne, quel que soit son âge. Créer un compte suppose en revanche une adresse
+électronique : les plus jeunes peuvent jouer sans, sans rien perdre du jeu.</p>
 
 <h2>Droits et contact</h2>
-<p>Le site ne détenant aucune donnée nominative, il n'existe pas de dossier personnel à
-consulter ou à supprimer : effacer les données de site du navigateur suffit à tout retirer.</p>
+<p>Sans compte, le site ne détient aucune donnée nominative : il n'existe pas de dossier
+personnel à consulter ou à supprimer, et effacer les données de site du navigateur suffit à tout
+retirer.</p>
+<p>Avec un compte, les droits d'accès, de rectification et de suppression s'exercent depuis le
+panneau « Compte » du jeu, qui efface tout en une action, ou par courriel à l'adresse ci-dessous.
+L'adresse électronique associée au compte est détenue par Google en qualité de sous-traitant, et
+disparaît avec le compte.</p>
 <p>Pour les cookies publicitaires, les droits s'exercent auprès de Google, qui en est
 responsable. Pour toute question sur cette politique :
 <a href="mailto:{CONTACT}">{CONTACT}</a>.</p>
@@ -384,16 +419,19 @@ responsable. Pour toute question sur cette politique :
     en=dict(
         title='Privacy policy — OnePiecedle · LogPose',
         desc='What OnePiecedle (LogPose) stores, what it never sends, and which third-party '
-             'services are used. No account, no signup, no data selling.',
+             'services are used. Optional account, no password, no data selling.',
         h1='Privacy policy',
         body='''
-<p class="doc-lead">OnePiecedle asks for no account, no signup and no email address in order to
-play. The site builds no player profile and sells no data. This page sets out exactly what is
-stored and what travels to third parties.</p>
+<p class="doc-lead">OnePiecedle is played without an account and without signing up. An optional
+account exists, to carry progress across several devices, but nothing requires it and the game is
+identical without one. The site builds no player profile and sells no data. This page sets out
+exactly what is stored and what travels to third parties.</p>
 
 <h2>What stays on the device</h2>
-<p>Progress and preferences are saved in the browser local storage. That data never leaves the
-device: it is sent to no server, including the site own server.</p>
+<p>Progress and preferences are saved in the browser local storage. Without an account, that
+data never leaves the device: it is sent to no server, including the site own server. With an
+account, game progress alone is copied online, under the conditions set out just below. Display
+preferences always stay local.</p>
 <ul>
   <li>display preferences: light or dark theme, text size, colorblind mode, sound effects;</li>
   <li>games for the current day, in progress or finished, mode by mode;</li>
@@ -402,9 +440,26 @@ device: it is sent to no server, including the site own server.</p>
   <li>the win-loss record for Versus duels;</li>
   <li>a few interface flags, such as an announcement already read.</li>
 </ul>
-<p>Clearing site data in the browser erases all of it. That deletion is permanent and loses your
-progress, since no server-side copy exists. A save file can be exported and re-imported from the
-game settings.</p>
+<p>Clearing site data in the browser erases all of it. Without an account that deletion is
+permanent and loses the progress, since no server-side copy exists. A save file can be exported
+and re-imported from the game settings.</p>
+
+<h2>Optional account</h2>
+<p>An account serves one purpose: carrying the same progress across several devices. Playing
+requires none. No window opens by itself and no reminder is shown; nothing happens until the sign-in
+button is clicked.</p>
+<p>Signing in goes through <strong>Google</strong> or a single-use link sent by email. The site
+never asks for, sees or keeps any password. Identification is handled by
+<strong>Firebase Authentication</strong> (Google), which holds the email address and the sign-in
+dates.</p>
+<p>What the site itself records is limited to game progress, filed under an account identifier:
+days played, guesses made, scores, statistics and characters found. Neither the email address, nor
+the name, nor the profile picture appears there. That data is stored with Google Firebase, on
+servers located in the European Union (europe-west1), and is readable only by the account that
+wrote it.</p>
+<p>Deletion is available inside the game, from the "Account" panel. It erases the account and all
+progress stored online; the progress held on the device is kept. Until it is requested, the data
+remains, since that is precisely its purpose.</p>
 
 <h2>Anonymous counters</h2>
 <p>The site keeps a count of games finished per day and per mode, along with a collective
@@ -430,7 +485,12 @@ and technical information about the browser in the process.</p>
       ahead of a future activation. Once advertising is live, the service sets cookies and
       reads the ones it has set, in order to measure ad performance and, subject to consent,
       personalize them.</li>
-  <li><strong>Google Firebase</strong>: the anonymous counters described above.</li>
+  <li><strong>Google Firebase</strong>: the anonymous counters described above, and the
+      optional account backup.</li>
+  <li><strong>Firebase Authentication</strong> (Google): signing in to the optional account. Its
+      code is loaded from <strong>gstatic.com</strong>, and only when the "Account" panel is
+      opened or when a page loads with an account already signed in. A visitor who uses no
+      account never loads it.</li>
   <li><strong>YouTube</strong> and <strong>AnimeThemes</strong>: watching the opening theme,
       offered only once an Opening round has ended. Nothing loads before that.</li>
   <li><strong>jsDelivr</strong>: the 3D display library on the home page.</li>
@@ -441,6 +501,9 @@ and technical information about the browser in the process.</p>
 <h2>Cookies</h2>
 <p>The site uses no cookie of its own: the local storage described above is not a cookie and is
 never transmitted.</p>
+<p>Signing in to an account is the one exception: it stores a session token in the browser,
+through that same local storage mechanism. It only serves to keep the session open and disappears
+on sign-out.</p>
 <p>No advertising is served today and no ad slot is placed on the pages. Before anything is
 served, a consent banner will be shown to visitors from the European Union. Refusing will be as
 easy as accepting, and changeable at any time. Refusing will not prevent play: no game feature
@@ -453,12 +516,17 @@ disappears when the game ends and nothing is written to disk. The nickname is fr
 not be a real name.</p>
 
 <h2>Minors</h2>
-<p>The site addresses a general audience and deliberately collects no data capable of identifying
-a person, whatever their age.</p>
+<p>The site addresses a general audience. Playing requires no data capable of identifying a
+person, whatever their age. Creating an account does require an email address: younger players can
+play without one and lose nothing of the game.</p>
 
 <h2>Rights and contact</h2>
-<p>Since the site holds no personal data, there is no personal record to access or delete:
-clearing site data in the browser removes everything.</p>
+<p>Without an account, the site holds no personal data: there is no personal record to access or
+delete, and clearing site data in the browser removes everything.</p>
+<p>With an account, the rights of access, rectification and deletion are exercised from the
+"Account" panel in the game, which erases everything in one action, or by email at the address
+below. The email address attached to the account is held by Google as a processor, and disappears
+with the account.</p>
 <p>For advertising cookies, rights are exercised with Google, which is responsible for them. For
 any question about this policy: <a href="mailto:{CONTACT}">{CONTACT}</a>.</p>
 ''',

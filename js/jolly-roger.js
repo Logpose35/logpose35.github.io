@@ -529,6 +529,7 @@
     computeDeviceFingerprint: computeDeviceFingerprint,
     renderJollyRoger: renderJollyRoger,
     getJollyRogerVariantName: getJollyRogerVariantName,
+    hashJollyRoger: fnv1a,
     META: META
   };
   // Aussi exposé à plat (l'API attendue par le site les veut en global)
@@ -536,5 +537,9 @@
   global.computeDeviceFingerprint = computeDeviceFingerprint;
   global.renderJollyRoger = renderJollyRoger;
   global.getJollyRogerVariantName = getJollyRogerVariantName;
+  // Le classement dérive le pavillon d'un PSEUDO : il lui faut le même hachage,
+  // sinon deux implémentations finiraient par diverger et le pavillon d'un joueur
+  // changerait selon l'endroit où il est dessiné.
+  global.hashJollyRoger = fnv1a;
 
 })(typeof window !== 'undefined' ? window : this);

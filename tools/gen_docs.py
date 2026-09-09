@@ -30,6 +30,20 @@ sys.path.insert(0, HERE)
 
 from pages import DOCS, CONTENT, CONTACT, EDITEUR_PRO, IDENTITE, foot_html  # noqa: E402
 
+# ── Compteurs de contenu ────────────────────────────────────────────────────
+# Mêmes jetons {{NB_…}} que pour les pages de mode, déduits de data.json par
+# tools/compteurs.py. _ecrire() substitue et refuse d'écrire s'il en reste un.
+from compteurs import substituer, jetons_restants   # noqa: E402
+
+
+def _ecrire(chemin, html):
+    html = substituer(html)
+    restants = jetons_restants(html)
+    if restants:
+        raise SystemExit('jeton non substitue dans %s : %s' % (chemin, restants))
+    open(chemin, 'w', encoding='utf-8', newline='').write(html)
+
+
 SITE = 'https://onepiecedle.fr'
 MASTER = os.path.join(ROOT, 'tools', 'game.master.html')
 
@@ -218,7 +232,7 @@ def ecrire(doc, lang):
           ('en/%s/index.html' % doc['en_slug'])
     out = os.path.join(ROOT, rel)
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    open(out, 'w', encoding='utf-8', newline='').write(build(doc, lang))
+    _ecrire(out, build(doc, lang))
     print('=> écrit', rel)
 
 

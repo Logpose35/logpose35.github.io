@@ -5,6 +5,17 @@ const ASSET_BASE = window.ASSET_BASE || '';
 // ===== FIREBASE COMPTEUR QUOTIDIEN =====
 const FB_URL = 'https://logpose-eec08-default-rtdb.europe-west1.firebasedatabase.app';
 
+// Préview locale : on LIT les compteurs de production (l'affichage reste
+// réaliste) mais on n'y ÉCRIT jamais. Sans ce garde-fou, chaque partie jouée
+// pour vérifier une modification ajoute un joueur fantôme et fausse le score
+// moyen de la journée en cours — c'est ce qui était arrivé aux compteurs de
+// duels le 24/08/2026. Les fonctions d'incrément calculent quand même la valeur
+// suivante et la renvoient, pour que le compteur affiché à l'écran ait l'air
+// normal pendant les tests.
+const FB_LOCAL = /^(localhost|127\.0\.0\.1|\[?::1\]?|0\.0\.0\.0|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/
+  .test(location.hostname) || location.protocol === 'file:';
+if (FB_LOCAL) console.info('[LogPose] préview locale : compteurs Firebase en lecture seule.');
+
 async function fbGet(path) {
   try {
     const res = await fetch(`${FB_URL}/${path}.json`);
@@ -19,6 +30,7 @@ async function fbIncrement(path) {
     const current = (Number.isFinite(Number(raw)) && Number(raw) >= 0)
       ? Math.floor(Number(raw)) : 0;
     const next = current + 1;
+    if (FB_LOCAL) return next;   // préview : on renvoie la valeur sans l'écrire
     await fetch(url, { method: 'PUT', body: JSON.stringify(next) });
     return next;
   } catch { return null; }
@@ -32,6 +44,7 @@ async function fbIncrementBy(path, delta) {
     const current = (Number.isFinite(Number(raw)) && Number(raw) >= 0)
       ? Math.floor(Number(raw)) : 0;
     const next = current + Math.floor(delta);
+    if (FB_LOCAL) return next;   // préview : on renvoie la valeur sans l'écrire
     await fetch(url, { method: 'PUT', body: JSON.stringify(next) });
     return next;
   } catch { return null; }
@@ -126,6 +139,15 @@ const LS = {
   infRecord: 'op-inf-record',
   // Mode Versus 1v1 — { w, l }, ÉCRIT par js/versus.js (même chaîne là-bas), lu ici (onglet stats)
   versusStats: 'op-versus-stats',
+  versusPseudo: 'op-versus-pseudo',   // ÉCRIT aussi par js/versus.js (même chaîne là-bas)
+  // Compte joueur — ÉCRITES par js/account.js (mêmes chaînes là-bas, comme pour
+  // versus.js). Listées ici pour que ce registre reste la carte complète du
+  // localStorage. Elles décrivent l'état de CET appareil vis-à-vis du compte et
+  // ne sont jamais synchronisées (cf. LOCAL_ONLY dans js/save-merge.js).
+  accountUid:   'op-account-uid',       // compte connecté ici
+  syncStamps:   'op-sync-stamps',       // journées déjà intégrées depuis le compte
+  syncDirty:    'op-sync-dirty',        // journées à repousser (envoi échoué)
+  backupMerge:  'op-backup-premerge',   // copie de la progression d'avant fusion
   // Paramétrées (mode et/ou jour)
   stats:   m       => `op-stats-${m}`,
   gs:      (m, dk) => `op-gs-${m}-${dk}`,
@@ -1126,8 +1148,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=334`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=334`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=382`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=382`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2595,6 +2617,13 @@ function restoreAllStates() {
   syncBanners();
 }
 
+// Total d'une journée, tous modes confondus. Le classement s'en sert, et il
+// vaut mieux une addition ici qu'une deuxième lecture des clés ailleurs.
+function dayTotalScore(dk) {
+  const scores = safeParseJSON(lsGet(LS.score(dk)), {});
+  return Object.values(scores).reduce((a, b) => a + sanitizeNum(b), 0);
+}
+
 function saveModeScore(mode, pts) {
   const key    = LS.score(activeKey());
   const scores = safeParseJSON(lsGet(key), {});
@@ -2681,6 +2710,16 @@ function onGameEnd(mode, won, tries, score, extra) {
   } else {
     updateScoreBar();
   }
+  // Compte : la journée part en ligne. L'envoi est débouncé, donc enchaîner les
+  // sept modes ne coûte qu'un seul écrit. Placé ICI, après toutes les écritures
+  // locales de la partie, pour qu'elles soient dans le lot. Sans effet hors
+  // compte, et jamais atteint pendant une restauration (garde en tête de
+  // fonction), donc rejouer l'historique au chargement n'envoie rien.
+  if (window.LPAccount) LPAccount.queueDay(activeKey());
+  // Classement du jour : jamais depuis une rediffusion, la journée d'archive
+  // est close. L'envoi est débouncé comme celui du compte, donc enchaîner les
+  // sept modes ne coûte qu'un seul écrit.
+  if (!isReplay() && window.LPLeaderboard) LPLeaderboard.onScoreChange();
   window.scrollTo({ top: 0, behavior: 'smooth' });
   // N'ouvre les stats automatiquement QUE lorsque TOUS les modes du jour sont terminés
   // (sinon la modale s'ouvre après chaque mode et casse l'enchaînement). « Tous » dépend
@@ -2916,6 +2955,246 @@ async function submitReport(e) {
   }
 }
 
+// ===== COMPTE JOUEUR — BRANCHEMENT =====
+// La mécanique vit ailleurs : js/save-merge.js pour la règle de fusion,
+// js/account.js pour le transport et le choix des moments de synchro. app.js
+// n'a que trois choses à dire — quelle journée est affichée, quoi faire quand
+// un autre appareil a joué, et quand une partie se termine.
+// Tant qu'aucun compte n'est connecté, tout ceci est sans effet et le jeu se
+// comporte exactement comme avant.
+let _accountReloaded = false;
+
+function initAccount() {
+  if (!window.LPAccount) return;   // fichier absent : le jeu tourne sans
+  LPAccount.configure({ dbUrl: FB_URL });
+  LPAccount.start({ activeDay: () => activeKey(), onRemoteChange: onAccountSync });
+  if (!window.LPAuth) return;
+  LPAuth.onChange(refreshAccountUI);
+  LPAuth.boot();                   // pose le fournisseur d'identité (attendu par bootSync)
+  refreshAccountUI();
+}
+
+// ── Panneau « Compte » ────────────────────────────────────────────────────
+function accountStatus(msg) {
+  const el = document.getElementById('account-status');
+  if (el) el.textContent = msg || '';
+}
+
+function refreshAccountUI(st, forcerPseudo) {
+  st = st || (window.LPAuth ? LPAuth.state() : { disponible: false, connecte: false });
+  // Config Firebase non renseignée : le bouton reste invisible plutôt que de
+  // mener à un panneau incapable de faire quoi que ce soit.
+  const btn = document.getElementById('account-btn');
+  if (btn) btn.hidden = !st.disponible;
+
+  const lab = document.getElementById('account-btn-label');
+  if (lab) lab.textContent = st.connecte ? t('Mon compte') : t('Connexion');
+  const dehors = document.getElementById('account-out');
+  const dedans = document.getElementById('account-in');
+  if (dehors) dehors.hidden = !!st.connecte;
+  if (dedans) dedans.hidden = !st.connecte;
+  const qui = document.getElementById('account-who');
+  if (qui) qui.textContent = st.email || '';
+  if (st.connecte) chargerPseudo(forcerPseudo);
+
+  // Navigateur intégré à une application : Google y refuse OAuth, on ne propose
+  // que le lien par e-mail plutôt qu'un bouton qui échouerait à coup sûr.
+  const avert = document.getElementById('account-inapp');
+  const btnG  = document.getElementById('account-google');
+  if (avert) avert.hidden = !st.navigateurIntegre;
+  if (btnG)  btnG.hidden  = !!st.navigateurIntegre;
+}
+
+// Le pseudo vit dans le compte, pas dans le localStorage : on va le chercher.
+// Champ laissé vide en cas d'échec plutôt que rempli d'un « — » qu'on risquerait
+// de réserver par mégarde.
+// Durée restante, en clair. Arrondie à l'heure au-dessus tant qu'il reste plus
+// d'une heure : annoncer « 3 h » puis « 2 h 59 » ne sert à rien, et une minute
+// près n'aide personne à patienter.
+function dureeLisible(ms) {
+  const min = Math.ceil((Number(ms) || 0) / 60000);
+  if (min <= 1) return t("moins d'une minute");
+  if (min < 60) return tf('{0} min', min);
+  return tf('{0} h', Math.ceil(min / 60));
+}
+
+// Deux états pour le champ pseudo : VERROUILLÉ quand le nom est réservé (grisé,
+// non modifiable — c'est ce qui montre que la réservation a bien pris), ou ouvert
+// à la saisie. Le bouton dit lequel des deux : « Changer de pseudo » rouvre, sans
+// quoi on ne pourrait plus jamais en changer.
+function majChampPseudo(nom, verrouille) {
+  const champ = document.getElementById('account-pseudo');
+  const bouton = document.getElementById('account-pseudo-save');
+  if (!champ) return;
+  if (nom != null) champ.value = nom;
+  champ.readOnly = !!verrouille;   // readOnly plutôt que disabled : le nom reste sélectionnable
+  champ.classList.toggle('is-locked', !!verrouille);
+  if (bouton) bouton.textContent = verrouille ? t('Changer de pseudo') : t('Réserver ce pseudo');
+}
+
+async function chargerPseudo(forcer) {
+  const champ = document.getElementById('account-pseudo');
+  if (!champ || !window.LPAccount) return;
+  try {
+    const p = await LPAccount.myPseudo();
+    // On ne touche pas à un champ en cours de saisie — sauf à l'ouverture du
+    // panneau, où c'est l'état du COMPTE qui fait foi.
+    if (forcer || document.activeElement !== champ) majChampPseudo(p || '', !!p);
+  } catch (e) { /* réseau : on laisse le champ tel quel */ }
+}
+
+async function accountSavePseudo() {
+  const champ = document.getElementById('account-pseudo');
+  if (!champ || !window.LPAccount) return;
+  // Champ verrouillé : le bouton sert alors à le ROUVRIR, pas à réserver.
+  if (champ.readOnly) {
+    majChampPseudo(null, false);
+    accountStatus('');
+    champ.focus();
+    champ.select();
+    return;
+  }
+  const nom = champ.value.trim();
+  if (!nom) return accountStatus(t('Choisissez un pseudo.'));
+  if (!LPAccount.pseudoValide(nom)) {
+    return accountStatus(t('De 3 à 16 caractères : lettres, chiffres, tiret et souligné.'));
+  }
+  accountStatus(t('Réservation…'));
+  const r = await LPAccount.claimPseudo(nom);
+  if (r.ok) {
+    majChampPseudo(r.pseudo, true);
+    // Le mode Versus lit son pseudo dans le localStorage : on l'y recopie pour
+    // que le nom réservé serve tout de suite, sans que versus.html ait besoin
+    // de charger la couche transport. Sur les AUTRES appareils, la synchro s'en
+    // charge (account.js le recopie depuis `meta` à chaque descente).
+    lsSet(LS.versusPseudo, r.pseudo);
+    accountStatus(tf('« {0} » est à vous.', r.pseudo));
+    return;
+  }
+  // « PRIS » et « DELAI » viennent de la base, pas de nous : c'est la règle qui
+  // a refusé. Les annoncer comme des décisions du serveur, pas des caprices.
+  accountStatus(r.code === 'PRIS' ? t('Ce pseudo est déjà pris. Essayez-en un autre.')
+              : r.code === 'DELAI' ? tf('Un changement de pseudo par jour : réessayez dans {0}.', dureeLisible(r.restantMs))
+              : r.code === 'FORMAT' ? t('De 3 à 16 caractères : lettres, chiffres, tiret et souligné.')
+              // INTERDIT = la base refuse la lecture même : ce n'est pas le nom
+              // qui pose problème, inutile d'envoyer le joueur en essayer dix autres.
+              : r.code === 'INTERDIT' ? t('Les pseudos ne sont pas encore activés côté serveur.')
+              : t('Réservation impossible pour le moment.'));
+}
+
+function openAccount() {
+  const ov = document.getElementById('account-modal');
+  if (!ov) return;
+  accountStatus('');
+  // `true` : à l'ouverture, le champ doit montrer ce que porte le COMPTE, même
+  // s'il a gardé le focus d'une tentative précédente. Sans ça, un essai avorté
+  // laissait un nom qui n'a jamais été réservé, verrou levé — le panneau
+  // racontait autre chose que la base.
+  refreshAccountUI(undefined, true);
+  ov.classList.remove('hidden');
+  if (window.LPAuth) LPAuth.prepare();   // le SDK se charge pendant que le panneau s'ouvre
+}
+function closeAccount() {
+  const ov = document.getElementById('account-modal');
+  if (ov) ov.classList.add('hidden');
+}
+function handleAccountOverlayClick(e) {
+  if (e.target === document.getElementById('account-modal')) closeAccount();
+}
+
+function accountError(r) {
+  const c = (r && r.code) || '';
+  if (c === 'auth/invalid-email')        return t('Adresse e-mail invalide.');
+  if (c === 'auth/network-request-failed') return t('Connexion impossible : vérifiez votre réseau.');
+  if (c === 'auth/unauthorized-domain')  return t('Ce domaine n\'est pas autorisé côté Firebase.');
+  if (c === 'auth/too-many-requests')    return t('Trop de tentatives. Réessayez plus tard.');
+  if (c === 'auth/popup-closed-by-user') return t('Fenêtre fermée avant la fin.');
+  return t('Connexion impossible. Réessayez.');
+}
+
+// Après une connexion réussie : première fusion complète, puis rechargement.
+// Le rechargement n'est pas de la paresse — restoreAllStates() rejoue les
+// essais par-dessus la grille en place, la rappeler à chaud les afficherait en
+// double. Rien n'est perdu, tout est déjà dans le localStorage.
+async function accountAfterSignIn() {
+  accountStatus(t('Récupération de la progression…'));
+  const r = await LPAccount.firstSync();
+  if (!r.ok) { accountStatus(t('Connecté, mais la synchronisation a échoué. Elle sera retentée.')); return; }
+  const n = (r.report && r.report.daysAdded) || 0;
+  // Pas encore de pseudo : c'est le moment de le choisir, pas après un
+  // rechargement qui aurait refermé le panneau. On reste donc sur place.
+  let sansPseudo = false;
+  try { sansPseudo = !(await LPAccount.myPseudo()); } catch (e) {}
+  refreshAccountUI();
+  if (sansPseudo) {
+    accountStatus(n > 0 ? tf('{0} journée(s) récupérée(s). Choisissez votre pseudo.', n)
+                        : t('Compte prêt. Choisissez votre pseudo.'));
+    const champ = document.getElementById('account-pseudo');
+    if (champ) setTimeout(() => champ.focus(), 80);
+    return;
+  }
+  accountStatus(n > 0 ? tf('{0} journée(s) récupérée(s). Rechargement…', n) : t('Progression à jour. Rechargement…'));
+  setTimeout(() => location.reload(), 1200);
+}
+
+async function accountSignInGoogle() {
+  accountStatus(t('Ouverture de la fenêtre Google…'));
+  const r = await LPAuth.signInGoogle();
+  if (r.redirect) return;                       // la page part en redirection
+  if (!r.ok) { accountStatus(accountError(r)); return; }
+  await accountAfterSignIn();
+}
+
+async function accountSendLink() {
+  const inp = document.getElementById('account-mail');
+  accountStatus(t('Envoi…'));
+  const r = await LPAuth.sendEmailLink(inp ? inp.value : '');
+  accountStatus(r.ok ? t('Lien envoyé. Ouvrez-le pour vous connecter.') : accountError(r));
+}
+
+async function accountSyncNow() {
+  accountStatus(t('Synchronisation…'));
+  const r = await LPAccount.focusSync();
+  accountStatus(r && r.ok ? t('Progression synchronisée.') : t('Synchronisation impossible pour le moment.'));
+}
+
+async function accountSignOut() {
+  await LPAuth.signOut();
+  refreshAccountUI();
+  accountStatus(t('Déconnecté. La progression reste sur cet appareil.'));
+}
+
+async function accountDelete() {
+  if (!confirm(t('Supprimer définitivement ce compte et la progression enregistrée en ligne ? La progression de cet appareil sera conservée.'))) return;
+  accountStatus(t('Suppression…'));
+  const r = await LPAuth.deleteAccount();
+  if (r.ok) { refreshAccountUI(); accountStatus(t('Compte supprimé.')); return; }
+  // Firebase refuse de supprimer un compte dont la connexion date : c'est une
+  // protection, pas une panne, et il faut le dire autrement qu'« erreur ».
+  accountStatus(r.code === 'auth/requires-recent-login'
+    ? t('Par sécurité, reconnectez-vous puis réessayez.')
+    : t('Suppression impossible pour le moment.'));
+}
+
+// Appelé quand une synchro a modifié le localStorage sous nos pieds.
+function onAccountSync(r) {
+  if (r.activeDayChanged && !_accountReloaded) {
+    // La journée AFFICHÉE a changé : il faut repartir d'un DOM propre.
+    // restoreAllStates() rejoue les essais par-dessus la grille existante,
+    // le rappeler ici afficherait chaque essai en double. Rien n'est perdu au
+    // passage : chaque essai est écrit dans le localStorage au moment où il est
+    // posé. Une seule fois par chargement, pour qu'un aller-retour de synchro
+    // ne puisse en aucun cas boucler sur des rechargements.
+    _accountReloaded = true;
+    location.reload();
+    return;
+  }
+  // Sinon (journées passées, score cumulé, carnet de capture) : rafraîchir ce
+  // qui se lit du localStorage, sans toucher aux grilles en place.
+  try { updateScoreBar();  } catch (e) { console.warn('updateScoreBar (synchro):', e); }
+  try { updateRankBadge(); } catch (e) { console.warn('updateRankBadge (synchro):', e); }
+}
+
 // ===== EXPORT / IMPORT DE LA SAUVEGARDE (clés "op-" uniquement · 100% local, sans serveur) =====
 function exportSave() {
   try {
@@ -2961,9 +3240,16 @@ function importSaveFile(event) {
     }
     if (!confirm(tf('Importer cette sauvegarde ? Cela remplacera ta progression actuelle ({0} entrée{1}).', entries.length, entries.length > 1 ? 's' : ''))) return;
     try {
-      // On ne touche QU'AUX clés "op-" : on retire les anciennes, puis on pose celles du fichier
-      Object.keys(localStorage).filter(k => k.startsWith('op-')).forEach(k => localStorage.removeItem(k));
-      entries.forEach(([k, v]) => localStorage.setItem(k, v));
+      // On ne touche QU'AUX clés "op-" : on retire les anciennes, puis on pose celles du fichier.
+      // Exception : le lien avec le compte (SYNC_KEYS) survit des DEUX côtés. Sans ça,
+      // importer une sauvegarde effacerait `op-account-uid` et l'appareil oublierait le
+      // compte alors que la session est vivante ; et une sauvegarde exportée par quelqu'un
+      // d'autre ferait pointer cet appareil vers un compte qui n'est pas le sien.
+      const lien = window.SYNC_KEYS || new Set();
+      Object.keys(localStorage)
+        .filter(k => k.startsWith('op-') && !lien.has(k))
+        .forEach(k => localStorage.removeItem(k));
+      entries.filter(([k]) => !lien.has(k)).forEach(([k, v]) => localStorage.setItem(k, v));
     } catch (e) {
       alert(t('Échec de l\'import (stockage plein ?).')); return;
     }
@@ -2975,6 +3261,13 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '8.0', date: t('Septembre 2026'), items: [
+    t('👤 Un compte facultatif fait suivre la progression d\'un appareil à l\'autre : grilles, scores et séries se retrouvent sur le téléphone comme sur l\'ordinateur. Il reste facultatif, et rien d\'autre que la progression n\'est enregistré'),
+    t('🏴‍☠️ Le pseudo se réserve une bonne fois : personne d\'autre ne peut le prendre, et il sert d\'identité dans les duels'),
+    t('🏆 Un classement du jour donne les cinq meilleurs scores, et le rang de chacun quand il n\'y figure pas'),
+    t('⚔️ Le Versus s\'ouvre aux inconnus : les parties ouvertes s\'affichent dans un salon, et se rejoignent d\'un clic'),
+    t('👥 16 nouveaux personnages rejoignent le jeu, avec 13 silhouettes et deux fruits du démon de plus'),
+  ] },
   { v: '7.2', date: t('Août 2026'), items: [
     t('👥 8 nouveaux personnages rejoignent le jeu, et un nouveau fruit du démon entre dans le mode Fruit du Démon'),
     t('🖼️ Six portraits ont été repris en meilleure définition, dont celui de Luffy'),
@@ -3750,6 +4043,12 @@ function initMobileYesterday() {
 // ===== INIT ASYNCHRONE =====
 // Attend le chargement de data.json avant d'initialiser le jeu
 (async function initGame() {
+  // Compte : la descente part MAINTENANT, en parallèle du chargement de
+  // data.json, et sera attendue plus bas. Dans les faits elle ne coûte rien,
+  // le data.json domine largement. Hors compte, c'est un no-op immédiat.
+  initAccount();
+  const _syncCompte = window.LPAccount ? LPAccount.bootSync() : null;
+
   // Peints AVANT l'attente réseau : la barre de score, le rang et les pastilles
   // ✓/✕ des onglets ne lisent que le localStorage. Depuis « une URL par mode »,
   // changer de mode est un chargement de page — sans ça, le « 0 / 70 000 »
@@ -3766,11 +4065,39 @@ function initMobileYesterday() {
       t('⚠️ Erreur de chargement, rechargez la page ou vérifiez votre connexion.') + '</div>');
     return;
   }
+  // Attendue ICI, et pas plus tard : la descente remplace les clés « op- » en
+  // bloc, donc toute écriture faite pendant serait perdue — saveTodayTargets()
+  // juste en dessous en est une. Et pas plus tôt non plus : après elle, le
+  // localStorage porte déjà ce qui a été joué ailleurs, si bien que
+  // restoreAllStates() peint l'état réel du compte du premier coup, sans
+  // rechargement ni clignotement.
+  if (_syncCompte) {
+    try {
+      const r = await _syncCompte;
+      // Le cumul et le rang ont pu changer : ils étaient peints avant la descente.
+      if (r && r.changed) {
+        try { updateScoreBar();  } catch(e) { console.warn('updateScoreBar (après synchro):', e); }
+        try { updateRankBadge(); } catch(e) { console.warn('updateRankBadge (après synchro):', e); }
+      }
+    } catch(e) { console.warn('synchro du compte:', e); }
+  }
   saveTodayTargets();
   try { setupReplayUI(); } catch(e) { console.warn('setupReplayUI:', e); }
   buildYesterdayBar();
   try { initMobileYesterday(); } catch(e) { console.warn('initMobileYesterday:', e); }
   whenActivated(loadDailyAverage); // fire-and-forget, remplit #daily-average quand Firebase répond
+  // Classement du jour. Toujours celui d'AUJOURD'HUI, même en rediffusion :
+  // rejouer le 20/06 ne classe personne. Le module ne connaît ni les clés
+  // localStorage ni la notion de journée active, on les lui passe.
+  if (window.LPLeaderboard) {
+    whenActivated(() => LPLeaderboard.init({
+      jour:  () => todayKey(),
+      score: () => dayTotalScore(todayKey()),
+      // Série du mode Classique : c'est déjà celle qu'affiche la barre de série
+      // du jeu, donc celle que le joueur reconnaît comme « sa » série.
+      serie: () => sanitizeNum(loadStats('classic').currentStreak),
+    }));
+  }
   // Badge anniversaire
   (function() {
     const bdays = getTodayBirthdays(activeDate());

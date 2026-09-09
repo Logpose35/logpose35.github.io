@@ -566,3 +566,49 @@
   font-size: 0.72rem;
   color: var(--text3);
 }
+
+/* ===== COMPTE JOUEUR =====
+   Rien de neuf visuellement : on réutilise les boutons et libellés du
+   formulaire de signalement. Seule la mise en pleine largeur est ajoutée,
+   qu'impose une pile de boutons plutôt qu'une ligne d'actions. La couleur
+   reste l'or du reste du site. */
+.account-btn-wide {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  text-align: center;
+}
+.account-input {
+  width: 100%;
+  margin-top: 4px;
+}
+/* Pseudo réservé : le champ passe en lecture seule et s'éteint. C'est le signal
+   que la réservation a pris — le bouton, lui, propose d'en changer. */
+.account-input.is-locked {
+  opacity: 0.62;
+  cursor: default;
+  border-style: dashed;
+}
+.account-sep {
+  display: flex; align-items: center; gap: 10px;
+  margin: 18px 0 2px;
+  color: var(--text3);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
+}
+.account-sep::before, .account-sep::after {
+  content: ''; flex: 1; height: 1px;
+  background: currentColor; opacity: 0.28;
+}
+.account-mail-line {
+  margin: 4px 0 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.92rem; font-weight: 600;
+  color: var(--gold);
+  overflow-wrap: anywhere;
+}
+/* La suppression reste un bouton comme les autres, en or : ce qui protège,
+   c'est la confirmation, pas un rouge qui attirerait l'œil sur l'action la
+   plus dangereuse du panneau. */
+.account-danger { opacity: 0.7; }
+.account-danger:hover { opacity: 1; }

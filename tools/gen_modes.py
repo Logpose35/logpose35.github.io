@@ -44,6 +44,23 @@ sys.path.insert(0, HERE)
 
 from modes import MODES, BY_ID, SEO   # noqa: E402
 
+# ── Compteurs de contenu ────────────────────────────────────────────────────
+# Les textes portent des jetons {{NB_PERSOS}}, {{NB_SILHOUETTES}}… déduits de
+# data.json par tools/compteurs.py. Toute écriture passe par _ecrire(), qui
+# substitue et REFUSE d'écrire s'il en reste un : un compteur oublié se voit
+# immédiatement plutôt qu'en production.
+from compteurs import substituer, jetons_restants   # noqa: E402
+
+
+def _ecrire(chemin, html):
+    html = substituer(html)
+    restants = jetons_restants(html)
+    if restants:
+        raise SystemExit('jeton non substitue dans %s : %s' % (chemin, restants))
+    open(chemin, 'w', encoding='utf-8', newline='').write(html)
+    return html
+
+
 SITE   = 'https://onepiecedle.fr'
 # Gabarit des 8 sections : il n'est plus servi (une page de mode ne contient que
 # SA section). C'est ce fichier qu'on édite à la main ; /game.html à la racine
@@ -304,7 +321,7 @@ def build(mode_id):
     outdir = os.path.join(ROOT, mode['fr_slug'])
     os.makedirs(outdir, exist_ok=True)
     out = os.path.join(outdir, 'index.html')
-    open(out, 'w', encoding='utf-8', newline='').write(html)
+    _ecrire(out, html)
     print('=> écrit %s/index.html  (%d Ko)' % (mode['fr_slug'], len(html.encode('utf-8')) // 1024))
     return out
 
@@ -349,11 +366,16 @@ def build_redirects():
                                    site=SITE, sentence=sentence)
         out = os.path.join(ROOT, path)
         os.makedirs(os.path.dirname(out), exist_ok=True)
-        open(out, 'w', encoding='utf-8', newline='').write(html)
+        _ecrire(out, html)
         print('=> écrit %s  (redirection -> %s)' % (path, target))
 
 
 def main(argv):
+    # index.html est SERVI tel quel : pas de jeton possible, on y reecrit
+    # les compteurs a chaque generation (leve une erreur si la phrase a change).
+    from compteurs import sync_en_place
+    sync_en_place()
+
     want_en = '--no-en' not in argv
     ids = [a for a in argv if not a.startswith('-')] or [m['id'] for m in MODES]
     for i in ids:

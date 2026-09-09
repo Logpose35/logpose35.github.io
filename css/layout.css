@@ -128,7 +128,17 @@ a.mode-tab {
   border-bottom: 3px solid var(--gold);
   box-shadow: 0 6px 24px rgba(2,8,16,0.45);
   position: relative;
-  z-index: 8;
+  /* ⚠️ Doit rester AU-DESSUS des deux rangées d'onglets (z-index 9), qui la
+     précèdent immédiatement et portent un fond opaque. Le Vogue Merry déborde
+     d'une dizaine de pixels par le haut — c'est voulu, il navigue sur la ligne
+     de vague — et à z-index 8 il se faisait recouvrir par `.mode-tabs-inf`, ce
+     qui donnait un mât proprement tranché à l'horizontale. Les deux blocs sont
+     jointifs et ne se chevauchent pas : inverser l'ordre de peinture ne change
+     rien d'autre. Le `z-index: 10` du bateau lui-même n'y pouvait rien, il ne
+     joue qu'À L'INTÉRIEUR du contexte d'empilement créé ici.
+     Sur mobile, `.mode-tabs` reste collante à z-index 98 : elle passe toujours
+     par-dessus au défilement, et c'est ce qu'on veut. */
+  z-index: 10;
 }
 .score-bar-inner {
   display: flex;

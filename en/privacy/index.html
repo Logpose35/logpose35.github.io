@@ -6,7 +6,7 @@
   <title>Privacy policy — OnePiecedle · LogPose</title>
 
   <!-- SEO -->
-  <meta name="description" content="What OnePiecedle (LogPose) stores, what it never sends, and which third-party services are used. No account, no signup, no data selling.">
+  <meta name="description" content="What OnePiecedle (LogPose) stores, what it never sends, and which third-party services are used. Optional account, no password, no data selling.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#c89408">
   <link rel="canonical" href="https://onepiecedle.fr/en/privacy/">
@@ -16,7 +16,7 @@
   <link rel="alternate" hreflang="x-default" href="https://onepiecedle.fr/en/privacy/">
 
   <meta property="og:title" content="Privacy policy — OnePiecedle · LogPose">
-  <meta property="og:description" content="What OnePiecedle (LogPose) stores, what it never sends, and which third-party services are used. No account, no signup, no data selling.">
+  <meta property="og:description" content="What OnePiecedle (LogPose) stores, what it never sends, and which third-party services are used. Optional account, no password, no data selling.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://onepiecedle.fr/en/privacy/">
   <meta property="og:locale" content="en_US">
@@ -48,10 +48,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=334">
-  <link rel="stylesheet" href="/css/landing.css?v=334">
-  <link rel="stylesheet" href="/css/doc.css?v=334">
-  <link rel="stylesheet" href="/css/mobile.css?v=334">
+  <link rel="stylesheet" href="/css/base.css?v=382">
+  <link rel="stylesheet" href="/css/landing.css?v=382">
+  <link rel="stylesheet" href="/css/doc.css?v=382">
+  <link rel="stylesheet" href="/css/mobile.css?v=382">
 </head>
 <!-- nav-condensed : ces pages n'ont pas de héros et ne chargent pas js/landing.js,
      l'état déplié de la barre est donc le bon d'emblée. -->
@@ -98,13 +98,16 @@
 
 <main class="doc">
   <h1 class="doc-title">Privacy policy</h1>
-<p class="doc-lead">OnePiecedle asks for no account, no signup and no email address in order to
-play. The site builds no player profile and sells no data. This page sets out exactly what is
-stored and what travels to third parties.</p>
+<p class="doc-lead">OnePiecedle is played without an account and without signing up. An optional
+account exists, to carry progress across several devices, but nothing requires it and the game is
+identical without one. The site builds no player profile and sells no data. This page sets out
+exactly what is stored and what travels to third parties.</p>
 
 <h2>What stays on the device</h2>
-<p>Progress and preferences are saved in the browser local storage. That data never leaves the
-device: it is sent to no server, including the site own server.</p>
+<p>Progress and preferences are saved in the browser local storage. Without an account, that
+data never leaves the device: it is sent to no server, including the site own server. With an
+account, game progress alone is copied online, under the conditions set out just below. Display
+preferences always stay local.</p>
 <ul>
   <li>display preferences: light or dark theme, text size, colorblind mode, sound effects;</li>
   <li>games for the current day, in progress or finished, mode by mode;</li>
@@ -113,9 +116,26 @@ device: it is sent to no server, including the site own server.</p>
   <li>the win-loss record for Versus duels;</li>
   <li>a few interface flags, such as an announcement already read.</li>
 </ul>
-<p>Clearing site data in the browser erases all of it. That deletion is permanent and loses your
-progress, since no server-side copy exists. A save file can be exported and re-imported from the
-game settings.</p>
+<p>Clearing site data in the browser erases all of it. Without an account that deletion is
+permanent and loses the progress, since no server-side copy exists. A save file can be exported
+and re-imported from the game settings.</p>
+
+<h2>Optional account</h2>
+<p>An account serves one purpose: carrying the same progress across several devices. Playing
+requires none. No window opens by itself and no reminder is shown; nothing happens until the sign-in
+button is clicked.</p>
+<p>Signing in goes through <strong>Google</strong> or a single-use link sent by email. The site
+never asks for, sees or keeps any password. Identification is handled by
+<strong>Firebase Authentication</strong> (Google), which holds the email address and the sign-in
+dates.</p>
+<p>What the site itself records is limited to game progress, filed under an account identifier:
+days played, guesses made, scores, statistics and characters found. Neither the email address, nor
+the name, nor the profile picture appears there. That data is stored with Google Firebase, on
+servers located in the European Union (europe-west1), and is readable only by the account that
+wrote it.</p>
+<p>Deletion is available inside the game, from the "Account" panel. It erases the account and all
+progress stored online; the progress held on the device is kept. Until it is requested, the data
+remains, since that is precisely its purpose.</p>
 
 <h2>Anonymous counters</h2>
 <p>The site keeps a count of games finished per day and per mode, along with a collective
@@ -141,7 +161,12 @@ and technical information about the browser in the process.</p>
       ahead of a future activation. Once advertising is live, the service sets cookies and
       reads the ones it has set, in order to measure ad performance and, subject to consent,
       personalize them.</li>
-  <li><strong>Google Firebase</strong>: the anonymous counters described above.</li>
+  <li><strong>Google Firebase</strong>: the anonymous counters described above, and the
+      optional account backup.</li>
+  <li><strong>Firebase Authentication</strong> (Google): signing in to the optional account. Its
+      code is loaded from <strong>gstatic.com</strong>, and only when the "Account" panel is
+      opened or when a page loads with an account already signed in. A visitor who uses no
+      account never loads it.</li>
   <li><strong>YouTube</strong> and <strong>AnimeThemes</strong>: watching the opening theme,
       offered only once an Opening round has ended. Nothing loads before that.</li>
   <li><strong>jsDelivr</strong>: the 3D display library on the home page.</li>
@@ -152,6 +177,9 @@ and technical information about the browser in the process.</p>
 <h2>Cookies</h2>
 <p>The site uses no cookie of its own: the local storage described above is not a cookie and is
 never transmitted.</p>
+<p>Signing in to an account is the one exception: it stores a session token in the browser,
+through that same local storage mechanism. It only serves to keep the session open and disappears
+on sign-out.</p>
 <p>No advertising is served today and no ad slot is placed on the pages. Before anything is
 served, a consent banner will be shown to visitors from the European Union. Refusing will be as
 easy as accepting, and changeable at any time. Refusing will not prevent play: no game feature
@@ -164,12 +192,17 @@ disappears when the game ends and nothing is written to disk. The nickname is fr
 not be a real name.</p>
 
 <h2>Minors</h2>
-<p>The site addresses a general audience and deliberately collects no data capable of identifying
-a person, whatever their age.</p>
+<p>The site addresses a general audience. Playing requires no data capable of identifying a
+person, whatever their age. Creating an account does require an email address: younger players can
+play without one and lose nothing of the game.</p>
 
 <h2>Rights and contact</h2>
-<p>Since the site holds no personal data, there is no personal record to access or delete:
-clearing site data in the browser removes everything.</p>
+<p>Without an account, the site holds no personal data: there is no personal record to access or
+delete, and clearing site data in the browser removes everything.</p>
+<p>With an account, the rights of access, rectification and deletion are exercised from the
+"Account" panel in the game, which erases everything in one action, or by email at the address
+below. The email address attached to the account is held by Google as a processor, and disappears
+with the account.</p>
 <p>For advertising cookies, rights are exercised with Google, which is responsible for them. For
 any question about this policy: <a href="mailto:contact@onepiecedle.fr">contact@onepiecedle.fr</a>.</p>
 </main>
@@ -184,6 +217,6 @@ any question about this policy: <a href="mailto:contact@onepiecedle.fr">contact@
   <p class="lp-foot__legal">One Piece © Eiichiro Oda · Shueisha · Toei Animation · unofficial fan project, not affiliated.</p>
 </footer>
 
-<script src="/js/version.js?v=334"></script>
+<script src="/js/version.js?v=382"></script>
 </body>
 </html>

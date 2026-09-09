@@ -1,0 +1,211 @@
+/* ============================================================================
+   Classement du jour — panneau de marge (ordinateur)
+   ----------------------------------------------------------------------------
+   Posé dans la gouttière DROITE, à côté de la colonne de jeu : il est visible
+   sans rien pousser vers le bas. `top` et `left` sont MESURÉS par
+   js/leaderboard.js — deux tentatives à valeurs fixes ont échoué, l'une sur la
+   barre de score, l'autre sur le bandeau « Hier », parce que la largeur utile
+   de la page n'est pas la même selon le mode. Quand la gouttière ne suffit
+   plus, le script masque le panneau plutôt que de recouvrir le jeu : c'est lui
+   le seuil, pas une requête média. Le traitement propre des écrans étroits
+   viendra dans un second temps.
+
+   Rollback = retirer le <link> : le panneau reste `hidden`, rien d'autre ne bouge.
+   ========================================================================== */
+
+:root {
+  /* Dégradé du podium : trois paliers d'or, du plus marqué au plus discret.
+     Définis ici plutôt qu'en dur pour que les deux thèmes se règlent au même
+     endroit. */
+  --lb-1: rgba(184, 144, 10, 0.30);
+  --lb-2: rgba(184, 144, 10, 0.20);
+  --lb-3: rgba(184, 144, 10, 0.11);
+  --lb-row: rgba(10, 24, 40, 0.04);
+}
+[data-theme="dark"] {
+  --lb-1: rgba(232, 184, 32, 0.24);
+  --lb-2: rgba(232, 184, 32, 0.15);
+  --lb-3: rgba(232, 184, 32, 0.08);
+  --lb-row: rgba(232, 216, 168, 0.04);
+}
+
+.lb-panel {
+  display: block;
+  /* `absolute`, pas `fixed` : le panneau est ancré à la PAGE, en haut, et s'en
+     va avec le défilement. Collé à la fenêtre il suivait le lecteur jusque dans
+     le texte éditorial, ce qui n'a rien à y faire.
+     Les coordonnées sont posées par js/leaderboard.js, déjà dans le repère du
+     document — celles-ci ne sont qu'un point de départ, et le panneau naît
+     `hidden` dans le gabarit : rien ne se voit tant qu'il n'a pas mesuré. */
+  position: absolute;
+  top: 252px;
+  left: calc(50% + 470px);
+  width: 285px;                  /* le script lit cette largeur : la changer ici suffit */
+  z-index: 40;                   /* au-dessus du fond, sous les modales (1000+) */
+  padding: 12px 12px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 4px 18px var(--shadow);
+}
+
+/* Un display: d'auteur bat le [hidden] du navigateur : sans cette ligne, le
+   panneau s'afficherait vide avant sa première peinture. (Même piège que le
+   bouton « Connexion » de l'en-tête.) */
+.lb-panel[hidden] { display: none !important; }
+
+.lb-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  /* La police du logo. `Pirata One` n'est PAS chargée par le site : le repli
+     `cursive` donnait Comic Sans MS sous Windows. Repli en `serif`, jamais
+     `cursive`, pour la même raison. */
+  font-family: 'Cinzel Decorative', serif;
+  /* Cinzel est large : à 1 rem le titre français fait 198 px pour 200 px
+     disponibles et passait à la ligne. Mesuré, pas deviné. */
+  font-size: .92rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  color: var(--gold);
+}
+.lb-title .ic { width: 18px; height: 18px; flex: none; }
+
+.lb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lb-row {
+  display: grid;
+  /* 5e colonne = série de jours. Les lignes SANS série n'ont que 4 enfants :
+     leur score reste dans la 4e colonne, donc aligné avec les autres, et la
+     colonne de série se dimensionne sur la plus large de la liste. */
+  grid-template-columns: 18px 26px 1fr auto auto;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  background: var(--lb-row);
+  margin-bottom: 3px;
+  font-size: .84rem;
+  line-height: 1.2;
+}
+.lb-row.lb-rank-1 { background: var(--lb-1); }
+.lb-row.lb-rank-2 { background: var(--lb-2); }
+.lb-row.lb-rank-3 { background: var(--lb-3); }
+
+/* Sa propre ligne : un liseré, pas une couleur de plus — elle doit se repérer
+   d'un coup d'œil sans casser la lecture du podium. */
+.lb-row.lb-me {
+  outline: 1px solid var(--gold);
+  outline-offset: -1px;
+}
+
+.lb-pos {
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 700;
+  font-size: .82rem;
+  color: var(--gold);
+  text-align: center;
+}
+.lb-podium .lb-pos { color: var(--text); }
+
+.lb-flag {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+  display: block;
+}
+.lb-flag svg { display: block; width: 100%; height: 100%; }
+
+.lb-name {
+  color: var(--text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lb-score {
+  color: var(--text2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Série de jours consécutifs. Volontairement DISCRÈTE : le classement se joue
+   au score, la série est une décoration de fidélité — la mettre en avant
+   ferait croire qu'elle départage. Flamme incluse : c'est le signe déjà utilisé
+   par la barre de série du jeu, on ne réinvente pas un vocabulaire. */
+.lb-streak {
+  color: var(--gold-l, #e0b62e);
+  font-size: .74rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  opacity: .85;
+}
+.lb-streak::before { content: '🔥 '; }
+
+/* Rupture de rang : on ne fait pas croire que la ligne suivante est la 6e. */
+.lb-gap {
+  text-align: center;
+  color: var(--text3);
+  letter-spacing: .2em;
+  line-height: .9;
+  padding: 1px 0 3px;
+}
+
+.lb-foot {
+  margin: 8px 0 0;
+  font-size: .74rem;
+  line-height: 1.35;
+  color: var(--text3);
+}
+
+/* ============================================================================
+   Mode « flux » — écran trop étroit pour une gouttière
+   ----------------------------------------------------------------------------
+   Posé par js/leaderboard.js quand la mesure dit qu'il n'y a pas la place à
+   droite du jeu. Le panneau redevient un bloc normal, à l'endroit où il est
+   dans le document : juste après la partie, avant le compte à rebours. Il ne
+   repousse donc PAS la zone de saisie — c'est l'acquis de la v6.5 mobile, et
+   il n'est pas question de le reperdre pour un classement.
+   ========================================================================== */
+.lb-panel.lb-flux {
+  position: static;
+  /* `<body>` est un conteneur flex en COLONNE. Un `margin: 0 auto` y annule
+     l'étirement et réduit le bloc à la largeur de son texte — d'où ce
+     centrage par `align-self` et cette largeur explicite. */
+  align-self: center;
+  width: min(520px, 100%);
+  max-height: none;
+  overflow-y: visible;
+  margin: 18px 0 0;
+}
+
+/* Un peu plus d'air au doigt : sur téléphone la carte occupe toute la largeur,
+   autant que les lignes respirent. */
+@media (max-width: 760px) {
+  .lb-panel.lb-flux {
+    width: calc(100% - 20px);
+    margin: 14px 0 0;
+    padding: 12px 12px 10px;
+  }
+  .lb-panel.lb-flux .lb-row {
+    padding: 7px 8px;
+    font-size: .9rem;
+    /* 5 pistes ici aussi, pour la série — sans quoi elle tomberait dans une
+       colonne implicite et ne s'alignerait pas d'une ligne à l'autre. */
+    grid-template-columns: 20px 30px 1fr auto auto;
+    gap: 9px;
+  }
+  .lb-panel.lb-flux .lb-flag { width: 30px; height: 30px; }
+  .lb-panel.lb-flux .lb-title { font-size: 1rem; }
+  .lb-panel.lb-flux .lb-foot { font-size: .78rem; }
+}

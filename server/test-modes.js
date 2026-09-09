@@ -171,7 +171,14 @@ async function playMatch(socks, bestOf, onClue) {
 
 async function main() {
   const srv = spawn(process.execPath, [path.join(__dirname, 'versus-server.js')], {
+    // ⚠️ VERSUS_STATS=0 est OBLIGATOIRE : sans lui, chaque match joué par les tests
+    // incrémente les compteurs Firebase de PRODUCTION (counters/versus-matches et
+    // counters/versus-daily). Le 24/08/2026, une trentaine de lancements ont porté le
+    // compteur du jour à 136 alors que les jours voisins tournaient entre 3 et 28.
+    // Le garde-fou existait déjà côté serveur, les tests ne le passaient simplement pas.
     env: { ...process.env, VERSUS_PORT: String(PORT), VERSUS_ALLOW_FAST_TURNS: '1',
+           VERSUS_STATS: '0',
+           VERSUS_PSEUDOS_URL: 'http://127.0.0.1:9/none',   // jamais la table de prod
            VERSUS_DATA_URL: 'http://127.0.0.1:9/none', VERSUS_FOCUS_URL: 'http://127.0.0.1:9/none' },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

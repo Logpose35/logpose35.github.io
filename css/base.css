@@ -332,6 +332,22 @@ h1, .brand-name {
   transition: all 0.2s;
 }
 .lang-toggle:hover { background: rgba(200,148,10,0.16); }
+/* Bouton « Connexion » de l'en-tête : même famille visuelle que le thème et le
+   sélecteur de langue, avec un libellé en plus. Aucune mise en avant — c'est
+   une entrée comme les autres, que le joueur ouvre s'il le souhaite. Le mot
+   disparaît sur mobile (cf. css/mobile.css), où l'ancre suffit. */
+.account-header-btn {
+  display: inline-flex; align-items: center; gap: 0.42em;
+  height: 40px; padding: 0 0.72rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem; font-weight: 700; letter-spacing: 0.05em;
+}
+.account-header-btn .ic { width: 1.05em; height: 1.05em; vertical-align: 0; }
+/* Une feuille auteur l'emporte sur celle du navigateur, quelle que soit la
+   spécificité : le `display:flex` ci-dessus écrasait donc le `display:none`
+   que [hidden] tient de la feuille par défaut, et le bouton s'affichait alors
+   même que la config Firebase est vide. Le rétablir explicitement. */
+.account-header-btn[hidden] { display: none; }
 .theme-btn:hover {
   background: rgba(200, 148, 10, 0.15);
   border-color: var(--gold);

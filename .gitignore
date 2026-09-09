@@ -42,3 +42,6 @@ images/shamrock.png
 # polices, rendus MP4). Reste 100 % local — rien de tout ça ne doit partir dans un
 # dépôt public ni être servi par Pages.
 marketing/
+
+# Archives locales : docs de chantiers terminés, sortis de la racine (tri du 25/08/2026)
+_archive/
