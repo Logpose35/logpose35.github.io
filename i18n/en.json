@@ -1879,5 +1879,7 @@
   "Pseudo réservé par votre compte. Il se change depuis le panneau « Compte » du jeu.": "Nickname reserved by your account. Change it from the game’s \"Account\" panel.",
   "Un pseudo réservé ne peut être porté que par vous. Connectez-vous pour jouer sous le vôtre.": "A reserved nickname can only be worn by you. Sign in to play under yours.",
   "({0} j)": "({0}d)",
-  "{0} jours d'affilée": "{0} days in a row"
+  "{0} jours d'affilée": "{0} days in a row",
+  "Réduire le classement": "Collapse the ranking",
+  "Afficher le classement": "Show the ranking"
 }

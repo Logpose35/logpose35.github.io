@@ -36,6 +36,9 @@
   // un bug qu'on ne diagnostique jamais.
   const LOCAL_ONLY = new Set([
     'op-size', 'op-cb', 'op-sfx', 'op-theme', 'op-yest-open',
+    // Classement du jour replié : goût d'affichage d'un appareil. Le replier
+    // sur l'ordinateur ne doit pas le replier sur le téléphone.
+    'op-lb-collapsed',
     'op-versus-volume', 'op-versus-pseudo',
     // Écrite par js/i18n.js à la bascule FR/EN, mais relue NULLE PART : la
     // langue se déduit du chemin de l'URL (/en/). Elle remontait quand même au

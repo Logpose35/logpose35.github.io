@@ -134,6 +134,7 @@ const LS = {
   wnSilSeen: 'op-wn-sil-seen', // pop-up "Gazette · mode Silhouette (v5.2)" déjà vue (historique)
   wnVersusSeen: 'op-wn-versus-seen', // pop-up "Gazette · mode Versus 1v1 (v6.0)" déjà vue
   yestOpen:  'op-yest-open',   // mobile : barre "Hier" dépliée ('1') ou repliée (défaut)
+  lbCollapsed: 'op-lb-collapsed', // classement du jour replié ('1') — déplié par défaut
   // Mode Infini
   infStreak: 'op-inf-streak',
   infRecord: 'op-inf-record',
@@ -1148,8 +1149,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=382`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=382`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=385`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=385`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -4096,6 +4097,13 @@ function initMobileYesterday() {
       // Série du mode Classique : c'est déjà celle qu'affiche la barre de série
       // du jeu, donc celle que le joueur reconnaît comme « sa » série.
       serie: () => sanitizeNum(loadStats('classic').currentStreak),
+      // Replié ou déplié par la touche du panneau. Réglage d'APPAREIL (LOCAL_ONLY
+      // dans js/save-merge.js) : replié sur l'ordinateur, il reste déplié sur le
+      // téléphone. La clé vit ici, avec toutes les autres.
+      replie: {
+        lire:   () => lsGet(LS.lbCollapsed) === '1',
+        ecrire: v  => lsSet(LS.lbCollapsed, v ? '1' : '0'),
+      },
     }));
   }
   // Badge anniversaire

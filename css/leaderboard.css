@@ -73,6 +73,44 @@
 }
 .lb-title .ic { width: 18px; height: 18px; flex: none; }
 
+/* Barre de titre = touche replier/déplier. Elle reprend la typographie du titre
+   (police du logo, or) et ne ressemble PAS à un bouton : c'est le titre qui se
+   plie, comme partout ailleurs sur le web. Replié, il ne reste qu'elle. */
+.lb-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  width: 100%;
+  /* Cible agrandie SANS bouger le dessin : 8 px de rembourrage repris par une
+     marge négative. Mesuré : sans ça la barre faisait 22 px de haut sur mobile,
+     sous les 24 px du critère WCAG 2.5.8 — trop juste pour un pouce. */
+  margin: -8px 0;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.lb-head:focus-visible { outline: 2px solid var(--gold); outline-offset: 0; border-radius: 4px; }
+.lb-title .lb-chevron {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  opacity: .7;
+  transform: rotate(90deg);                 /* déplié : pointe vers le bas */
+  transition: transform .18s ease, opacity .18s ease;
+}
+.lb-head:hover .lb-chevron { opacity: 1; }
+.lb-replie .lb-chevron { transform: none; } /* replié : pointe vers la droite */
+.lb-replie .lb-title { margin-bottom: 0; }
+/* Un display: d'auteur battrait le [hidden] natif — même piège que le panneau. */
+.lb-corps[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .lb-title .lb-chevron { transition: none; } }
+
 .lb-list {
   list-style: none;
   margin: 0;

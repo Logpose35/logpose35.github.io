@@ -86,7 +86,7 @@
   // ── Réglages fournis par app.js ───────────────────────────────────────────
   // Les clés localStorage et la notion de « journée active » restent chez lui :
   // ce module ne les redécouvre pas.
-  let cfg = { jour: null, score: null, serie: null };
+  let cfg = { jour: null, score: null, serie: null, replie: null };
   function configure(o) { cfg = Object.assign({}, cfg, o || {}); }
 
   const T = s => (typeof global.t === 'function' ? global.t(s) : s);
@@ -347,8 +347,35 @@
     await refresh();
   }
 
+  // ── Replier / déplier ─────────────────────────────────────────────────────
+  // Une touche SUR le panneau plutôt qu'un réglage enfoui dans les Paramètres :
+  // on replie là où l'on regarde. Replié, il ne reste que la barre de titre —
+  // jamais rien de moins, sinon plus rien ne permettrait de le rouvrir.
+  // Replier ne retire pas du classement : le score continue d'être publié, et la
+  // liste d'être rafraîchie en arrière-plan — déplier montre l'état du moment.
+  let replie = false;
+  function appliquerReplie() {
+    const panneau = el('lb-panel'), corps = el('lb-corps'), tete = el('lb-head');
+    if (!panneau || !corps || !tete) return;
+    panneau.classList.toggle('lb-replie', replie);
+    corps.hidden = replie;
+    tete.setAttribute('aria-expanded', String(!replie));
+    tete.title = replie ? T('Afficher le classement') : T('Réduire le classement');
+  }
+
   function init(o) {
     configure(o);
+    // L'état vient du stockage, fourni par app.js ; s'il est illisible, on part
+    // déplié. La variable locale fait foi pour la page, même si l'écriture
+    // échoue (navigation privée, stockage plein).
+    try { replie = !!(cfg.replie && cfg.replie.lire()); } catch (e) { replie = false; }
+    appliquerReplie();
+    const tete = el('lb-head');
+    if (tete) tete.addEventListener('click', () => {
+      replie = !replie;
+      appliquerReplie();
+      try { if (cfg.replie) cfg.replie.ecrire(replie); } catch (e) { /* l'état tient pour la page */ }
+    });
     refresh();
     // Le retour sur l'onglet est le moment où l'on veut voir bouger le classement,
     // et c'est déjà celui où le compte se resynchronise.

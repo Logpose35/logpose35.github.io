@@ -145,6 +145,15 @@ console.log('\n— 6. Idempotence et commutativité —');
   ok(once['op-theme'] === 'dark', 'les préférences ne traversent pas : l\'appareil garde son thème');
   ok(LOCAL_ONLY.has('op-versus-resume'), 'le jeton de reprise d\'un duel reste local');
   ok(LOCAL_ONLY.has('op-lang'), 'la langue reste locale (elle vient de l\'URL, pas du compte)');
+  // Replier le classement est un goût d'affichage : la règle par défaut étant
+  // de TOUT synchroniser, un oubli ici le replierait sur tous les appareils du
+  // joueur dès qu'il le replie sur un seul.
+  ok(LOCAL_ONLY.has('op-lb-collapsed'), 'le classement replié reste un réglage de l\'appareil');
+  {
+    const ici = { 'op-lb-collapsed': '1' }, compte = { 'op-lb-collapsed': '0' };
+    ok(mergeSaves(ici, compte).data['op-lb-collapsed'] === '1',
+       'fusionner avec le compte ne redéplie pas un classement replié ici');
+  }
 }
 
 console.log('\n— 7. Compteurs et listes —');
