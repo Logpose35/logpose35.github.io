@@ -1149,8 +1149,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=387`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=387`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=388`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=388`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -3268,6 +3268,7 @@ const CHANGELOG = [
     t('🏆 Un classement du jour donne les cinq meilleurs scores, et le rang de chacun quand il n\'y figure pas'),
     t('⚔️ Le Versus s\'ouvre aux inconnus : les parties ouvertes s\'affichent dans un salon, et se rejoignent d\'un clic'),
     t('👥 16 nouveaux personnages rejoignent le jeu, avec 13 silhouettes et deux fruits du démon de plus'),
+    t('🙏 Les émojis de Tashigi ont été revus grâce au retour de la communauté'),
   ] },
   { v: '7.2', date: t('Août 2026'), items: [
     t('👥 8 nouveaux personnages rejoignent le jeu, et un nouveau fruit du démon entre dans le mode Fruit du Démon'),
