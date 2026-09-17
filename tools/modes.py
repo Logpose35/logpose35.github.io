@@ -90,7 +90,9 @@ SEO = {
         l'orange rapproche deux équipages d'une même alliance ou de la Grande Flotte. Sur l'origine, il
         indique deux mers portant le même nom, East Blue et North Blue par exemple. Sur le fruit du démon,
         il signifie que les deux personnages en portent un, mais pas du même type. Sur le haki, qu'ils
-        partagent au moins une couleur sans avoir exactement les mêmes.</p>
+        partagent au moins une couleur sans avoir exactement les mêmes. L'orange sert aussi quand il n'y a
+        rien à comparer : une prime jamais révélée, ou un personnage de film, qui n'a pas d'arc dans
+        l'histoire. La case ne porte alors aucune flèche.</p>
         <p>Deux colonnes affichent en plus une flèche. Le premier arc indique s'il faut chercher plus tôt ou
         plus tard dans l'histoire, la prime si le montant recherché est plus haut ou plus bas. Ces deux
         repères réduisent la liste bien plus vite que les cases de couleur seules.</p>
@@ -102,7 +104,7 @@ SEO = {
             ("Combien d'essais donne le mode Classique ?",
              "Dix. Chaque proposition affiche les huit caractéristiques comparées au personnage du jour, ce qui permet d'écarter des pans entiers de la liste dès les premiers essais."),
             ("Que veut dire une case orange ?",
-             "Une correspondance partielle : deux équipages d'une même alliance sur l'affiliation, deux mers Blue sur l'origine, deux fruits du démon de types différents, ou au moins une couleur de haki en commun."),
+             "Une correspondance partielle : deux équipages d'une même alliance sur l'affiliation, deux mers Blue sur l'origine, deux fruits du démon de types différents, ou au moins une couleur de haki en commun. Elle apparaît aussi quand il n'y a rien à comparer : une prime jamais révélée, ou un personnage de film, sans arc dans l'histoire."),
             ("Le personnage du jour est-il le même pour tout le monde ?",
              "Oui. Le tirage a lieu à minuit, heure de Paris, et la réponse reste identique pour l'ensemble des joueurs jusqu'au lendemain."),
         ],

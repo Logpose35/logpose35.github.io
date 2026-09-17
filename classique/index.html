@@ -88,23 +88,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=389">
-  <link rel="stylesheet" href="/css/layout.css?v=389">
-  <link rel="stylesheet" href="/css/modals.css?v=389">
-  <link rel="stylesheet" href="/css/classic.css?v=389">
-  <link rel="stylesheet" href="/css/wanted.css?v=389">
-  <link rel="stylesheet" href="/css/silhouette.css?v=389">
-  <link rel="stylesheet" href="/css/fruit.css?v=389">
-  <link rel="stylesheet" href="/css/inf.css?v=389">
-  <link rel="stylesheet" href="/css/emoji.css?v=389">
-  <link rel="stylesheet" href="/css/misc.css?v=389">
-  <link rel="stylesheet" href="/css/audio.css?v=389">
-  <link rel="stylesheet" href="/css/animations.css?v=389">
-  <link rel="stylesheet" href="/css/map.css?v=389">
-  <link rel="stylesheet" href="/css/tome.css?v=389">
-  <link rel="stylesheet" href="/css/leaderboard.css?v=389">
+  <link rel="stylesheet" href="/css/base.css?v=390">
+  <link rel="stylesheet" href="/css/layout.css?v=390">
+  <link rel="stylesheet" href="/css/modals.css?v=390">
+  <link rel="stylesheet" href="/css/classic.css?v=390">
+  <link rel="stylesheet" href="/css/wanted.css?v=390">
+  <link rel="stylesheet" href="/css/silhouette.css?v=390">
+  <link rel="stylesheet" href="/css/fruit.css?v=390">
+  <link rel="stylesheet" href="/css/inf.css?v=390">
+  <link rel="stylesheet" href="/css/emoji.css?v=390">
+  <link rel="stylesheet" href="/css/misc.css?v=390">
+  <link rel="stylesheet" href="/css/audio.css?v=390">
+  <link rel="stylesheet" href="/css/animations.css?v=390">
+  <link rel="stylesheet" href="/css/map.css?v=390">
+  <link rel="stylesheet" href="/css/tome.css?v=390">
+  <link rel="stylesheet" href="/css/leaderboard.css?v=390">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=389">
+  <link rel="stylesheet" href="/css/mobile.css?v=390">
 </head>
 <body data-page="game">
 
@@ -467,7 +467,7 @@
     </div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot correct"></div> Correct</div>
-      <div class="legend-item"><div class="legend-dot partial"></div> Partiel / Proche</div>
+      <div class="legend-item"><div class="legend-dot partial"></div> Partiel, proche ou non comparable</div>
       <div class="legend-item"><div class="legend-dot wrong"></div> Faux</div>
       <div class="legend-item">⬆️ Plus haut &nbsp; ⬇️ Plus bas</div>
     </div>
@@ -511,7 +511,9 @@
       l'orange rapproche deux équipages d'une même alliance ou de la Grande Flotte. Sur l'origine, il
       indique deux mers portant le même nom, East Blue et North Blue par exemple. Sur le fruit du démon,
       il signifie que les deux personnages en portent un, mais pas du même type. Sur le haki, qu'ils
-      partagent au moins une couleur sans avoir exactement les mêmes.</p>
+      partagent au moins une couleur sans avoir exactement les mêmes. L'orange sert aussi quand il n'y a
+      rien à comparer : une prime jamais révélée, ou un personnage de film, qui n'a pas d'arc dans
+      l'histoire. La case ne porte alors aucune flèche.</p>
       <p>Deux colonnes affichent en plus une flèche. Le premier arc indique s'il faut chercher plus tôt ou
       plus tard dans l'histoire, la prime si le montant recherché est plus haut ou plus bas. Ces deux
       repères réduisent la liste bien plus vite que les cases de couleur seules.</p>
@@ -523,7 +525,7 @@
   <h2 class="mode-seo__h2">Questions fréquentes</h2>
   <div class="mode-seo__faq">
       <details class="mode-seo__q"><summary>Combien d'essais donne le mode Classique ?</summary><p>Dix. Chaque proposition affiche les huit caractéristiques comparées au personnage du jour, ce qui permet d'écarter des pans entiers de la liste dès les premiers essais.</p></details>
-      <details class="mode-seo__q"><summary>Que veut dire une case orange ?</summary><p>Une correspondance partielle : deux équipages d'une même alliance sur l'affiliation, deux mers Blue sur l'origine, deux fruits du démon de types différents, ou au moins une couleur de haki en commun.</p></details>
+      <details class="mode-seo__q"><summary>Que veut dire une case orange ?</summary><p>Une correspondance partielle : deux équipages d'une même alliance sur l'affiliation, deux mers Blue sur l'origine, deux fruits du démon de types différents, ou au moins une couleur de haki en commun. Elle apparaît aussi quand il n'y a rien à comparer : une prime jamais révélée, ou un personnage de film, sans arc dans l'histoire.</p></details>
       <details class="mode-seo__q"><summary>Le personnage du jour est-il le même pour tout le monde ?</summary><p>Oui. Le tirage a lieu à minuit, heure de Paris, et la réponse reste identique pour l'ensemble des joueurs jusqu'au lendemain.</p></details>
   </div>
 </section>
@@ -537,7 +539,7 @@
       { "@type": "Question", "name": "Combien d'essais donne le mode Classique ?",
         "acceptedAnswer": { "@type": "Answer", "text": "Dix. Chaque proposition affiche les huit caractéristiques comparées au personnage du jour, ce qui permet d'écarter des pans entiers de la liste dès les premiers essais." } },
       { "@type": "Question", "name": "Que veut dire une case orange ?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Une correspondance partielle : deux équipages d'une même alliance sur l'affiliation, deux mers Blue sur l'origine, deux fruits du démon de types différents, ou au moins une couleur de haki en commun." } },
+        "acceptedAnswer": { "@type": "Answer", "text": "Une correspondance partielle : deux équipages d'une même alliance sur l'affiliation, deux mers Blue sur l'origine, deux fruits du démon de types différents, ou au moins une couleur de haki en commun. Elle apparaît aussi quand il n'y a rien à comparer : une prime jamais révélée, ou un personnage de film, sans arc dans l'histoire." } },
       { "@type": "Question", "name": "Le personnage du jour est-il le même pour tout le monde ?",
         "acceptedAnswer": { "@type": "Answer", "text": "Oui. Le tirage a lieu à minuit, heure de Paris, et la réponse reste identique pour l'ensemble des joueurs jusqu'au lendemain." } }
   ]
@@ -781,20 +783,20 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/js/i18n.js?v=389"></script>
-<script src="/js/version.js?v=389"></script>
-<script src="/js/data.js?v=389"></script>
-<script src="/js/jolly-roger.js?v=389"></script>
-<script src="/js/versus-rules.js?v=389"></script>
+<script src="/js/i18n.js?v=390"></script>
+<script src="/js/version.js?v=390"></script>
+<script src="/js/data.js?v=390"></script>
+<script src="/js/jolly-roger.js?v=390"></script>
+<script src="/js/versus-rules.js?v=390"></script>
 <!-- Compte joueur : règle de fusion puis transport. Les deux AVANT app.js, qui
      appelle LPAccount dès son initialisation. Sans compte connecté, ces deux
      fichiers ne font rien. -->
-<script src="/js/save-merge.js?v=389"></script>
-<script src="/js/account.js?v=389"></script>
-<script src="/js/account-auth.js?v=389"></script>
-<script src="/js/leaderboard.js?v=389"></script>
-<script src="/js/app.js?v=389"></script>
-<script src="/js/canvas-share.js?v=389"></script>
-<script src="/js/map.js?v=389"></script>
+<script src="/js/save-merge.js?v=390"></script>
+<script src="/js/account.js?v=390"></script>
+<script src="/js/account-auth.js?v=390"></script>
+<script src="/js/leaderboard.js?v=390"></script>
+<script src="/js/app.js?v=390"></script>
+<script src="/js/canvas-share.js?v=390"></script>
+<script src="/js/map.js?v=390"></script>
 </body>
 </html>

@@ -19,15 +19,37 @@
     if (JSON.stringify([...g].sort()) === JSON.stringify([...t].sort())) return 'correct';
     return g.some(h => t.includes(h)) ? 'partial' : 'wrong';
   }
-  function cmpArc(g, t)    { return g === t ? { state:'correct', arrow:'' } : { state:'wrong', arrow: g < t ? '⬆️' : '⬇️' }; }
+  // Arc `0` = « Filler » : les persos de films (Uta, Bullet, Zephyr, Tesoro) n'ont pas
+  // de place dans la chronologie. Rangés avant Romance Dawn, ils sortaient ⬇️ face à
+  // TOUT le monde, ce qui revenait à annoncer « avant Romance Dawn » — signalé par un
+  // joueur le 17/09/2026. Donc ORANGE sans flèche dès qu'un des deux en vient (rien à
+  // comparer, choix du propriétaire : plus parlant que le rouge), et vert seulement
+  // entre deux persos de films. Même traitement que la prime inconnue.
+  function cmpArc(g, t) {
+    if (g === 0 || t === 0) return { state: g === t ? 'correct' : 'partial', arrow:'' };
+    return g === t ? { state:'correct', arrow:'' } : { state:'wrong', arrow: g < t ? '⬆️' : '⬇️' };
+  }
   // Prime `null` = INCONNUE : jamais révélée dans l'œuvre (Joz, Vista, l'équipage du
-  // Roux…). On ne peut dire ni plus haute ni plus basse, donc AUCUNE flèche, et vert
-  // seulement si les deux sont inconnues. `0` reste « aucune prime » (Marines, civils)
-  // et se compare normalement. Signalé par un joueur le 17/09/2026 : la flèche ⬇️
-  // faisait croire que Joz ne valait presque rien. Un ❔ puis un ↕️ ont été essayés à
-  // la place de la flèche et écartés par le propriétaire : une case sans rien est plus propre.
+  // Roux…), mais le perso EN A une. Trois cas :
+  //   inconnue contre inconnue        → vert
+  //   inconnue contre un montant      → ORANGE sans flèche (rien à comparer)
+  //   inconnue contre « aucune prime » → FAUX avec flèche : 0 est forcément en dessous
+  // `0` (Marines, civils) garde sinon la comparaison normale. Signalé par un joueur le
+  // 17/09/2026 : la flèche ⬇️ faisait croire que Joz ne valait presque rien. Un ❔ puis
+  // un ↕️ ont été essayés à la place de la flèche et écartés (case plus propre sans
+  // rien) ; le rouge est devenu orange le soir même, pour dire « rien à comparer »
+  // plutôt que « faux » — sauf face à 0, où la comparaison est possible.
   function cmpBounty(g, t) {
-    if (g == null || t == null) return { state: g == t ? 'correct' : 'wrong', arrow:'' };
+    const gi = g == null, ti = t == null;
+    if (gi && ti) return { state:'correct', arrow:'' };
+    if (gi || ti) {
+      // Une prime inconnue reste une prime : elle est forcément au-dessus de « aucune
+      // prime » (0). Face à un Marine ou un civil, on sait donc de quel côté ça penche
+      // et la case est FAUSSE avec sa flèche (remarque du propriétaire le 17/09/2026).
+      if (ti && g === 0) return { state:'wrong', arrow:'⬆️' };
+      if (gi && t === 0) return { state:'wrong', arrow:'⬇️' };
+      return { state:'partial', arrow:'' };   // inconnue contre un montant : rien à comparer
+    }
     return g === t ? { state:'correct', arrow:'' } : { state:'wrong', arrow: g < t ? '⬆️' : '⬇️' };
   }
   function cmpOrigin(g, t) {

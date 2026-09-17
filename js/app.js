@@ -1150,8 +1150,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=389`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=389`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=390`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=390`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -3270,7 +3270,8 @@ const CHANGELOG = [
     t('⚔️ Le Versus s\'ouvre aux inconnus : les parties ouvertes s\'affichent dans un salon, et se rejoignent d\'un clic'),
     t('👥 16 nouveaux personnages rejoignent le jeu, avec 13 silhouettes et deux fruits du démon de plus'),
     t('🙏 Les émojis de Tashigi ont été revus grâce au retour de la communauté'),
-    t('💰 Les primes jamais révélées, comme celle de Joz, s\'affichent désormais « Inconnue », sans flèche plus haut ou plus bas'),
+    t('💰 Les primes jamais révélées, comme celle de Joz, s\'affichent désormais « Inconnue » : case orange, sans flèche, puisqu\'il n\'y a rien à comparer'),
+    t('🎬 Les personnages de films n\'ont pas de place dans la chronologie : la colonne « 1er Arc » passe en orange, sans flèche, quand l\'un des deux en vient'),
   ] },
   { v: '7.2', date: t('Août 2026'), items: [
     t('👥 8 nouveaux personnages rejoignent le jeu, et un nouveau fruit du démon entre dans le mode Fruit du Démon'),

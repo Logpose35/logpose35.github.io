@@ -88,23 +88,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Ultra&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=389">
-  <link rel="stylesheet" href="/css/layout.css?v=389">
-  <link rel="stylesheet" href="/css/modals.css?v=389">
-  <link rel="stylesheet" href="/css/classic.css?v=389">
-  <link rel="stylesheet" href="/css/wanted.css?v=389">
-  <link rel="stylesheet" href="/css/silhouette.css?v=389">
-  <link rel="stylesheet" href="/css/fruit.css?v=389">
-  <link rel="stylesheet" href="/css/inf.css?v=389">
-  <link rel="stylesheet" href="/css/emoji.css?v=389">
-  <link rel="stylesheet" href="/css/misc.css?v=389">
-  <link rel="stylesheet" href="/css/audio.css?v=389">
-  <link rel="stylesheet" href="/css/animations.css?v=389">
-  <link rel="stylesheet" href="/css/map.css?v=389">
-  <link rel="stylesheet" href="/css/tome.css?v=389">
-  <link rel="stylesheet" href="/css/leaderboard.css?v=389">
+  <link rel="stylesheet" href="/css/base.css?v=390">
+  <link rel="stylesheet" href="/css/layout.css?v=390">
+  <link rel="stylesheet" href="/css/modals.css?v=390">
+  <link rel="stylesheet" href="/css/classic.css?v=390">
+  <link rel="stylesheet" href="/css/wanted.css?v=390">
+  <link rel="stylesheet" href="/css/silhouette.css?v=390">
+  <link rel="stylesheet" href="/css/fruit.css?v=390">
+  <link rel="stylesheet" href="/css/inf.css?v=390">
+  <link rel="stylesheet" href="/css/emoji.css?v=390">
+  <link rel="stylesheet" href="/css/misc.css?v=390">
+  <link rel="stylesheet" href="/css/audio.css?v=390">
+  <link rel="stylesheet" href="/css/animations.css?v=390">
+  <link rel="stylesheet" href="/css/map.css?v=390">
+  <link rel="stylesheet" href="/css/tome.css?v=390">
+  <link rel="stylesheet" href="/css/leaderboard.css?v=390">
   <!-- Couche mobile : surcharges @media (max-width:760px) uniquement. Doit rester en dernier. -->
-  <link rel="stylesheet" href="/css/mobile.css?v=389">
+  <link rel="stylesheet" href="/css/mobile.css?v=390">
 </head>
 <body data-page="game">
 
@@ -467,7 +467,7 @@
     </div></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot correct"></div> Correct</div>
-      <div class="legend-item"><div class="legend-dot partial"></div> Partial / Close</div>
+      <div class="legend-item"><div class="legend-dot partial"></div> Partial, close or not comparable</div>
       <div class="legend-item"><div class="legend-dot wrong"></div> Wrong</div>
       <div class="legend-item">⬆️ Higher &nbsp; ⬇️ Lower</div>
     </div>
@@ -503,11 +503,11 @@
 <!-- ===== BLOC ÉDITORIAL (SEO) — propre à ce mode, généré par tools/gen_modes.py ===== -->
 <section class="mode-seo">
   <h1 class="mode-seo__h1">OnePiecedle Classic — Guess the Daily One Piece Character</h1>
-  <div class="mode-seo__body" data-i18n-html="seo.classic.body"><p>Classic mode gives ten tries to identify the One Piece character of the day. Every name entered comes back as a row of eight cells compared against the answer: gender, affiliation, origin, Devil Fruit, Haki, status, first arc and bounty.</p><p>Green means an exact match, orange a partial one. On affiliation, orange links two crews from the same alliance or from the Grand Fleet. On origin, it flags two seas sharing a name, East Blue and North Blue for instance. On Devil Fruit, it means both characters have one, but not of the same type. On Haki, that they share at least one color without having exactly the same set.</p><p>Two columns also show an arrow. First arc points earlier or later in the story, bounty points higher or lower. Those two markers narrow the field far faster than the colored cells alone.</p><p>The pool holds 282 characters, from the Straw Hats to the Emperors, taking in the supporting cast of the major arcs. An optional hint reveals an attribute still unknown, for half the score of the round. The draw happens at midnight Paris time and stays the same for every player until the next day.</p></div>
+  <div class="mode-seo__body" data-i18n-html="seo.classic.body"><p>Classic mode gives ten tries to identify the One Piece character of the day. Every name entered comes back as a row of eight cells compared against the answer: gender, affiliation, origin, Devil Fruit, Haki, status, first arc and bounty.</p><p>Green means an exact match, orange a partial one. On affiliation, orange links two crews from the same alliance or from the Grand Fleet. On origin, it flags two seas sharing a name, East Blue and North Blue for instance. On Devil Fruit, it means both characters have one, but not of the same type. On Haki, that they share at least one color without having exactly the same set. Orange also appears when there is nothing to compare: a bounty that was never revealed, or a film character, who has no arc in the story. Such a cell carries no arrow.</p><p>Two columns also show an arrow. First arc points earlier or later in the story, bounty points higher or lower. Those two markers narrow the field far faster than the colored cells alone.</p><p>The pool holds 282 characters, from the Straw Hats to the Emperors, taking in the supporting cast of the major arcs. An optional hint reveals an attribute still unknown, for half the score of the round. The draw happens at midnight Paris time and stays the same for every player until the next day.</p></div>
   <h2 class="mode-seo__h2">Frequently asked questions</h2>
   <div class="mode-seo__faq">
       <details class="mode-seo__q"><summary>How many tries does Classic mode give?</summary><p>Ten. Every guess shows the eight attributes compared against the character of the day, which rules out whole sections of the list within the first few tries.</p></details>
-      <details class="mode-seo__q"><summary>What does an orange cell mean?</summary><p>A partial match: two crews from the same alliance on affiliation, two Blue seas on origin, two Devil Fruits of different types, or at least one Haki color in common.</p></details>
+      <details class="mode-seo__q"><summary>What does an orange cell mean?</summary><p>A partial match: two crews from the same alliance on affiliation, two Blue seas on origin, two Devil Fruits of different types, or at least one Haki color in common. It also shows when there is nothing to compare: a bounty that was never revealed, or a film character, with no arc in the story.</p></details>
       <details class="mode-seo__q"><summary>Is the character of the day the same for everyone?</summary><p>Yes. The draw happens at midnight Paris time, and the answer stays the same for every player until the next day.</p></details>
   </div>
 </section>
@@ -521,7 +521,7 @@
       { "@type": "Question", "name": "How many tries does Classic mode give?",
         "acceptedAnswer": { "@type": "Answer", "text": "Ten. Every guess shows the eight attributes compared against the character of the day, which rules out whole sections of the list within the first few tries." } },
       { "@type": "Question", "name": "What does an orange cell mean?",
-        "acceptedAnswer": { "@type": "Answer", "text": "A partial match: two crews from the same alliance on affiliation, two Blue seas on origin, two Devil Fruits of different types, or at least one Haki color in common." } },
+        "acceptedAnswer": { "@type": "Answer", "text": "A partial match: two crews from the same alliance on affiliation, two Blue seas on origin, two Devil Fruits of different types, or at least one Haki color in common. It also shows when there is nothing to compare: a bounty that was never revealed, or a film character, with no arc in the story." } },
       { "@type": "Question", "name": "Is the character of the day the same for everyone?",
         "acceptedAnswer": { "@type": "Answer", "text": "Yes. The draw happens at midnight Paris time, and the answer stays the same for every player until the next day." } }
   ]
@@ -762,21 +762,21 @@
 </div>
 
 <!-- Loader de données (async fetch /data.json), puis la logique du jeu -->
-<script src="/i18n/en.js?v=389"></script>
-<script src="/js/i18n.js?v=389"></script>
-<script src="/js/version.js?v=389"></script>
-<script src="/js/data.js?v=389"></script>
-<script src="/js/jolly-roger.js?v=389"></script>
-<script src="/js/versus-rules.js?v=389"></script>
+<script src="/i18n/en.js?v=390"></script>
+<script src="/js/i18n.js?v=390"></script>
+<script src="/js/version.js?v=390"></script>
+<script src="/js/data.js?v=390"></script>
+<script src="/js/jolly-roger.js?v=390"></script>
+<script src="/js/versus-rules.js?v=390"></script>
 <!-- Compte joueur : règle de fusion puis transport. Les deux AVANT app.js, qui
      appelle LPAccount dès son initialisation. Sans compte connecté, ces deux
      fichiers ne font rien. -->
-<script src="/js/save-merge.js?v=389"></script>
-<script src="/js/account.js?v=389"></script>
-<script src="/js/account-auth.js?v=389"></script>
-<script src="/js/leaderboard.js?v=389"></script>
-<script src="/js/app.js?v=389"></script>
-<script src="/js/canvas-share.js?v=389"></script>
-<script src="/js/map.js?v=389"></script>
+<script src="/js/save-merge.js?v=390"></script>
+<script src="/js/account.js?v=390"></script>
+<script src="/js/account-auth.js?v=390"></script>
+<script src="/js/leaderboard.js?v=390"></script>
+<script src="/js/app.js?v=390"></script>
+<script src="/js/canvas-share.js?v=390"></script>
+<script src="/js/map.js?v=390"></script>
 </body>
 </html>
