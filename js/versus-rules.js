@@ -20,7 +20,16 @@
     return g.some(h => t.includes(h)) ? 'partial' : 'wrong';
   }
   function cmpArc(g, t)    { return g === t ? { state:'correct', arrow:'' } : { state:'wrong', arrow: g < t ? '⬆️' : '⬇️' }; }
-  function cmpBounty(g, t) { return g === t ? { state:'correct', arrow:'' } : { state:'wrong', arrow: g < t ? '⬆️' : '⬇️' }; }
+  // Prime `null` = INCONNUE : jamais révélée dans l'œuvre (Joz, Vista, l'équipage du
+  // Roux…). On ne peut dire ni plus haute ni plus basse, donc AUCUNE flèche, et vert
+  // seulement si les deux sont inconnues. `0` reste « aucune prime » (Marines, civils)
+  // et se compare normalement. Signalé par un joueur le 17/09/2026 : la flèche ⬇️
+  // faisait croire que Joz ne valait presque rien. Un ❔ puis un ↕️ ont été essayés à
+  // la place de la flèche et écartés par le propriétaire : une case sans rien est plus propre.
+  function cmpBounty(g, t) {
+    if (g == null || t == null) return { state: g == t ? 'correct' : 'wrong', arrow:'' };
+    return g === t ? { state:'correct', arrow:'' } : { state:'wrong', arrow: g < t ? '⬆️' : '⬇️' };
+  }
   function cmpOrigin(g, t) {
     if (g === t) return 'correct';
     if (g.includes('Blue') && t.includes('Blue')) return 'partial';

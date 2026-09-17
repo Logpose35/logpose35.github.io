@@ -23,6 +23,7 @@
   // Les suffixes passent par t() depuis le 24/08/2026 : ils étaient en dur, donc
   // la page /en/versus.html affichait « Md » au lieu de « B ».
   function formatBounty(b) {
+    if (b == null) return t('Inconnue');   // jamais révélée dans l'œuvre ; 0 = aucune prime
     if (!b) return '—';
     if (b >= 1000) {
       const md = b / 1000;
