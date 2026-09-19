@@ -133,7 +133,8 @@ const LS = {
   v5seen:    'op-v5-seen',     // pop-up "Nouveautés v5" déjà vue (historique)
   wnSilSeen: 'op-wn-sil-seen', // pop-up "Gazette · mode Silhouette (v5.2)" déjà vue (historique)
   wnVersusSeen: 'op-wn-versus-seen', // pop-up "Gazette · mode Versus 1v1 (v6.0)" déjà vue
-  yestOpen:  'op-yest-open',   // mobile : barre "Hier" dépliée ('1') ou repliée (défaut)
+  // 'op-yest-open' : retiré le 19/09/2026 avec la barre « Hier » (voir RECORD PERSONNEL).
+  // Les valeurs déjà stockées deviennent orphelines — sans effet.
   lbCollapsed: 'op-lb-collapsed', // classement du jour replié ('1') — déplié par défaut
   // Mode Infini
   infStreak: 'op-inf-streak',
@@ -152,7 +153,7 @@ const LS = {
   // Paramétrées (mode et/ou jour)
   stats:   m       => `op-stats-${m}`,
   gs:      (m, dk) => `op-gs-${m}-${dk}`,
-  daily:   dk      => `op-daily-${dk}`,
+  daily:   dk      => `op-daily-${dk}`,   // plus écrite depuis le 19/09/2026 (barre « Hier » retirée) ; save-merge fusionne encore les anciennes
   score:   dk      => `op-score-${dk}`,
   result:  dk      => `op-result-${dk}`,
   perfect: dk      => `op-perfect-${dk}`,
@@ -505,7 +506,7 @@ function applyTheme(theme) {
 // directement sur un mode, ce que la modale de la landing n'aurait pas couvert.
 // La clé 'op-spoiler-ok' devient orpheline chez les joueurs : sans effet.
 
-// ===== DATE & HIER =====
+// ===== DATE =====
 document.getElementById('date-label').textContent =
   dfmt(new Date(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -519,60 +520,44 @@ function seedForDate(d, salt = 1) {
   h = (h ^ (h >>> 16)) >>> 0;
   return h;
 }
-// Sauvegarde les cibles du jour (une seule fois par jour, pour le "hier" de demain)
-function saveTodayTargets() {
-  const key = LS.daily(todayKey());
-  if (lsGet(key)) return;
-  lsSet(key, JSON.stringify({
-    classic: TARGET_C.name,
-    wanted:  TARGET_W.name,
-    silhouette: TARGET_SIL ? TARGET_SIL.name : null,
-    fruit:   TARGET_FRU.holder,
-    emoji:   TARGET_EM.name,
-    audio:   TARGET_AU.name,
-    tome:    TARGET_TOME,
-  }));
+// ===== RECORD PERSONNEL =====
+// Meilleure journée jamais jouée, tous modes additionnés, sous la date du jour. Elle
+// remplace le 19/09/2026 la barre « Hier » : avec le mode « Rejouer », les réponses de
+// la veille gâchaient justement la journée qu'on voulait rejouer.
+// Recalculée à chaque affichage depuis les clés op-score-<jour> : rien de nouveau à
+// stocker, donc juste dès le premier jour pour tout l'historique, et elle suit le compte
+// d'un appareil à l'autre comme les scores. Les journées rejouées comptent : ce sont les
+// mêmes énigmes. À égalité, la première journée qui a atteint le score le garde.
+function dayKeyDate(k) {
+  const [y, m, d] = k.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }
-// Affiche la barre "hier" — localStorage en priorité, seed en fallback
-function buildYesterdayBar() {
-  const d = parisNow(); d.setDate(d.getDate() - 1);
-  const yKey = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-  const stored = safeParseJSON(lsGet(LS.daily(yKey)), null);
-  const el = document.getElementById('yesterday-bar');
-
-  // Ordre de confiance : ce que CE joueur a vu hier (localStorage), sinon le calendrier
-  // (exact pour tout le monde, même après un ajout de personnages), sinon le tirage par
-  // seed — qui, lui, redevient faux dès que la taille d'un pool change.
-  const cal    = (typeof calendarDay === 'function') ? calendarDay(d) : null;
-  const calFru = cal && FRUITS.find(f => f.name === cal.fruit);
-
-  const audioOp = (stored?.audio && OPENINGS.find(o => o.name === stored.audio))
-    || (cal && OPENINGS.find(o => o.id === cal.audio))
-    || OPENINGS[dailyIndex(d, 53, OPENINGS.length)];
-
-  const data = stored || (cal && {
-    classic:    cal.classic,
-    wanted:     cal.wanted,
-    silhouette: cal.silhouette,
-    fruit:      calFru ? calFru.holder : null,
-    emoji:      cal.emoji,
-    tome:       cal.tome,
-  }) || {
-    classic: CHARACTERS[dailyIndex(d,    1, CHARACTERS.length)].name,
-    wanted:  WANTED_CHARS[dailyIndex(d, 31, WANTED_CHARS.length)].name,
-    silhouette: (typeof SIL_POOL !== 'undefined' && SIL_POOL.length) ? SIL_POOL[dailyIndex(d, 211, SIL_POOL.length)].name : null,
-    fruit:   FRUITS[dailyIndex(d,       71, FRUITS.length)].holder,
-    emoji:   EMOJI_POOL[dailyIndex(d,  137, EMOJI_POOL.length)].name,
-    tome:    TOMES[dailyIndex(d,       181, TOMES.length)],
-  };
-
-  const tomeBit = (data.tome != null)
-    ? ` &nbsp;|&nbsp; <svg class="ic ic-inline" aria-hidden="true"><use href="#ic-tome"></use></svg>${t('Tome :')} <strong>${esc(String(data.tome))}</strong>` : '';
-  el.innerHTML =
-    `${t('Hier')} &nbsp;·&nbsp; ${t('Classique :')} <strong>${esc(data.classic)}</strong> &nbsp;|&nbsp; ${t('Wanted :')} <strong>${esc(data.wanted)}</strong> &nbsp;|&nbsp; ${t('Silhouette :')} <strong>${esc(data.silhouette || '?')}</strong> &nbsp;|&nbsp; ${t('Fruit :')} <strong>${esc(data.fruit)}</strong> &nbsp;|&nbsp; ${t('Émoji :')} <strong>${esc(data.emoji)}</strong>` +
-    // Icônes sans classe mi-* : la 2e ligne doit se lire d'un bloc avec la 1re,
-    // qui n'a pas d'icône. Les couleurs signature restent sur les onglets.
-    `<br><span class="yesterday-op"><svg class="ic ic-inline" aria-hidden="true"><use href="#ic-note"></use></svg>${t('Opening :')} <strong>${esc(audioOp.name)}</strong> <em>(${esc(audioOp.artist)})</em>${tomeBit}</span>`;
+function personalBest() {
+  let best = null;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const m = /^op-score-(\d{4}-\d{1,2}-\d{1,2})$/.exec(localStorage.key(i) || '');
+      if (!m) continue;
+      const score = dayTotalScore(m[1]);
+      if (score <= 0) continue;
+      if (!best || score > best.score
+          || (score === best.score && dayKeyDate(m[1]) < dayKeyDate(best.key))) best = { score, key: m[1] };
+    }
+  } catch (e) { return null; }   // stockage inaccessible (navigation privée) : pas de ligne
+  return best;
+}
+// Appelée par updateScoreBar() : le record suit la partie en cours, dès qu'elle le bat.
+function renderRecordBar() {
+  const el = document.getElementById('record-bar');
+  if (!el) return;
+  const pb = personalBest();
+  el.hidden = !pb;
+  if (!pb) return;
+  const quand = pb.key === todayKey()
+    ? t('aujourd\'hui')
+    : dfmt(dayKeyDate(pb.key), { day: 'numeric', month: 'long', year: 'numeric' });
+  el.innerHTML = `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-trophy"></use></svg>` +
+    tf('Record personnel : {0} pts · {1}', `<strong>${nfmt(pb.score)}</strong>`, esc(quand));
 }
 // Score TOTAL moyen d'un joueur sur la journée EN COURS, tous modes confondus, sous le compteur
 // du jour. Source : le nœud d'agrégat `_day` de daily-stats/{date} (players = +1 par joueur et
@@ -1150,8 +1135,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=391`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=391`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=393`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=393`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1525,12 +1510,12 @@ function setupReplayUI() {
   // (updateScoreBar rafraîchit aussi la série et les pastilles ✓/✕ des onglets.)
   updateScoreBar();
 
-  // Le compte à rebours vers le prochain défi n'a pas de sens ici, et la barre « Hier »
-  // révélerait les réponses d'une journée d'archive toute proche — donc potentiellement
-  // la prochaine que le joueur voulait rejouer. Les deux disparaissent.
+  // Le compte à rebours vers le prochain défi n'a pas de sens ici : il disparaît.
   // Le compteur du jour et la moyenne communauté RESTENT : ils lisent désormais les
-  // chiffres de la journée rejouée (Firebase les conserve date par date).
-  ['.next-puzzle', '#yesterday-bar'].forEach(sel => {
+  // chiffres de la journée rejouée (Firebase les conserve date par date). La barre
+  // « Hier », qui révélait les réponses d'une journée toute proche, a été retirée le
+  // 19/09/2026 ; le record personnel qui la remplace ne dévoile rien.
+  ['.next-puzzle'].forEach(sel => {
     const el = document.querySelector(sel);
     if (el) el.style.display = 'none';
   });
@@ -3272,6 +3257,7 @@ const CHANGELOG = [
     t('🙏 Les émojis de Tashigi ont été revus grâce au retour de la communauté'),
     t('💰 Les primes jamais révélées, comme celle de Joz, s\'affichent désormais « Inconnue » : case orange, sans flèche, puisqu\'il n\'y a rien à comparer'),
     t('🎬 Les personnages de films n\'ont pas de place dans la chronologie : la colonne « 1er Arc » passe en orange, sans flèche, quand l\'un des deux en vient'),
+    t('🏆 Les réponses de la veille laissent la place au record personnel, la meilleure journée jamais jouée'),
   ] },
   { v: '7.2', date: t('Août 2026'), items: [
     t('👥 8 nouveaux personnages rejoignent le jeu, et un nouveau fruit du démon entre dans le mode Fruit du Démon'),
@@ -3544,6 +3530,7 @@ function updateScoreBar() {
     });
   }
   updateStreakDisplay();
+  renderRecordBar();
   updateTabDoneStates();
 }
 
@@ -3885,45 +3872,10 @@ function playWinAudio() {
 })();
 
 // ===== COUCHE MOBILE (v6.5) =====
-// Deux comportements qui n'existent que sous 760 px, en complément de css/mobile.css.
+// Ce qui n'existe que sous 760 px, en complément de css/mobile.css (le repli de la
+// barre « Hier » est parti avec elle le 19/09/2026).
 // Tout est additif : sur desktop, rien de ce bloc ne s'exécute.
 const MOBILE_MQ = window.matchMedia('(max-width: 760px)');
-
-/* Replie la barre « Hier » derrière un bouton. Le contenu construit par
-   buildYesterdayBar() est déplacé tel quel dans .yest-body — rien d'autre ne le
-   manipule (la moyenne du jour vit hors de cette barre, dans #daily-average). */
-function initMobileYesterday() {
-  const el = document.getElementById('yesterday-bar');
-  if (!el || !MOBILE_MQ.matches || el.classList.contains('is-collapsible')) return;
-
-  const body = document.createElement('div');
-  body.className = 'yest-body';
-  while (el.firstChild) body.appendChild(el.firstChild);
-
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'yest-toggle';
-  btn.setAttribute('aria-controls', 'yesterday-bar');
-  btn.innerHTML =
-    `<svg class="ic ic-inline" aria-hidden="true"><use href="#ic-scroll"></use></svg>` +
-    `<span>${t('Les réponses d\'hier')}</span><span class="yest-caret" aria-hidden="true">▾</span>`;
-
-  el.classList.add('is-collapsible');
-  el.appendChild(btn);
-  el.appendChild(body);
-
-  const apply = open => {
-    el.classList.toggle('is-open', open);
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  };
-  apply(lsGet(LS.yestOpen) === '1');   // replié par défaut
-
-  btn.addEventListener('click', () => {
-    const open = !el.classList.contains('is-open');
-    apply(open);
-    lsSet(LS.yestOpen, open ? '1' : '0');
-  });
-}
 
 /* Hauteurs réelles du cockpit collant → --m-tabs / --m-cockpit.
    Le bloc des 7 modes change de hauteur selon que les libellés passent à la
@@ -4071,8 +4023,8 @@ function initMobileYesterday() {
     return;
   }
   // Attendue ICI, et pas plus tard : la descente remplace les clés « op- » en
-  // bloc, donc toute écriture faite pendant serait perdue — saveTodayTargets()
-  // juste en dessous en est une. Et pas plus tôt non plus : après elle, le
+  // bloc, donc toute écriture faite pendant serait perdue. Et pas plus tôt non
+  // plus : après elle, le
   // localStorage porte déjà ce qui a été joué ailleurs, si bien que
   // restoreAllStates() peint l'état réel du compte du premier coup, sans
   // rechargement ni clignotement.
@@ -4086,10 +4038,7 @@ function initMobileYesterday() {
       }
     } catch(e) { console.warn('synchro du compte:', e); }
   }
-  saveTodayTargets();
   try { setupReplayUI(); } catch(e) { console.warn('setupReplayUI:', e); }
-  buildYesterdayBar();
-  try { initMobileYesterday(); } catch(e) { console.warn('initMobileYesterday:', e); }
   whenActivated(loadDailyAverage); // fire-and-forget, remplit #daily-average quand Firebase répond
   // Classement du jour. Toujours celui d'AUJOURD'HUI, même en rediffusion :
   // rejouer le 20/06 ne classe personne. Le module ne connaît ni les clés

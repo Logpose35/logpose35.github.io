@@ -157,7 +157,8 @@
   //                  une série est en cours.
   //   • Horizontal — à droite de tout ce que la colonne occupe réellement. Le
   //                  bandeau « Hier » est plus large que la zone de saisie, et
-  //                  c'est lui que le panneau mordait.
+  //                  c'est lui que le panneau mordait. Le record personnel l'a
+  //                  remplacé le 19/09/2026 avec le même gabarit : on le mesure.
   //
   // Deux placements, choisis par la MESURE et non par une requête média :
   //   • gouttière — il y a la place à droite du jeu : panneau flottant, rien
@@ -205,7 +206,7 @@
     const haut = barre.getBoundingClientRect().bottom + (window.scrollY || 0) + 12;
 
     let droite = colonne.getBoundingClientRect().right;
-    ['#yesterday-bar', '.date-badge', '#daily-average', '#daily-counter'].forEach(sel => {
+    ['#record-bar', '.date-badge', '#daily-average', '#daily-counter'].forEach(sel => {
       const e = document.querySelector(sel);
       if (e && e.offsetWidth) droite = Math.max(droite, e.getBoundingClientRect().right);
     });

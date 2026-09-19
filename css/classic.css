@@ -17,12 +17,15 @@ main {
   opacity: 0.8;
 }
 
-.yesterday {
+/* Record personnel (19/09/2026) : la bande de l'ancienne barre « Hier », avec le
+   texte doré de la moyenne communauté juste dessous. */
+.record-bar {
   text-align: center;
   margin-bottom: var(--sp-2);
-  font-size: var(--fs-sm);
-  color: var(--text3);
-  letter-spacing: 0.04em;
+  font-size: var(--fs-lg);   /* plus gros que les lignes voisines : demandé le 19/09 */
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.03em;
   background: transparent;
   border: none;
   border-top: 1px solid var(--border2);
@@ -32,6 +35,13 @@ main {
   display: block;
   width: 100%;
 }
+/* Un display: d'auteur bat le [hidden] du navigateur (même piège que .lb-panel). */
+.record-bar[hidden] { display: none; }
+.record-bar strong {
+  font-weight: 700;
+  font-size: 1.2em;
+}
+[data-theme="dark"] .record-bar strong { color: var(--gold-l); }
 
 .daily-counter {
   text-align: center;

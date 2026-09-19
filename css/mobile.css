@@ -201,53 +201,11 @@
   .share-daily-btn { padding: 4px 10px; font-size: 0.72rem; }
 
   /* ==========================================================
-     4. BARRE « HIER » — 155 px → 34 px, dépliable au doigt
-     ------------------------------------------------------------
-     Le contenu est intact : il est simplement replié par défaut.
-     Le bouton et l'état sont posés par app.js (initMobileYesterday).
+     4. BARRE « HIER » — retirée le 19/09/2026. Le record personnel qui
+        la remplace tient sur une ligne : plus rien à replier. Un cran
+        plus petit qu'en desktop (--fs-lg y passait sur deux lignes à 375 px).
      ========================================================== */
-  .yesterday {
-    padding: 0;
-    border-top: none;
-    text-align: left;
-  }
-  .yesterday.is-collapsible {
-    border-top: 1px solid var(--border2);
-    border-bottom: 1px solid var(--border2);
-  }
-  .yest-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;       /* centré comme le reste des bandeaux du jeu */
-    gap: 6px;
-    width: 100%;
-    min-height: 36px;
-    padding: 7px 12px;
-    background: none;
-    border: none;
-    color: var(--gold);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
-  /* Le chevron colle au libellé : rejeté à droite, la barre repliée avait
-     l'air d'une ligne vide au lieu d'un bouton. */
-  .yest-toggle .yest-caret {
-    transition: transform 0.22s var(--ease, ease);
-    font-size: 0.62rem;
-    opacity: 0.75;
-  }
-  .yesterday.is-open .yest-toggle .yest-caret { transform: rotate(180deg); }
-  .yest-body {
-    padding: 0 12px 10px;
-    text-align: center;
-    font-size: 0.76rem;
-    line-height: 1.5;
-  }
-  .yesterday:not(.is-open) .yest-body { display: none; }
+  .record-bar { font-size: var(--fs-base); }
 
   /* ==========================================================
      5. DATE, COMPTEUR, ZONE DE JEU

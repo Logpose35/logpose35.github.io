@@ -247,21 +247,6 @@ body.lp-modal-open .score-merry { animation-play-state: paused; }
 }
 .sb-total span:last-child { color: var(--gold-l); font-size: 1rem; }
 
-/* ===== YESTERDAY BAR — 2e ligne (Opening + Tome) =====
-   Pas de couleur ni d'opacité propres : la ligne hérite de .yesterday pour
-   ne faire qu'un bloc avec la première. Elle était dorée à 75 %, ce qui la
-   détachait comme une note de bas de page alors que c'est la même liste. */
-.yesterday-op {
-  display: block;
-  margin-top: 4px;
-  font-style: normal;
-}
-.yesterday-op em {
-  font-style: italic;
-  opacity: 0.7;
-  font-size: 0.9em;
-}
-
 /* Remplissage : juste la ligne de vague, pas de fond solide */
 .score-fill {
   position: absolute;
