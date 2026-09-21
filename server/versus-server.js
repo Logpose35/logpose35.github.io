@@ -492,10 +492,16 @@ function pairFromQueue() {
   }
 }
 
-// Une socket qui s'en va ne doit laisser ni entrée de file, ni abonnement.
+// Une socket qui s'en va ne doit laisser ni entrée de file, ni abonnement — et
+// elle ne doit plus être comptée. La liste du salon est POUSSÉE : sans cet envoi,
+// le « X pirates en ligne » des autres ne redescendait jamais et ne faisait que
+// monter, puisque seuls une partie qui bouge ou un nouvel abonné le rafraîchissaient
+// (signalé par le propriétaire le 21/09/2026). broadcastLobbyList() sort tout de
+// suite quand personne n'est abonné.
 function forgetSocket(ws) {
   browsers.delete(ws);
-  if (dequeue(ws)) broadcastLobbyList();
+  dequeue(ws);
+  broadcastLobbyList();
 }
 
 // ── Déroulé d'une partie ───────────────────────────────────────────────────
@@ -938,7 +944,10 @@ async function onMessage(ws, raw, ip) {
   if (type === 'list_lobbies') {
     if (rateLimited(ip)) return send(ws, 'error', { code: 'RATE_LIMITED' });
     browsers.add(ws);                       // abonnement : les changements suivants arrivent seuls
-    return send(ws, 'lobby_list', lobbyListPayload());
+    // Diffusé et pas seulement renvoyé : l'arrivant reçoit la liste, et les autres
+    // voient le compteur monter tout de suite. Sans ça, le salon ne bougeait qu'au
+    // rythme des parties créées ou fermées.
+    return broadcastLobbyList();
   }
   if (type === 'unlist_lobbies') { browsers.delete(ws); return; }
 
