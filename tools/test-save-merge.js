@@ -6,7 +6,7 @@
 'use strict';
 
 const path = require('path');
-const { mergeSaves, daySlice, daysOf, LOCAL_ONLY } = require(path.join(__dirname, '..', 'js', 'save-merge.js'));
+const { mergeSaves, daySlice, daysOf, sameSlice, LOCAL_ONLY } = require(path.join(__dirname, '..', 'js', 'save-merge.js'));
 
 let passed = 0, failed = 0;
 function ok(cond, label) {
@@ -183,6 +183,46 @@ console.log('\n— 8. Statistiques par mode (bloc cohérent) —');
   ok(eq(s.distribution, { 1: 10, 2: 20 }), 'la distribution reste cohérente avec played (pas de bricolage champ par champ)');
   ok(s.maxStreak === 9, 'le meilleur maxStreak est relevé sur l\'autre camp');
   ok(s.currentStreak === 5 && s.lastDate === '2026-9-9', 'la série en cours vient du camp qui a joué le plus récemment');
+}
+
+console.log('\n— 8b. Série en cours : dates et appareils —');
+{
+  const st = (lastDate, currentStreak, maxStreak = currentStreak) =>
+    ({ 'op-stats-classic': J({ played: 5, won: 5, currentStreak, maxStreak, lastDate, distribution: {} }) });
+  const serie = (A, B) => JSON.parse(mergeSaves(A, B).data['op-stats-classic']);
+  let s = serie(st('2026-9-9', 7), st('2026-9-25', 2));
+  ok(s.lastDate === '2026-9-25' && s.currentStreak === 2, 'le 25 est plus récent que le 9 (comparaison en dates, pas en texte)');
+  s = serie(st('2026-10-1', 3), st('2026-9-30', 9));
+  ok(s.lastDate === '2026-10-1', 'octobre est plus récent que septembre');
+  s = serie(st('2026-9-24', 19), st('2026-9-25', 1));
+  ok(s.currentStreak === 20 && s.lastDate === '2026-9-25', 'victoire le lendemain sur un autre appareil : la série continue (19 → 20)');
+  ok(s.maxStreak === 20, 'le record suit la série réparée');
+  s = serie(st('2026-9-25', 1), st('2026-9-24', 19));
+  ok(s.currentStreak === 20, 'même résultat quel que soit l\'ordre des camps');
+  s = serie(st('2026-9-24', 19), st('2026-9-25', 0));
+  ok(s.currentStreak === 0, 'défaite le lendemain : la série tombe à 0');
+  s = serie(st('2026-9-23', 19), st('2026-9-25', 1));
+  ok(s.currentStreak === 1, 'un jour manqué entre les deux : pas de raccord');
+  s = serie(st('2026-9-25', 5), st('2026-9-25', 3));
+  ok(s.currentStreak === 5, 'même jour des deux côtés : la meilleure série');
+  s = serie(st('2026-9-30', 12), st('2026-10-1', 1));
+  ok(s.currentStreak === 13, 'le raccord traverse le changement de mois');
+  // Série de jours joués (app.js, dayStreak) : la marque « live » d'une partie
+  // jouée en direct doit traverser la fusion avec le résultat qui la porte.
+  const live = mergeSaves({}, { 'op-result-2026-9-25': J({ emoji: { won: false, tries: 8, live: 1 } }) }).data['op-result-2026-9-25'];
+  ok(JSON.parse(live).emoji.live === 1, 'la marque « joué en direct » voyage avec le résultat');
+}
+
+console.log('\n— 8c. Même journée, autre ordre : pas de changement —');
+{
+  const joue = { 'op-score-2026-9-26': J({ classic: 1000, emoji: 800 }),
+                 'op-result-2026-9-26': J({ classic: { won: true, tries: 1 }, emoji: { won: true, tries: 2 } }) };
+  const refait = { 'op-score-2026-9-26': J({ emoji: 800, classic: 1000 }),
+                   'op-result-2026-9-26': J({ emoji: { tries: 2, won: true }, classic: { won: true, tries: 1 } }) };
+  ok(sameSlice(joue, refait), 'mêmes scores et résultats dans un autre ordre : même journée');
+  ok(!sameSlice(joue, Object.assign({}, refait, { 'op-score-2026-9-26': J({ emoji: 800, classic: 900 }) })), 'un score différent : journée changée');
+  ok(!sameSlice(joue, Object.assign({}, refait, { 'op-gs-tome-2026-9-26': J({ guesses: [3] }) })), 'une grille de plus : journée changée');
+  ok(sameSlice({ 'op-perfect-2026-9-26': '1' }, { 'op-perfect-2026-9-26': '1' }), 'valeurs non JSON comparées telles quelles');
 }
 
 console.log('\n— 9. Robustesse —');

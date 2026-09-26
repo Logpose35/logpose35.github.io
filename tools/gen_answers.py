@@ -135,7 +135,16 @@ class Data(object):
 
 def build(lang):
     cal = json.load(open(os.path.join(ROOT, 'calendar.json'), encoding='utf-8'))
-    days = cal.get('days', {})
+    days = dict(cal.get('days', {}))
+    # Depuis la v8.1, calendar.json ne garde que l'archive : les journées suivant la
+    # bascule sont recalculées par le jumeau Python du tirage du jeu (tools/tirage.py).
+    if cal.get('bascule'):
+        import tirage as TIRAGE
+        _d = json.load(open(os.path.join(ROOT, 'data.json'), encoding='utf-8'))
+        _f = json.load(open(os.path.join(ROOT, 'silhouettes', 'focus.json'), encoding='utf-8'))
+        _t = TIRAGE.preparer(_d, _f, cal)
+        for _n in range(TIRAGE.num_jour(cal['bascule']), TIRAGE.num_jour(datetime.date.today().isoformat()) + 1):
+            days[TIRAGE.iso_de(_n)] = TIRAGE.jour(_t, TIRAGE.iso_de(_n))
     launch = cal.get('launch')
     uncertain = set(cal.get('uncertain') or [])
     data = Data()
@@ -433,6 +442,7 @@ TEMPLATE = """<!DOCTYPE html>
      recalcule l'en-tete du jour et ajoute les journees ecoulees depuis. Sans lui,
      la page mentirait sur la date des le lendemain d'un deploiement. -->
 <script type="application/json" id="ans-data">%(cfg)s</script>
+<script src="/js/tirage.js?v=%(v)s" defer></script>
 <script src="/js/answers.js?v=%(v)s" defer></script>
 
 <script src="/js/version.js?v=%(v)s"></script>

@@ -323,7 +323,22 @@ def backfill_git(cal, today, ecrire=True):
 
 
 # ───────────────────────── génération ─────────────────────────
+def calendar_retire():
+    try:
+        return bool(json.load(open(CAL, encoding='utf-8')).get('bascule'))
+    except Exception:
+        return False
+
+
 def main():
+    # RETIRÉ depuis la v8.1 : les réponses ne sont plus écrites d'avance, elles sont
+    # calculées par js/tirage.js (jumeau : tools/tirage.py). Ce script écrivait 90 jours
+    # de réponses futures dans calendar.json, un fichier PUBLIC : le relancer les
+    # exposerait de nouveau. Ses fonctions restent importables (portage du sac d'avant,
+    # reconstitution de l'archive par git) ; seule l'exécution est bloquée.
+    if calendar_retire():
+        sys.exit("gen_calendar.py est retiré depuis la v8.1 : calendar.json ne garde que l'archive.\n"
+                 "Après un ajout : python tools/tirage.py --entrees   (état : --verifier)")
     ap = argparse.ArgumentParser()
     ap.add_argument('--days', type=int, default=90, help="jours d'avance à générer")
     ap.add_argument('--check', action='store_true', help='ne rien écrire, juste diagnostiquer')

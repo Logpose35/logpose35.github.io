@@ -405,17 +405,19 @@
       return { ok: true, changed: false, activeDayChanged: false, report: null };
     }
 
-    const avantActif = activeDay ? JSON.stringify(SM.daySlice(local, activeDay)) : '';
+    const avantActif = activeDay ? SM.daySlice(local, activeDay) : null;
     const m = SM.mergeSaves(local, distantSave, mergeOpts());
     const gros = m.report.daysAdded > 0 || m.report.daysTouched > 0;
     applyLocal(m.data, gros);
     lsSet(K_STAMPS, JSON.stringify(distant));
 
-    const apresActif = activeDay ? JSON.stringify(SM.daySlice(m.data, activeDay)) : '';
+    // Comparé sur le CONTENU (sameSlice) : un simple changement d'ordre des modes
+    // rechargeait la page à chaque retour sur l'onglet.
+    const actifChange = activeDay ? !SM.sameSlice(avantActif, SM.daySlice(m.data, activeDay)) : false;
     return {
       ok: true,
-      changed: gros || avantActif !== apresActif,
-      activeDayChanged: avantActif !== apresActif,
+      changed: gros || actifChange,
+      activeDayChanged: actifChange,
       report: m.report,
     };
   }

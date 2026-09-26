@@ -1135,8 +1135,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=393`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=393`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=398`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=398`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -1370,6 +1370,67 @@ function saveStats(mode, stats) {
   lsSet(LS.stats(mode), JSON.stringify(stats));
 }
 
+// Écart en jours entre deux clés de journée. On compare des DATES : les clés n'ont
+// pas de zéro de remplissage, et en texte « 2026-9-9 » passerait après « 2026-9-25 ».
+function daysBetween(fromKey, toKey) {
+  return Math.round((dayKeyDate(toKey) - dayKeyDate(fromKey)) / 86400000);
+}
+// Série EN COURS telle qu'elle vaut aujourd'hui : vivante seulement si la dernière
+// partie date d'aujourd'hui ou d'hier. Un joueur absent depuis une semaine n'a plus
+// de série, même si aucune défaite ne l'a remise à zéro (corrigé le 26/09/2026 :
+// l'absence ne cassait rien, « 17 jours consécutifs » pouvait couvrir des trous).
+function liveStreak(stats) {
+  if (!stats || !stats.lastDate) return 0;
+  const ecart = daysBetween(stats.lastDate, todayKey());
+  return (ecart === 0 || ecart === 1) ? sanitizeNum(stats.currentStreak) : 0;
+}
+
+// ===== SÉRIE DE JOURS JOUÉS =====
+// La série du jeu (barre sous le score, classement du jour) compte les JOURS JOUÉS
+// d'affilée : un seul mode terminé dans la journée suffit, gagné ou perdu (décision
+// du propriétaire du 26/09/2026 ; c'était la série de VICTOIRES au Classique).
+// Elle se DÉDUIT de l'historique, rien de nouveau à fusionner entre appareils :
+//   • op-day-counted-<jour> — posée par countDayPlayer() à la fin d'une partie EN
+//     DIRECT, jamais en rediffusion ; présente depuis le 08/08/2026. Mais retirée
+//     quand Firebase ne répond pas (partie hors ligne), d'où la seconde marque :
+//   • `live` dans op-result-<jour> — posé par saveModeResult() depuis le 26/09/2026.
+// Les deux voyagent avec le compte journée par journée. Une journée REJOUÉE n'a ni
+// l'une ni l'autre : rejouer le 20/06 ne bouche pas un trou de la série.
+function dayNumOfKey(k) {
+  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(String(k || ''));
+  return m ? Math.round(Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000) : null;
+}
+function playedDays() {
+  const jours = new Set();
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i) || '';
+      let m = /^op-day-counted-(\d{4}-\d{1,2}-\d{1,2})$/.exec(k);
+      if (m) { jours.add(dayNumOfKey(m[1])); continue; }
+      m = /^op-result-(\d{4}-\d{1,2}-\d{1,2})$/.exec(k);
+      if (!m) continue;
+      const res = safeParseJSON(localStorage.getItem(k), {});
+      if (res && typeof res === 'object' && Object.values(res).some(r => r && r.live)) jours.add(dayNumOfKey(m[1]));
+    }
+  } catch (e) { /* stockage inaccessible (navigation privée) : pas de série */ }
+  return jours;
+}
+// { current, best } : la série en cours part d'aujourd'hui si la journée est déjà
+// jouée, sinon d'hier — tant que la journée n'est pas finie, rien n'est perdu.
+function dayStreak() {
+  const jours = playedDays();
+  const ajd = dayNumOfKey(todayKey());
+  let current = 0;
+  for (let d = jours.has(ajd) ? ajd : ajd - 1; jours.has(d); d--) current++;
+  let best = current, run = 0, prev = null;
+  [...jours].sort((a, b) => a - b).forEach(d => {
+    run = (prev !== null && d === prev + 1) ? run + 1 : 1;
+    prev = d;
+    if (run > best) best = run;
+  });
+  return { current, best };
+}
+
 function parisNow() {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
 }
@@ -1537,6 +1598,8 @@ function recordResult(mode, won, numGuesses) {
     saveStats(mode, stats);
     return;
   }
+  // Un jour manqué casse la série : seule une défaite la remettait à zéro.
+  if (stats.lastDate && daysBetween(stats.lastDate, today) !== 1) stats.currentStreak = 0;
   stats.lastDate = today;
   stats.played++;
   if (won) {
@@ -1622,7 +1685,7 @@ function renderStatsContent(mode) {
   const played  = sanitizeNum(stats.played);
   const won     = sanitizeNum(stats.won);
   const winPct  = played === 0 ? 0 : Math.round((won / played) * 100);
-  const streak  = sanitizeNum(stats.currentStreak);
+  const streak  = liveStreak(stats);
   const maxStr  = sanitizeNum(stats.maxStreak);
   const maxDist = mode === 'silhouette' ? MAX_SIL_GUESSES : mode === 'fruit' ? MAX_DIST_FRUIT : mode === 'emoji' ? MAX_EM_GUESSES : mode === 'audio' ? MAX_AU_GUESSES : mode === 'tome' ? MAX_TOME_GUESSES : MAX_DIST_CLASSIC;
   const maxVal  = Math.max(1, ...Object.values(stats.distribution).map(v => sanitizeNum(v)));
@@ -2454,7 +2517,9 @@ function submitTome() {
   if (tmOver) return;
   const ti = tomeInputEl();
   const n  = parseInt((ti.value || '').trim(), 10);
-  if (!n || n < 1 || n > 112 || tmGuesses.includes(n)) { shake(ti); return; }
+  // Borne lue dans data.json (le tome 113 a été refusé tant qu'elle était en dur).
+  const tomeMax = TOMES.length ? Math.max(...TOMES) : 113;
+  if (!n || n < 1 || n > tomeMax || tmGuesses.includes(n)) { shake(ti); return; }
   tmGuesses.push(n);
   saveState('tome');
   ti.value = '';
@@ -2624,6 +2689,7 @@ function saveModeResult(mode, won, tries, extra) {
   const results = safeParseJSON(lsGet(key), {});
   if (results[mode]) return; // déjà enregistré
   results[mode] = { won: won, tries: tries, ...extra };
+  if (!isReplay()) results[mode].live = 1;   // série de jours joués (voir dayStreak)
   lsSet(key, JSON.stringify(results));
 }
 
@@ -3248,6 +3314,13 @@ function importSaveFile(event) {
 // ===== NOTES DE VERSION (changelog accessible à tout moment) =====
 // Plus récent en premier. Ajouter une entrée { v, date, items[] } à chaque release.
 const CHANGELOG = [
+  { v: '8.1', date: t('Septembre 2026'), items: [
+    t('🔥 La série compte désormais les jours joués d\'affilée : un seul mode terminé dans la journée suffit à la prolonger, et un jour sans partie la remet à zéro'),
+    t('👥 20 nouveaux personnages rejoignent le jeu (dont Hattori, Chimney et Nezumi)'),
+    t('👤 18 silhouettes et 5 fruits du démon de plus'),
+    t('📚 Le tome 113 rejoint le mode Tome'),
+    t('🔄 Revenir sur l\'onglet du jeu ne recharge plus la page quand un compte est connecté'),
+  ] },
   { v: '8.0', date: t('Septembre 2026'), items: [
     t('👤 Un compte facultatif fait suivre la progression d\'un appareil à l\'autre : grilles, scores et séries se retrouvent sur le téléphone comme sur l\'ordinateur. Il reste facultatif, et rien d\'autre que la progression n\'est enregistré'),
     t('🏴‍☠️ Le pseudo se réserve une bonne fois : personne d\'autre ne peut le prendre, et il sert d\'identité dans les duels'),
@@ -3537,11 +3610,10 @@ function updateScoreBar() {
 function updateStreakDisplay() {
   const el = document.getElementById('streak-bar');
   if (!el) return;
-  const stats = loadStats('classic');
-  const s = stats.currentStreak;
-  if (s <= 1) { el.classList.add('hidden'); return; }
+  const { current, best } = dayStreak();
+  if (current <= 1) { el.classList.add('hidden'); return; }
   el.classList.remove('hidden');
-  el.textContent = tf('🔥 Série Classique · {0} jours consécutifs · Record : {1}', s, stats.maxStreak);
+  el.textContent = tf('🔥 Série · {0} jours joués d\'affilée · Record : {1}', current, best);
 }
 
 function launchPerfectDay() {
@@ -4047,9 +4119,9 @@ const MOBILE_MQ = window.matchMedia('(max-width: 760px)');
     whenActivated(() => LPLeaderboard.init({
       jour:  () => todayKey(),
       score: () => dayTotalScore(todayKey()),
-      // Série du mode Classique : c'est déjà celle qu'affiche la barre de série
-      // du jeu, donc celle que le joueur reconnaît comme « sa » série.
-      serie: () => sanitizeNum(loadStats('classic').currentStreak),
+      // Jours joués d'affilée : la même que la barre de série du jeu, donc celle
+      // que le joueur reconnaît comme « sa » série.
+      serie: () => dayStreak().current,
       // Replié ou déplié par la touche du panneau. Réglage d'APPAREIL (LOCAL_ONLY
       // dans js/save-merge.js) : replié sur l'ordinateur, il reste déplié sur le
       // téléphone. La clé vit ici, avec toutes les autres.

@@ -77,10 +77,23 @@
   var host = document.getElementById('archive');
   if (!host) return;
 
-  fetch('/calendar.json', { cache: 'no-cache' })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (cal) {
+  // Depuis la v8.1, calendar.json ne porte que l'archive : les journées suivant la
+  // bascule se recalculent avec le même tirage que le jeu (js/tirage.js), d'où les
+  // deux fichiers de données en plus.
+  var json = function (url) {
+    return fetch(url, { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; });
+  };
+  Promise.all([json('/calendar.json'), json('/data.json'), json('/silhouettes/focus.json')])
+    .then(function (res) {
+      var cal = res[0], data = res[1], focus = res[2];
       if (!cal || !cal.days) return;
+      cal.days = Object.assign({}, cal.days);
+      if (window.LPTirage && cal.bascule && data) {
+        var t = LPTirage.preparer(data, focus || {}, cal);
+        for (var n = LPTirage.numJour(cal.bascule); n < LPTirage.numJour(today); n++) {
+          cal.days[LPTirage.isoDe(n)] = LPTirage.jour(t, LPTirage.isoDe(n));
+        }
+      }
 
       // Invariant 1 : jamais le futur, et jamais la journée en cours (elle a sa
       // propre section, sans réponses).

@@ -349,6 +349,27 @@ async function main() {
     ok(typeof tel.listeners['win:pagehide'] === 'function', 'la fermeture de page déclenche un envoi');
   }
 
+  console.log('\n— 6b. Retour sur l\'onglet sans rien de neuf : pas de rechargement —');
+  {
+    const db = makeDB();
+    const pc = makeDevice(db, {}, 'u1', '2026-9-1');
+    await pc.api.firstSync();
+    // Ce qu'écrit le jeu : les scores suivent l'ordre de jeu (Classique puis Émoji),
+    // mais localStorage.key() rend les grilles dans un ordre libre — ici l'émoji d'abord.
+    pc.ls.setItem('op-gs-emoji-2026-9-1',   J({ guesses: ['Nami'], target: 'Nami' }));
+    pc.ls.setItem('op-gs-classic-2026-9-1', J({ guesses: ['Luffy'], target: 'Luffy' }));
+    pc.ls.setItem('op-score-2026-9-1',  J({ classic: 1000, emoji: 800 }));
+    pc.ls.setItem('op-result-2026-9-1', J({ classic: { won: true, tries: 1 }, emoji: { won: true, tries: 1 } }));
+    await pc.api.flush();
+    await attendre();
+    // Le jeu réécrit ses scores dans SON ordre à chaque fin de partie.
+    pc.ls.setItem('op-score-2026-9-1',  J({ classic: 1000, emoji: 800 }));
+    pc.ls.setItem('op-result-2026-9-1', J({ classic: { won: true, tries: 1 }, emoji: { won: true, tries: 1 } }));
+    const r = await pc.api.focusSync();
+    ok(r.ok && r.activeDayChanged === false, 'rien de neuf ailleurs : la journée affichée n\'a PAS changé');
+    ok(pc.reloads === 0, 'aucun rechargement au retour sur l\'onglet');
+  }
+
   console.log('\n— 7. Réseau coupé : rien n\'est perdu —');
   {
     const db = makeDB();

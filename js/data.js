@@ -3,27 +3,11 @@ const BLUR_STEPS    = [20, 16, 12, 9, 6, 3, 1, 0];
 const MAX_GUESSES   = 8;
 const MAX_FRU_GUESSES = 10;
 
-// ===== ANNIVERSAIRES (sources : wiki One Piece) =====
-// Format : 'MM-DD' → [noms exacts de data.json]
-const BIRTHDAYS = {
-  '01-01': ['Portgas D. Ace'],
-  '02-06': ['Nico Robin'],
-  '03-02': ['Sanji'],
-  '03-09': ['Franky'],
-  '03-20': ['Sabo'],
-  '04-01': ['Usopp'],
-  '04-02': ['Jimbei'],
-  '04-03': ['Brook'],
-  '04-06': ['Edward Newgate'],
-  '05-02': ['Garp'],
-  '05-05': ['Monkey D. Luffy'],
-  '05-13': ['Rayleigh'],
-  '07-03': ['Nami'],
-  '09-02': ['Boa Hancock'],
-  '10-06': ['Trafalgar D. Water Law'],
-  '11-11': ['Roronoa Zoro'],
-  '12-24': ['Tony Tony Chopper'],
-};
+// ===== ANNIVERSAIRES =====
+// La liste vit dans js/tirage.js depuis la v8.1 : le tirage s'en sert (règle 5 — le jour
+// de son anniversaire, le personnage sort forcément dans un des modes). Format :
+// 'MM-DD' → [noms exacts de data.json]. Repli vide si le module n'a pas chargé.
+const BIRTHDAYS = (typeof LPTirage !== 'undefined' && LPTirage.ANNIVERSAIRES) || {};
 
 // Retourne les personnages du pool dont c'est l'anniversaire aujourd'hui (Paris).
 // Appelable uniquement après loadGameData() (CHARACTERS doit être initialisé).
@@ -115,12 +99,14 @@ function dailyPick(pool, salt = 1) {
   return pool[dailyIndex(_parisDate(), salt, pool.length)];
 }
 
-// ===== CALENDRIER (réponses figées) =====
-// Le tirage ci-dessus dépend de la TAILLE du pool : ajouter un personnage ou une
-// silhouette décalait toutes les journées, passées comme en cours. calendar.json fige
-// donc la réponse de chaque jour (généré par tools/gen_calendar.py, dates <= aujourd'hui
-// jamais réécrites). Le tirage par seed ne sert plus que de filet : date absente du
-// fichier, ou nom qui n'existe plus dans data.json.
+// ===== CALENDRIER (réponses de chaque journée) =====
+// Depuis la v8.1, CALENDAR mêle deux sources, jusqu'à aujourd'hui compris :
+//   • l'ARCHIVE de calendar.json — les journées jouées avant la bascule, figées ;
+//   • le TIRAGE À RÈGLES (js/tirage.js) — chaque journée à partir de la bascule,
+//     recalculée à l'identique à chaque chargement. Rien n'est écrit d'avance : les
+//     réponses des jours à venir ne sont plus lisibles dans un fichier public.
+// Le tirage par seed ci-dessus (sac sans remise) ne sert plus que de filet : module
+// absent, date manquante, ou nom qui n'existe plus dans data.json.
 let CALENDAR = {};
 let CALENDAR_LAUNCH = null;   // 1er jour du site (= journée #1) — numérote les rediffusions
 
@@ -178,7 +164,7 @@ let EMOJI_POOL    = [];
 let EMOJI_NAMES   = {}; // emoji → nom lisible (infobulle)
 let TARGET_C, TARGET_W, TARGET_FRU, TARGET_EM, TARGET_AU;
 let SIL_POOL = [], TARGET_SIL = null, SIL_FOCUS_MAP = {};   // Mode Silhouette
-let TOMES        = [];           // numéros de tomes du pool quotidien (1..112)
+let TOMES        = [];           // numéros de tomes du pool quotidien (1..N, lus dans data.json)
 let TARGET_TOME;                 // numéro du tome à deviner aujourd'hui
 let TOME_ZOOM    = { x: 50, y: 50 }; // centre du gros plan (en %), déterministe
 
@@ -199,16 +185,44 @@ async function loadGameData() {
   WANTED_CHARS = CHARACTERS.filter(c => c.img !== null && c.img !== undefined);
   EMOJI_POOL   = CHARACTERS.filter(c => Array.isArray(c.emoji) && c.emoji.length > 0);
 
-  // Calendrier des réponses (facultatif : sans lui, on retombe sur le tirage par seed)
+  TOMES = raw.TOMES || [];
+
+  // Mode Silhouette : pool = personnages ayant une silhouette générée (= clés de focus.json).
+  // Certains persos (sans bonne image) n'ont pas de silhouette → exclus du pool.
+  // Lu AVANT les cibles depuis la v8.1 : le tirage en a besoin pour son pool Silhouette.
+  try {
+    const _fr = await fetch('/silhouettes/focus.json', { cache: 'no-cache' });
+    SIL_FOCUS_MAP = _fr.ok ? await _fr.json() : {};
+  } catch (e) { SIL_FOCUS_MAP = {}; }
+  SIL_POOL = CHARACTERS.filter(c => {
+    const k = Array.isArray(c.img) ? c.img[0] : c.img;
+    return k && SIL_FOCUS_MAP[k];
+  });
+
+  // Réponses : l'archive, puis le tirage à règles depuis la bascule (facultatif : sans
+  // eux, on retombe sur le tirage par seed).
+  let _cj = {};
   try {
     const _cr = await fetch('/calendar.json', { cache: 'no-cache' });
-    const _cj = _cr.ok ? await _cr.json() : {};
-    CALENDAR = _cj.days || {};
+    _cj = _cr.ok ? await _cr.json() : {};
+    CALENDAR = Object.assign({}, _cj.days || {});
     if (_cj.launch) {
       const [ly, lm, ld] = _cj.launch.split('-').map(Number);
       CALENDAR_LAUNCH = new Date(ly, lm - 1, ld);
     }
   } catch (e) { CALENDAR = {}; }
+  // Chaque journée depuis la bascule, jusqu'à aujourd'hui : le mode « Rejouer » et la
+  // validation de ?jour= continuent de n'y lire que des journées, sans rien savoir du tirage.
+  try {
+    if (typeof LPTirage !== 'undefined' && _cj.bascule) {
+      const _t = LPTirage.preparer(raw, SIL_FOCUS_MAP, _cj);
+      const _fin = LPTirage.numJour(_isoKey(_parisDate()));
+      for (let n = LPTirage.numJour(_cj.bascule); n <= _fin; n++) {
+        const iso = LPTirage.isoDe(n);
+        CALENDAR[iso] = LPTirage.jour(_t, iso);
+      }
+    }
+  } catch (e) { console.warn('tirage des réponses :', e); }
 
   // Journée rejouée : lue APRÈS le calendrier (qui sert à la valider), AVANT les cibles.
   REPLAY_DATE = _parseReplayParam();
@@ -221,36 +235,14 @@ async function loadGameData() {
   TARGET_FRU = _resolve(FRUITS,       71, _day && _day.fruit,  _byName);   // Fruit du Démon
   TARGET_EM  = _resolve(EMOJI_POOL,  137, _day && _day.emoji,  _byName);   // Émoji
   TARGET_AU  = _resolve(OPENINGS,     53, _day && _day.audio, (o, v) => o.id === v);
-  TOMES      = raw.TOMES || [];
   TARGET_TOME = _resolve(TOMES,      181, _day && _day.tome,  (n, v) => n === v);
   // Centre du gros plan : déterministe, bridé loin des bords (18..82 %)
   const _z = dailySeed(191);
   TOME_ZOOM  = { x: 18 + (_z % 64), y: 18 + ((_z >>> 8) % 64) };
 
-  // Mode Silhouette : pool = personnages ayant une silhouette générée (= clés de focus.json).
-  // Certains persos (sans bonne image) n'ont pas de silhouette → exclus du pool.
-  try {
-    const _fr = await fetch('/silhouettes/focus.json', { cache: 'no-cache' });
-    SIL_FOCUS_MAP = _fr.ok ? await _fr.json() : {};
-  } catch (e) { SIL_FOCUS_MAP = {}; }
-  SIL_POOL = CHARACTERS.filter(c => {
-    const k = Array.isArray(c.img) ? c.img[0] : c.img;
-    return k && SIL_FOCUS_MAP[k];
-  });
   TARGET_SIL = SIL_POOL.length
     ? _resolve(SIL_POOL, 211, _day && _day.silhouette, _byName)   // salt premier dédié
     : null;
-
-  // Override anniversaire Classique : 30 % de chances si un personnage fête son anniv aujourd'hui.
-  // Déterministe — même seed → même décision à chaque rechargement.
-  // Ignoré quand le calendrier a fourni la réponse : elle l'intègre déjà (gen_calendar.py).
-  const _bdayChars = (_day && _day.classic) ? [] : getTodayBirthdays(REPLAY_DATE || undefined);
-  if (_bdayChars.length) {
-    // Salt 7 (≠ salt 1 du classique) : décision indépendante du choix de base
-    if (dailySeed(7) % 10 < 3) {
-      // Si plusieurs anniversaires le même jour, on en prend un via seed
-      TARGET_C = _bdayChars[dailySeed(11) % _bdayChars.length];
-    }
-  }
-
+  // L'ancien « 30 % de chances au Classique le jour d'un anniversaire » a disparu avec la
+  // v8.1 : c'est le tirage qui place désormais le personnage, dans un mode tiré au sort.
 }

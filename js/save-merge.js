@@ -30,6 +30,14 @@
   const RE_COUNTED = new RegExp('^op-day-counted-' + DAY + '$');
   const RE_STATS   = /^op-stats-([a-z]+)$/;
 
+  // Clé de journée → numéro de jour, pour COMPARER des dates. Sans zéro de
+  // remplissage, la comparaison en texte était fausse : « 2026-9-9 » passait
+  // après « 2026-9-25 », et septembre après octobre.
+  function dayNum(k) {
+    const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(String(k || ''));
+    return m ? Math.round(Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000) : -Infinity;
+  }
+
   // Clés volontairement NON synchronisées : elles décrivent l'appareil, pas la
   // progression. Un réglage de taille de texte fait sur un téléphone n'a rien à
   // faire sur un écran de bureau, et « le site a changé de thème tout seul » est
@@ -232,10 +240,22 @@
       if (!isObj(a)) { if (isObj(b)) out[k] = B[k]; return; }
       if (!isObj(b)) { out[k] = A[k]; return; }
       const merged = Object.assign({}, num(b.played) > num(a.played) ? b : a);
-      merged.maxStreak = Math.max(num(a.maxStreak), num(b.maxStreak));
-      // La série EN COURS appartient au camp qui a joué le plus récemment.
-      const recent = String(b.lastDate || '') > String(a.lastDate || '') ? b : a;
-      merged.currentStreak = num(recent.currentStreak);
+      // La série EN COURS appartient au camp qui a joué le plus récemment,
+      // comparé en dates (voir dayNum).
+      const da = dayNum(a.lastDate), db = dayNum(b.lastDate);
+      const recent = db > da ? b : a, autre = recent === b ? a : b;
+      let serie = num(recent.currentStreak);
+      if (da === db) {
+        serie = Math.max(num(a.currentStreak), num(b.currentStreak));
+      } else if (serie > 0 && Math.abs(db - da) === 1) {
+        // Victoire la veille d'un côté, le lendemain de l'autre : c'est la MÊME
+        // série. Un appareil qui a joué avant d'avoir reçu la veille repart de
+        // trop bas ; sa victoire prolonge la série de l'autre camp, elle ne la
+        // remplace pas (vu en prod le 25/09/2026 : une série passée de 19 à 18).
+        serie = Math.max(serie, num(autre.currentStreak) + 1);
+      }
+      merged.currentStreak = serie;
+      merged.maxStreak = Math.max(num(a.maxStreak), num(b.maxStreak), serie);
       merged.lastDate = recent.lastDate || null;
       out[k] = JSON.stringify(merged);
     });
@@ -328,5 +348,22 @@
     return [...set].sort((x, y) => (pad(x) < pad(y) ? -1 : pad(x) > pad(y) ? 1 : 0));
   }
 
-  return { mergeSaves, daySlice, aggSlice, daysOf, LOCAL_ONLY, SYNC_KEYS };
+  // Deux tranches de journée disent-elles la même chose ? On compare le CONTENU,
+  // pas le texte : la fusion reconstruit op-score / op-result dans l'ordre où elle
+  // croise les modes (localStorage.key() rend les clés dans un ordre libre), pas
+  // dans l'ordre où ils ont été joués. Comparés en texte, deux contenus identiques
+  // passaient pour différents, et le jeu rechargeait la page à chaque retour sur
+  // l'onglet (signalé par le propriétaire le 26/09/2026).
+  function canon(v) {
+    if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+    if (isObj(v)) return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}';
+    return JSON.stringify(v);
+  }
+  function sameSlice(a, b) {
+    const ka = Object.keys(a || {}).sort(), kb = Object.keys(b || {}).sort();
+    if (ka.length !== kb.length || ka.some((k, i) => k !== kb[i])) return false;
+    return ka.every(k => a[k] === b[k] || canon(parse(a[k], a[k])) === canon(parse(b[k], b[k])));
+  }
+
+  return { mergeSaves, daySlice, aggSlice, daysOf, sameSlice, LOCAL_ONLY, SYNC_KEYS };
 });
