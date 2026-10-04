@@ -85,6 +85,15 @@ console.log('\n— 5. Arcs sur les vraies fiches —');
      'deux persos de films → vert');
   ok(verdict(computeVerdicts(C['Marco'], C['Edward Newgate']).arc, 'wrong', '⬇️'),
      'Marco proposé quand la réponse est Barbe Blanche → ⬇️ (inchangé)');
+
+  console.log('\n— Dragons Célestes : rattachés au Gouvernement Mondial (04/10/2026) —');
+  const affil = (a, b) => computeVerdicts(C[a], C[b]).affil;
+  ok(affil('Saint Charlos', 'Saint Marcus Mars') === 'partial', 'Charlos contre un Doyen → orange');
+  ok(affil('Saint Charlos', 'Saint Killingham') === 'partial', 'Charlos contre un Chevalier Divin → orange');
+  ok(affil('Saint Charlos', 'Marco') === 'wrong', 'Charlos contre un pirate → rouge');
+  ok(affil('Saint Charlos', 'Saint Charlos') === 'correct', 'Charlos contre lui-même → vert');
+  ok(computeVerdicts(C['Saint Charlos'], C['Saint Marcus Mars']).origin === 'correct',
+     'Charlos et les Doyens partagent l\'origine Mary Geoise → vert');
 }
 
 console.log(`\n=== RÉSULTAT : ${passed} PASS, ${failed} FAIL ===`);

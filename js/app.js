@@ -1135,8 +1135,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=398`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=398`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=400`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=400`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -3319,6 +3319,7 @@ const CHANGELOG = [
     t('👥 20 nouveaux personnages rejoignent le jeu (dont Hattori, Chimney et Nezumi)'),
     t('👤 18 silhouettes et 5 fruits du démon de plus'),
     t('📚 Le tome 113 rejoint le mode Tome'),
+    t('🫧 Saint Charlos rejoint le jeu, silhouette comprise, à la demande d\'un joueur qui l\'adore. On ne juge pas'),
     t('🔄 Revenir sur l\'onglet du jeu ne recharge plus la page quand un compte est connecté'),
   ] },
   { v: '8.0', date: t('Septembre 2026'), items: [

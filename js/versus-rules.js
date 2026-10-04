@@ -99,7 +99,8 @@
   // différentes) comptent comme correspondance PARTIELLE — les Chevaliers Divins
   // sont une branche du Gouvernement Mondial, donc « presque ». Sans cette règle
   // la comparaison par mots ne trouverait aucun terme commun (→ rouge à tort).
-  const WORLD_GOV = new Set(['Gouvernement Mondial', 'Chevaliers Divins']);
+  // Les Dragons Célestes (Saint Charlos, 04/10/2026) y sont rattachés de même.
+  const WORLD_GOV = new Set(['Gouvernement Mondial', 'Chevaliers Divins', 'Dragons Célestes']);
 
   // Mots trop génériques pour rapprocher deux équipages. « barbe » en fait partie :
   // c'est un descriptif, pas une appartenance — sans lui, Barbe Blanche et Barbe Noire,
