@@ -551,11 +551,26 @@ FOOT_LINKS = [
 ]
 
 
+# Pages d'arcs (/arcs/, générées par tools/arcs/gen_arcs.py) : en français
+# seulement, d'où le « (FR) » du libellé anglais. Le lien suit « Le projet ».
+ARCS_LINK = dict(fr='Les arcs', en='Story arcs (FR)')
+
+# Badge dles.gg, demandé par le propriétaire : code fourni par dles.gg, sur une
+# ligne à part sous les liens légaux (CSS : .foot-badge-line dans base.css).
+BADGE_ALT = dict(fr='Noter Logpose sur DLES.gg', en='Rate Logpose on DLES.gg')
+BADGE = ('<div class="foot-badge-line"><a class="foot-badge" href="https://dles.gg/game/logpose?ref=owners-badge" '
+         'target="_blank" rel="noopener"><img src="https://dles.gg/api/button?game=logpose&type=rate-us&radiusPx=24'
+         '&textColor=F0C33A&bgColor=0B1C2C&font=Space+Mono" alt="%s" style="width: 210px; height: 50px;" '
+         'width="210" height="50" loading="lazy" /></a></div>')
+
+
 def foot_html(lang='fr'):
-    """Bloc de liens légaux du pied de page, dans la langue demandée."""
+    """Bloc de liens légaux du pied de page (+ badge dles.gg), dans la langue demandée."""
     parts = []
     for l in FOOT_LINKS:
         d = BY_ID[l['id']]
         href = '/%s/' % d['fr_slug'] if lang == 'fr' else '/en/%s/' % d['en_slug']
         parts.append('<a href="%s">%s</a>' % (href, l[lang]))
-    return '<span class="foot-legal">%s</span>' % ' · '.join(parts)
+        if l['id'] == 'about':
+            parts.append('<a href="/arcs/">%s</a>' % ARCS_LINK[lang])
+    return ('<span class="foot-legal">%s</span>\n' % ' · '.join(parts)) + BADGE % BADGE_ALT[lang]

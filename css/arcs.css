@@ -1,0 +1,68 @@
+/* arcs.css : pages /arcs/<slug>/. Uniquement les variables de base.css,
+   le thème clair/sombre suit tout seul (comme doc.css). Sobre, doré, aligné à gauche. */
+
+.arc-fil { font-size: var(--fs-sm, .9rem); margin: 0 0 .6rem; }
+
+.doc h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.02rem, 2.2vw, 1.15rem);
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--gold-l);
+  margin: 1.5rem 0 .4rem;
+}
+
+/* L'arc en bref : la page se lit en dix secondes, le reste est pour qui veut le détail. */
+.arc-bref {
+  margin: 0 0 2rem;
+  padding: .9rem 1.1rem;
+  border: 1px solid var(--lb-hair-2);
+  border-radius: 6px;
+  max-width: 68ch;
+}
+.arc-bref h2 { margin: 0 0 .6rem; padding: 0; border: 0; font-size: 1rem; }
+.arc-bref dl, .arc-carte dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: .3rem 1rem;
+  margin: 0;
+}
+.arc-bref dt, .arc-carte dt {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: .82rem;
+  color: var(--gold);
+  padding-top: .15em;
+}
+.arc-bref dd, .arc-carte dd { margin: 0; color: var(--text2); line-height: 1.45; min-width: 0; }
+
+/* Fiches des débuts : une carte par perso, deux colonnes sur écran large. */
+.doc .arc-cartes {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: .8rem;
+  max-width: none;
+}
+.doc .arc-cartes li { margin: 0; }
+.arc-carte {
+  padding: .8rem 1rem;
+  border-top: 2px solid var(--gold);
+  background: var(--lb-hair);
+  border-radius: 0 0 6px 6px;
+  min-width: 0;
+}
+.arc-carte h3 { margin: 0; color: var(--gold-l); }
+.arc-carte__epi { display: block; font-size: .88rem; color: var(--text2); margin: .1rem 0 .55rem; font-style: italic; }
+.arc-carte dd { font-size: .92rem; }
+
+.arc-nav { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; }
+
+/* Sommaire /arcs/ */
+.doc .arc-som { padding-left: 1.6rem; }
+.doc .arc-som li { margin-bottom: .35rem; }
+.arc-som__meta { color: var(--text2); opacity: .75; font-size: .9em; white-space: nowrap; }
+@media (max-width: 480px) { .arc-som__meta { display: block; white-space: normal; } }

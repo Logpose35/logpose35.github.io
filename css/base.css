@@ -442,3 +442,6 @@ body.size-large  { zoom: 1.22; }
   color: var(--gold);
   border-bottom-color: var(--lb-hair-2);
 }
+/* Badge dles.gg (03/11/2026) : sa propre ligne sous les liens légaux, même alignement qu'eux. */
+.foot-badge-line { display: block; margin-top: 0.5rem; line-height: 0; }
+.foot-badge { display: inline-block; }

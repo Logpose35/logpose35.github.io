@@ -355,6 +355,9 @@
     return (typeof CHARACTERS !== 'undefined' ? CHARACTERS : []).filter(c => c.arc === arc);
   }
 
+  // Slug de la page /arcs/<slug>/ de chaque arc (index = arc dans ARCS ; 0 = Filler, sans page)
+  const ARC_SLUGS = ["", "romance-dawn", "orange-town", "syrup-village", "baratie", "arlong-park", "loguetown", "reverse-mountain", "whisky-peak", "little-garden", "drum-island", "alabasta", "jaya", "skypiea", "long-ring-long-land", "water-7", "enies-lobby", "post-enies-lobby", "thriller-bark", "sabaody", "amazon-lily", "impel-down", "marineford", "post-guerre", "fish-man-island", "punk-hazard", "dressrosa", "zou", "whole-cake-island", "reverie", "wano", "egghead", "elbaf"];
+
   function openDossier(isl) {
     const panel = document.getElementById('map-dossier');
     if (!panel || !isl) return;
@@ -388,6 +391,10 @@
       +   '<span class="jm-dossier-capture">' + tf('🎯 {0} / {1} capturés', nCap, chars.length) + '</span>'
       +   '<span class="jm-dossier-community" id="jm-community">👥 …</span>'
       + '</div>'
+      // Pages d'arcs en français seulement : pas de lien sur /en/ ni pour la zone Filler
+      + ((/^fr/.test(document.documentElement.lang) && isl.arc >= 1 && ARC_SLUGS[isl.arc])
+          ? '<a class="jm-dossier-lire" href="/arcs/' + ARC_SLUGS[isl.arc] + '/">Lire l\'histoire de l\'arc</a>'
+          : '')
       + '<div class="jm-dossier-grid">'
       +   (cards || ('<div class="jm-dossier-empty">' + t('Aucun personnage référencé pour cet arc.') + '</div>'))
       + '</div>';
