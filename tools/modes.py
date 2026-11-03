@@ -71,7 +71,7 @@ DAILY_IDS = [m['id'] for m in MODES if m['id'] != 'inf']
 SEO = {
 
     'classic': dict(
-        title='OnePiecedle Classique — le personnage One Piece du jour · LogPose',
+        title='Deviner le personnage One Piece du jour · OnePiecedle Classique · LogPose',
         desc='OnePiecedle Classique : deviner le personnage One Piece du jour en croisant genre, '
              'affiliation, origine, fruit du démon, haki et prime. 10 essais, gratuit.',
         og_title='OnePiecedle · Classique — le personnage One Piece du jour',
@@ -147,7 +147,7 @@ SEO = {
     ),
 
     'silhouette': dict(
-        title='OnePiecedle Silhouette — le personnage du jour à sa forme · LogPose',
+        title='Silhouette One Piece : reconnaître le personnage du jour · OnePiecedle · LogPose',
         desc='OnePiecedle Silhouette : un gros plan sur le contour d\'un personnage One Piece, qui '
              's\'élargit à chaque erreur. 10 essais et un indice couleur au cinquième.',
         og_title='OnePiecedle · Silhouette — reconnaître le personnage à sa forme',

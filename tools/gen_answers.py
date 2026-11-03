@@ -249,7 +249,7 @@ def build(lang):
         'other_url': PATH['en' if lang == 'fr' else 'fr'],   # relatif : testable en local
         'other_lbl': 'EN' if lang == 'fr' else 'FR',
         'other_aria': esc('Switch to English' if lang == 'fr' else 'Passer en français'),
-        'title': esc(T('OnePiecedle — réponses des journées passées et archive · LogPose', lang)),
+        'title': esc(T("Réponses OnePiecedle (One Piece Dle) : l'archive jour par jour · LogPose", lang)),
         'desc': esc(T("L'archive complète des réponses OnePiecedle, jour par jour et rejouable. "
                       "Les réponses d'une journée sont publiées le lendemain.", lang)),
         'h1': esc(T('OnePiecedle : les réponses des journées passées', lang)),
