@@ -571,7 +571,10 @@
 
   function audioStart(clue) {
     if (!auEl || !isFinite(auEl.duration) || auEl.duration <= 0) return 0;
-    return (clue.offsetFrac || 0) * Math.max(0, auEl.duration - (clue.longest || 16));
+    // `end` (data.json) = fin audible d'un MP3 qui finit sur un long silence (Opening 29).
+    const op = (typeof OPENINGS !== 'undefined' && OPENINGS || []).find(o => o.id === clue.openingId);
+    const audible = op && op.end > 0 ? Math.min(auEl.duration, op.end) : auEl.duration;
+    return (clue.offsetFrac || 0) * Math.max(0, audible - (clue.longest || 16));
   }
   function stopAudio() {
     clearTimeout(auTimer); auTimer = null; auPlaying = false;

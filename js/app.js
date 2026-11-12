@@ -1135,8 +1135,8 @@ const SIL_SCALES  = [3.2, 2.6, 2.1, 1.75, 1.5, 1.35, 1.25, 1.15, 1.07, 1];
 const SIL_HINT_AT = 5;   // l'indice couleur se débloque à partir du 5e essai
 
 function silFile(char)      { return Array.isArray(char.img) ? char.img[0] : char.img; }
-function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=402`; }
-function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=402`; }
+function silSrc(char)       { return `${ASSET_BASE}silhouettes/${silFile(char)}.png?v=403`; }
+function silColorSrc(char)  { return `${ASSET_BASE}silhouettes/color/${silFile(char)}.png?v=403`; }
 function silFocus() {
   const f = (typeof SIL_FOCUS_MAP !== 'undefined') && SIL_FOCUS_MAP[silFile(TARGET_SIL)];
   return (f && f.length === 2) ? { x: f[0], y: f[1] } : { x: 0.5, y: 0.18 };
@@ -2168,7 +2168,10 @@ let _auTimer   = null;
 function auStartOffset(audio) {
   if (!audio || !isFinite(audio.duration) || audio.duration <= 0) return 0;
   const longest  = AUDIO_DURATIONS[AUDIO_DURATIONS.length - 1];
-  const maxStart = Math.max(0, audio.duration - longest);
+  // `end` (data.json) = fin de la partie audible quand le MP3 traîne un long silence
+  // (Opening 29 : muet de 87 s à 125 s → extraits du jour sans aucun son, 12/11/2026).
+  const audible  = TARGET_AU && TARGET_AU.end > 0 ? Math.min(audio.duration, TARGET_AU.end) : audio.duration;
+  const maxStart = Math.max(0, audible - longest);
   const frac     = dailySeed(AU_OFFSET_SALT) / 4294967296; // [0, 1[
   return frac * maxStart;
 }
