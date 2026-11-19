@@ -1,0 +1,56 @@
+# Archive publique des réponses (/reponses/ et /en/answers/), régénérée chaque nuit.
+# gen_answers.py ne publie jamais la journée en cours : la coupure se calcule
+# avec la date locale, d'où TZ=Europe/Paris.
+name: Archive des reponses
+
+on:
+  schedule:
+    # 23:30 UTC = 00:30 à Paris en hiver, 01:30 en été : toujours après minuit.
+    - cron: '30 23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: archive-reponses
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Paris
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generer l'archive
+        run: |
+          date
+          python tools/gen_answers.py
+
+      - name: Verifier que seules les pages de l'archive ont change
+        run: |
+          autres=$(git status --porcelain | awk '{print $2}' | grep -v -x -e 'reponses/index.html' -e 'en/answers/index.html' || true)
+          if [ -n "$autres" ]; then
+            echo "Fichiers inattendus modifies, rien n'est pousse :"
+            echo "$autres"
+            exit 1
+          fi
+
+      - name: Commit et push
+        run: |
+          if git diff --quiet -- reponses/ en/answers/; then
+            echo "Rien a publier"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- reponses/ en/answers/
+          git commit -m "Archive des reponses $(date +%d/%m)"
+          git push origin HEAD:main
